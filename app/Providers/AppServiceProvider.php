@@ -2,9 +2,10 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,13 +22,56 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Bagikan data user ke semua view
+        // Share user, roles, dan permissions ke semua view
         View::composer('*', function ($view) {
             if (Session::has('user')) {
-                $view->with('user', Session::get('user'));
+                $user = Session::get('user');
+                $roles = $user['roles'] ?? [];
+                $permissions = $user['permissions'] ?? [];
+
+                $view->with([
+                    'user' => $user,
+                    'role' => $roles,
+                    'permission' => $permissions,
+                ]);
             } else {
-                $view->with('user', null); // Opsional: jika tidak login
+                $view->with([
+                    'user' => null,
+                    'role' => [],
+                    'permission' => [],
+                ]);
             }
+        });
+
+        // 🔸 Custom Blade directive untuk permission
+        Blade::if('canApi', function ($permission) {
+            $permissions = Session::get('user.permission', []);
+            return in_array($permission, $permissions);
+        });
+
+        // 🔸 canAnyApi: true jika salah satu permission ada
+        Blade::if('canAnyApi', function (...$permissions) {
+            $userPermissions = Session::get('user.permission', []);
+
+            foreach ($permissions as $p) {
+                if (in_array($p, $userPermissions)) {
+                    return true;
+                }
+            }
+
+            return false;
+        });
+
+        // 🔸 Custom Blade directive untuk role
+        Blade::if('hasRole', function ($role) {
+            $roles = Session::get('user.role', []);
+            return in_array($role, $roles);
+        });
+
+        // 🔸 Custom Blade directive kebalikannya (jika tidak punya permission)
+        Blade::if('cannotApi', function ($permission) {
+            $permissions = Session::get('user.permission', []);
+            return !in_array($permission, $permissions);
         });
     }
 }

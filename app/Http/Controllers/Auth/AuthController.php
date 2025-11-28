@@ -49,7 +49,7 @@ class AuthController extends Controller
                     'access_token' => $tokenData['access_token'],
                     'refresh_token' => $tokenData['refresh_token'],
                     'expires_at' => time() + $tokenData['expires_in'],
-                    'user' => $tokenData['user'],
+                    // 'user' => $tokenData['user'],
                 ]);
 
                 return redirect()->intended('/');
@@ -67,21 +67,33 @@ class AuthController extends Controller
     {
         $token = session('access_token');
 
+        // Jika belum login, arahkan ke halaman login
         if (!$token) {
             return redirect()->route('login');
         }
 
-        $response = Http::withToken($token)->get($this->apiUrl . 'auth/me');
-
-        if ($response->successful()) {
-            $user = $response->json();
-
-            return view('admin.dashboard.index', compact('user'));
+        // Cek apakah data user sudah ada di session
+        if (session()->has('user')) {
+            $user = session('user');
         } else {
-            Session::flush();
-            return redirect()->route('login')->with('error', 'Gagal mengambil data pengguna.');
+            // Jika belum, panggil endpoint auth/me
+            $response = Http::withToken($token)->get($this->apiUrl . 'auth/me');
+
+            if ($response->successful()) {
+                $user = $response->json();
+
+                // Simpan data user ke session
+                session(['user' => $user['user']]);
+            } else {
+                // Jika gagal (misal token invalid), hapus session dan arahkan ke login
+                Session::flush();
+                return redirect()->route('login')->with('error', 'Gagal mengambil data pengguna.');
+            }
         }
+
+        return view('admin.dashboard.index', compact('user'));
     }
+
 
     // Logout
     public function logout()

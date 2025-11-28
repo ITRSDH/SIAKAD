@@ -21,7 +21,7 @@ class KurikulumController extends Controller
     {
         try {
             // Ambil data kurikulum dari API
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . 'all-kurikulum');
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl . 'kurikulum');
             if (!$response->successful()) {
                 return back()->with('error', 'Gagal mengambil data All Kurikulum dari API');
             }

@@ -21,7 +21,7 @@ class ProdiController extends Controller
     {
         try {
             // Ambil data prodi dari API
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . 'all-prodi');
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl . 'prodi');
             if (!$response->successful()) {
                 return back()->with('error', 'Gagal mengambil data All Program Studi dari API');
             }

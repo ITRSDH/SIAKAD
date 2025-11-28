@@ -21,7 +21,7 @@ class MataKuliahController extends Controller
     {
         try {
             // Ambil semua data master dalam satu API call
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . 'all-mata-kuliah');
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl . 'mata-kuliah');
             if (!$response->successful()) {
                 return back()->with('error', 'Gagal mengambil data master dari API');
             }

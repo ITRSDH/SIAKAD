@@ -37,6 +37,25 @@
     <!-- CSS Just for demo purpose, don't include it in your project -->
     <link rel="stylesheet" href="{{ asset('') }}template/assets/css/demo.css" />
 
+    {{-- Waktu Jam Digital --}}
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const element = document.getElementById("waktu");
+            setInterval(() => {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString();
+                const dateString = now.toLocaleDateString('id-ID', {
+                    weekday: 'long',
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric'
+                });
+
+                element.innerText = `${dateString}, ${timeString}`;
+            }, 1000);
+        });
+    </script>
+
     @stack('styles-custom')
 </head>
 

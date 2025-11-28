@@ -133,12 +133,15 @@
                         {{-- <h2 class="auth-title text-center">SIAKAD STIKES DIAN HUSADA</h2> --}} <!-- Masih dikomentari -->
                         <p class="auth-subtitle text-center">Silakan masukkan kredensial Anda.</p>
 
-                        @if (session('error'))
+                        @if ($errors->any())
                             <div class="alert alert-danger">
-                                {{ session('error') }}
+                                <ul class="mb-0">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
                             </div>
                         @endif
-
                         <form method="POST" action="{{ route('login') }}">
                             @csrf
                             <div class="mb-4 position-relative">
@@ -159,7 +162,7 @@
             </div>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js    "></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

@@ -21,7 +21,7 @@ class KelasPararelController extends Controller
     {
         try {
             // Ambil data prodi dari API
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . 'all-kelas-pararel');
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl . 'kelas-pararel');
             if (!$response->successful()) {
                 return back()->with('error', 'Gagal mengambil data All Kelas Pararel dari API');
             }

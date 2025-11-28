@@ -21,7 +21,7 @@ class SemesterController extends Controller
     {
         try {
             // Ambil data semester dari API
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . 'all-semester');
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl . 'semester');
             if (!$response->successful()) {
                 return back()->with('error', 'Gagal mengambil data All Semester dari API');
             }

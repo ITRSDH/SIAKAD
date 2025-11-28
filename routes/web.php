@@ -8,10 +8,13 @@ use App\Http\Controllers\MasterData\SemesterController;
 use App\Http\Controllers\MasterData\KurikulumController;
 use App\Http\Controllers\MasterData\JenisKelasController;
 use App\Http\Controllers\MasterData\MataKuliahController;
+use App\Http\Controllers\ManagementPengguna\RoleController;
+use App\Http\Controllers\ManagementPengguna\UserController;
 use App\Http\Controllers\MasterData\KelasPararelController;
 use App\Http\Controllers\MasterData\TahunAkademikController;
 use App\Http\Controllers\MasterData\JenisPembayaranController;
 use App\Http\Controllers\MasterData\JenjangPendidikanController;
+use App\Http\Controllers\ManagementPengguna\PermissionController;
 
 Route::middleware(['guest.token'])->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -27,7 +30,22 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
     Route::get('/', [AuthController::class, 'dashboard'])->name('dashboard');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-    // Route::resource('jenjang-pendidikan', JenjangPendidikanController::class);
+    Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    Route::post('/users', [UserController::class, 'store'])->name('users.store');
+    Route::get('/users/{id}', [UserController::class, 'show'])->name('users.show');
+    Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
+    Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
+
+    Route::get('/roles', [RoleController::class, 'index'])->name('roles.index');
+    Route::post('/roles', [RoleController::class, 'store'])->name('roles.store');
+    Route::get('/roles/{id}', [RoleController::class, 'show'])->name('roles.show');
+    Route::put('/roles/{id}', [RoleController::class, 'update'])->name('roles.update');
+    Route::delete('/roles/{id}', [RoleController::class, 'destroy'])->name('roles.destroy');
+
+    Route::get('/permissions', [PermissionController::class, 'index'])->name('permissions.index');
+    Route::post('/permissions/sync', [PermissionController::class, 'sync'])->name('permissions.sync');
+    Route::delete('/permissions/{id}', [PermissionController::class, 'destroy'])->name('permissions.destroy');
+
     Route::get('/jenjang-pendidikan', [JenjangPendidikanController::class, 'index'])->name('jenjang-pendidikan.index');
     Route::post('/jenjang-pendidikan', [JenjangPendidikanController::class, 'store'])->name('jenjang-pendidikan.store');
     Route::get('/jenjang-pendidikan/{id}', [JenjangPendidikanController::class, 'show'])->name('jenjang-pendidikan.show');

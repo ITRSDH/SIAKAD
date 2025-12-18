@@ -41,14 +41,54 @@
                 <li class="nav-item active">
                     <a data-bs-toggle="collapse" href="#masterwebsite" class="collapsed" aria-expanded="false">
                         <i class="fas fa-home"></i>
-                        <p>Menu Website</p>
+                        <p>Menu Landing</p>
                         <span class="caret"></span>
                     </a>
                     <div class="collapse" id="masterwebsite">
                         <ul class="nav nav-collapse">
                             <li>
-                                <a href="#">
-                                    <span class="sub-item">Website</span>
+                                <a href="{{ route('pengumuman.index') }}">
+                                    <span class="sub-item">Pengumuman</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('prestasi.index') }}">
+                                    <span class="sub-item">Prestasi</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('beasiswa.index') }}">
+                                    <span class="sub-item">Beasiswa</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('berita.index') }}">
+                                    <span class="sub-item">Berita</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('galeri.index') }}">
+                                    <span class="sub-item">Galeri</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('faq.index') }}">
+                                    <span class="sub-item">Faq</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('landing-content.index')}}">
+                                    <span class="sub-item">Landing Content</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('ormawa.index')}}">
+                                    <span class="sub-item">Ormawa</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('profile-kampus.index')}}">
+                                    <span class="sub-item">Profile Kampus</span>
                                 </a>
                             </li>
 
@@ -113,11 +153,13 @@
                                                     Pararel</span></a></li>
                                         <li><a href="#"><span class="sub-item">Kelas Mata Kuliah</span></a></li>
                                         <li><a href="#"><span class="sub-item">Jadwal Kuliah</span></a></li>
-                                        <li><a href="#"><span class="sub-item">Presensi Mahasiswa</span></a></li>
+                                        <li><a href="#"><span class="sub-item">Presensi Mahasiswa</span></a>
+                                        </li>
                                         <li><a href="#"><span class="sub-item">Nilai Mahasiswa</span></a></li>
                                         <li><a href="#"><span class="sub-item">Kartu Rencana Studi
                                                     (KRS)</span></a></li>
-                                        <li><a href="#"><span class="sub-item">Kartu Hasil Studi (KHS)</span></a>
+                                        <li><a href="#"><span class="sub-item">Kartu Hasil Studi
+                                                    (KHS)</span></a>
                                         </li>
                                         <li><a href="#"><span class="sub-item">Wali Kelas</span></a></li>
                                         <li><a href="#"><span class="sub-item">Status Akademik</span></a></li>
@@ -221,12 +263,10 @@
                             @canApi('pengguna.setting.roles.index')
                             <li><a href="{{ route('roles.index') }}"><span class="sub-item">Role</span></a></li>
                             @endcanApi
-
                             @canApi('pengguna.setting.permissions.index')
                             <li><a href="{{ route('permissions.index') }}"><span
                                         class="sub-item">Permission</span></a></li>
                             @endcanApi
-
                         </ul>
                     </div>
                 </li>

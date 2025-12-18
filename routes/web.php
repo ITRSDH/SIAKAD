@@ -15,6 +15,16 @@ use App\Http\Controllers\MasterData\TahunAkademikController;
 use App\Http\Controllers\MasterData\JenisPembayaranController;
 use App\Http\Controllers\MasterData\JenjangPendidikanController;
 use App\Http\Controllers\ManagementPengguna\PermissionController;
+// Route Website
+use App\Http\Controllers\Website\PengumumanController;
+use App\Http\Controllers\Website\PrestasiController;
+use App\Http\Controllers\Website\BeasiswaController;
+use App\Http\Controllers\Website\BeritaController;
+use App\Http\Controllers\Website\GaleriController;
+use App\Http\Controllers\Website\FaqController;
+use App\Http\Controllers\Website\LandingContentController;
+use App\Http\Controllers\Website\OrmawaController;
+use App\Http\Controllers\Website\ProfileKampusController;
 
 Route::middleware(['guest.token'])->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -109,4 +119,72 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
     Route::get('/jenis-pembayaran/{id}', [JenisPembayaranController::class, 'show'])->name('jenis-pembayaran.show');
     Route::put('/jenis-pembayaran/{id}', [JenisPembayaranController::class, 'update'])->name('jenis-pembayaran.update');
     Route::delete('/jenis-pembayaran/{id}', [JenisPembayaranController::class, 'destroy'])->name('jenis-pembayaran.destroy');
+
+    // Route Pengumuman
+    Route::get('/pengumuman', [PengumumanController::class, 'index'])->name('pengumuman.index');
+    Route::get('/pengumuman/datatable', [PengumumanController::class, 'datatable'])->name('pengumuman.datatable');
+    Route::post('/pengumuman', [PengumumanController::class, 'store'])->name('pengumuman.store');
+    Route::get('/pengumuman/{id}', [PengumumanController::class, 'show'])->name('pengumuman.show');
+    Route::put('/pengumuman/{id}', [PengumumanController::class, 'update'])->name('pengumuman.update');
+    Route::delete('/pengumuman/{id}', [PengumumanController::class, 'destroy'])->name('pengumuman.destroy');
+
+    // Route Prestasi
+    Route::get('/prestasi', [PrestasiController::class, 'index'])->name('prestasi.index');
+    Route::get('/prestasi/datatable', [PrestasiController::class, 'datatable'])->name('prestasi.datatable');
+    Route::post('/prestasi', [PrestasiController::class, 'store'])->name('prestasi.store');
+    Route::get('/prestasi/{id}', [PrestasiController::class, 'show'])->name('prestasi.show');
+    Route::put('/prestasi/{id}', [PrestasiController::class, 'update'])->name('prestasi.update');
+    Route::delete('/prestasi/{id}', [PrestasiController::class, 'destroy'])->name('prestasi.destroy');
+
+    // Route Beasiswa
+    Route::get('/beasiswa', [BeasiswaController::class, 'index'])->name('beasiswa.index');
+    Route::get('/beasiswa/datatable', [BeasiswaController::class, 'datatable'])->name('beasiswa.datatable');
+    Route::post('/beasiswa', [BeasiswaController::class, 'store'])->name('beasiswa.store');
+    Route::get('/beasiswa/{id}', [BeasiswaController::class, 'show'])->name('beasiswa.show');
+    Route::put('/beasiswa/{id}', [BeasiswaController::class, 'update'])->name('beasiswa.update');
+    Route::delete('/beasiswa/{id}', [BeasiswaController::class, 'destroy'])->name('beasiswa.destroy');
+
+    // Route Berita
+    Route::get('/berita', [BeritaController::class, 'index'])->name('berita.index');
+    Route::get('/berita/datatable', [BeritaController::class, 'datatable'])->name('berita.datatable');
+    Route::post('/berita', [BeritaController::class, 'store'])->name('berita.store');
+    Route::get('/berita/{id}', [BeritaController::class, 'show'])->name('berita.show');
+    Route::put('/berita/{id}', [BeritaController::class, 'update'])->name('berita.update');
+    Route::delete('/berita/{id}', [BeritaController::class, 'destroy'])->name('berita.destroy');
+
+    // Route Galeri
+    Route::get('/galeri', [GaleriController::class, 'index'])->name('galeri.index');
+    Route::get('/galeri/datatable', [GaleriController::class, 'datatable'])->name('galeri.datatable');
+    Route::post('/galeri', [GaleriController::class, 'store'])->name('galeri.store');
+    Route::get('/galeri/{id}', [GaleriController::class, 'show'])->name('galeri.show');
+    Route::put('/galeri/{id}', [GaleriController::class, 'update'])->name('galeri.update');
+    Route::delete('/galeri/{id}', [GaleriController::class, 'destroy'])->name('galeri.destroy');
+
+    // Route FAQ
+    Route::get('/faq', [FaqController::class, 'index'])->name('faq.index');
+    Route::post('/faq', [FaqController::class, 'store'])->name('faq.store');
+    Route::get('/faq/{id}', [FaqController::class, 'show'])->name('faq.show');
+    Route::put('/faq/{id}', [FaqController::class, 'update'])->name('faq.update');
+    Route::delete('/faq/{id}', [FaqController::class, 'destroy'])->name('faq.destroy');
+
+    // Route Landing Content
+    Route::get('/landing', [LandingContentController::class, 'index'])->name('landing-content.index');
+    Route::post('/landing', [LandingContentController::class, 'store'])->name('landing-content.store');
+    Route::get('/landing/{id?}', [LandingContentController::class, 'show'])->name('landing-content.show');
+    Route::put('/landing/{id?}', [LandingContentController::class, 'update'])->name('landing-content.update');
+    Route::delete('/landing/{id?}', [LandingContentController::class, 'destroy'])->name('landing-content.destroy');
+
+    // Route Ormawa
+    Route::get('/ormawa', [OrmawaController::class, 'index'])->name('ormawa.index');
+    Route::post('/ormawa', [OrmawaController::class, 'store'])->name('ormawa.store');
+    Route::get('/ormawa/{id}', [OrmawaController::class, 'show'])->name('ormawa.show');
+    Route::put('/ormawa/{id}', [OrmawaController::class, 'update'])->name('ormawa.update');
+    Route::delete('/ormawa/{id}', [OrmawaController::class, 'destroy'])->name('ormawa.destroy');
+
+    // Route Profile Kampus
+    Route::get('/profile-kampus', [ProfileKampusController::class, 'index'])->name('profile-kampus.index');
+    Route::post('/profile-kampus', [ProfileKampusController::class, 'store'])->name('profile-kampus.store');
+    Route::get('/profile-kampus/{id?}', [ProfileKampusController::class, 'show'])->name('profile-kampus.show');
+    Route::put('/profile-kampus/{id?}', [ProfileKampusController::class, 'update'])->name('profile-kampus.update');
+    Route::delete('/profile-kampus/{id?}', [ProfileKampusController::class, 'destroy'])->name('profile-kampus.destroy');
 });

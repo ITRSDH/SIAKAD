@@ -25,45 +25,63 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
-    // Proses login
+    // Proses login (Web)
     public function login(Request $request)
     {
+        // Validasi input
         $request->validate([
-            'email' => 'required|email',
+            'username' => 'required', // email / nim / nup
             'password' => 'required',
+        ], [
+            'username.required' => 'Email / NIM / NUP wajib diisi.',
+            'password.required' => 'Password wajib diisi.',
         ]);
 
+        // Kirim ke API
         $response = Http::post($this->apiUrl . 'auth/login', [
-            'email' => $request->email,
+            'username' => $request->username,
             'password' => $request->password,
         ]);
 
         if ($response->successful()) {
             $data = $response->json();
 
-            // Pastikan struktur data API sesuai
-            if (isset($data['success']) && $data['success'] === true && isset($data['data'])) {
+            // Validasi struktur response API
+            if (
+                isset($data['success']) &&
+                $data['success'] === true &&
+                isset($data['data'])
+            ) {
                 $tokenData = $data['data'];
 
+                // Simpan token ke session
                 session([
                     'access_token' => $tokenData['access_token'],
                     'refresh_token' => $tokenData['refresh_token'],
                     'expires_at' => time() + $tokenData['expires_in'],
-                    // 'user' => $tokenData['user'],
+                    // 'user' => $tokenData['user'], // jika perlu
                 ]);
 
                 return redirect()->intended('/');
-            } else {
-                return back()->withErrors(['email' => 'Login failed: Invalid response from server.']);
             }
-        } else {
-            $error = $response->json()['error'] ?? 'Login failed';
-            return back()->withErrors(['email' => $error]);
+
+            return back()->withErrors([
+                'username' => 'Login gagal: respon server tidak valid.'
+            ]);
         }
+
+        // Jika API return error
+        $error = $response->json()['error']
+            ?? $response->json()['message']
+            ?? 'Login gagal';
+
+        return back()->withErrors([
+            'username' => $error
+        ]);
     }
 
-    // Dashboard
-    public function dashboard()
+
+    public function profile(Request $request)
     {
         $token = session('access_token');
 
@@ -72,26 +90,50 @@ class AuthController extends Controller
             return redirect()->route('login');
         }
 
-        // Cek apakah data user sudah ada di session
+        // --- Bagian 1: Ambil data user (dari session atau API) ---
         if (session()->has('user')) {
             $user = session('user');
         } else {
-            // Jika belum, panggil endpoint auth/me
             $response = Http::withToken($token)->get($this->apiUrl . 'auth/me');
 
             if ($response->successful()) {
-                $user = $response->json();
+                $apiData = $response->json();
 
-                // Simpan data user ke session
-                session(['user' => $user['user']]);
+                if ($apiData['success']) {
+                    $user = $apiData['user'];
+                    // Simpan *hanya* data user ke session, sesuai permintaan
+                    session(['user' => $user]);
+                } else {
+                    Session::flush();
+                    return redirect()->route('login')->with('error', 'Gagal mengambil data pengguna dari API.');
+                }
             } else {
-                // Jika gagal (misal token invalid), hapus session dan arahkan ke login
                 Session::flush();
-                return redirect()->route('login')->with('error', 'Gagal mengambil data pengguna.');
+                return redirect()->route('login')->with('error', 'Gagal mengambil data pengguna. (' . $response->status() . ')');
             }
         }
 
-        return view('admin.dashboard.index', compact('user'));
+        // --- Bagian 2: Ambil profile_type dan profile (dari API) ---
+        $profileResponse = Http::withToken($token)->get($this->apiUrl . 'auth/me');
+
+        if ($profileResponse->successful()) {
+            $apiData = $profileResponse->json();
+
+            if ($apiData['success']) {
+                $profile = $apiData['profile'];
+                $profileType = $apiData['profile_type'];
+            } else {
+                $profile = null;
+                $profileType = null;
+            }
+        } else {
+            Session::flush();
+            return redirect()->route('login')->with('error', 'Gagal mengambil data profil. (' . $profileResponse->status() . ')');
+        }
+
+        // Kirim data user (dari session), dan profile/profile_type (dari API terbaru) ke view
+        $profile_type = $profileType; // Alias untuk compact jika view mengharapkan $profile_type
+        return view('profile.index', compact('user', 'profile', 'profile_type'));
     }
 
 

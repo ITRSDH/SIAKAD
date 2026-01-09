@@ -80,7 +80,7 @@ class RoleController extends Controller
 
                 // dd($menu);
 
-                return view('admin.master.pengguna.setting-user.role.index', compact('roles', 'permissions', 'menu'));
+                return view('auth.pengguna.setting-user.role.index', compact('roles', 'permissions', 'menu'));
             }
 
             return back()->with('error', 'Gagal mengambil data dari API');

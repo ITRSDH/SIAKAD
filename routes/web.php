@@ -2,29 +2,27 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
-use App\Http\Controllers\MasterData\ProdiController;
-use App\Http\Controllers\MasterData\RuangController;
-use App\Http\Controllers\MasterData\SemesterController;
-use App\Http\Controllers\MasterData\KurikulumController;
-use App\Http\Controllers\MasterData\JenisKelasController;
-use App\Http\Controllers\MasterData\MataKuliahController;
-use App\Http\Controllers\ManagementPengguna\RoleController;
-use App\Http\Controllers\ManagementPengguna\UserController;
-use App\Http\Controllers\MasterData\KelasPararelController;
-use App\Http\Controllers\MasterData\TahunAkademikController;
-use App\Http\Controllers\MasterData\JenisPembayaranController;
-use App\Http\Controllers\MasterData\JenjangPendidikanController;
-use App\Http\Controllers\ManagementPengguna\PermissionController;
-// Route Website
-use App\Http\Controllers\Website\PengumumanController;
-use App\Http\Controllers\Website\PrestasiController;
-use App\Http\Controllers\Website\BeasiswaController;
+use App\Http\Controllers\Website\FaqController;
 use App\Http\Controllers\Website\BeritaController;
 use App\Http\Controllers\Website\GaleriController;
-use App\Http\Controllers\Website\FaqController;
-use App\Http\Controllers\Website\LandingContentController;
 use App\Http\Controllers\Website\OrmawaController;
+use App\Http\Controllers\Website\BeasiswaController;
+use App\Http\Controllers\Website\PrestasiController;
+use App\Http\Controllers\Website\PengumumanController;
 use App\Http\Controllers\Website\ProfileKampusController;
+// Route Website
+use App\Http\Controllers\Website\LandingContentController;
+use App\Http\Controllers\ManagementPengguna\RoleController;
+use App\Http\Controllers\ManagementPengguna\UserController;
+use App\Http\Controllers\Siakad\MasterData\ProdiController;
+use App\Http\Controllers\Siakad\MasterData\RuangController;
+use App\Http\Controllers\Siakad\MasterData\KurikulumController;
+use App\Http\Controllers\Siakad\MasterData\JenisKelasController;
+use App\Http\Controllers\Siakad\MasterData\MataKuliahController;
+use App\Http\Controllers\ManagementPengguna\PermissionController;
+use App\Http\Controllers\Siakad\MasterData\TahunAkademikController;
+use App\Http\Controllers\Siakad\MasterData\JenisPembayaranController;
+use App\Http\Controllers\Siakad\MasterData\JenjangPendidikanController;
 
 Route::middleware(['guest.token'])->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -37,7 +35,7 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
     //     return view('admin.dashboard.index');
     // });
 
-    Route::get('/', [AuthController::class, 'dashboard'])->name('dashboard');
+    Route::get('/', [AuthController::class, 'profile'])->name('profile');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
@@ -56,57 +54,68 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
     Route::post('/permissions/sync', [PermissionController::class, 'sync'])->name('permissions.sync');
     Route::delete('/permissions/{id}', [PermissionController::class, 'destroy'])->name('permissions.destroy');
 
-    Route::get('/jenjang-pendidikan', [JenjangPendidikanController::class, 'index'])->name('jenjang-pendidikan.index');
-    Route::post('/jenjang-pendidikan', [JenjangPendidikanController::class, 'store'])->name('jenjang-pendidikan.store');
-    Route::get('/jenjang-pendidikan/{id}', [JenjangPendidikanController::class, 'show'])->name('jenjang-pendidikan.show');
-    Route::put('/jenjang-pendidikan/{id}', [JenjangPendidikanController::class, 'update'])->name('jenjang-pendidikan.update');
-    Route::delete('/jenjang-pendidikan/{id}', [JenjangPendidikanController::class, 'destroy'])->name('jenjang-pendidikan.destroy');
+    Route::prefix('jenjang-pendidikan')->name('jenjang-pendidikan.')->group(function () {
+        Route::get('/', [JenjangPendidikanController::class, 'index'])->name('index');
+        Route::post('/', [JenjangPendidikanController::class, 'store'])->name('store');
+        Route::get('/{id}', [JenjangPendidikanController::class, 'show'])->name('show');
+        Route::put('/{id}', [JenjangPendidikanController::class, 'update'])->name('update');
+        Route::delete('/{id}', [JenjangPendidikanController::class, 'destroy'])->name('destroy');
+    });
 
-    Route::get('/prodi', [ProdiController::class, 'index'])->name('prodi.index');
-    Route::post('/prodi', [ProdiController::class, 'store'])->name('prodi.store');
-    Route::get('/prodi/{id}', [ProdiController::class, 'show'])->name('prodi.show');
-    Route::put('/prodi/{id}', [ProdiController::class, 'update'])->name('prodi.update');
-    Route::delete('/prodi/{id}', [ProdiController::class, 'destroy'])->name('prodi.destroy');
+    Route::prefix('prodi')->name('prodi.')->group(function () {
+        Route::get('/', [ProdiController::class, 'index'])->name('index');
+        Route::post('/', [ProdiController::class, 'store'])->name('store');
+        Route::get('/{id}', [ProdiController::class, 'show'])->name('show');
+        Route::put('/{id}', [ProdiController::class, 'update'])->name('update');
+        Route::delete('/{id}', [ProdiController::class, 'destroy'])->name('destroy');
+    });
 
-    Route::get('/tahun-akademik', [TahunAkademikController::class, 'index'])->name('tahun-akademik.index');
-    Route::post('/tahun-akademik', [TahunAkademikController::class, 'store'])->name('tahun-akademik.store');
-    Route::get('/tahun-akademik/{id}', [TahunAkademikController::class, 'show'])->name('tahun-akademik.show');
-    Route::put('/tahun-akademik/{id}', [TahunAkademikController::class, 'update'])->name('tahun-akademik.update');
-    Route::delete('/tahun-akademik/{id}', [TahunAkademikController::class, 'destroy'])->name('tahun-akademik.destroy');
-    Route::post('/tahun-akademik/{id}/aktif', [TahunAkademikController::class, 'setAktif'])->name('tahun-akademik.setAktif');
+    Route::prefix('tahun-akademik')->name('tahun-akademik.')->group(function () {
+        Route::get('/', [TahunAkademikController::class, 'index'])->name('index');
+        Route::get('/create', [TahunAkademikController::class, 'create'])->name('create');
+        Route::post('/', [TahunAkademikController::class, 'store'])->name('store');
+        Route::get('/{id}/edit', [TahunAkademikController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [TahunAkademikController::class, 'update'])->name('update');
+        Route::delete('/{id}', [TahunAkademikController::class, 'destroy'])->name('destroy');
 
-    Route::get('/semester', [SemesterController::class, 'index'])->name('semester.index');
-    Route::post('/semester', [SemesterController::class, 'store'])->name('semester.store');
-    Route::get('/semester/{id}', [SemesterController::class, 'show'])->name('semester.show');
-    Route::put('/semester/{id}', [SemesterController::class, 'update'])->name('semester.update');
-    Route::delete('/semester/{id}', [SemesterController::class, 'destroy'])->name('semester.destroy');
-    Route::post('/semester/{id}/aktif', [SemesterController::class, 'setAktif'])->name('semester.setAktif');
+        Route::put('/tahun-aktif/{id}', [TahunAkademikController::class, 'setTahunAktif'])->name('tahun-aktif');
+        Route::put('/semester-aktif/{id}', [TahunAkademikController::class, 'setSemesterAktif'])->name('semester-aktif');
+    });
 
-    Route::get('/kurikulum', [KurikulumController::class, 'index'])->name('kurikulum.index');
-    Route::post('/kurikulum', [KurikulumController::class, 'store'])->name('kurikulum.store');
-    Route::get('/kurikulum/{id}', [KurikulumController::class, 'show'])->name('kurikulum.show');
-    Route::put('/kurikulum/{id}', [KurikulumController::class, 'update'])->name('kurikulum.update');
-    Route::delete('/kurikulum/{id}', [KurikulumController::class, 'destroy'])->name('kurikulum.destroy');
+    Route::prefix('kurikulum')->name('kurikulum.')->group(function () {
+        Route::get('/', [KurikulumController::class, 'index'])->name('index');
+        Route::post('/', [KurikulumController::class, 'store'])->name('store');
+        Route::get('/{id}', [KurikulumController::class, 'show'])->name('show');
+        Route::put('/{id}', [KurikulumController::class, 'update'])->name('update');
+        Route::delete('/{id}', [KurikulumController::class, 'destroy'])->name('destroy');
+    });
 
-    Route::get('/matakuliah', [MataKuliahController::class, 'index'])->name('matakuliah.index');
-    Route::get('/matakuliah/create', [MataKuliahController::class, 'create'])->name('matakuliah.create');
-    Route::post('/matakuliah', [MataKuliahController::class, 'store'])->name('matakuliah.store');
-    Route::get('/matakuliah/{id}/edit', [MataKuliahController::class, 'edit'])->name('matakuliah.edit');
-    Route::get('/matakuliah/{id}', [MataKuliahController::class, 'show'])->name('matakuliah.show');
-    Route::put('/matakuliah/{id}', [MataKuliahController::class, 'update'])->name('matakuliah.update');
-    Route::delete('/matakuliah/{id}', [MataKuliahController::class, 'destroy'])->name('matakuliah.destroy');
+    Route::prefix('mata-kuliah')->name('mata-kuliah.')->group(function () {
+        Route::get('/', [MataKuliahController::class, 'index'])->name('index');
+        Route::get('/create', [MataKuliahController::class, 'create'])->name('create');
+        Route::post('/', [MataKuliahController::class, 'store'])->name('store');
+        Route::get('/{id}', [MataKuliahController::class, 'show'])->name('show'); // Opsional, untuk detail
+        Route::get('/semester/{semester}/edit', [MataKuliahController::class, 'edit'])->name('edit');
+        Route::put('/semester/{semester}', [MataKuliahController::class, 'update'])->name('update');
+        Route::delete('/semester/{semester}', [MataKuliahController::class, 'destroy'])->name('destroy');
+        Route::delete('/{id}', [MataKuliahController::class, 'destroySingle'])->name('destroy-single');
+    });
 
-    Route::get('/jenis-kelas', [JenisKelasController::class, 'index'])->name('jenis-kelas.index');
-    Route::post('/jenis-kelas', [JenisKelasController::class, 'store'])->name('jenis-kelas.store');
-    Route::get('/jenis-kelas/{id}', [JenisKelasController::class, 'show'])->name('jenis-kelas.show');
-    Route::put('/jenis-kelas/{id}', [JenisKelasController::class, 'update'])->name('jenis-kelas.update');
-    Route::delete('/jenis-kelas/{id}', [JenisKelasController::class, 'destroy'])->name('jenis-kelas.destroy');
+    Route::prefix('jenis-kelas')->name('jenis-kelas.')->group(function () {
+        Route::get('/', [JenisKelasController::class, 'index'])->name('index');
+        Route::post('/', [JenisKelasController::class, 'store'])->name('store');
+        Route::get('/{id}', [JenisKelasController::class, 'show'])->name('show');
+        Route::put('/{id}', [JenisKelasController::class, 'update'])->name('update');
+        Route::delete('/{id}', [JenisKelasController::class, 'destroy'])->name('destroy');
+    });
 
-    Route::get('/kelas-pararel', [KelasPararelController::class, 'index'])->name('kelas-pararel.index');
-    Route::post('/kelas-pararel', [KelasPararelController::class, 'store'])->name('kelas-pararel.store');
-    Route::get('/kelas-pararel/{id}', [KelasPararelController::class, 'show'])->name('kelas-pararel.show');
-    Route::put('/kelas-pararel/{id}', [KelasPararelController::class, 'update'])->name('kelas-pararel.update');
-    Route::delete('/kelas-pararel/{id}', [KelasPararelController::class, 'destroy'])->name('kelas-pararel.destroy');
+    Route::prefix('jenis-pembayaran')->name('jenis-pembayaran.')->group(function () {
+        Route::get('/', [JenisPembayaranController::class, 'index'])->name('index');
+        Route::post('/', [JenisPembayaranController::class, 'store'])->name('store');
+        Route::get('/{id}', [JenisPembayaranController::class, 'show'])->name('show');
+        Route::put('/{id}', [JenisPembayaranController::class, 'update'])->name('update');
+        Route::delete('/{id}', [JenisPembayaranController::class, 'destroy'])->name('destroy');
+    });
 
     Route::get('/ruang', [RuangController::class, 'index'])->name('ruang.index');
     Route::post('/ruang', [RuangController::class, 'store'])->name('ruang.store');

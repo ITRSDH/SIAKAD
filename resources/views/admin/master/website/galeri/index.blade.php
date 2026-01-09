@@ -1,4 +1,4 @@
-@extends('admin.layouts.index')
+@extends('layouts.index')
 @section('title', 'Galeri')
 @push('styles-custom')
     <style>
@@ -386,7 +386,10 @@
                                 if (!data.startsWith('http://') && !data.startsWith('https://')) {
                                     imageUrl = apiStorageUrl + data;
                                 }
-                                return '<img src="' + imageUrl + '" alt="Gambar" class="table-image" onclick="showImageModal(\'' + imageUrl + '\', \'' + (row.judul || 'Galeri') + '\')" style="cursor: pointer;">';
+                                return '<img src="' + imageUrl +
+                                    '" alt="Gambar" class="table-image" onclick="showImageModal(\'' +
+                                    imageUrl + '\', \'' + (row.judul || 'Galeri') +
+                                    '\')" style="cursor: pointer;">';
                             }
                             return '<span class="badge bg-secondary">No Image</span>';
                         }
@@ -406,7 +409,8 @@
                                 'lainnya': '<span class="badge bg-secondary">Lainnya</span>',
                                 'umum': '<span class="badge bg-light text-dark">Umum</span>'
                             };
-                            return kategoriMap[data] || '<span class="badge bg-light text-dark">-</span>';
+                            return kategoriMap[data] ||
+                                '<span class="badge bg-light text-dark">-</span>';
                         }
                     },
                     {
@@ -454,7 +458,7 @@
                 );
             });
 
-            // Submit form create  
+            // Submit form create
             $('#galeriForm').on('submit', function(e) {
                 e.preventDefault();
 
@@ -583,7 +587,7 @@
                         if (data && data.data) {
                             $('#galeri_id_modal').val(data.data.id);
                             $('#judul_modal').val(data.data.judul);
-                            
+
                             // Set kategori dengan normalisasi (lowercase & trim)
                             const kategori = (data.data.kategori || '').toString().toLowerCase().trim();
                             console.log('Setting kategori:', kategori);

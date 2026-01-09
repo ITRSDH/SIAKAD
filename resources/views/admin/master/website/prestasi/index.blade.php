@@ -1,4 +1,4 @@
-@extends('admin.layouts.index')
+@extends('layouts.index')
 @section('title', 'Prestasi')
 @push('styles-custom')
     <style>
@@ -69,13 +69,13 @@
             object-fit: cover;
             border-radius: 8px;
             cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
         }
 
         .table-image:hover {
             transform: scale(1.1);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
 
         /* Style untuk preview container */
@@ -91,7 +91,7 @@
             max-width: 200px;
             height: auto;
             border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
             margin: 10px 0;
         }
     </style>
@@ -146,9 +146,10 @@
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="form-group mb-3">
-                                            <label for="nama_mahasiswa" class="form-label">Nama Mahasiswa <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" id="nama_mahasiswa" name="nama_mahasiswa" 
-                                                placeholder="Masukkan nama mahasiswa">
+                                            <label for="nama_mahasiswa" class="form-label">Nama Mahasiswa <span
+                                                    class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="nama_mahasiswa"
+                                                name="nama_mahasiswa" placeholder="Masukkan nama mahasiswa">
                                             <div class="text-danger error-text" id="nama_mahasiswa_error"></div>
                                         </div>
                                     </div>
@@ -157,15 +158,22 @@
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="form-group mb-3">
-                                            <label for="program_studi" class="form-label">Program Studi <span class="text-danger">*</span></label>
+                                            <label for="program_studi" class="form-label">Program Studi <span
+                                                    class="text-danger">*</span></label>
                                             <select class="form-select" id="program_studi" name="id_prodi">
                                                 <option value="">Pilih Program Studi</option>
-                                                @foreach($prodi as $p)
+                                                @foreach ($prodi as $p)
                                                     @php
-                                                        $jenjang = collect($jenjangPendidikan)->firstWhere('id', $p['id_jenjang_pendidikan']);
+                                                        $jenjang = collect($jenjangPendidikan)->firstWhere(
+                                                            'id',
+                                                            $p['id_jenjang_pendidikan'],
+                                                        );
                                                         $namaJenjang = $jenjang['nama_jenjang'] ?? '';
                                                     @endphp
-                                                    <option value="{{ $p['id'] }}">{{ $p['nama_prodi'] }}@if($namaJenjang) ({{ $namaJenjang }})@endif</option>
+                                                    <option value="{{ $p['id'] }}">{{ $p['nama_prodi'] }}@if ($namaJenjang)
+                                                            ({{ $namaJenjang }})
+                                                        @endif
+                                                    </option>
                                                 @endforeach
                                             </select>
                                             <div class="text-danger error-text" id="program_studi_error"></div>
@@ -177,9 +185,10 @@
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="form-group mb-3">
-                                            <label for="judul_prestasi" class="form-label">Judul Prestasi<span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" id="judul_prestasi" name="judul_prestasi" 
-                                                placeholder="Masukkan judul prestasi">
+                                            <label for="judul_prestasi" class="form-label">Judul Prestasi<span
+                                                    class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="judul_prestasi"
+                                                name="judul_prestasi" placeholder="Masukkan judul prestasi">
                                             <div class="text-danger error-text" id="judul_prestasi_error"></div>
                                         </div>
                                     </div>
@@ -188,7 +197,8 @@
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="form-group mb-3">
-                                            <label for="tingkat" class="form-label">Tingkat Prestasi<span class="text-danger">*</span></label>
+                                            <label for="tingkat" class="form-label">Tingkat Prestasi<span
+                                                    class="text-danger">*</span></label>
                                             <select class="form-select" id="tingkat" name="tingkat">
                                                 <option value="">Pilih Tingkat</option>
                                                 <option value="kampus">Kampus</option>
@@ -203,10 +213,11 @@
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="form-group mb-3">
-                                            <label for="tahun" class="form-label">Tahun<span class="text-danger">*</span></label>
+                                            <label for="tahun" class="form-label">Tahun<span
+                                                    class="text-danger">*</span></label>
                                             <select class="form-select" id="tahun" name="tahun">
                                                 <option value="">Pilih Tahun</option>
-                                                @for($year = date('Y'); $year <= date('Y') + 5; $year++)
+                                                @for ($year = date('Y'); $year <= date('Y') + 5; $year++)
                                                     <option value="{{ $year }}">{{ $year }}</option>
                                                 @endfor
                                             </select>
@@ -218,8 +229,9 @@
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="form-group mb-3">
-                                            <label for="deskripsi" class="form-label">Deskripsi<span class="text-danger">*</span></label>
-                                            <textarea class="form-control" id="deskripsi" name="deskripsi" rows="6" 
+                                            <label for="deskripsi" class="form-label">Deskripsi<span
+                                                    class="text-danger">*</span></label>
+                                            <textarea class="form-control" id="deskripsi" name="deskripsi" rows="6"
                                                 placeholder="Masukkan deskripsi prestasi"></textarea>
                                             <div class="text-danger error-text" id="deskripsi_error"></div>
                                         </div>
@@ -230,11 +242,15 @@
                                     <div class="col-md-12">
                                         <div class="form-group mb-3">
                                             <label for="gambar" class="form-label">Gambar Prestasi</label>
-                                            <input type="file" class="form-control" id="gambar" name="gambar" accept="image/*">
-                                            <small class="form-text text-muted">Format yang diizinkan: JPG, JPEG, PNG, GIF. Maksimal 2MB.</small>
+                                            <input type="file" class="form-control" id="gambar" name="gambar"
+                                                accept="image/*">
+                                            <small class="form-text text-muted">Format yang diizinkan: JPG, JPEG, PNG, GIF.
+                                                Maksimal 2MB.</small>
                                             <div class="text-danger error-text" id="gambar_error"></div>
-                                            <div id="preview-container" class="image-preview-container mt-2" style="display: none;">
-                                                <img id="image-preview" src="" alt="Preview" class="image-preview">
+                                            <div id="preview-container" class="image-preview-container mt-2"
+                                                style="display: none;">
+                                                <img id="image-preview" src="" alt="Preview"
+                                                    class="image-preview">
                                                 <p class="text-muted small mb-0">Preview Gambar</p>
                                             </div>
                                         </div>
@@ -298,7 +314,8 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body text-center">
-                    <img id="modalImageView" src="" alt="Prestasi" class="img-fluid" style="max-height: 500px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                    <img id="modalImageView" src="" alt="Prestasi" class="img-fluid"
+                        style="max-height: 500px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
@@ -322,30 +339,39 @@
                         <input type="hidden" name="id" id="prestasi_id_modal">
 
                         <div class="form-group mb-3">
-                            <label for="nama_mahasiswa_modal" class="form-label">Nama Mahasiswa <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="nama_mahasiswa_modal" name="nama_mahasiswa" 
+                            <label for="nama_mahasiswa_modal" class="form-label">Nama Mahasiswa <span
+                                    class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="nama_mahasiswa_modal" name="nama_mahasiswa"
                                 placeholder="Masukkan nama mahasiswa">
                             <div class="text-danger error-text" id="nama_mahasiswa_modal_error"></div>
                         </div>
 
                         <div class="form-group mb-3">
-                            <label for="program_studi_modal" class="form-label">Program Studi <span class="text-danger">*</span></label>
+                            <label for="program_studi_modal" class="form-label">Program Studi <span
+                                    class="text-danger">*</span></label>
                             <select class="form-select" id="program_studi_modal" name="id_prodi">
                                 <option value="">Pilih Program Studi</option>
-                                @foreach($prodi as $p)
+                                @foreach ($prodi as $p)
                                     @php
-                                        $jenjang = collect($jenjangPendidikan)->firstWhere('id', $p['id_jenjang_pendidikan']);
+                                        $jenjang = collect($jenjangPendidikan)->firstWhere(
+                                            'id',
+                                            $p['id_jenjang_pendidikan'],
+                                        );
                                         $namaJenjang = $jenjang['nama_jenjang'] ?? '';
                                     @endphp
-                                    <option value="{{ $p['id'] }}">{{ $p['nama_prodi'] }}@if($namaJenjang) ({{ $namaJenjang }})@endif</option>
+                                    <option value="{{ $p['id'] }}">{{ $p['nama_prodi'] }}@if ($namaJenjang)
+                                            ({{ $namaJenjang }})
+                                        @endif
+                                    </option>
                                 @endforeach
                             </select>
                             <div class="text-danger error-text" id="program_studi_modal_error"></div>
                         </div>
 
                         <div class="form-group mb-3">
-                            <label for="judul_prestasi_modal" class="form-label">Judul Prestasi <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="judul_prestasi_modal" name="judul_prestasi" 
+                            <label for="judul_prestasi_modal" class="form-label">Judul Prestasi <span
+                                    class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="judul_prestasi_modal" name="judul_prestasi"
                                 placeholder="Masukkan judul prestasi">
                             <div class="text-danger error-text" id="judul_prestasi_modal_error"></div>
                         </div>
@@ -353,7 +379,8 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
-                                    <label for="tingkat_modal" class="form-label">Tingkat Prestasi <span class="text-danger">*</span></label>
+                                    <label for="tingkat_modal" class="form-label">Tingkat Prestasi <span
+                                            class="text-danger">*</span></label>
                                     <select class="form-select" id="tingkat_modal" name="tingkat">
                                         <option value="">Pilih Tingkat</option>
                                         <option value="kampus">Kampus</option>
@@ -365,10 +392,11 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
-                                    <label for="tahun_modal" class="form-label">Tahun <span class="text-danger">*</span></label>
+                                    <label for="tahun_modal" class="form-label">Tahun <span
+                                            class="text-danger">*</span></label>
                                     <select class="form-select" id="tahun_modal" name="tahun">
                                         <option value="">Pilih Tahun</option>
-                                        @for($year = date('Y'); $year <= date('Y') + 5; $year++)
+                                        @for ($year = date('Y'); $year <= date('Y') + 5; $year++)
                                             <option value="{{ $year }}">{{ $year }}</option>
                                         @endfor
                                     </select>
@@ -378,18 +406,22 @@
                         </div>
 
                         <div class="form-group mb-3">
-                            <label for="deskripsi_modal" class="form-label">Deskripsi <span class="text-danger">*</span></label>
-                            <textarea class="form-control" id="deskripsi_modal" name="deskripsi" rows="4" 
+                            <label for="deskripsi_modal" class="form-label">Deskripsi <span
+                                    class="text-danger">*</span></label>
+                            <textarea class="form-control" id="deskripsi_modal" name="deskripsi" rows="4"
                                 placeholder="Masukkan deskripsi prestasi"></textarea>
                             <div class="text-danger error-text" id="deskripsi_modal_error"></div>
                         </div>
 
                         <div class="form-group mb-3">
                             <label for="gambar_modal" class="form-label">Gambar Prestasi</label>
-                            <input type="file" class="form-control" id="gambar_modal" name="gambar" accept="image/*">
-                            <small class="form-text text-muted">Format yang diizinkan: JPG, JPEG, PNG, GIF. Maksimal 2MB.</small>
+                            <input type="file" class="form-control" id="gambar_modal" name="gambar"
+                                accept="image/*">
+                            <small class="form-text text-muted">Format yang diizinkan: JPG, JPEG, PNG, GIF. Maksimal
+                                2MB.</small>
                             <div class="text-danger error-text" id="gambar_modal_error"></div>
-                            <div id="preview-container-modal" class="image-preview-container mt-2" style="display: none;">
+                            <div id="preview-container-modal" class="image-preview-container mt-2"
+                                style="display: none;">
                                 <img id="image-preview-modal" src="" alt="Preview" class="image-preview">
                                 <p class="text-muted small mb-0">Preview Gambar</p>
                             </div>
@@ -419,15 +451,14 @@
     <script>
         $(document).ready(function() {
             // Ambil storage URL API dari config
-            var apiStorageUrl = '{{ config("api.storage_url") }}';
+            var apiStorageUrl = '{{ config('api.storage_url') }}';
 
             // Inisialisasi DataTables dengan data dari API Prestasi
             var table = $('#prestasi-table').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: "{{ route('prestasi.datatable') }}",
-                columns: [
-                    {
+                columns: [{
                         data: 'DT_RowIndex',
                         orderable: false,
                         searchable: false
@@ -442,11 +473,11 @@
                                 if (!data.startsWith('http://') && !data.startsWith('https://')) {
                                     imageUrl = apiStorageUrl + data;
                                 }
-                                
+
                                 let title = row.judul_prestasi || 'Prestasi';
                                 // Escape single quotes to prevent JS errors
                                 title = title.replace(/'/g, "\\'");
-                                
+
                                 return `<img src="${imageUrl}" alt="Gambar" class="table-image" onclick="showImageModal('${imageUrl}', '${title}')">`;
                             }
                             return '<span class="badge bg-secondary">No Image</span>';
@@ -477,7 +508,8 @@
                                 'nasional': '<span class="badge bg-success">Nasional</span>',
                                 'internasional': '<span class="badge bg-warning">Internasional</span>'
                             };
-                            return tingkatMap[data] || '<span class="badge bg-light text-dark">-</span>';
+                            return tingkatMap[data] ||
+                                '<span class="badge bg-light text-dark">-</span>';
                         }
                     },
                     {
@@ -517,7 +549,7 @@
                 );
             });
 
-            // Submit form create  
+            // Submit form create
             $('#prestasiForm').on('submit', function(e) {
                 e.preventDefault();
 
@@ -602,7 +634,8 @@
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Berhasil!',
-                                text: response.message || 'Prestasi berhasil ditambahkan.',
+                                text: response.message ||
+                                    'Prestasi berhasil ditambahkan.',
                                 confirmButtonText: 'OK'
                             });
                         } else {
@@ -610,13 +643,15 @@
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Gagal!',
-                                text: response.message || 'Terjadi kesalahan saat menyimpan data.',
+                                text: response.message ||
+                                    'Terjadi kesalahan saat menyimpan data.',
                                 confirmButtonText: 'OK'
                             });
                             // Tampilkan error spesifik jika ada
                             if (response.errors) {
                                 Object.keys(response.errors).forEach(function(key) {
-                                    $('#' + key + '_error').text(response.errors[key][0]);
+                                    $('#' + key + '_error').text(response.errors[key][
+                                        0]);
                                 });
                             }
                         }
@@ -625,17 +660,19 @@
                         console.error('AJAX Error:', xhr);
                         console.error('Response Text:', xhr.responseText);
                         console.error('Status:', xhr.status);
-                        
+
                         let errorMessage = 'Gagal menyimpan data.';
                         if (xhr.responseJSON && xhr.responseJSON.message) {
                             errorMessage = xhr.responseJSON.message;
                         } else if (xhr.responseJSON && xhr.responseJSON.errors) {
-                            errorMessage = Object.values(xhr.responseJSON.errors).flat().join(', ');
+                            errorMessage = Object.values(xhr.responseJSON.errors).flat().join(
+                                ', ');
                         } else if (xhr.responseText) {
                             // Tampilkan response text jika tidak ada JSON
-                            errorMessage = 'Error: ' + xhr.responseText.substring(0, 200) + '...';
+                            errorMessage = 'Error: ' + xhr.responseText.substring(0, 200) +
+                                '...';
                         }
-                        
+
                         // Ganti alert dengan SweetAlert2
                         Swal.fire({
                             icon: 'error',
@@ -643,11 +680,12 @@
                             text: errorMessage,
                             confirmButtonText: 'OK'
                         });
-                        
+
                         // Tampilkan error spesifik jika ada
                         if (xhr.responseJSON && xhr.responseJSON.errors) {
                             Object.keys(xhr.responseJSON.errors).forEach(function(key) {
-                                $('#' + key + '_error').text(xhr.responseJSON.errors[key][0]);
+                                $('#' + key + '_error').text(xhr.responseJSON.errors[
+                                    key][0]);
                             });
                         }
                     },
@@ -669,25 +707,26 @@
                         if (data && data.data) {
                             $('#prestasi_id_modal').val(data.data.id);
                             $('#nama_mahasiswa_modal').val(data.data.nama_mahasiswa);
-                            
+
                             // Ambil id_prodi dari object prodi atau dari id_prodi langsung
                             if (data.data.prodi && typeof data.data.prodi === 'object') {
                                 $('#program_studi_modal').val(data.data.prodi.id);
                             } else if (data.data.id_prodi) {
                                 $('#program_studi_modal').val(data.data.id_prodi);
                             }
-                            
+
                             $('#judul_prestasi_modal').val(data.data.judul_prestasi);
                             $('#tingkat_modal').val(data.data.tingkat);
                             $('#tahun_modal').val(data.data.tahun);
                             $('#deskripsi_modal').val(data.data.deskripsi);
-                            
+
                             // Handle gambar jika ada
                             if (data.data.gambar) {
                                 let imageUrl = data.data.gambar;
-                                
+
                                 // Handle different URL formats
-                                if (data.data.gambar.startsWith('http://') || data.data.gambar.startsWith('https://')) {
+                                if (data.data.gambar.startsWith('http://') || data.data.gambar
+                                    .startsWith('https://')) {
                                     // Absolute URL - use as is
                                     imageUrl = data.data.gambar;
                                 } else if (data.data.gambar.startsWith('/')) {
@@ -696,7 +735,8 @@
                                         imageUrl = data.data.gambar; // Local storage
                                     } else {
                                         // Assume it's from API server
-                                        imageUrl = apiStorageUrl.replace('/storage/', '') + data.data.gambar;
+                                        imageUrl = apiStorageUrl.replace('/storage/', '') + data.data
+                                            .gambar;
                                     }
                                 } else {
                                     // Plain filename or relative path
@@ -708,16 +748,16 @@
                                         imageUrl = '/storage/' + data.data.gambar;
                                     }
                                 }
-                                
+
                                 console.log('Edit modal - Original image data:', data.data.gambar);
                                 console.log('Edit modal - Processed image URL:', imageUrl);
-                                
+
                                 $('#preview-container-modal').show();
                                 $('#image-preview-modal').attr('src', imageUrl);
                             } else {
                                 $('#preview-container-modal').hide();
                             }
-                            
+
                             $('#modelHeading').text('Edit Prestasi');
                             $('.error-text').text(''); // Hapus pesan error
                             $('#modalPrestasi').modal('show');
@@ -775,7 +815,8 @@
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Berhasil!',
-                                text: response.message || 'Prestasi berhasil diperbarui.',
+                                text: response.message ||
+                                    'Prestasi berhasil diperbarui.',
                                 confirmButtonText: 'OK'
                             });
                         } else {
@@ -783,13 +824,15 @@
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Gagal!',
-                                text: response.message || 'Terjadi kesalahan saat memperbarui data.',
+                                text: response.message ||
+                                    'Terjadi kesalahan saat memperbarui data.',
                                 confirmButtonText: 'OK'
                             });
                             // Tampilkan error spesifik jika ada
                             if (response.errors) {
                                 Object.keys(response.errors).forEach(function(key) {
-                                    $('#' + key + '_modal_error').text(response.errors[key][0]);
+                                    $('#' + key + '_modal_error').text(response.errors[
+                                        key][0]);
                                 });
                             }
                         }
@@ -800,7 +843,8 @@
                         if (xhr.responseJSON && xhr.responseJSON.message) {
                             errorMessage = xhr.responseJSON.message;
                         } else if (xhr.responseJSON && xhr.responseJSON.errors) {
-                            errorMessage = Object.values(xhr.responseJSON.errors).flat().join(', ');
+                            errorMessage = Object.values(xhr.responseJSON.errors).flat().join(
+                                ', ');
                         }
 
                         Swal.fire({
@@ -813,7 +857,8 @@
                         // Tampilkan error spesifik jika ada
                         if (xhr.responseJSON && xhr.responseJSON.errors) {
                             Object.keys(xhr.responseJSON.errors).forEach(function(key) {
-                                $('#' + key + '_modal_error').text(xhr.responseJSON.errors[key][0]);
+                                $('#' + key + '_modal_error').text(xhr.responseJSON
+                                    .errors[key][0]);
                             });
                         }
                     },
@@ -849,19 +894,22 @@
                             success: function(response) {
                                 if (response.success) {
                                     // Hapus baris dari tabel
-                                    table.ajax.reload(null, false); // false = stay on current page
+                                    table.ajax.reload(null,
+                                    false); // false = stay on current page
                                     // Ganti alert dengan SweetAlert2
                                     Swal.fire({
                                         icon: 'success',
                                         title: 'Terhapus!',
-                                        text: response.message || 'Prestasi berhasil dihapus.',
+                                        text: response.message ||
+                                            'Prestasi berhasil dihapus.',
                                         confirmButtonText: 'OK'
                                     });
                                 } else {
                                     Swal.fire({
                                         icon: 'error',
                                         title: 'Gagal!',
-                                        text: response.message || 'Terjadi kesalahan saat menghapus data.',
+                                        text: response.message ||
+                                            'Terjadi kesalahan saat menghapus data.',
                                         confirmButtonText: 'OK'
                                     });
                                 }

@@ -1,4 +1,4 @@
-@extends('admin.layouts.index')
+@extends('layouts.index')
 @section('title', 'Pengumuman')
 @push('styles-custom')
     <style>
@@ -113,8 +113,9 @@
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="form-group mb-3">
-                                            <label for="judul" class="form-label">Judul Pengumuman <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" id="judul" name="judul" 
+                                            <label for="judul" class="form-label">Judul Pengumuman <span
+                                                    class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="judul" name="judul"
                                                 placeholder="Masukkan judul pengumuman">
                                             <div class="text-danger error-text" id="judul_error"></div>
                                         </div>
@@ -124,7 +125,8 @@
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="form-group mb-3">
-                                            <label for="kategori" class="form-label">Kategori <span class="text-danger">*</span></label>
+                                            <label for="kategori" class="form-label">Kategori <span
+                                                    class="text-danger">*</span></label>
                                             <select class="form-select" id="kategori" name="kategori">
                                                 <option value="">Pilih Kategori</option>
                                                 <option value="akademik">Akademik</option>
@@ -140,9 +142,9 @@
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="form-group mb-3">
-                                            <label for="isi" class="form-label">Isi Pengumuman <span class="text-danger">*</span></label>
-                                            <textarea class="form-control" id="isi" name="isi" rows="6" 
-                                                placeholder="Masukkan isi pengumuman"></textarea>
+                                            <label for="isi" class="form-label">Isi Pengumuman <span
+                                                    class="text-danger">*</span></label>
+                                            <textarea class="form-control" id="isi" name="isi" rows="6" placeholder="Masukkan isi pengumuman"></textarea>
                                             <div class="text-danger error-text" id="isi_error"></div>
                                         </div>
                                     </div>
@@ -208,14 +210,16 @@
                         <input type="hidden" name="id" id="pengumuman_id_modal">
 
                         <div class="form-group mb-3">
-                            <label for="judul_modal" class="form-label">Judul Pengumuman <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="judul_modal" name="judul" 
+                            <label for="judul_modal" class="form-label">Judul Pengumuman <span
+                                    class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="judul_modal" name="judul"
                                 placeholder="Masukkan judul pengumuman">
                             <div class="text-danger error-text" id="judul_modal_error"></div>
                         </div>
 
                         <div class="form-group mb-3">
-                            <label for="kategori_modal" class="form-label">Kategori <span class="text-danger">*</span></label>
+                            <label for="kategori_modal" class="form-label">Kategori <span
+                                    class="text-danger">*</span></label>
                             <select class="form-select" id="kategori_modal" name="kategori">
                                 <option value="">Pilih Kategori</option>
                                 <option value="akademik">Akademik</option>
@@ -227,9 +231,9 @@
                         </div>
 
                         <div class="form-group mb-3">
-                            <label for="isi_modal" class="form-label">Isi Pengumuman <span class="text-danger">*</span></label>
-                            <textarea class="form-control" id="isi_modal" name="isi" rows="6" 
-                                placeholder="Masukkan isi pengumuman"></textarea>
+                            <label for="isi_modal" class="form-label">Isi Pengumuman <span
+                                    class="text-danger">*</span></label>
+                            <textarea class="form-control" id="isi_modal" name="isi" rows="6" placeholder="Masukkan isi pengumuman"></textarea>
                             <div class="text-danger error-text" id="isi_modal_error"></div>
                         </div>
 
@@ -278,7 +282,8 @@
                                 'kemahasiswaan': '<span class="badge bg-info">Kemahasiswaan</span>',
                                 'umum': '<span class="badge bg-warning">Umum</span>',
                             };
-                            return kategoriMap[data] || '<span class="badge bg-light text-dark">-</span>';
+                            return kategoriMap[data] ||
+                                '<span class="badge bg-light text-dark">-</span>';
                         }
                     },
                     {
@@ -351,7 +356,8 @@
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Berhasil!',
-                                text: response.message || 'Pengumuman berhasil ditambahkan.',
+                                text: response.message ||
+                                    'Pengumuman berhasil ditambahkan.',
                                 confirmButtonText: 'OK'
                             });
                         } else {
@@ -359,13 +365,15 @@
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Gagal!',
-                                text: response.message || 'Terjadi kesalahan saat menyimpan data.',
+                                text: response.message ||
+                                    'Terjadi kesalahan saat menyimpan data.',
                                 confirmButtonText: 'OK'
                             });
                             // Tampilkan error spesifik jika ada
                             if (response.errors) {
                                 Object.keys(response.errors).forEach(function(key) {
-                                    $('#' + key + '_error').text(response.errors[key][0]);
+                                    $('#' + key + '_error').text(response.errors[key][
+                                        0]);
                                 });
                             }
                         }
@@ -376,7 +384,8 @@
                         if (xhr.responseJSON && xhr.responseJSON.message) {
                             errorMessage = xhr.responseJSON.message;
                         } else if (xhr.responseJSON && xhr.responseJSON.errors) {
-                            errorMessage = Object.values(xhr.responseJSON.errors).flat().join(', ');
+                            errorMessage = Object.values(xhr.responseJSON.errors).flat().join(
+                                ', ');
                         }
                         // Ganti alert dengan SweetAlert2
                         Swal.fire({
@@ -388,7 +397,8 @@
                         // Tampilkan error spesifik jika ada
                         if (xhr.responseJSON && xhr.responseJSON.errors) {
                             Object.keys(xhr.responseJSON.errors).forEach(function(key) {
-                                $('#' + key + '_error').text(xhr.responseJSON.errors[key][0]);
+                                $('#' + key + '_error').text(xhr.responseJSON.errors[
+                                    key][0]);
                             });
                         }
                     },
@@ -456,14 +466,16 @@
                     success: function(response) {
                         if (response.success) {
                             // Update data di tabel dengan cara mencari row dan memperbarui data
-                            table.ajax.reload(null, false); // false untuk mempertahankan halaman saat ini
+                            table.ajax.reload(null,
+                            false); // false untuk mempertahankan halaman saat ini
                             // Tutup modal
                             $('#modalPengumuman').modal('hide');
                             // Ganti alert dengan SweetAlert2
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Berhasil!',
-                                text: response.message || 'Pengumuman berhasil diperbarui.',
+                                text: response.message ||
+                                    'Pengumuman berhasil diperbarui.',
                                 confirmButtonText: 'OK'
                             });
                         } else {
@@ -471,13 +483,15 @@
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Gagal!',
-                                text: response.message || 'Terjadi kesalahan saat memperbarui data.',
+                                text: response.message ||
+                                    'Terjadi kesalahan saat memperbarui data.',
                                 confirmButtonText: 'OK'
                             });
                             // Tampilkan error spesifik jika ada
                             if (response.errors) {
                                 Object.keys(response.errors).forEach(function(key) {
-                                    $('#' + key + '_modal_error').text(response.errors[key][0]);
+                                    $('#' + key + '_modal_error').text(response.errors[
+                                        key][0]);
                                 });
                             }
                         }
@@ -488,7 +502,8 @@
                         if (xhr.responseJSON && xhr.responseJSON.message) {
                             errorMessage = xhr.responseJSON.message;
                         } else if (xhr.responseJSON && xhr.responseJSON.errors) {
-                            errorMessage = Object.values(xhr.responseJSON.errors).flat().join(', ');
+                            errorMessage = Object.values(xhr.responseJSON.errors).flat().join(
+                                ', ');
                         }
 
                         Swal.fire({
@@ -501,7 +516,8 @@
                         // Tampilkan error spesifik jika ada
                         if (xhr.responseJSON && xhr.responseJSON.errors) {
                             Object.keys(xhr.responseJSON.errors).forEach(function(key) {
-                                $('#' + key + '_modal_error').text(xhr.responseJSON.errors[key][0]);
+                                $('#' + key + '_modal_error').text(xhr.responseJSON
+                                    .errors[key][0]);
                             });
                         }
                     },
@@ -537,19 +553,22 @@
                             success: function(response) {
                                 if (response.success) {
                                     // Hapus baris dari tabel
-                                    table.ajax.reload(null, false); // false untuk mempertahankan halaman saat ini
+                                    table.ajax.reload(null,
+                                    false); // false untuk mempertahankan halaman saat ini
                                     // Ganti alert dengan SweetAlert2
                                     Swal.fire({
                                         icon: 'success',
                                         title: 'Terhapus!',
-                                        text: response.message || 'Pengumuman berhasil dihapus.',
+                                        text: response.message ||
+                                            'Pengumuman berhasil dihapus.',
                                         confirmButtonText: 'OK'
                                     });
                                 } else {
                                     Swal.fire({
                                         icon: 'error',
                                         title: 'Gagal!',
-                                        text: response.message || 'Terjadi kesalahan saat menghapus data.',
+                                        text: response.message ||
+                                            'Terjadi kesalahan saat menghapus data.',
                                         confirmButtonText: 'OK'
                                     });
                                 }

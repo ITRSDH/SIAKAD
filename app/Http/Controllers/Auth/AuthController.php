@@ -29,14 +29,15 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'email' => 'required|email',
+            'email' => 'required',
             'password' => 'required',
         ]);
-
+       
         $response = Http::post($this->apiUrl . 'auth/login', [
-            'email' => $request->email,
+            'username' => $request->email,
             'password' => $request->password,
         ]);
+
 
         if ($response->successful()) {
             $data = $response->json();
@@ -58,6 +59,7 @@ class AuthController extends Controller
             }
         } else {
             $error = $response->json()['error'] ?? 'Login failed';
+
             return back()->withErrors(['email' => $error]);
         }
     }

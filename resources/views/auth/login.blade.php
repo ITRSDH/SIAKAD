@@ -146,7 +146,7 @@
                             @csrf
                             <div class="mb-4 position-relative">
                                 <i class="ti ti-user fs-6 form-icon"></i>
-                                <input type="email" class="form-control" id="email" name="email" required
+                                <input type="text" class="form-control" id="email" name="email" required
                                     placeholder="Email Address">
                             </div>
                             <div class="mb-4 position-relative">

@@ -163,7 +163,7 @@
                                         </li>
                                         <li><a href="#"><span class="sub-item">Wali Kelas</span></a></li>
                                         <li><a href="#"><span class="sub-item">Status Akademik</span></a></li>
-                                        <li><a href="#"><span class="sub-item">Pembayaran Mahasiswa</span></a>
+                                        <li><a href="{{ route('student.pembayaran.index') }}"><span class="sub-item">Pembayaran Mahasiswa</span></a>
                                         </li>
                                         <li><a href="#"><span class="sub-item">Berkas Mahasiswa</span></a></li>
                                         <li><a href="#"><span class="sub-item">Alumni</span></a></li>

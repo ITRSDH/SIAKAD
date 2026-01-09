@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Mahasiswa\PembayaranController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\MasterData\ProdiController;
@@ -15,6 +16,7 @@ use App\Http\Controllers\MasterData\TahunAkademikController;
 use App\Http\Controllers\MasterData\JenisPembayaranController;
 use App\Http\Controllers\MasterData\JenjangPendidikanController;
 use App\Http\Controllers\ManagementPengguna\PermissionController;
+
 // Route Website
 use App\Http\Controllers\Website\PengumumanController;
 use App\Http\Controllers\Website\PrestasiController;
@@ -187,4 +189,9 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
     Route::get('/profile-kampus/{id?}', [ProfileKampusController::class, 'show'])->name('profile-kampus.show');
     Route::put('/profile-kampus/{id?}', [ProfileKampusController::class, 'update'])->name('profile-kampus.update');
     Route::delete('/profile-kampus/{id?}', [ProfileKampusController::class, 'destroy'])->name('profile-kampus.destroy');
+
+    // Route Pembayaran Mahasiswa
+    Route::get('/pembayaran', [PembayaranController::class, 'index'])->name('student.pembayaran.index');
+    Route::get('/pembayaran/{tagihanId}/create', [PembayaranController::class, 'create'])->name('student.pembayaran.create');
+    Route::post('/pembayaran/{tagihanId}/pay', [PembayaranController::class, 'store'])->name('student.pembayaran.store');
 });

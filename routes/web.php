@@ -117,17 +117,13 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
         Route::delete('/{id}', [JenisPembayaranController::class, 'destroy'])->name('destroy');
     });
 
-    Route::get('/ruang', [RuangController::class, 'index'])->name('ruang.index');
-    Route::post('/ruang', [RuangController::class, 'store'])->name('ruang.store');
-    Route::get('/ruang/{id}', [RuangController::class, 'show'])->name('ruang.show');
-    Route::put('/ruang/{id}', [RuangController::class, 'update'])->name('ruang.update');
-    Route::delete('/ruang/{id}', [RuangController::class, 'destroy'])->name('ruang.destroy');
-
-    Route::get('/jenis-pembayaran', [JenisPembayaranController::class, 'index'])->name('jenis-pembayaran.index');
-    Route::post('/jenis-pembayaran', [JenisPembayaranController::class, 'store'])->name('jenis-pembayaran.store');
-    Route::get('/jenis-pembayaran/{id}', [JenisPembayaranController::class, 'show'])->name('jenis-pembayaran.show');
-    Route::put('/jenis-pembayaran/{id}', [JenisPembayaranController::class, 'update'])->name('jenis-pembayaran.update');
-    Route::delete('/jenis-pembayaran/{id}', [JenisPembayaranController::class, 'destroy'])->name('jenis-pembayaran.destroy');
+    Route::prefix('ruang')->name('ruang.')->group(function () {
+        Route::get('/', [RuangController::class, 'index'])->name('index');
+        Route::post('/', [RuangController::class, 'store'])->name('store');
+        Route::get('/{id}', [RuangController::class, 'show'])->name('show');
+        Route::put('/{id}', [RuangController::class, 'update'])->name('update');
+        Route::delete('/{id}', [RuangController::class, 'destroy'])->name('destroy');
+    });
 
     // Route Pengumuman
     Route::get('/pengumuman', [PengumumanController::class, 'index'])->name('pengumuman.index');

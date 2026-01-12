@@ -1,5 +1,5 @@
 @extends('layouts.index')
-@section('title', 'FAQ')
+@section('title', 'Jenis Kelas')
 @push('styles-custom')
     <style>
         /* Gaya untuk loader */
@@ -54,20 +54,13 @@
             transform: rotate(180deg);
             /* Berputar 180 derajat saat dibuka */
         }
-
-        .content-preview {
-            max-width: 300px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
     </style>
 @endpush
 
 @section('content')
     <div class="page-inner">
         <div class="page-header">
-            <h3 class="fw-bold mb-3">FAQ</h3>
+            <h3 class="fw-bold mb-3">Jenis Kelas</h3>
             <ul class="breadcrumbs mb-3">
                 <li class="nav-home">
                     <a href="{{ url('/') }}">
@@ -78,13 +71,13 @@
                     <i class="icon-arrow-right"></i>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ route('faq.index') }}">Website</a>
+                    <a href="{{ route('jenis-kelas.index') }}">Jenis Kelas</a>
                 </li>
                 <li class="separator">
                     <i class="icon-arrow-right"></i>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ route('faq.index') }}">FAQ</a>
+                    <a href="{{ route('jenis-kelas.index') }}">List Jenis Kelas</a>
                 </li>
             </ul>
         </div>
@@ -94,52 +87,56 @@
             <div class="col-md-12">
                 <div class="card shadow-sm">
                     <div class="card-header d-flex justify-content-between align-items-center" role="button"
-                        data-bs-toggle="collapse" href="#collapseFaqForm" aria-expanded="true"
-                        aria-controls="collapseFaqForm">
+                        data-bs-toggle="collapse" href="#collapseKelasForm" aria-expanded="true"
+                        aria-controls="collapseKelasForm">
                         <h3 class="card-title mb-0">
-                            <i class="fas fa-plus-circle text-primary me-2"></i>Tambah FAQ
+                            <i class="fas fa-plus-circle me-2"></i>Tambah Jenis Kelas
                         </h3>
                         <div class="card-tools">
-                            <i class="fas fa-chevron-down collapse-icon text-muted"></i>
+                            <!-- Ikon panah untuk indikasi collapse -->
+                            <i class="fas fa-chevron-up collapse-icon"></i>
                         </div>
                     </div>
                     <!-- Card Body dengan kelas collapse dan show untuk tampil awal -->
-                    <div class="collapse show" id="collapseFaqForm">
+                    <div class="collapse show" id="collapseKelasForm">
                         <div class="card-body">
-                            <form id="faqForm" name="faqForm">
+                            <form id="kelasForm" name="kelasForm" class="form-horizontal">
                                 @csrf
-                                <input type="hidden" name="id" id="faq_id">
+                                <input type="hidden" name="id" id="kelas_id">
 
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group mb-3">
-                                            <label for="pertanyaan" class="form-label">Pertanyaan <span
-                                                    class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" id="pertanyaan" name="pertanyaan"
-                                                placeholder="Masukkan pertanyaan">
-                                            <div class="text-danger error-text" id="pertanyaan_error"></div>
-                                        </div>
+                                <div class="form-group row mb-3">
+                                    <label for="nama_kelas" class="col-sm-3 col-form-label text-end">
+                                        Nama Jenis Kelas <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control" id="nama_kelas" name="nama_kelas"
+                                            placeholder="Contoh: Reguler, Karyawan, Online" required>
+                                        <small class="form-text text-muted">Nama dari jenis kelas (misalnya Reguler,
+                                            Karyawan).</small>
+                                        <span id="nama_kelas_error" class="text-danger error-text"></span>
                                     </div>
                                 </div>
 
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group mb-3">
-                                            <label for="jawaban" class="form-label">Jawaban <span
-                                                    class="text-danger">*</span></label>
-                                            <textarea class="form-control" id="jawaban" name="jawaban" rows="6" placeholder="Masukkan jawaban"></textarea>
-                                            <div class="text-danger error-text" id="jawaban_error"></div>
-                                        </div>
+                                <div class="form-group row mb-3">
+                                    <label for="deskripsi" class="col-sm-3 col-form-label text-end">Deskripsi</label>
+                                    <div class="col-sm-9">
+                                        <textarea class="form-control" style="height:100px" id="deskripsi" name="deskripsi"
+                                            placeholder="Tambahkan deskripsi opsional, misalnya: 'Kelas untuk mahasiswa reguler yang mengikuti program studi secara penuh waktu...'"></textarea>
+                                        <small class="form-text text-muted">Deskripsi tambahan mengenai jenis kelas ini jika
+                                            diperlukan.</small>
+                                        <span id="deskripsi_error" class="text-danger error-text"></span>
                                     </div>
                                 </div>
-
-                                <div class="form-group mb-0">
-                                    <button type="submit" id="saveBtn" class="btn btn-primary">
-                                        <i class="fas fa-save"></i> Simpan
-                                    </button>
-                                    <button type="button" id="resetBtn" class="btn btn-secondary ms-2">
-                                        <i class="fas fa-undo"></i> Reset
-                                    </button>
+                                <hr class="mt-0 mb-4">
+                                <div class="form-group row mb-0">
+                                    <div class="offset-sm-3 col-sm-9">
+                                        <button type="submit" class="btn btn-primary" id="saveBtn">
+                                            <i class="fas fa-save"></i> Simpan
+                                        </button>
+                                        <button type="button" class="btn btn-secondary" id="resetBtn">
+                                            <i class="fas fa-redo"></i> Reset
+                                        </button>
+                                    </div>
                                 </div>
                             </form>
                         </div>
@@ -154,7 +151,7 @@
                 <div class="card shadow-sm">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h3 class="card-title mb-0">
-                            <i class="fas fa-list text-primary me-2"></i>Data FAQ
+                            <i class="fas fa-list me-2"></i>Data Jenis Kelas
                         </h3>
                     </div>
                     <div class="card-body">
@@ -162,17 +159,19 @@
                             <div class="loader-spinner"></div>
                         </div>
                         <div class="table-responsive">
-                            <table id="faq-table" class="table table-striped table-hover">
-                                <thead class="table-dark">
+                            <table id="kelas-table" class="table table-bordered table-striped table-hover"
+                                style="width:100%">
+                                <thead class="table-light">
                                     <tr>
-                                        <th style="width: 5%;">No</th>
-                                        <th style="width: 40%;">Pertanyaan</th>
-                                        <th style="width: 40%;">Jawaban</th>
-                                        <th style="width: 10%;">Tanggal</th>
-                                        <th style="width: 5%;">Aksi</th>
+                                        <th>No</th>
+                                        <th>Nama Jenis Kelas</th>
+                                        <th>Deskripsi</th>
+                                        <th>Aksi</th>
                                     </tr>
                                 </thead>
-                                <tbody></tbody>
+                                <tbody>
+                                    <!-- DataTables akan mengisi ini -->
+                                </tbody>
                             </table>
                         </div>
                     </div>
@@ -182,7 +181,7 @@
     </div>
 
     <!-- Modal Edit -->
-    <div class="modal fade" id="modalFaq" aria-hidden="true">
+    <div class="modal fade" id="modalKelas" aria-hidden="true">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
@@ -190,31 +189,27 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="faqFormModal" name="faqFormModal" class="form-horizontal">
+                    <form id="kelasFormModal" name="kelasFormModal" class="form-horizontal">
                         @csrf
                         @method('PUT')
-                        <input type="hidden" name="id" id="faq_id_modal">
+                        <input type="hidden" name="id" id="kelas_id_modal">
 
                         <div class="form-group mb-3">
-                            <label for="pertanyaan_modal" class="form-label">Pertanyaan <span
-                                    class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="pertanyaan_modal" name="pertanyaan"
-                                placeholder="Masukkan pertanyaan">
-                            <div class="text-danger error-text" id="pertanyaan_modal_error"></div>
+                            <label for="nama_kelas_modal" class="col-form-label">Nama Jenis Kelas</label>
+                            <input type="text" class="form-control" id="nama_kelas_modal" name="nama_kelas" required>
+                            <span class="text-danger error-text nama_kelas_error"></span>
                         </div>
-
                         <div class="form-group mb-3">
-                            <label for="jawaban_modal" class="form-label">Jawaban <span
-                                    class="text-danger">*</span></label>
-                            <textarea class="form-control" id="jawaban_modal" name="jawaban" rows="6" placeholder="Masukkan jawaban"></textarea>
-                            <div class="text-danger error-text" id="jawaban_modal_error"></div>
+                            <label for="deskripsi_modal" class="col-form-label">Deskripsi</label>
+                            <textarea class="form-control" style="height:100px" id="deskripsi_modal" name="deskripsi"></textarea>
+                            <span class="text-danger error-text deskripsi_error"></span>
                         </div>
 
                         <div class="form-group mb-0">
-                            <button type="submit" id="saveBtnModal" class="btn btn-primary">
-                                <i class="fas fa-save"></i> Update
+                            <button type="submit" class="btn btn-primary" id="saveBtnModal">
+                                <i class="fas fa-save"></i> Simpan
                             </button>
-                            <button type="button" class="btn btn-secondary ms-2" data-bs-dismiss="modal">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                                 <i class="fas fa-times"></i> Batal
                             </button>
                         </div>
@@ -234,11 +229,12 @@
     <script>
         $(document).ready(function() {
             // Ambil data dari variabel PHP yang dilewatkan ke view
-            var faqData = @json($faq);
+            var kelasData =
+                @json($jenis_kelas); // Pastikan nama variabel sesuai dengan yang dikirim dari controller
 
             // Inisialisasi DataTables dengan data dari PHP
-            var table = $('#faq-table').DataTable({
-                data: faqData,
+            var table = $('#kelas-table').DataTable({
+                data: kelasData,
                 columns: [{
                         data: null,
                         render: function(data, type, row, meta) {
@@ -249,43 +245,28 @@
                         searchable: false
                     },
                     {
-                        data: 'pertanyaan'
+                        data: 'nama_kelas'
                     },
                     {
-                        data: 'jawaban',
+                        data: 'deskripsi',
                         render: function(data, type, row) {
-                            // Batasi panjang jawaban dan tambahkan ellipsis jika terlalu panjang
-                            if (data && data.length > 100) {
-                                return '<div class="content-preview" title="' + data + '">' + data
-                                    .substring(0, 100) + '...</div>';
-                            }
+                            // Tampilkan '-' jika deskripsi kosong
                             return data || '-';
                         }
                     },
                     {
-                        data: 'created_at',
+                        data: null, // Tidak ada data spesifik dari API untuk kolom ini
                         render: function(data, type, row) {
-                            if (data) {
-                                const date = new Date(data);
-                                return date.toLocaleDateString('id-ID');
-                            }
-                            return '-';
-                        }
-                    },
-                    {
-                        data: null,
-                        render: function(data, type, row) {
+                            // Generate tombol aksi berdasarkan ID dari data API
                             return `
-                                <div class="btn-group" role="group">
-                                    <button type="button" class="btn btn-sm btn-warning edit-btn"
-                                        data-id="${row.id}" title="Edit">
+                                <div class="d-flex justify-content-center gap-2 flex-wrap">
+                                    <button class="btn btn-warning btn-sm edit-btn" data-id="${row.id}">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <button type="button" class="btn btn-sm btn-danger delete-btn"
-                                        data-id="${row.id}" title="Hapus">
+                                    <button class="btn btn-danger btn-sm delete-btn" data-id="${row.id}">
                                         <i class="fas fa-trash"></i>
                                     </button>
-                                </div>
+                               </div>
                             `;
                         },
                         orderable: false,
@@ -303,8 +284,8 @@
 
             // Reset form
             $('#resetBtn').click(function() {
-                $('#faqForm')[0].reset();
-                $('#faq_id').val('');
+                $('#kelasForm')[0].reset();
+                $('#kelas_id').val('');
                 $('.error-text').text(''); // Hapus pesan error
                 $('#saveBtn').prop('disabled', false).html(
                     '<i class="fas fa-save"></i> Simpan'
@@ -312,7 +293,7 @@
             });
 
             // Submit form create
-            $('#faqForm').on('submit', function(e) {
+            $('#kelasForm').on('submit', function(e) {
                 e.preventDefault();
 
                 // Hapus pesan error sebelumnya
@@ -324,36 +305,35 @@
                 $('#saveBtn').prop('disabled', true).text('Menyimpan...');
 
                 $.ajax({
-                    url: "{{ route('faq.store') }}",
+                    url: "{{ route('jenis-kelas.store') }}", // Pastikan route sesuai
                     type: 'POST',
                     data: formData,
                     success: function(response) {
                         if (response.success) {
-                            // Tambah data ke tabel
-                            table.row.add(response.data).draw();
-                            // Reset form
-                            $('#faqForm')[0].reset();
                             // Ganti alert dengan SweetAlert2
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Berhasil!',
-                                text: response.message || 'FAQ berhasil ditambahkan.',
+                                text: response.message,
                                 confirmButtonText: 'OK'
+                            }).then(() => {
+                                location
+                                    .reload(); // Reload halaman setelah SweetAlert ditutup
                             });
                         } else {
-                            // Ganti alert dengan SweetAlert2
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Gagal!',
-                                text: response.message ||
-                                    'Terjadi kesalahan saat menyimpan data.',
-                                confirmButtonText: 'OK'
-                            });
-                            // Tampilkan error spesifik jika ada
+                            // Tangani error dari server (jika ada pesan kesalahan spesifik)
                             if (response.errors) {
-                                Object.keys(response.errors).forEach(function(key) {
-                                    $('#' + key + '_error').text(response.errors[key][
-                                        0]);
+                                $.each(response.errors, function(key, value) {
+                                    $('#' + key + '_error').text(value[0]);
+                                });
+                            } else {
+                                // Tampilkan pesan error umum jika tidak ada error spesifik
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Gagal!',
+                                    text: response.message ||
+                                        'Terjadi kesalahan saat menyimpan data.',
+                                    confirmButtonText: 'OK'
                                 });
                             }
                         }
@@ -364,26 +344,25 @@
                         if (xhr.responseJSON && xhr.responseJSON.message) {
                             errorMessage = xhr.responseJSON.message;
                         } else if (xhr.responseJSON && xhr.responseJSON.errors) {
-                            errorMessage = Object.values(xhr.responseJSON.errors).flat().join(
-                                ', ');
+                            // Tampilkan error pertama dari server
+                            const errors = xhr.responseJSON.errors;
+                            errorMessage = Object.values(errors)[0][0] || errorMessage;
                         }
                         // Ganti alert dengan SweetAlert2
                         Swal.fire({
                             icon: 'error',
-                            title: 'Error!',
+                            title: 'Gagal!',
                             text: errorMessage,
                             confirmButtonText: 'OK'
                         });
                         // Tampilkan error spesifik jika ada
                         if (xhr.responseJSON && xhr.responseJSON.errors) {
-                            Object.keys(xhr.responseJSON.errors).forEach(function(key) {
-                                $('#' + key + '_error').text(xhr.responseJSON.errors[
-                                    key][0]);
+                            $.each(xhr.responseJSON.errors, function(key, value) {
+                                $('#' + key + '_error').text(value[0]);
                             });
                         }
                     },
-                    complete: function() {
-                        // Aktifkan kembali tombol setelah permintaan selesai
+                    complete: function() { // Aktifkan kembali tombol setelah permintaan selesai
                         $('#saveBtn').prop('disabled', false).html(
                             '<i class="fas fa-save"></i> Simpan'
                         );
@@ -394,21 +373,23 @@
             // Edit button click
             $(document).on('click', '.edit-btn', function() {
                 const id = $(this).data('id');
-                // Ambil data FAQ spesifik dari API
-                $.get("{{ route('faq.show', '') }}/" + id)
+                // Ambil data kelas spesifik dari API
+                $.get("{{ route('jenis-kelas.show', '') }}/" + id) // Pastikan route sesuai
                     .done(function(data) {
                         if (data && data.data) {
-                            $('#faq_id_modal').val(data.data.id);
-                            $('#pertanyaan_modal').val(data.data.pertanyaan);
-                            $('#jawaban_modal').val(data.data.jawaban);
-                            $('#modelHeading').text('Edit FAQ');
-                            $('.error-text').text(''); // Hapus pesan error
-                            $('#modalFaq').modal('show');
+                            $('#modelHeading').text('Edit Jenis Kelas');
+                            $('#kelas_id_modal').val(data.data.id);
+                            $('#nama_kelas_modal').val(data.data.nama_kelas);
+                            $('#deskripsi_modal').val(data.data.deskripsi);
+                            // Hapus error sebelumnya
+                            $('.error-text').text('');
+                            $('#modalKelas').modal('show');
                         } else {
+                            // Ganti alert dengan SweetAlert2
                             Swal.fire({
-                                icon: 'error',
-                                title: 'Error!',
-                                text: 'Data tidak ditemukan.',
+                                icon: 'warning',
+                                title: 'Data Tidak Ditemukan',
+                                text: 'Data yang Anda cari tidak ditemukan.',
                                 confirmButtonText: 'OK'
                             });
                         }
@@ -418,7 +399,7 @@
                         // Ganti alert dengan SweetAlert2
                         Swal.fire({
                             icon: 'error',
-                            title: 'Error!',
+                            title: 'Gagal!',
                             text: 'Gagal mengambil data untuk diedit.',
                             confirmButtonText: 'OK'
                         });
@@ -426,54 +407,48 @@
             });
 
             // Submit edit via modal
-            $('#faqFormModal').on('submit', function(e) {
+            $('#kelasFormModal').on('submit', function(e) {
                 e.preventDefault();
 
                 // Hapus pesan error sebelumnya
                 $('.error-text').text('');
 
-                const id = $('#faq_id_modal').val();
+                const id = $('#kelas_id_modal').val();
                 const formData = $(this).serialize();
 
                 // Nonaktifkan tombol dan tampilkan loader (opsional di modal)
                 $('#saveBtnModal').prop('disabled', true).text('Menyimpan...');
 
                 $.ajax({
-                    url: "{{ route('faq.update', '') }}/" + id,
+                    url: "{{ route('jenis-kelas.update', '') }}/" + id, // Pastikan route sesuai
                     type: 'PUT',
                     data: formData,
                     success: function(response) {
                         if (response.success) {
-                            // Update data di tabel dengan cara mencari row dan memperbarui data
-                            var rowIndex = table.row(function(idx, data, node) {
-                                return data.id == id;
-                            }).index();
-                            if (rowIndex !== undefined) {
-                                table.row(rowIndex).data(response.data).draw();
-                            }
-                            // Tutup modal
-                            $('#modalFaq').modal('hide');
                             // Ganti alert dengan SweetAlert2
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Berhasil!',
-                                text: response.message || 'FAQ berhasil diperbarui.',
+                                text: response.message,
                                 confirmButtonText: 'OK'
+                            }).then(() => {
+                                $('#modalKelas').modal('hide');
+                                location
+                                    .reload(); // Reload halaman setelah SweetAlert ditutup
                             });
                         } else {
-                            // Ganti alert dengan SweetAlert2
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Gagal!',
-                                text: response.message ||
-                                    'Terjadi kesalahan saat memperbarui data.',
-                                confirmButtonText: 'OK'
-                            });
-                            // Tampilkan error spesifik jika ada
                             if (response.errors) {
-                                Object.keys(response.errors).forEach(function(key) {
-                                    $('#' + key + '_modal_error').text(response.errors[
-                                        key][0]);
+                                $.each(response.errors, function(key, value) {
+                                    $('#' + key + '_error').text(value[0]);
+                                });
+                            } else {
+                                // Tampilkan pesan error umum jika tidak ada error spesifik
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Gagal!',
+                                    text: response.message ||
+                                        'Terjadi kesalahan saat memperbarui data.',
+                                    confirmButtonText: 'OK'
                                 });
                             }
                         }
@@ -484,28 +459,26 @@
                         if (xhr.responseJSON && xhr.responseJSON.message) {
                             errorMessage = xhr.responseJSON.message;
                         } else if (xhr.responseJSON && xhr.responseJSON.errors) {
-                            errorMessage = Object.values(xhr.responseJSON.errors).flat().join(
-                                ', ');
+                            // Tampilkan error pertama dari server
+                            const errors = xhr.responseJSON.errors;
+                            errorMessage = Object.values(errors)[0][0] || errorMessage;
                         }
-
+                        // Ganti alert dengan SweetAlert2
                         Swal.fire({
                             icon: 'error',
-                            title: 'Error!',
+                            title: 'Gagal!',
                             text: errorMessage,
                             confirmButtonText: 'OK'
                         });
-
-                        // Tampilkan error spesifik jika ada
                         if (xhr.responseJSON && xhr.responseJSON.errors) {
-                            Object.keys(xhr.responseJSON.errors).forEach(function(key) {
-                                $('#' + key + '_modal_error').text(xhr.responseJSON
-                                    .errors[key][0]);
+                            $.each(xhr.responseJSON.errors, function(key, value) {
+                                $('#' + key + '_error').text(value[0]);
                             });
                         }
                     },
                     complete: function() {
                         $('#saveBtnModal').prop('disabled', false).html(
-                            '<i class="fas fa-save"></i> Update'
+                            '<i class="fas fa-save"></i> Simpan'
                         );
                     }
                 });
@@ -517,7 +490,7 @@
                 // Ganti confirm dengan SweetAlert2
                 Swal.fire({
                     title: 'Anda yakin?',
-                    text: "FAQ ini akan dihapus secara permanen!",
+                    text: "Data jenis kelas ini akan dihapus secara permanen!",
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#d33',
@@ -526,35 +499,35 @@
                     cancelButtonText: 'Batal'
                 }).then((result) => {
                     if (result.isConfirmed) {
+                        // Tampilkan loader tabel saat menghapus
+                        $('#tableLoader').removeClass('hidden');
+
                         $.ajax({
-                            url: "{{ route('faq.destroy', '') }}/" + id,
+                            url: "{{ route('jenis-kelas.destroy', '') }}/" +
+                                id, // Pastikan route sesuai
                             type: 'DELETE',
                             data: {
-                                _token: $('meta[name="csrf-token"]').attr('content')
+                                _token: '{{ csrf_token() }}'
                             },
                             success: function(response) {
                                 if (response.success) {
-                                    // Hapus baris dari tabel
-                                    var rowIndex = table.row(function(idx, data, node) {
-                                        return data.id == id;
-                                    }).index();
-                                    if (rowIndex !== undefined) {
-                                        table.row(rowIndex).remove().draw();
-                                    }
                                     // Ganti alert dengan SweetAlert2
                                     Swal.fire({
                                         icon: 'success',
-                                        title: 'Terhapus!',
-                                        text: response.message ||
-                                            'FAQ berhasil dihapus.',
+                                        title: 'Berhasil!',
+                                        text: response.message,
                                         confirmButtonText: 'OK'
+                                    }).then(() => {
+                                        location
+                                            .reload(); // Reload halaman setelah SweetAlert ditutup
                                     });
                                 } else {
+                                    // Ganti alert dengan SweetAlert2
                                     Swal.fire({
                                         icon: 'error',
                                         title: 'Gagal!',
                                         text: response.message ||
-                                            'Terjadi kesalahan saat menghapus data.',
+                                            'Gagal menghapus data.',
                                         confirmButtonText: 'OK'
                                     });
                                 }
@@ -565,12 +538,16 @@
                                 if (xhr.responseJSON && xhr.responseJSON.message) {
                                     errorMessage = xhr.responseJSON.message;
                                 }
+                                // Ganti alert dengan SweetAlert2
                                 Swal.fire({
                                     icon: 'error',
-                                    title: 'Error!',
+                                    title: 'Gagal!',
                                     text: errorMessage,
                                     confirmButtonText: 'OK'
                                 });
+                            },
+                            complete: function() { // Pastikan loader disembunyikan setelah permintaan selesai
+                                $('#tableLoader').addClass('hidden');
                             }
                         });
                     }

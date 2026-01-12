@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\ManagementPengguna;
+namespace App\Http\Controllers\Siakad\MasterData;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Session;
 
-class UserController extends Controller
+class JenisPembayaranController extends Controller
 {
     protected string $apiUrl;
     protected string $apiToken;
@@ -21,15 +20,11 @@ class UserController extends Controller
     public function index()
     {
         try {
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . 'users');
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl . 'jenis-pembayaran');
 
             if ($response->successful()) {
-                $apiData = $response->json()['data'] ?? [];
-
-                // Ekstrak data
-                $users = $apiData['users'] ?? [];
-                $roles = $apiData['role'] ?? [];
-                return view('auth.pengguna.setting-user.user.index', compact('users', 'roles'));
+                $jenis_pembayaran = $response->json()['data'] ?? [];
+                return view('masterdata.jenis_pembayaran.index', compact('jenis_pembayaran'));
             }
 
             return back()->with('error', 'Gagal mengambil data dari API');
@@ -41,7 +36,7 @@ class UserController extends Controller
     public function store(Request $request)
     {
         try {
-            $response = Http::withToken($this->apiToken)->post($this->apiUrl . 'users', $request->all());
+            $response = Http::withToken($this->apiToken)->post($this->apiUrl . 'jenis-pembayaran', $request->all());
 
             if ($response->successful()) {
                 return response()->json($response->json());
@@ -63,7 +58,7 @@ class UserController extends Controller
     public function show($id)
     {
         try {
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . "users/{$id}");
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl . "jenis-pembayaran/{$id}");
 
             if ($response->successful()) {
                 return response()->json($response->json());
@@ -85,50 +80,17 @@ class UserController extends Controller
     public function update(Request $request, $id)
     {
         try {
+            $response = Http::withToken($this->apiToken)->put($this->apiUrl . "jenis-pembayaran/{$id}", $request->all());
 
-            // 1. Update user ke API
-            $response = Http::withToken($this->apiToken)
-                ->put($this->apiUrl . "users/{$id}", $request->all());
-
-            if (! $response->successful()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Gagal memperbarui data di API',
-                    'errors'  => $response->json()
-                ], 422);
-            }
-
-            // 2. Ambil data user terbaru dari /auth/me
-            $userResponse = Http::withToken($this->apiToken)
-                ->get($this->apiUrl . "auth/me");
-
-            if ($userResponse->successful()) {
-
-                $apiUser = $userResponse->json()['user'];
-
-                // 3. Update seluruh data session user
-                // Ambil session lama
-                $current = Session::get('user', []);
-
-                // Timpa data user lama dengan yang baru
-                $updatedUser = array_merge($current, [
-                    'id'         => $apiUser['id'] ?? $current['id'] ?? null,
-                    'name'       => $apiUser['name'] ?? $current['name'] ?? null,
-                    'email'      => $apiUser['email'] ?? $current['email'] ?? null,
-                    'status'     => $apiUser['status'] ?? $current['status'] ?? null,
-                    'role'       => $apiUser['role'] ?? $current['role'] ?? [],
-                    'permission' => $apiUser['permission'] ?? $current['permission'] ?? [],
-                ]);
-
-                // 4. Simpan ke session
-                Session::put('user', $updatedUser);
+            if ($response->successful()) {
+                return response()->json($response->json());
             }
 
             return response()->json([
-                'success' => true,
-                'message' => 'User berhasil diperbarui.',
-                'data'    => $response->json()
-            ]);
+                'success' => false,
+                'message' => 'Gagal memperbarui data di API',
+                'errors' => $response->json()
+            ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -137,12 +99,10 @@ class UserController extends Controller
         }
     }
 
-
-
     public function destroy($id)
     {
         try {
-            $response = Http::withToken($this->apiToken)->delete($this->apiUrl . "users/{$id}");
+            $response = Http::withToken($this->apiToken)->delete($this->apiUrl . "jenis-pembayaran/{$id}");
 
             if ($response->successful()) {
                 return response()->json($response->json());

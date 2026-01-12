@@ -1,4 +1,4 @@
-@extends('admin.layouts.index')
+@extends('layouts.index')
 @section('title', 'Profile Kampus')
 @push('styles-custom')
     <style>
@@ -61,7 +61,7 @@
             max-width: 200px;
             height: auto;
             border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
             margin: 10px 0;
         }
 
@@ -125,7 +125,7 @@
                             <div id="formLoader" class="loader-overlay hidden">
                                 <div class="loader-spinner"></div>
                             </div>
-                            
+
                             <form id="profileKampusForm" name="profileKampusForm" enctype="multipart/form-data">
                                 @csrf
                                 <input type="hidden" name="id" id="profile_id" value="1">
@@ -134,12 +134,12 @@
                                 <div class="section-title">
                                     <i class="fas fa-university text-primary me-2"></i>Profil Umum
                                 </div>
-                                
+
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="form-group mb-3">
                                             <label for="judul" class="form-label">Judul Profile Kampus</label>
-                                            <input type="text" class="form-control" id="judul" name="judul" 
+                                            <input type="text" class="form-control" id="judul" name="judul"
                                                 placeholder="Masukkan judul profile kampus">
                                             <div class="text-danger error-text" id="judul_error"></div>
                                         </div>
@@ -150,8 +150,7 @@
                                     <div class="col-md-12">
                                         <div class="form-group mb-3">
                                             <label for="deskripsi" class="form-label">Deskripsi Kampus</label>
-                                            <textarea class="form-control" id="deskripsi" name="deskripsi" rows="5"
-                                                placeholder="Masukkan deskripsi kampus"></textarea>
+                                            <textarea class="form-control" id="deskripsi" name="deskripsi" rows="5" placeholder="Masukkan deskripsi kampus"></textarea>
                                             <div class="text-danger error-text" id="deskripsi_error"></div>
                                         </div>
                                     </div>
@@ -162,21 +161,19 @@
                                     <div class="section-title">
                                         <i class="fas fa-eye text-success me-2"></i>Visi & Misi
                                     </div>
-                                    
+
                                     <div class="row">
                                         <div class="col-md-6">
                                             <div class="form-group mb-3">
                                                 <label for="visi" class="form-label">Visi</label>
-                                                <textarea class="form-control" id="visi" name="visi" rows="6"
-                                                    placeholder="Masukkan visi kampus"></textarea>
+                                                <textarea class="form-control" id="visi" name="visi" rows="6" placeholder="Masukkan visi kampus"></textarea>
                                                 <div class="text-danger error-text" id="visi_error"></div>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
                                             <div class="form-group mb-3">
                                                 <label for="misi" class="form-label">Misi</label>
-                                                <textarea class="form-control" id="misi" name="misi" rows="6"
-                                                    placeholder="Masukkan misi kampus"></textarea>
+                                                <textarea class="form-control" id="misi" name="misi" rows="6" placeholder="Masukkan misi kampus"></textarea>
                                                 <div class="text-danger error-text" id="misi_error"></div>
                                             </div>
                                         </div>
@@ -188,16 +185,21 @@
                                     <div class="section-title">
                                         <i class="fas fa-sitemap text-warning me-2"></i>Struktur Organisasi
                                     </div>
-                                    
+
                                     <div class="row">
                                         <div class="col-md-12">
                                             <div class="form-group mb-3">
-                                                <label for="struktur_image" class="form-label">Gambar Struktur Organisasi</label>
-                                                <input type="file" class="form-control" id="struktur_image" name="struktur_image" accept="image/*">
-                                                <small class="form-text text-muted">Format yang diizinkan: JPG, JPEG, PNG. Maksimal 2MB.</small>
+                                                <label for="struktur_image" class="form-label">Gambar Struktur
+                                                    Organisasi</label>
+                                                <input type="file" class="form-control" id="struktur_image"
+                                                    name="struktur_image" accept="image/*">
+                                                <small class="form-text text-muted">Format yang diizinkan: JPG, JPEG, PNG.
+                                                    Maksimal 2MB.</small>
                                                 <div class="text-danger error-text" id="struktur_image_error"></div>
-                                                <div id="struktur-preview-container" class="image-preview-container mt-2" style="display: none;">
-                                                    <img id="struktur-preview" src="" alt="Preview" class="image-preview">
+                                                <div id="struktur-preview-container" class="image-preview-container mt-2"
+                                                    style="display: none;">
+                                                    <img id="struktur-preview" src="" alt="Preview"
+                                                        class="image-preview">
                                                     <p class="text-muted small mb-0">Preview Struktur Organisasi</p>
                                                 </div>
                                             </div>
@@ -210,7 +212,7 @@
                                     <div class="section-title">
                                         <i class="fas fa-building text-info me-2"></i>Fasilitas
                                     </div>
-                                    
+
                                     <div class="row">
                                         <div class="col-md-12">
                                             <div class="form-group mb-3">
@@ -269,19 +271,19 @@
 
             // Load data profile kampus yang sudah ada
             function loadProfileKampus() {
-                @if($profileKampus)
+                @if ($profileKampus)
                     const data = @json($profileKampus);
-                    
+
                     // Populate form fields
                     $('#judul').val(data.judul || '');
                     $('#deskripsi').val(data.deskripsi || '');
                     $('#visi').val(data.visi || '');
                     $('#misi').val(data.misi || '');
                     $('#fasilitas').val(data.fasilitas || '');
-                    
+
                     // Show existing images
-                    var apiStorageUrl = '{{ config("api.storage_url") }}';
-                    
+                    var apiStorageUrl = '{{ config('api.storage_url') }}';
+
                     if (data.struktur_image) {
                         let strukturImageUrl = data.struktur_image;
                         if (!strukturImageUrl.startsWith('http')) {
@@ -296,7 +298,7 @@
             // Test API Connection
             $('#testApiBtn').click(function() {
                 $(this).prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Testing...');
-                
+
                 $.ajax({
                     url: "{{ route('profile-kampus.show', 1) }}",
                     type: 'GET',
@@ -318,7 +320,7 @@
                         if (xhr.responseJSON) {
                             errorMsg += ': ' + (xhr.responseJSON.message || 'Unknown error');
                         }
-                        
+
                         Swal.fire({
                             icon: 'error',
                             title: 'API Test Failed!',
@@ -327,7 +329,8 @@
                         });
                     },
                     complete: function() {
-                        $('#testApiBtn').prop('disabled', false).html('<i class="fas fa-link"></i> Test API Connection');
+                        $('#testApiBtn').prop('disabled', false).html(
+                            '<i class="fas fa-link"></i> Test API Connection');
                     }
                 });
             });
@@ -351,7 +354,7 @@
 
                 // Gunakan FormData untuk mengirim file
                 const formData = new FormData(this);
-                
+
                 // Debug: tampilkan data yang akan dikirim
                 console.log('Form Data yang akan dikirim:');
                 for (let pair of formData.entries()) {
@@ -360,7 +363,8 @@
 
                 // Show loader
                 $('#formLoader').removeClass('hidden');
-                $('#saveBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Menyimpan...');
+                $('#saveBtn').prop('disabled', true).html(
+                    '<i class="fas fa-spinner fa-spin"></i> Menyimpan...');
 
                 $.ajax({
                     url: "{{ route('profile-kampus.store') }}",
@@ -376,7 +380,8 @@
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Berhasil!',
-                                text: response.message || 'Profile kampus berhasil disimpan.',
+                                text: response.message ||
+                                    'Profile kampus berhasil disimpan.',
                                 confirmButtonText: 'OK'
                             }).then(() => {
                                 // Reload page to show updated data
@@ -386,14 +391,16 @@
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Gagal!',
-                                text: response.message || 'Terjadi kesalahan saat menyimpan data.',
+                                text: response.message ||
+                                    'Terjadi kesalahan saat menyimpan data.',
                                 confirmButtonText: 'OK'
                             });
-                            
+
                             // Tampilkan error spesifik jika ada
                             if (response.errors) {
                                 Object.keys(response.errors).forEach(function(key) {
-                                    $('#' + key + '_error').text(response.errors[key][0]);
+                                    $('#' + key + '_error').text(response.errors[key][
+                                        0]);
                                 });
                             }
                         }
@@ -402,40 +409,44 @@
                         console.error('AJAX Error:', xhr);
                         console.error('Response Status:', xhr.status);
                         console.error('Response Text:', xhr.responseText);
-                        
+
                         let errorMessage = 'Gagal menyimpan data.';
                         let debugInfo = null;
-                        
+
                         if (xhr.responseJSON) {
                             console.error('Response JSON:', xhr.responseJSON);
-                            
+
                             if (xhr.responseJSON.message) {
                                 errorMessage = xhr.responseJSON.message;
                             }
-                            
+
                             if (xhr.responseJSON.debug) {
                                 debugInfo = xhr.responseJSON.debug;
                                 console.error('Debug Info:', debugInfo);
                             }
-                            
+
                             // Tampilkan error spesifik jika ada
                             if (xhr.responseJSON.errors) {
                                 Object.keys(xhr.responseJSON.errors).forEach(function(key) {
                                     if (Array.isArray(xhr.responseJSON.errors[key])) {
-                                        $('#' + key + '_error').text(xhr.responseJSON.errors[key][0]);
+                                        $('#' + key + '_error').text(xhr.responseJSON
+                                            .errors[key][0]);
                                     } else {
-                                        $('#' + key + '_error').text(xhr.responseJSON.errors[key]);
+                                        $('#' + key + '_error').text(xhr.responseJSON
+                                            .errors[key]);
                                     }
                                 });
                             }
                         } else if (xhr.responseText) {
-                            errorMessage = 'Server Error: ' + xhr.responseText.substring(0, 200) + '...';
+                            errorMessage = 'Server Error: ' + xhr.responseText.substring(0,
+                                200) + '...';
                         }
 
                         // Tampilkan error dengan detail debugging
                         let errorText = errorMessage;
                         if (debugInfo) {
-                            errorText += '\n\nDebug Info: ' + JSON.stringify(debugInfo, null, 2);
+                            errorText += '\n\nDebug Info: ' + JSON.stringify(debugInfo, null,
+                            2);
                         }
 
                         Swal.fire({
@@ -451,7 +462,8 @@
                     complete: function() {
                         // Hide loader
                         $('#formLoader').addClass('hidden');
-                        $('#saveBtn').prop('disabled', false).html('<i class="fas fa-save"></i> Simpan Profile Kampus');
+                        $('#saveBtn').prop('disabled', false).html(
+                            '<i class="fas fa-save"></i> Simpan Profile Kampus');
                     }
                 });
             });

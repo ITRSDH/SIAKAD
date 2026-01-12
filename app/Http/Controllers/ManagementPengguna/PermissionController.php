@@ -30,7 +30,7 @@ class PermissionController extends Controller
                 // Jika API mengembalikan "data", gunakan itu; jika tidak, langsung gunakan body
                 $permissions = $response->json()['data'] ?? $response->json();
 
-                return view('admin.master.pengguna.setting-user.permission.index', compact('permissions'));
+                return view('auth.pengguna.setting-user.permission.index', compact('permissions'));
             }
 
             return back()->with('error', 'Gagal mengambil data permission dari API');

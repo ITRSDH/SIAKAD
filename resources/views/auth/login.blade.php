@@ -144,18 +144,25 @@
                         @endif
                         <form method="POST" action="{{ route('login') }}">
                             @csrf
+
                             <div class="mb-4 position-relative">
                                 <i class="ti ti-user fs-6 form-icon"></i>
-                                <input type="text" class="form-control" id="email" name="email" required
-                                    placeholder="Email Address">
+                                <input type="text" class="form-control" id="username" name="username"
+                                    value="{{ old('username') }}" required placeholder="Email / NIM / NUP"
+                                    autocomplete="username">
                             </div>
+
                             <div class="mb-4 position-relative">
                                 <i class="ti ti-lock fs-6 form-icon"></i>
                                 <input type="password" class="form-control" id="password" name="password" required
-                                    placeholder="Password">
+                                    placeholder="Password" autocomplete="current-password">
                             </div>
-                            <button type="submit" class="btn btn-success w-100">Sign In</button>
+
+                            <button type="submit" class="btn btn-success w-100">
+                                Sign In
+                            </button>
                         </form>
+
                         <span class="version-text">S-DH Ver 1.0.Beta</span> <!-- Gunakan class baru -->
                     </div>
                 </div>

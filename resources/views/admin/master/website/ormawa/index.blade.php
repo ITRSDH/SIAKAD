@@ -1,4 +1,4 @@
-@extends('admin.layouts.index')
+@extends('layouts.index')
 @section('title', 'Ormawa')
 @push('styles-custom')
     <style>
@@ -322,7 +322,8 @@
                         <div class="form-group mb-3">
                             <label for="deskripsi_modal" class="form-label">Deskripsi Ormawa <span
                                     class="text-danger">*</span></label>
-                            <textarea class="form-control" id="deskripsi_modal" name="deskripsi" rows="6" placeholder="Masukkan deskripsi ormawa"></textarea>
+                            <textarea class="form-control" id="deskripsi_modal" name="deskripsi" rows="6"
+                                placeholder="Masukkan deskripsi ormawa"></textarea>
                             <div class="text-danger error-text" id="deskripsi_modal_error"></div>
                         </div>
 
@@ -412,9 +413,9 @@
 
                                 return `
                                     <div class="text-center">
-                                        <img src="${imageUrl}" alt="Ormawa ${row.judul || ''}" 
-                                             class="table-image" 
-                                             onclick="showImageModal('${imageUrl}', '${row.judul || 'Ormawa'}')" 
+                                        <img src="${imageUrl}" alt="Ormawa ${row.judul || ''}"
+                                             class="table-image"
+                                             onclick="showImageModal('${imageUrl}', '${row.judul || 'Ormawa'}')"
                                              title="Klik untuk memperbesar"
                                              onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                                         <div style="display:none;" class="text-center">
@@ -468,11 +469,11 @@
                         render: function(data, type, row) {
                             return `
                                 <div class="btn-group" role="group">
-                                    <button type="button" class="btn btn-sm btn-warning edit-btn" 
+                                    <button type="button" class="btn btn-sm btn-warning edit-btn"
                                         data-id="${row.id}" title="Edit">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <button type="button" class="btn btn-sm btn-danger delete-btn" 
+                                    <button type="button" class="btn btn-sm btn-danger delete-btn"
                                         data-id="${row.id}" title="Hapus">
                                         <i class="fas fa-trash"></i>
                                     </button>
@@ -503,7 +504,7 @@
                 );
             });
 
-            // Submit form create  
+            // Submit form create
             $('#ormawaForm').on('submit', function(e) {
                 e.preventDefault();
 
@@ -566,7 +567,8 @@
                             if (response.errors) {
                                 Object.keys(response.errors).forEach(function(key) {
                                     $('#' + key + '_error').text(response.errors[key][
-                                        0]);
+                                        0
+                                    ]);
                                 });
                             }
                         }

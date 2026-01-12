@@ -1,4 +1,4 @@
-@extends('admin.layouts.index')
+@extends('layouts.index')
 @section('title', 'Landing Content')
 @push('styles-custom')
     <style>
@@ -61,7 +61,7 @@
             max-width: 200px;
             height: auto;
             border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
             margin: 10px 0;
         }
 
@@ -125,7 +125,7 @@
                             <div id="formLoader" class="loader-overlay hidden">
                                 <div class="loader-spinner"></div>
                             </div>
-                            
+
                             <form id="landingContentForm" name="landingContentForm" enctype="multipart/form-data">
                                 @csrf
                                 <input type="hidden" name="id" id="landing_id" value="1">
@@ -134,12 +134,12 @@
                                 <div class="section-title">
                                     <i class="fas fa-image text-primary me-2"></i>Hero Section
                                 </div>
-                                
+
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
                                             <label for="hero_title" class="form-label">Hero Title</label>
-                                            <input type="text" class="form-control" id="hero_title" name="hero_title" 
+                                            <input type="text" class="form-control" id="hero_title" name="hero_title"
                                                 placeholder="Masukkan judul hero">
                                             <div class="text-danger error-text" id="hero_title_error"></div>
                                         </div>
@@ -158,10 +158,13 @@
                                     <div class="col-md-12">
                                         <div class="form-group mb-3">
                                             <label for="hero_background" class="form-label">Hero Background</label>
-                                            <input type="file" class="form-control" id="hero_background" name="hero_background" accept="image/*">
-                                            <small class="form-text text-muted">Format yang diizinkan: JPG, JPEG, PNG. Maksimal 2MB.</small>
+                                            <input type="file" class="form-control" id="hero_background"
+                                                name="hero_background" accept="image/*">
+                                            <small class="form-text text-muted">Format yang diizinkan: JPG, JPEG, PNG.
+                                                Maksimal 2MB.</small>
                                             <div class="text-danger error-text" id="hero_background_error"></div>
-                                            <div id="hero-preview-container" class="image-preview-container mt-2" style="display: none;">
+                                            <div id="hero-preview-container" class="image-preview-container mt-2"
+                                                style="display: none;">
                                                 <img id="hero-preview" src="" alt="Preview" class="image-preview">
                                                 <p class="text-muted small mb-0">Preview Hero Background</p>
                                             </div>
@@ -174,37 +177,38 @@
                                     <div class="section-title">
                                         <i class="fas fa-chart-bar text-success me-2"></i>Statistik
                                     </div>
-                                    
+
                                     <div class="row">
                                         <div class="col-md-3">
                                             <div class="form-group mb-3">
-                                                <label for="jumlah_program_studi" class="form-label">Jumlah Program Studi</label>
-                                                <input type="number" class="form-control" id="jumlah_program_studi" name="jumlah_program_studi" 
-                                                    placeholder="0" min="0">
+                                                <label for="jumlah_program_studi" class="form-label">Jumlah Program
+                                                    Studi</label>
+                                                <input type="number" class="form-control" id="jumlah_program_studi"
+                                                    name="jumlah_program_studi" placeholder="0" min="0">
                                                 <div class="text-danger error-text" id="jumlah_program_studi_error"></div>
                                             </div>
                                         </div>
                                         <div class="col-md-3">
                                             <div class="form-group mb-3">
                                                 <label for="jumlah_mahasiswa" class="form-label">Jumlah Mahasiswa</label>
-                                                <input type="number" class="form-control" id="jumlah_mahasiswa" name="jumlah_mahasiswa" 
-                                                    placeholder="0" min="0">
+                                                <input type="number" class="form-control" id="jumlah_mahasiswa"
+                                                    name="jumlah_mahasiswa" placeholder="0" min="0">
                                                 <div class="text-danger error-text" id="jumlah_mahasiswa_error"></div>
                                             </div>
                                         </div>
                                         <div class="col-md-3">
                                             <div class="form-group mb-3">
                                                 <label for="jumlah_dosen" class="form-label">Jumlah Dosen</label>
-                                                <input type="number" class="form-control" id="jumlah_dosen" name="jumlah_dosen" 
-                                                    placeholder="0" min="0">
+                                                <input type="number" class="form-control" id="jumlah_dosen"
+                                                    name="jumlah_dosen" placeholder="0" min="0">
                                                 <div class="text-danger error-text" id="jumlah_dosen_error"></div>
                                             </div>
                                         </div>
                                         <div class="col-md-3">
                                             <div class="form-group mb-3">
                                                 <label for="jumlah_mitra" class="form-label">Jumlah Mitra</label>
-                                                <input type="number" class="form-control" id="jumlah_mitra" name="jumlah_mitra" 
-                                                    placeholder="0" min="0">
+                                                <input type="number" class="form-control" id="jumlah_mitra"
+                                                    name="jumlah_mitra" placeholder="0" min="0">
                                                 <div class="text-danger error-text" id="jumlah_mitra_error"></div>
                                             </div>
                                         </div>
@@ -216,7 +220,7 @@
                                     <div class="section-title">
                                         <i class="fas fa-star text-warning me-2"></i>Keunggulan
                                     </div>
-                                    
+
                                     <div class="row">
                                         <div class="col-md-12">
                                             <div class="form-group mb-3">
@@ -234,24 +238,28 @@
                                     <div class="section-title">
                                         <i class="fas fa-palette text-info me-2"></i>Branding
                                     </div>
-                                    
+
                                     <div class="row">
                                         <div class="col-md-6">
                                             <div class="form-group mb-3">
                                                 <label for="nama_aplikasi" class="form-label">Nama Aplikasi</label>
-                                                <input type="text" class="form-control" id="nama_aplikasi" name="nama_aplikasi" 
-                                                    placeholder="Masukkan nama aplikasi">
+                                                <input type="text" class="form-control" id="nama_aplikasi"
+                                                    name="nama_aplikasi" placeholder="Masukkan nama aplikasi">
                                                 <div class="text-danger error-text" id="nama_aplikasi_error"></div>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
                                             <div class="form-group mb-3">
                                                 <label for="logo" class="form-label">Logo</label>
-                                                <input type="file" class="form-control" id="logo" name="logo" accept="image/*">
-                                                <small class="form-text text-muted">Format yang diizinkan: JPG, JPEG, PNG. Maksimal 2MB.</small>
+                                                <input type="file" class="form-control" id="logo" name="logo"
+                                                    accept="image/*">
+                                                <small class="form-text text-muted">Format yang diizinkan: JPG, JPEG, PNG.
+                                                    Maksimal 2MB.</small>
                                                 <div class="text-danger error-text" id="logo_error"></div>
-                                                <div id="logo-preview-container" class="image-preview-container mt-2" style="display: none;">
-                                                    <img id="logo-preview" src="" alt="Preview" class="image-preview">
+                                                <div id="logo-preview-container" class="image-preview-container mt-2"
+                                                    style="display: none;">
+                                                    <img id="logo-preview" src="" alt="Preview"
+                                                        class="image-preview">
                                                     <p class="text-muted small mb-0">Preview Logo</p>
                                                 </div>
                                             </div>
@@ -275,20 +283,20 @@
                                     <div class="section-title">
                                         <i class="fas fa-share-alt text-primary me-2"></i>Media Sosial
                                     </div>
-                                    
+
                                     <div class="row">
                                         <div class="col-md-6">
                                             <div class="form-group mb-3">
                                                 <label for="facebook" class="form-label">Facebook</label>
-                                                <input type="url" class="form-control" id="facebook" name="facebook" 
-                                                    placeholder="https://facebook.com/username">
+                                                <input type="url" class="form-control" id="facebook"
+                                                    name="facebook" placeholder="https://facebook.com/username">
                                                 <div class="text-danger error-text" id="facebook_error"></div>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
                                             <div class="form-group mb-3">
                                                 <label for="twitter" class="form-label">Twitter</label>
-                                                <input type="url" class="form-control" id="twitter" name="twitter" 
+                                                <input type="url" class="form-control" id="twitter" name="twitter"
                                                     placeholder="https://twitter.com/username">
                                                 <div class="text-danger error-text" id="twitter_error"></div>
                                             </div>
@@ -299,23 +307,23 @@
                                         <div class="col-md-4">
                                             <div class="form-group mb-3">
                                                 <label for="instagram" class="form-label">Instagram</label>
-                                                <input type="url" class="form-control" id="instagram" name="instagram" 
-                                                    placeholder="https://instagram.com/username">
+                                                <input type="url" class="form-control" id="instagram"
+                                                    name="instagram" placeholder="https://instagram.com/username">
                                                 <div class="text-danger error-text" id="instagram_error"></div>
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group mb-3">
                                                 <label for="linkedin" class="form-label">LinkedIn</label>
-                                                <input type="url" class="form-control" id="linkedin" name="linkedin" 
-                                                    placeholder="https://linkedin.com/company/name">
+                                                <input type="url" class="form-control" id="linkedin"
+                                                    name="linkedin" placeholder="https://linkedin.com/company/name">
                                                 <div class="text-danger error-text" id="linkedin_error"></div>
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group mb-3">
                                                 <label for="youtube" class="form-label">YouTube</label>
-                                                <input type="url" class="form-control" id="youtube" name="youtube" 
+                                                <input type="url" class="form-control" id="youtube" name="youtube"
                                                     placeholder="https://youtube.com/channel/id">
                                                 <div class="text-danger error-text" id="youtube_error"></div>
                                             </div>
@@ -328,13 +336,12 @@
                                     <div class="section-title">
                                         <i class="fas fa-phone text-success me-2"></i>Kontak
                                     </div>
-                                    
+
                                     <div class="row">
                                         <div class="col-md-12">
                                             <div class="form-group mb-3">
                                                 <label for="alamat" class="form-label">Alamat</label>
-                                                <textarea class="form-control" id="alamat" name="alamat" rows="3"
-                                                    placeholder="Masukkan alamat lengkap"></textarea>
+                                                <textarea class="form-control" id="alamat" name="alamat" rows="3" placeholder="Masukkan alamat lengkap"></textarea>
                                                 <div class="text-danger error-text" id="alamat_error"></div>
                                             </div>
                                         </div>
@@ -344,7 +351,7 @@
                                         <div class="col-md-6">
                                             <div class="form-group mb-3">
                                                 <label for="telepon" class="form-label">Telepon</label>
-                                                <input type="tel" class="form-control" id="telepon" name="telepon" 
+                                                <input type="tel" class="form-control" id="telepon" name="telepon"
                                                     placeholder="Contoh: +62 21 1234567">
                                                 <div class="text-danger error-text" id="telepon_error"></div>
                                             </div>
@@ -352,7 +359,7 @@
                                         <div class="col-md-6">
                                             <div class="form-group mb-3">
                                                 <label for="email" class="form-label">Email</label>
-                                                <input type="email" class="form-control" id="email" name="email" 
+                                                <input type="email" class="form-control" id="email" name="email"
                                                     placeholder="contoh@domain.com">
                                                 <div class="text-danger error-text" id="email_error"></div>
                                             </div>
@@ -421,9 +428,9 @@
 
             // Load data landing content yang sudah ada
             function loadLandingContent() {
-                @if($landingContent)
+                @if ($landingContent)
                     const data = @json($landingContent);
-                    
+
                     // Populate form fields
                     $('#hero_title').val(data.hero_title || '');
                     $('#hero_subtitle').val(data.hero_subtitle || '');
@@ -442,10 +449,10 @@
                     $('#alamat').val(data.alamat || '');
                     $('#telepon').val(data.telepon || '');
                     $('#email').val(data.email || '');
-                    
+
                     // Show existing images
-                    var apiStorageUrl = '{{ config("api.storage_url") }}';
-                    
+                    var apiStorageUrl = '{{ config('api.storage_url') }}';
+
                     if (data.hero_background) {
                         let heroImageUrl = data.hero_background;
                         if (!heroImageUrl.startsWith('http')) {
@@ -454,7 +461,7 @@
                         $('#hero-preview').attr('src', heroImageUrl);
                         $('#hero-preview-container').show();
                     }
-                    
+
                     if (data.logo) {
                         let logoImageUrl = data.logo;
                         if (!logoImageUrl.startsWith('http')) {
@@ -469,7 +476,7 @@
             // Test API Connection
             $('#testApiBtn').click(function() {
                 $(this).prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Testing...');
-                
+
                 $.ajax({
                     url: "{{ route('landing-content.show', 1) }}",
                     type: 'GET',
@@ -491,7 +498,7 @@
                         if (xhr.responseJSON) {
                             errorMsg += ': ' + (xhr.responseJSON.message || 'Unknown error');
                         }
-                        
+
                         Swal.fire({
                             icon: 'error',
                             title: 'API Test Failed!',
@@ -500,7 +507,8 @@
                         });
                     },
                     complete: function() {
-                        $('#testApiBtn').prop('disabled', false).html('<i class="fas fa-link"></i> Test API Connection');
+                        $('#testApiBtn').prop('disabled', false).html(
+                            '<i class="fas fa-link"></i> Test API Connection');
                     }
                 });
             });
@@ -525,7 +533,7 @@
 
                 // Gunakan FormData untuk mengirim file
                 const formData = new FormData(this);
-                
+
                 // Debug: tampilkan data yang akan dikirim
                 console.log('Form Data yang akan dikirim:');
                 for (let pair of formData.entries()) {
@@ -534,7 +542,8 @@
 
                 // Show loader
                 $('#formLoader').removeClass('hidden');
-                $('#saveBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Menyimpan...');
+                $('#saveBtn').prop('disabled', true).html(
+                    '<i class="fas fa-spinner fa-spin"></i> Menyimpan...');
 
                 $.ajax({
                     url: "{{ route('landing-content.store') }}",
@@ -550,7 +559,8 @@
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Berhasil!',
-                                text: response.message || 'Landing content berhasil disimpan.',
+                                text: response.message ||
+                                    'Landing content berhasil disimpan.',
                                 confirmButtonText: 'OK'
                             }).then(() => {
                                 // Reload page to show updated data
@@ -560,14 +570,16 @@
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Gagal!',
-                                text: response.message || 'Terjadi kesalahan saat menyimpan data.',
+                                text: response.message ||
+                                    'Terjadi kesalahan saat menyimpan data.',
                                 confirmButtonText: 'OK'
                             });
-                            
+
                             // Tampilkan error spesifik jika ada
                             if (response.errors) {
                                 Object.keys(response.errors).forEach(function(key) {
-                                    $('#' + key + '_error').text(response.errors[key][0]);
+                                    $('#' + key + '_error').text(response.errors[key][
+                                        0]);
                                 });
                             }
                         }
@@ -576,40 +588,44 @@
                         console.error('AJAX Error:', xhr);
                         console.error('Response Status:', xhr.status);
                         console.error('Response Text:', xhr.responseText);
-                        
+
                         let errorMessage = 'Gagal menyimpan data.';
                         let debugInfo = null;
-                        
+
                         if (xhr.responseJSON) {
                             console.error('Response JSON:', xhr.responseJSON);
-                            
+
                             if (xhr.responseJSON.message) {
                                 errorMessage = xhr.responseJSON.message;
                             }
-                            
+
                             if (xhr.responseJSON.debug) {
                                 debugInfo = xhr.responseJSON.debug;
                                 console.error('Debug Info:', debugInfo);
                             }
-                            
+
                             // Tampilkan error spesifik jika ada
                             if (xhr.responseJSON.errors) {
                                 Object.keys(xhr.responseJSON.errors).forEach(function(key) {
                                     if (Array.isArray(xhr.responseJSON.errors[key])) {
-                                        $('#' + key + '_error').text(xhr.responseJSON.errors[key][0]);
+                                        $('#' + key + '_error').text(xhr.responseJSON
+                                            .errors[key][0]);
                                     } else {
-                                        $('#' + key + '_error').text(xhr.responseJSON.errors[key]);
+                                        $('#' + key + '_error').text(xhr.responseJSON
+                                            .errors[key]);
                                     }
                                 });
                             }
                         } else if (xhr.responseText) {
-                            errorMessage = 'Server Error: ' + xhr.responseText.substring(0, 200) + '...';
+                            errorMessage = 'Server Error: ' + xhr.responseText.substring(0,
+                                200) + '...';
                         }
 
                         // Tampilkan error dengan detail debugging
                         let errorText = errorMessage;
                         if (debugInfo) {
-                            errorText += '\n\nDebug Info: ' + JSON.stringify(debugInfo, null, 2);
+                            errorText += '\n\nDebug Info: ' + JSON.stringify(debugInfo, null,
+                            2);
                         }
 
                         Swal.fire({
@@ -625,7 +641,8 @@
                     complete: function() {
                         // Hide loader
                         $('#formLoader').addClass('hidden');
-                        $('#saveBtn').prop('disabled', false).html('<i class="fas fa-save"></i> Simpan Pengaturan');
+                        $('#saveBtn').prop('disabled', false).html(
+                            '<i class="fas fa-save"></i> Simpan Pengaturan');
                     }
                 });
             });

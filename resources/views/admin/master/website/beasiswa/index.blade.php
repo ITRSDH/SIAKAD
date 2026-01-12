@@ -1,4 +1,4 @@
-@extends('admin.layouts.index')
+@extends('layouts.index')
 @section('title', 'Beasiswa')
 @push('styles-custom')
     <style>
@@ -69,13 +69,13 @@
             object-fit: cover;
             border-radius: 8px;
             cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
         }
 
         .table-image:hover {
             transform: scale(1.1);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
 
         /* Style untuk preview container */
@@ -91,7 +91,7 @@
             max-width: 200px;
             height: auto;
             border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
             margin: 10px 0;
         }
     </style>
@@ -146,8 +146,9 @@
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="form-group mb-3">
-                                            <label for="nama" class="form-label">Nama Beasiswa <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" id="nama" name="nama" 
+                                            <label for="nama" class="form-label">Nama Beasiswa <span
+                                                    class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="nama" name="nama"
                                                 placeholder="Masukkan nama beasiswa">
                                             <div class="text-danger error-text" id="nama_error"></div>
                                         </div>
@@ -157,7 +158,8 @@
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="form-group mb-3">
-                                            <label for="kategori" class="form-label">Kategori <span class="text-danger">*</span></label>
+                                            <label for="kategori" class="form-label">Kategori <span
+                                                    class="text-danger">*</span></label>
                                             <select class="form-select" id="kategori" name="kategori">
                                                 <option value="">Pilih Kategori</option>
                                                 <option value="akademik">Akademik</option>
@@ -174,15 +176,17 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="deadline" class="form-label">Deadline <span class="text-danger">*</span></label>
+                                            <label for="deadline" class="form-label">Deadline <span
+                                                    class="text-danger">*</span></label>
                                             <input type="date" class="form-control" id="deadline" name="deadline">
                                             <div class="text-danger error-text" id="deadline_error"></div>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="kuota" class="form-label">Kuota <span class="text-danger">*</span></label>
-                                            <input type="number" class="form-control" id="kuota" name="kuota" 
+                                            <label for="kuota" class="form-label">Kuota <span
+                                                    class="text-danger">*</span></label>
+                                            <input type="number" class="form-control" id="kuota" name="kuota"
                                                 min="1" placeholder="Masukkan kuota beasiswa">
                                             <div class="text-danger error-text" id="kuota_error"></div>
                                         </div>
@@ -193,7 +197,7 @@
                                     <div class="col-md-12">
                                         <div class="form-group mb-3">
                                             <label for="deskripsi" class="form-label">Deskripsi</label>
-                                            <textarea class="form-control" id="deskripsi" name="deskripsi" rows="6" 
+                                            <textarea class="form-control" id="deskripsi" name="deskripsi" rows="6"
                                                 placeholder="Masukkan deskripsi beasiswa"></textarea>
                                             <div class="text-danger error-text" id="deskripsi_error"></div>
                                         </div>
@@ -204,11 +208,15 @@
                                     <div class="col-md-12">
                                         <div class="form-group mb-3">
                                             <label for="gambar" class="form-label">Gambar Beasiswa</label>
-                                            <input type="file" class="form-control" id="gambar" name="gambar" accept="image/*">
-                                            <small class="form-text text-muted">Format yang diizinkan: JPG, JPEG, PNG, GIF. Maksimal 2MB.</small>
+                                            <input type="file" class="form-control" id="gambar" name="gambar"
+                                                accept="image/*">
+                                            <small class="form-text text-muted">Format yang diizinkan: JPG, JPEG, PNG, GIF.
+                                                Maksimal 2MB.</small>
                                             <div class="text-danger error-text" id="gambar_error"></div>
-                                            <div id="preview-container" class="image-preview-container mt-2" style="display: none;">
-                                                <img id="image-preview" src="" alt="Preview" class="image-preview">
+                                            <div id="preview-container" class="image-preview-container mt-2"
+                                                style="display: none;">
+                                                <img id="image-preview" src="" alt="Preview"
+                                                    class="image-preview">
                                                 <p class="text-muted small mb-0">Preview Gambar</p>
                                             </div>
                                         </div>
@@ -271,7 +279,8 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body text-center">
-                    <img id="modalImageView" src="" alt="Beasiswa" class="img-fluid" style="max-height: 500px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                    <img id="modalImageView" src="" alt="Beasiswa" class="img-fluid"
+                        style="max-height: 500px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
@@ -295,14 +304,16 @@
                         <input type="hidden" name="id" id="beasiswa_id_modal">
 
                         <div class="form-group mb-3">
-                            <label for="nama_modal" class="form-label">Nama Beasiswa <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="nama_modal" name="nama" 
+                            <label for="nama_modal" class="form-label">Nama Beasiswa <span
+                                    class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="nama_modal" name="nama"
                                 placeholder="Masukkan nama beasiswa">
                             <div class="text-danger error-text" id="nama_modal_error"></div>
                         </div>
 
                         <div class="form-group mb-3">
-                            <label for="kategori_modal" class="form-label">Kategori <span class="text-danger">*</span></label>
+                            <label for="kategori_modal" class="form-label">Kategori <span
+                                    class="text-danger">*</span></label>
                             <select class="form-select" id="kategori_modal" name="kategori">
                                 <option value="">Pilih Kategori</option>
                                 <option value="akademik">Akademik</option>
@@ -317,15 +328,17 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
-                                    <label for="deadline_modal" class="form-label">Deadline <span class="text-danger">*</span></label>
+                                    <label for="deadline_modal" class="form-label">Deadline <span
+                                            class="text-danger">*</span></label>
                                     <input type="date" class="form-control" id="deadline_modal" name="deadline">
                                     <div class="text-danger error-text" id="deadline_modal_error"></div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
-                                    <label for="kuota_modal" class="form-label">Kuota <span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control" id="kuota_modal" name="kuota" 
+                                    <label for="kuota_modal" class="form-label">Kuota <span
+                                            class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="kuota_modal" name="kuota"
                                         min="1" placeholder="Masukkan kuota beasiswa">
                                     <div class="text-danger error-text" id="kuota_modal_error"></div>
                                 </div>
@@ -334,17 +347,20 @@
 
                         <div class="form-group mb-3">
                             <label for="deskripsi_modal" class="form-label">Deskripsi</label>
-                            <textarea class="form-control" id="deskripsi_modal" name="deskripsi" rows="4" 
+                            <textarea class="form-control" id="deskripsi_modal" name="deskripsi" rows="4"
                                 placeholder="Masukkan deskripsi beasiswa"></textarea>
                             <div class="text-danger error-text" id="deskripsi_modal_error"></div>
                         </div>
 
                         <div class="form-group mb-3">
                             <label for="gambar_modal" class="form-label">Gambar Beasiswa</label>
-                            <input type="file" class="form-control" id="gambar_modal" name="gambar" accept="image/*">
-                            <small class="form-text text-muted">Format yang diizinkan: JPG, JPEG, PNG, GIF. Maksimal 2MB.</small>
+                            <input type="file" class="form-control" id="gambar_modal" name="gambar"
+                                accept="image/*">
+                            <small class="form-text text-muted">Format yang diizinkan: JPG, JPEG, PNG, GIF. Maksimal
+                                2MB.</small>
                             <div class="text-danger error-text" id="gambar_modal_error"></div>
-                            <div id="preview-container-modal" class="image-preview-container mt-2" style="display: none;">
+                            <div id="preview-container-modal" class="image-preview-container mt-2"
+                                style="display: none;">
                                 <img id="image-preview-modal" src="" alt="Preview" class="image-preview">
                                 <p class="text-muted small mb-0">Preview Gambar</p>
                             </div>
@@ -374,7 +390,7 @@
     <script>
         $(document).ready(function() {
             // Ambil storage URL API dari config
-            var apiStorageUrl = '{{ config("api.storage_url") }}';
+            var apiStorageUrl = '{{ config('api.storage_url') }}';
 
             // Inisialisasi DataTables dengan data dari PHP
             var table = $('#beasiswa-table').DataTable({
@@ -391,7 +407,7 @@
                         render: function(data, type, row) {
                             if (data) {
                                 let imageUrl = data;
-                                
+
                                 // Handle different URL formats
                                 if (data.startsWith('http://') || data.startsWith('https://')) {
                                     // Absolute URL - use as is
@@ -415,12 +431,12 @@
                                         imageUrl = '/storage/' + data;
                                     }
                                 }
-                                
+
                                 return `
                                     <div class="text-center">
-                                        <img src="${imageUrl}" alt="Beasiswa ${row.nama || ''}" 
-                                             class="table-image" 
-                                             onclick="showImageModal('${imageUrl}', '${row.nama || 'Beasiswa'}')" 
+                                        <img src="${imageUrl}" alt="Beasiswa ${row.nama || ''}"
+                                             class="table-image"
+                                             onclick="showImageModal('${imageUrl}', '${row.nama || 'Beasiswa'}')"
                                              title="Klik untuk memperbesar"
                                              onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                                         <div style="display:none;" class="text-center">
@@ -447,7 +463,8 @@
                                 'bantuan_pemerintah': '<span class="badge bg-warning">Bantuan Pemerintah</span>',
                                 'lainnya': '<span class="badge bg-secondary">Lainnya</span>'
                             };
-                            return kategoriMap[data] || '<span class="badge bg-light text-dark">-</span>';
+                            return kategoriMap[data] ||
+                                '<span class="badge bg-light text-dark">-</span>';
                         }
                     },
                     {
@@ -468,7 +485,8 @@
                         render: function(data, type, row) {
                             // Batasi panjang deskripsi dan tambahkan ellipsis jika terlalu panjang
                             if (data && data.length > 50) {
-                                return '<div class="content-preview" title="' + data + '">' + data.substring(0, 50) + '...</div>';
+                                return '<div class="content-preview" title="' + data + '">' + data
+                                    .substring(0, 50) + '...</div>';
                             }
                             return data || '-';
                         }
@@ -499,7 +517,7 @@
                 );
             });
 
-            // Submit form create  
+            // Submit form create
             $('#beasiswaForm').on('submit', function(e) {
                 e.preventDefault();
 
@@ -511,7 +529,7 @@
                 const kategori = $('#kategori').val();
                 const deadline = $('#deadline').val();
                 const kuota = $('#kuota').val();
-                
+
                 if (!nama || !kategori || !deadline || !kuota) {
                     Swal.fire({
                         icon: 'error',
@@ -548,7 +566,8 @@
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Berhasil!',
-                                text: response.message || 'Beasiswa berhasil ditambahkan.',
+                                text: response.message ||
+                                    'Beasiswa berhasil ditambahkan.',
                                 confirmButtonText: 'OK'
                             });
                         } else {
@@ -556,13 +575,15 @@
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Gagal!',
-                                text: response.message || 'Terjadi kesalahan saat menyimpan data.',
+                                text: response.message ||
+                                    'Terjadi kesalahan saat menyimpan data.',
                                 confirmButtonText: 'OK'
                             });
                             // Tampilkan error spesifik jika ada
                             if (response.errors) {
                                 Object.keys(response.errors).forEach(function(key) {
-                                    $('#' + key + '_error').text(response.errors[key][0]);
+                                    $('#' + key + '_error').text(response.errors[key][
+                                        0]);
                                 });
                             }
                         }
@@ -571,17 +592,19 @@
                         console.error('AJAX Error:', xhr);
                         console.error('Response Text:', xhr.responseText);
                         console.error('Status:', xhr.status);
-                        
+
                         let errorMessage = 'Gagal menyimpan data.';
                         if (xhr.responseJSON && xhr.responseJSON.message) {
                             errorMessage = xhr.responseJSON.message;
                         } else if (xhr.responseJSON && xhr.responseJSON.errors) {
-                            errorMessage = Object.values(xhr.responseJSON.errors).flat().join(', ');
+                            errorMessage = Object.values(xhr.responseJSON.errors).flat().join(
+                                ', ');
                         } else if (xhr.responseText) {
                             // Tampilkan response text jika tidak ada JSON
-                            errorMessage = 'Error: ' + xhr.responseText.substring(0, 200) + '...';
+                            errorMessage = 'Error: ' + xhr.responseText.substring(0, 200) +
+                                '...';
                         }
-                        
+
                         // Ganti alert dengan SweetAlert2
                         Swal.fire({
                             icon: 'error',
@@ -589,11 +612,12 @@
                             text: errorMessage,
                             confirmButtonText: 'OK'
                         });
-                        
+
                         // Tampilkan error spesifik jika ada
                         if (xhr.responseJSON && xhr.responseJSON.errors) {
                             Object.keys(xhr.responseJSON.errors).forEach(function(key) {
-                                $('#' + key + '_error').text(xhr.responseJSON.errors[key][0]);
+                                $('#' + key + '_error').text(xhr.responseJSON.errors[
+                                    key][0]);
                             });
                         }
                     },
@@ -609,12 +633,12 @@
             // Edit button click
             $(document).on('click', '.edit-btn', function() {
                 const id = $(this).data('id');
-                
+
                 // Reset modal sebelum mengisi data
                 $('#beasiswaFormModal')[0].reset();
                 $('.error-text').text('');
                 $('#preview-container-modal').hide();
-                
+
                 // Ambil data beasiswa spesifik dari API
                 $.get("{{ route('beasiswa.show', '') }}/" + id)
                     .done(function(data) {
@@ -622,7 +646,7 @@
                             $('#beasiswa_id_modal').val(data.data.id);
                             $('#nama_modal').val(data.data.nama);
                             $('#kategori_modal').val(data.data.kategori);
-                            
+
                             // Format deadline untuk input date
                             let deadlineValue = '';
                             if (data.data.deadline) {
@@ -637,16 +661,17 @@
                                 }
                             }
                             $('#deadline_modal').val(deadlineValue);
-                            
+
                             $('#kuota_modal').val(data.data.kuota);
                             $('#deskripsi_modal').val(data.data.deskripsi);
-                            
+
                             // Handle gambar jika ada
                             if (data.data.gambar) {
                                 let imageUrl = data.data.gambar;
-                                
+
                                 // Handle different URL formats
-                                if (data.data.gambar.startsWith('http://') || data.data.gambar.startsWith('https://')) {
+                                if (data.data.gambar.startsWith('http://') || data.data.gambar
+                                    .startsWith('https://')) {
                                     // Absolute URL - use as is
                                     imageUrl = data.data.gambar;
                                 } else if (data.data.gambar.startsWith('/')) {
@@ -655,7 +680,8 @@
                                         imageUrl = data.data.gambar; // Local storage
                                     } else {
                                         // Assume it's from API server
-                                        imageUrl = apiStorageUrl.replace('/storage/', '') + data.data.gambar;
+                                        imageUrl = apiStorageUrl.replace('/storage/', '') + data.data
+                                            .gambar;
                                     }
                                 } else {
                                     // Plain filename or relative path
@@ -667,13 +693,13 @@
                                         imageUrl = '/storage/' + data.data.gambar;
                                     }
                                 }
-                                
+
                                 $('#preview-container-modal').show();
                                 $('#image-preview-modal').attr('src', imageUrl);
                             } else {
                                 $('#preview-container-modal').hide();
                             }
-                            
+
                             $('#modelHeading').text('Edit Beasiswa');
                             $('#modalBeasiswa').modal('show');
                         } else {
@@ -705,13 +731,13 @@
                 $('.error-text').text('');
 
                 const id = $('#beasiswa_id_modal').val();
-                
+
                 // Validasi required fields untuk modal
                 const nama = $('#nama_modal').val().trim();
                 const kategori = $('#kategori_modal').val();
                 const deadline = $('#deadline_modal').val();
                 const kuota = $('#kuota_modal').val();
-                
+
                 if (!id) {
                     Swal.fire({
                         icon: 'error',
@@ -721,7 +747,7 @@
                     });
                     return;
                 }
-                
+
                 if (!nama || !kategori || !deadline || !kuota) {
                     Swal.fire({
                         icon: 'error',
@@ -757,7 +783,8 @@
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Berhasil!',
-                                text: response.message || 'Beasiswa berhasil diperbarui.',
+                                text: response.message ||
+                                    'Beasiswa berhasil diperbarui.',
                                 confirmButtonText: 'OK'
                             });
                         } else {
@@ -765,13 +792,15 @@
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Gagal!',
-                                text: response.message || 'Terjadi kesalahan saat memperbarui data.',
+                                text: response.message ||
+                                    'Terjadi kesalahan saat memperbarui data.',
                                 confirmButtonText: 'OK'
                             });
                             // Tampilkan error spesifik jika ada
                             if (response.errors) {
                                 Object.keys(response.errors).forEach(function(key) {
-                                    $('#' + key + '_modal_error').text(response.errors[key][0]);
+                                    $('#' + key + '_modal_error').text(response.errors[
+                                        key][0]);
                                 });
                             }
                         }
@@ -780,14 +809,16 @@
                         console.error('AJAX Error:', xhr);
                         console.error('Response Text:', xhr.responseText);
                         console.error('Status:', xhr.status);
-                        
+
                         let errorMessage = 'Gagal memperbarui data.';
                         if (xhr.responseJSON && xhr.responseJSON.message) {
                             errorMessage = xhr.responseJSON.message;
                         } else if (xhr.responseJSON && xhr.responseJSON.errors) {
-                            errorMessage = Object.values(xhr.responseJSON.errors).flat().join(', ');
+                            errorMessage = Object.values(xhr.responseJSON.errors).flat().join(
+                                ', ');
                         } else if (xhr.responseText) {
-                            errorMessage = 'Error: ' + xhr.responseText.substring(0, 200) + '...';
+                            errorMessage = 'Error: ' + xhr.responseText.substring(0, 200) +
+                                '...';
                         }
 
                         Swal.fire({
@@ -800,7 +831,8 @@
                         // Tampilkan error spesifik jika ada
                         if (xhr.responseJSON && xhr.responseJSON.errors) {
                             Object.keys(xhr.responseJSON.errors).forEach(function(key) {
-                                $('#' + key + '_modal_error').text(xhr.responseJSON.errors[key][0]);
+                                $('#' + key + '_modal_error').text(xhr.responseJSON
+                                    .errors[key][0]);
                             });
                         }
                     },
@@ -836,19 +868,22 @@
                             success: function(response) {
                                 if (response.success) {
                                     // Hapus baris dari tabel
-                                    table.ajax.reload(null, false); // Reload tanpa reset paging
+                                    table.ajax.reload(null,
+                                    false); // Reload tanpa reset paging
                                     // Ganti alert dengan SweetAlert2
                                     Swal.fire({
                                         icon: 'success',
                                         title: 'Terhapus!',
-                                        text: response.message || 'Beasiswa berhasil dihapus.',
+                                        text: response.message ||
+                                            'Beasiswa berhasil dihapus.',
                                         confirmButtonText: 'OK'
                                     });
                                 } else {
                                     Swal.fire({
                                         icon: 'error',
                                         title: 'Gagal!',
-                                        text: response.message || 'Terjadi kesalahan saat menghapus data.',
+                                        text: response.message ||
+                                            'Terjadi kesalahan saat menghapus data.',
                                         confirmButtonText: 'OK'
                                     });
                                 }

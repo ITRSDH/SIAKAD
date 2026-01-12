@@ -28,8 +28,9 @@ class MataKuliahController extends Controller
 
             $apiData = $response->json()['data'] ?? [];
 
-            // Ekstrak data
-            $groupedMataKuliah = $apiData['grouped_mata_kuliah'] ?? [];
+            // Karena struktur data sekarang berbentuk array prodi → kurikulum → semester,
+            // maka kita kirim langsung ke view
+            $groupedMataKuliah = $apiData; // Langsung gunakan data baru
 
             // Kirim data ke view
             return view('masterdata.mata_kuliah.index', compact('groupedMataKuliah'));

@@ -36,6 +36,66 @@
                     <span class="sidebar-mini-icon">
                         <i class="fa fa-ellipsis-h"></i>
                     </span>
+                    <h4 class="text-section">Dashboard</h4>
+                </li>
+                @canApi('dashboard.admin')
+                <li class="nav-item">
+                    <a href="{{ route('dashboard.administrator') }}">
+                        <i class="fas fa-home"></i>
+                        <p>Dashboard ADMIN</p>
+                    </a>
+                </li>
+                @endcanApi
+
+                @canApi('dashboard.baak')
+                <li class="nav-item">
+                    <a href="{{ route('dashboard.baak') }}">
+                        <i class="fas fa-home"></i>
+                        <p>Dashboard BAAK</p>
+                    </a>
+                </li>
+                @endcanApi
+
+                @canApi('dashboard.kaprodi')
+                <li class="nav-item">
+                    <a href="{{ route('dashboard.kaprodi') }}">
+                        <i class="fas fa-home"></i>
+                        <p>Dashboard KAPRODI</p>
+                    </a>
+                </li>
+                @endcanApi
+
+                @canApi('dashboard.dosen_pa')
+                <li class="nav-item">
+                    <a href="{{ route('dashboard.dosen_pa') }}">
+                        <i class="fas fa-home"></i>
+                        <p>Dashboard DOSEN PA</p>
+                    </a>
+                </li>
+                @endcanApi
+
+                @canApi('dashboard.dosen_pengampu')
+                <li class="nav-item">
+                    <a href="{{ route('dashboard.dosen_pengampu') }}">
+                        <i class="fas fa-home"></i>
+                        <p>Dashboard DOSEN PENGAAMPU</p>
+                    </a>
+                </li>
+                @endcanApi
+
+                @canApi('dashboard.mahasiswa')
+                <li class="nav-item">
+                    <a href="{{ route('dashboard.mahasiswa') }}">
+                        <i class="fas fa-home"></i>
+                        <p>Dashboard MAHASISWA</p>
+                    </a>
+                </li>
+                @endcanApi
+
+                <li class="nav-section">
+                    <span class="sidebar-mini-icon">
+                        <i class="fa fa-ellipsis-h"></i>
+                    </span>
                     <h4 class="text-section">Website Kampus</h4>
                 </li>
                 <li class="nav-item active">
@@ -77,17 +137,17 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="{{ route('landing-content.index')}}">
+                                <a href="{{ route('landing-content.index') }}">
                                     <span class="sub-item">Landing Content</span>
                                 </a>
                             </li>
                             <li>
-                                <a href="{{ route('ormawa.index')}}">
+                                <a href="{{ route('ormawa.index') }}">
                                     <span class="sub-item">Ormawa</span>
                                 </a>
                             </li>
                             <li>
-                                <a href="{{ route('profile-kampus.index')}}">
+                                <a href="{{ route('profile-kampus.index') }}">
                                     <span class="sub-item">Profile Kampus</span>
                                 </a>
                             </li>
@@ -135,7 +195,8 @@
                                                     class="sub-item">Jenjang Pendidikan</span></a></li>
                                         <li><a href="{{ route('prodi.index') }}"><span class="sub-item">Program
                                                     Studi</span></a></li>
-                                        <li><a href="{{ route('tahun-akademik.index') }}"><span class="sub-item">Tahun
+                                        <li><a href="{{ route('tahun-akademik.index') }}"><span
+                                                    class="sub-item">Tahun
                                                     Akademik</span></a></li>
                                         <li><a href="{{ route('kurikulum.index') }}"><span
                                                     class="sub-item">Kurikulum</span></a></li>
@@ -143,7 +204,8 @@
                                                     Kuliah</span></a></li>
                                         <li><a href="{{ route('jenis-kelas.index') }}"><span class="sub-item">Jenis
                                                     Kelas</span></a></li>
-                                        <li><a href="{{ route('jenis-pembayaran.index') }}"><span class="sub-item">Jenis
+                                        <li><a href="{{ route('jenis-pembayaran.index') }}"><span
+                                                    class="sub-item">Jenis
                                                     Pembayaran</span></a></li>
                                         <li><a href="{{ route('ruang.index') }}"><span class="sub-item">Ruang
                                                     Kuliah</span></a>
@@ -239,7 +301,8 @@
                             <li><a href="{{ route('roles.index') }}"><span class="sub-item">Role</span></a></li>
                             @endcanApi
                             @canApi('pengguna.setting.permissions.index')
-                            <li><a href="{{ route('permissions.index') }}"><span class="sub-item">Permission</span></a>
+                            <li><a href="{{ route('permissions.index') }}"><span
+                                        class="sub-item">Permission</span></a>
                             </li>
                             @endcanApi
                         </ul>

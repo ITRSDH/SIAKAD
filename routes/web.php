@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
+// Route Website
 use App\Http\Controllers\Website\FaqController;
 use App\Http\Controllers\Website\BeritaController;
 use App\Http\Controllers\Website\GaleriController;
@@ -10,8 +11,15 @@ use App\Http\Controllers\Website\BeasiswaController;
 use App\Http\Controllers\Website\PrestasiController;
 use App\Http\Controllers\Website\PengumumanController;
 use App\Http\Controllers\Website\ProfileKampusController;
-// Route Website
 use App\Http\Controllers\Website\LandingContentController;
+
+// Route Siakad
+use App\Http\Controllers\Siakad\ADMINISTRATOR\DashboardAdminController;
+use App\Http\Controllers\Siakad\BAAK\DashboardBAAKController;
+use App\Http\Controllers\Siakad\KAPRODI\DashboardKaprodiController;
+use App\Http\Controllers\Siakad\DOSEN_PA\DashboardDosenPAController;
+use App\Http\Controllers\Siakad\DOSEN_PENGAMPU\DashboardDosenPengampuController;
+use App\Http\Controllers\Siakad\MAHASISWA\DashboardMahasiswaController;
 use App\Http\Controllers\ManagementPengguna\RoleController;
 use App\Http\Controllers\ManagementPengguna\UserController;
 use App\Http\Controllers\Siakad\MasterData\ProdiController;
@@ -34,6 +42,13 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
     // Route::get('/dashboard', function () {
     //     return view('admin.dashboard.index');
     // });
+
+    Route::get('/dashboard/administrator', [DashboardAdminController::class, 'index'])->name('dashboard.administrator');
+    Route::get('/dashboard/baak', [DashboardBAAKController::class, 'index'])->name('dashboard.baak');
+    Route::get('/dashboard/kaprodi', [DashboardKaprodiController::class, 'index'])->name('dashboard.kaprodi');
+    Route::get('/dashboard/dosen_pa', [DashboardDosenPAController::class, 'index'])->name('dashboard.dosen_pa');
+    Route::get('/dashboard/dosen_pengampu', [DashboardDosenPengampuController::class, 'index'])->name('dashboard.dosen_pengampu');
+    Route::get('/dashboard/mahasiswa', [DashboardMahasiswaController::class, 'index'])->name('dashboard.mahasiswa');
 
     Route::get('/', [AuthController::class, 'profile'])->name('profile');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

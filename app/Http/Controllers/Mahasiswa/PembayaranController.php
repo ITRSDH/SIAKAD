@@ -10,12 +10,15 @@ use Illuminate\Support\Facades\Log;
 class PembayaranController extends Controller
 {
     protected string $apiUrl;
+    protected string $apiUrlakad;
+
     protected string $secret;
 
     public function __construct()
     {
         $this->apiUrl = config('api.keuangan_url', 'http://localhost:8001');
         $this->secret = config('services.internal_api.secret', 'siakad_keuangan_secret_2026');
+        $this->apiUrlakad = config('api.base_url', 'http://localhost:8001');
     }
 
     /**
@@ -24,13 +27,19 @@ class PembayaranController extends Controller
     public function index()
     {
         // TODO: Get from authenticated user session
-        $siswaId = '7eb11250-75be-41ff-8b2c-fb418f68b128';
+        $siswaId = 'a0c92e5d-0501-49e6-a30f-70c935e3b0d8';
+        // dd(auth()->user());/
+        $token = session('access_token');
+        $res = Http::withToken($token)
+            ->acceptJson()
+            ->get($this->apiUrlakad . 'auth/me');
+        $data = $res->json();
 
         $path = '/api/internal/bills';
         $url  = $this->apiUrl . $path;
 
         $queryParams = [
-            'siswa_id' => $siswaId,
+            'siswa_id' => $data['profile']['id'],
         ];
 
         $timestamp = time();
@@ -47,11 +56,10 @@ class PembayaranController extends Controller
                 'X-TIMESTAMP' => $timestamp,
                 'X-SIGNATURE' => $signature,
             ])->timeout(10)->get($url, $queryParams);
-             
+
 
             if ($response->successful()) {
                 $bills = $response->json()['data'] ?? [];
-
             } else {
                 Log::error('Failed to fetch bills from API', [
                     'status' => $response->status(),
@@ -76,12 +84,16 @@ class PembayaranController extends Controller
     {
         // TODO: Get from authenticated user session
         $siswaId = '7eb11250-75be-41ff-8b2c-fb418f68b128';
-
+        $token = session('access_token');
+        $res = Http::withToken($token)
+            ->acceptJson()
+            ->get($this->apiUrlakad . 'auth/me');
+        $data = $res->json();
         $path = '/api/internal/bills';
         $url  = $this->apiUrl . $path;
 
         $queryParams = [
-            'siswa_id' => $siswaId,
+            'siswa_id' => $data['profile']['id'],
         ];
 
         $timestamp = time();
@@ -103,7 +115,7 @@ class PembayaranController extends Controller
                 $bills = $response->json()['data'] ?? [];
                 // Find the specific bill by ID
                 $tagihan = collect($bills)->firstWhere('id', $tagihanId);
-                
+
                 if (!$tagihan) {
                     return redirect()->route('student.pembayaran.index')
                         ->with('error', 'Tagihan tidak ditemukan.');
@@ -135,7 +147,11 @@ class PembayaranController extends Controller
     {
         // TODO: Get from authenticated user session
         $siswaId = '7eb11250-75be-41ff-8b2c-fb418f68b128';
-
+        $token = session('access_token');
+        $res = Http::withToken($token)
+            ->acceptJson()
+            ->get($this->apiUrlakad . 'auth/me');
+        $data = $res->json();
         // Validate input first
         $request->validate([
             'jumlah' => ['required', 'numeric', 'min:1'],
@@ -150,7 +166,7 @@ class PembayaranController extends Controller
 
         // Prepare form data
         $formData = [
-            'siswa_id' => $siswaId,
+            'siswa_id' => $data['profile']['id'],
             'jumlah' => $request->jumlah,
         ];
 
@@ -189,13 +205,13 @@ class PembayaranController extends Controller
                     'status' => $response->status(),
                     'body' => $response->body()
                 ]);
-                
+
                 $errorMessage = 'Gagal mengirim pembayaran ke server.';
                 if ($response->status() === 422) {
                     $errors = $response->json()['errors'] ?? [];
                     $errorMessage = collect($errors)->flatten()->first() ?? $errorMessage;
                 }
-                
+
                 return redirect()->back()
                     ->withInput()
                     ->with('error', $errorMessage);
@@ -205,7 +221,7 @@ class PembayaranController extends Controller
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            
+
             return redirect()->back()
                 ->withInput()
                 ->with('error', 'Terjadi kesalahan koneksi ke server keuangan.');

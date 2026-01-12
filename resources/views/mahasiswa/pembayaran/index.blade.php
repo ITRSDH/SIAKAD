@@ -1,4 +1,4 @@
-@extends('admin.layouts.index')
+@extends('layouts.index')
 @section('title', 'Pembayaran Mahasiswa')
 
 @section('content')

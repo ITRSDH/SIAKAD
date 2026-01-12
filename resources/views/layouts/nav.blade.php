@@ -95,7 +95,19 @@
                         </ul>
                     </div>
                 </li>
-
+                <li class="nav-section">
+                    <span class="sidebar-mini-icon">
+                        <i class="fa fa-ellipsis-h"></i>
+                    </span>
+                    <h4 class="text-section">Mahasiswa</h4>
+                </li>
+                <li class="nav-item active">
+                    <a href="{{ route('student.pembayaran.index') }}" class="collapsed" aria-expanded="false">
+                        <i class="fas fa-home"></i>
+                        <p>Pembayaran</p>
+                    </a>
+                   
+                </li>
                 <li class="nav-section">
                     <span class="sidebar-mini-icon">
                         <i class="fa fa-ellipsis-h"></i>

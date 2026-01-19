@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Siakad\MasterData;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
-class DosenController extends Controller
+class KelasPararelController extends Controller
 {
     protected string $apiUrl;
     protected string $apiToken;
@@ -20,21 +20,22 @@ class DosenController extends Controller
     public function index()
     {
         try {
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . 'dosen');
-
+            // Ambil data prodi dari API
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl . 'kelas-pararel');
             if (!$response->successful()) {
-                return back()->with('error', 'Gagal mengambil data mahasiswa dari API');
+                return back()->with('error', 'Gagal mengambil data All Kelas Pararel dari API');
             }
 
             $apiData = $response->json()['data'] ?? [];
 
-            $prodi          = $apiData['prodi'] ?? [];
-            $dosen          = $apiData['dosen'] ?? [];
+            // Ekstrak data
+            $kelaspararel = $apiData['kelas-pararel'] ?? [];
+            $prodi = $apiData['prodi'] ?? [];
 
-            return view('masterdata.dosen.index', compact(
-                'prodi',
-                'dosen'
-            ));
+            // dd($apiData);
+
+            // Kirim kedua data ke view
+            return view('masterdata.kelas_pararel.index', compact('prodi', 'kelaspararel'));
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
@@ -43,7 +44,7 @@ class DosenController extends Controller
     public function store(Request $request)
     {
         try {
-            $response = Http::withToken($this->apiToken)->post($this->apiUrl . 'dosen', $request->all());
+            $response = Http::withToken($this->apiToken)->post($this->apiUrl . 'kelas-pararel', $request->all());
 
             if ($response->successful()) {
                 return response()->json($response->json());
@@ -65,7 +66,7 @@ class DosenController extends Controller
     public function show($id)
     {
         try {
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . "dosen/{$id}");
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl . "kelas-pararel/{$id}");
 
             if ($response->successful()) {
                 return response()->json($response->json());
@@ -87,7 +88,7 @@ class DosenController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            $response = Http::withToken($this->apiToken)->put($this->apiUrl . "dosen/{$id}", $request->all());
+            $response = Http::withToken($this->apiToken)->put($this->apiUrl . "kelas-pararel/{$id}", $request->all());
 
             if ($response->successful()) {
                 return response()->json($response->json());
@@ -109,7 +110,7 @@ class DosenController extends Controller
     public function destroy($id)
     {
         try {
-            $response = Http::withToken($this->apiToken)->delete($this->apiUrl . "dosen/{$id}");
+            $response = Http::withToken($this->apiToken)->delete($this->apiUrl . "kelas-pararel/{$id}");
 
             if ($response->successful()) {
                 return response()->json($response->json());

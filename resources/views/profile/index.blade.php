@@ -131,43 +131,6 @@
                                                             <div class="text-muted">No. HP</div>
                                                             <span class="fw-semibold">{{ $profile['no_hp'] ?? '-' }}</span>
                                                         </li>
-                                                        <li
-                                                            class="list-group-item px-4 py-3 d-flex justify-content-between align-items-center">
-                                                            <div class="text-muted">Email (Profil)</div>
-                                                            <span
-                                                                class="fw-semibold text-primary">{{ $profile['email'] ?? '-' }}</span>
-                                                        </li>
-                                                        <li
-                                                            class="list-group-item px-4 py-3 d-flex justify-content-between align-items-center">
-                                                            <div class="text-muted">
-                                                                Status
-                                                                {{ $profile_type === 'dosen' ? 'Aktif' : 'Akademik' }}
-                                                            </div>
-                                                            @php
-                                                                // Ambil status berdasarkan tipe profile
-                                                                $isActive =
-                                                                    $profile_type === 'dosen'
-                                                                        ? $profile['status_aktif'] ?? null
-                                                                        : $profile['status'] ?? null;
-                                                                $badgeClass =
-                                                                    ($profile_type === 'dosen' && $isActive === true) ||
-                                                                    ($profile_type === 'mahasiswa' &&
-                                                                        $isActive === 'Aktif')
-                                                                        ? 'bg-success'
-                                                                        : 'bg-secondary';
-                                                                $statusText =
-                                                                    $isActive === true
-                                                                        ? 'Aktif'
-                                                                        : ($isActive === false
-                                                                            ? 'Tidak Aktif'
-                                                                            : (is_string($isActive)
-                                                                                ? ucfirst($isActive)
-                                                                                : 'Tidak Diketahui'));
-                                                            @endphp
-                                                            <span class="badge {{ $badgeClass }} fw-normal px-3 py-2">
-                                                                {{ $statusText }}
-                                                            </span>
-                                                        </li>
                                                     </ul>
                                                 </div>
                                             </div>

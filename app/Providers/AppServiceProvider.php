@@ -73,5 +73,38 @@ class AppServiceProvider extends ServiceProvider
             $permissions = Session::get('user.permission', []);
             return !in_array($permission, $permissions);
         });
+
+        // 🔸 Custom directive untuk section pengguna yang bypass admin
+        Blade::if('canAnyApiPengguna', function (...$permissions) {
+            $roles = Session::get('user.role', []);
+
+            // Jika user memiliki role admin, bypass semua permission check
+            if (in_array('admin', $roles)) {
+                return true;
+            }
+
+            $userPermissions = Session::get('user.permission', []);
+
+            foreach ($permissions as $p) {
+                if (in_array($p, $userPermissions)) {
+                    return true;
+                }
+            }
+
+            return false;
+        });
+
+        // 🔸 Custom directive untuk single permission di section pengguna yang bypass admin
+        Blade::if('canApiPengguna', function ($permission) {
+            $roles = Session::get('user.role', []);
+
+            // Jika user memiliki role admin, bypass semua permission check
+            if (in_array('admin', $roles)) {
+                return true;
+            }
+
+            $permissions = Session::get('user.permission', []);
+            return in_array($permission, $permissions);
+        });
     }
 }

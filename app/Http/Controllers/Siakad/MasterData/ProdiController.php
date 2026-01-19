@@ -31,11 +31,10 @@ class ProdiController extends Controller
             // Ekstrak data
             $prodi = $apiData['prodi'] ?? [];
             $jenjangPendidikan = $apiData['jenjang_pendidikan'] ?? [];
+            $dosenList = $apiData['dosen_list'] ?? []; // 🔥 Ditambahkan
 
-            // dd($apiData);
-
-            // Kirim kedua data ke view
-            return view('masterdata.prodi.index', compact('prodi', 'jenjangPendidikan'));
+            // Kirim ketiga data ke view
+            return view('masterdata.prodi.index', compact('prodi', 'jenjangPendidikan', 'dosenList'));
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
@@ -121,6 +120,29 @@ class ProdiController extends Controller
                 'message' => 'Gagal menghapus data di API',
                 'errors' => $response->json()
             ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    // 🔥 Tambahkan method baru untuk mengelola kaprodi via API
+    public function updateKaprodi(Request $request, $id)
+    {
+        try {
+            $response = Http::withToken($this->apiToken)->put($this->apiUrl . "prodi/{$id}/kaprodi", $request->only('id_kaprodi'));
+
+            if ($response->successful()) {
+                return response()->json($response->json());
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memperbarui kaprodi di API',
+                'errors' => $response->json()
+            ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

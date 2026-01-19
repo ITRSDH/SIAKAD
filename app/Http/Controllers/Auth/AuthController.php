@@ -91,10 +91,13 @@ class AuthController extends Controller
             return redirect()->route('login');
         }
 
-        // --- Bagian 1: Ambil data user (dari session atau API) ---
-        if (session()->has('user')) {
+        // Cek apakah semua data profil sudah ada di session
+        if (session()->has('user') && session()->has('profile') && session()->has('profile_type')) {
             $user = session('user');
+            $profile = session('profile');
+            $profile_type = session('profile_type'); // Ubah nama variabel agar sesuai dengan view
         } else {
+            // Panggil API hanya sekali
             $response = Http::withToken($token)->get($this->apiUrl . 'auth/me');
 
             if ($response->successful()) {
@@ -102,8 +105,15 @@ class AuthController extends Controller
 
                 if ($apiData['success']) {
                     $user = $apiData['user'];
-                    // Simpan *hanya* data user ke session, sesuai permintaan
-                    session(['user' => $user]);
+                    $profile = $apiData['profile'] ?? null;
+                    $profile_type = $apiData['profile_type'] ?? null;
+
+                    // Simpan semua data ke session
+                    session([
+                        'user' => $user,
+                        'profile' => $profile,
+                        'profile_type' => $profile_type
+                    ]);
                 } else {
                     Session::flush();
                     return redirect()->route('login')->with('error', 'Gagal mengambil data pengguna dari API.');
@@ -114,29 +124,9 @@ class AuthController extends Controller
             }
         }
 
-        // --- Bagian 2: Ambil profile_type dan profile (dari API) ---
-        $profileResponse = Http::withToken($token)->get($this->apiUrl . 'auth/me');
-
-        if ($profileResponse->successful()) {
-            $apiData = $profileResponse->json();
-
-            if ($apiData['success']) {
-                $profile = $apiData['profile'];
-                $profileType = $apiData['profile_type'];
-            } else {
-                $profile = null;
-                $profileType = null;
-            }
-        } else {
-            Session::flush();
-            return redirect()->route('login')->with('error', 'Gagal mengambil data profil. (' . $profileResponse->status() . ')');
-        }
-
-        // Kirim data user (dari session), dan profile/profile_type (dari API terbaru) ke view
-        $profile_type = $profileType; // Alias untuk compact jika view mengharapkan $profile_type
+        // Kirim data ke view
         return view('profile.index', compact('user', 'profile', 'profile_type'));
     }
-
 
     // Logout
     public function logout()

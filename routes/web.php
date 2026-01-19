@@ -15,23 +15,27 @@ use App\Http\Controllers\Website\ProfileKampusController;
 use App\Http\Controllers\Website\LandingContentController;
 
 // Route Siakad
-use App\Http\Controllers\Siakad\ADMINISTRATOR\DashboardAdminController;
-use App\Http\Controllers\Siakad\BAAK\DashboardBAAKController;
-use App\Http\Controllers\Siakad\KAPRODI\DashboardKaprodiController;
-use App\Http\Controllers\Siakad\DOSEN_PA\DashboardDosenPAController;
-use App\Http\Controllers\Siakad\DOSEN_PENGAMPU\DashboardDosenPengampuController;
-use App\Http\Controllers\Siakad\MAHASISWA\DashboardMahasiswaController;
 use App\Http\Controllers\ManagementPengguna\RoleController;
 use App\Http\Controllers\ManagementPengguna\UserController;
+use App\Http\Controllers\Siakad\MasterData\DosenController;
 use App\Http\Controllers\Siakad\MasterData\ProdiController;
 use App\Http\Controllers\Siakad\MasterData\RuangController;
+use App\Http\Controllers\Siakad\BAAK\DashboardBAAKController;
+use App\Http\Controllers\Siakad\MasterData\KelasMKController;
 use App\Http\Controllers\Siakad\MasterData\KurikulumController;
+use App\Http\Controllers\Siakad\MasterData\MahasiswaController;
 use App\Http\Controllers\Siakad\MasterData\JenisKelasController;
 use App\Http\Controllers\Siakad\MasterData\MataKuliahController;
 use App\Http\Controllers\ManagementPengguna\PermissionController;
+use App\Http\Controllers\Siakad\MasterData\KelasPararelController;
+use App\Http\Controllers\Siakad\KAPRODI\DashboardKaprodiController;
 use App\Http\Controllers\Siakad\MasterData\TahunAkademikController;
+use App\Http\Controllers\Siakad\DOSEN_PA\DashboardDosenPAController;
 use App\Http\Controllers\Siakad\MasterData\JenisPembayaranController;
+use App\Http\Controllers\Siakad\ADMINISTRATOR\DashboardAdminController;
+use App\Http\Controllers\Siakad\MAHASISWA\DashboardMahasiswaController;
 use App\Http\Controllers\Siakad\MasterData\JenjangPendidikanController;
+use App\Http\Controllers\Siakad\DOSEN_PENGAMPU\DashboardDosenPengampuController;
 
 Route::middleware(['guest.token'])->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -84,6 +88,7 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
         Route::get('/{id}', [ProdiController::class, 'show'])->name('show');
         Route::put('/{id}', [ProdiController::class, 'update'])->name('update');
         Route::delete('/{id}', [ProdiController::class, 'destroy'])->name('destroy');
+        Route::put('/{id}/kaprodi', [ProdiController::class, 'updateKaprodi'])->name('updateKaprodi');
     });
 
     Route::prefix('tahun-akademik')->name('tahun-akademik.')->group(function () {
@@ -125,6 +130,23 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
         Route::delete('/{id}', [JenisKelasController::class, 'destroy'])->name('destroy');
     });
 
+    Route::prefix('kelas-pararel')->name('kelas-pararel.')->group(function () {
+        Route::get('/', [KelasPararelController::class, 'index'])->name('index');
+        Route::post('/', [KelasPararelController::class, 'store'])->name('store');
+        Route::get('/{id}', [KelasPararelController::class, 'show'])->name('show');
+        Route::put('/{id}', [KelasPararelController::class, 'update'])->name('update');
+        Route::delete('/{id}', [KelasPararelController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::prefix('kelas-mk')->name('kelas-mk.')->group(function () {
+        Route::get('/', [KelasMKController::class, 'index'])->name('index');
+        Route::get('/create', [KelasMKController::class, 'create'])->name('create');
+        Route::post('/', [KelasMKController::class, 'store'])->name('store');
+        Route::get('/{id}', [KelasMKController::class, 'show'])->name('show');
+        Route::put('/{id}', [KelasMKController::class, 'update'])->name('update');
+        Route::delete('/{id}', [KelasMKController::class, 'destroy'])->name('destroy');
+    });
+
     Route::prefix('jenis-pembayaran')->name('jenis-pembayaran.')->group(function () {
         Route::get('/', [JenisPembayaranController::class, 'index'])->name('index');
         Route::post('/', [JenisPembayaranController::class, 'store'])->name('store');
@@ -139,6 +161,24 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
         Route::get('/{id}', [RuangController::class, 'show'])->name('show');
         Route::put('/{id}', [RuangController::class, 'update'])->name('update');
         Route::delete('/{id}', [RuangController::class, 'destroy'])->name('destroy');
+    });
+
+    // Route Dosen
+    Route::prefix('dosen')->name('dosen.')->group(function () {
+        Route::get('/', [DosenController::class, 'index'])->name('index');
+        Route::post('/', [DosenController::class, 'store'])->name('store');
+        Route::get('/{id}', [DosenController::class, 'show'])->name('show');
+        Route::put('/{id}', [DosenController::class, 'update'])->name('update');
+        Route::delete('/{id}', [DosenController::class, 'destroy'])->name('destroy');
+    });
+
+    // Route Mahasiswa
+    Route::prefix('mahasiswa')->name('mahasiswa.')->group(function () {
+        Route::get('/', [MahasiswaController::class, 'index'])->name('index');
+        Route::post('/', [MahasiswaController::class, 'store'])->name('store');
+        Route::get('/{id}', [MahasiswaController::class, 'show'])->name('show');
+        Route::put('/{id}', [MahasiswaController::class, 'update'])->name('update');
+        Route::delete('/{id}', [MahasiswaController::class, 'destroy'])->name('destroy');
     });
 
     // Route Pengumuman

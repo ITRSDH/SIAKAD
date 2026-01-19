@@ -2,7 +2,6 @@
 @section('title', 'Program Studi')
 @push('styles-custom')
     <style>
-        /* Gaya untuk loader */
         .loader-overlay {
             position: absolute;
             top: 0;
@@ -10,14 +9,11 @@
             width: 100%;
             height: 100%;
             background: rgba(255, 255, 255, 0.7);
-            /* Latar belakang transparan */
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 10;
-            /* Pastikan loader muncul di atas konten */
             border-radius: inherit;
-            /* Membuat sudut tetap jika card memiliki border-radius */
         }
 
         .loader-spinner {
@@ -25,7 +21,6 @@
             height: 40px;
             border: 4px solid rgba(0, 0, 0, 0.1);
             border-left-color: #007bff;
-            /* Warna spinner */
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
@@ -36,12 +31,10 @@
             }
         }
 
-        /* Pastikan card body memiliki posisi relatif agar loader muncul di dalamnya */
         .card-body {
             position: relative;
         }
 
-        /* Sembunyikan loader secara default */
         .loader-overlay.hidden {
             display: none;
         }
@@ -52,7 +45,10 @@
 
         .card-header[aria-expanded="true"] .collapse-icon {
             transform: rotate(180deg);
-            /* Berputar 180 derajat saat dibuka */
+        }
+
+        .error-text {
+            font-size: 0.875em;
         }
     </style>
 @endpush
@@ -93,11 +89,9 @@
                             <i class="fas fa-plus-circle me-2"></i>Tambah Program Studi
                         </h3>
                         <div class="card-tools">
-                            <!-- Ikon panah untuk indikasi collapse -->
                             <i class="fas fa-chevron-up collapse-icon"></i>
                         </div>
                     </div>
-                    <!-- Card Body dengan kelas collapse dan show untuk tampil awal -->
                     <div class="collapse show" id="collapseProdiForm">
                         <div class="card-body">
                             <form id="prodiForm" name="prodiForm" class="form-horizontal">
@@ -137,7 +131,6 @@
                                         <select class="form-control" id="id_jenjang_pendidikan" name="id_jenjang_pendidikan"
                                             required>
                                             <option value="">Pilih Jenjang Pendidikan...</option>
-                                            <!-- Opsi akan diisi oleh AJAX -->
                                         </select>
                                         <small class="form-text text-muted">Pilih tingkat pendidikan jurusan ini (Diploma,
                                             Sarjana, Pascasarjana).</small>
@@ -236,12 +229,11 @@
                                         <th>Jenjang</th>
                                         <th>Akreditasi</th>
                                         <th>Gelar</th>
+                                        <th>Kaprodi</th> <!-- 🔥 Kolom baru -->
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <!-- DataTables akan mengisi ini -->
-                                </tbody>
+                                <tbody></tbody>
                             </table>
                         </div>
                     </div>
@@ -259,89 +251,129 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="prodiFormModal" name="prodiFormModal" class="form-horizontal">
-                        @csrf
-                        @method('PUT')
-                        <input type="hidden" name="id" id="prodi_id_modal">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label for="kode_prodi_modal" class="col-form-label">Kode Program Studi</label>
-                                    <input type="text" class="form-control" id="kode_prodi_modal" name="kode_prodi"
-                                        required>
-                                    <span class="text-danger error-text kode_prodi_error"></span>
+                    <ul class="nav nav-tabs" id="myTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="data-tab" data-bs-toggle="tab" data-bs-target="#data"
+                                type="button" role="tab">Data Prodi</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="kaprodi-tab" data-bs-toggle="tab" data-bs-target="#kaprodi"
+                                type="button" role="tab">Kaprodi</button>
+                        </li>
+                    </ul>
+                    <div class="tab-content mt-3" id="myTabContent">
+                        <!-- Tab Data Prodi -->
+                        <div class="tab-pane fade show active" id="data" role="tabpanel">
+                            <form id="prodiFormModal" name="prodiFormModal" class="form-horizontal">
+                                @csrf
+                                <input type="hidden" name="id" id="prodi_id_modal">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="kode_prodi_modal" class="col-form-label">Kode Program
+                                                Studi</label>
+                                            <input type="text" class="form-control" id="kode_prodi_modal"
+                                                name="kode_prodi" required>
+                                            <span class="text-danger error-text kode_prodi_error"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="nama_prodi_modal" class="col-form-label">Nama Program
+                                                Studi</label>
+                                            <input type="text" class="form-control" id="nama_prodi_modal"
+                                                name="nama_prodi" required>
+                                            <span class="text-danger error-text nama_prodi_error"></span>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label for="nama_prodi_modal" class="col-form-label">Nama Program Studi</label>
-                                    <input type="text" class="form-control" id="nama_prodi_modal" name="nama_prodi"
-                                        required>
-                                    <span class="text-danger error-text nama_prodi_error"></span>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="id_jenjang_pendidikan_modal" class="col-form-label">Jenjang
+                                                Pendidikan</label>
+                                            <select class="form-control" id="id_jenjang_pendidikan_modal"
+                                                name="id_jenjang_pendidikan" required>
+                                                <option value="">Pilih Jenjang...</option>
+                                            </select>
+                                            <span class="text-danger error-text id_jenjang_pendidikan_error"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="akreditasi_modal" class="col-form-label">Akreditasi</label>
+                                            <select class="form-control" id="akreditasi_modal" name="akreditasi">
+                                                <option value="">Pilih Akreditasi...</option>
+                                                <option value="A">A</option>
+                                                <option value="B">B</option>
+                                                <option value="C">C</option>
+                                                <option value="Unggul">Unggul</option>
+                                            </select>
+                                            <span class="text-danger error-text akreditasi_error"></span>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label for="id_jenjang_pendidikan_modal" class="col-form-label">Jenjang
-                                        Pendidikan</label>
-                                    <select class="form-control" id="id_jenjang_pendidikan_modal"
-                                        name="id_jenjang_pendidikan" required>
-                                        <option value="">Pilih Jenjang...</option>
-                                        <!-- Opsi akan diisi oleh AJAX -->
-                                    </select>
-                                    <span class="text-danger error-text id_jenjang_pendidikan_error"></span>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="tahun_berdiri_modal" class="col-form-label">Tahun Berdiri</label>
+                                            <input type="number" class="form-control" id="tahun_berdiri_modal"
+                                                name="tahun_berdiri" min="1900" max="{{ date('Y') }}">
+                                            <span class="text-danger error-text tahun_berdiri_error"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label for="kuota_modal" class="col-form-label">Kuota</label>
+                                            <input type="number" class="form-control" id="kuota_modal" name="kuota"
+                                                min="0">
+                                            <span class="text-danger error-text kuota_error"></span>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
                                 <div class="form-group mb-3">
-                                    <label for="akreditasi_modal" class="col-form-label">Akreditasi</label>
-                                    <select class="form-control" id="akreditasi_modal" name="akreditasi">
-                                        <option value="">Pilih Akreditasi...</option>
-                                        <option value="A">A</option>
-                                        <option value="B">B</option>
-                                        <option value="C">C</option>
-                                        <option value="Unggul">Unggul</option>
-                                    </select>
-                                    <span class="text-danger error-text akreditasi_error"></span>
+                                    <label for="gelar_lulusan_modal" class="col-form-label">Gelar Lulusan</label>
+                                    <input type="text" class="form-control" id="gelar_lulusan_modal"
+                                        name="gelar_lulusan">
+                                    <span class="text-danger error-text gelar_lulusan_error"></span>
                                 </div>
-                            </div>
+
+                                <div class="form-group mb-0">
+                                    <button type="submit" class="btn btn-primary" id="saveBtnModal">
+                                        <i class="fas fa-save"></i> Simpan
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                        <i class="fas fa-times"></i> Batal
+                                    </button>
+                                </div>
+                            </form>
                         </div>
 
-                        <div class="row">
-                            <div class="col-md-6">
+                        <!-- Tab Kaprodi -->
+                        <div class="tab-pane fade" id="kaprodi" role="tabpanel">
+                            <form id="kaprodiFormModal" name="kaprodiFormModal" class="form-horizontal">
+                                @csrf
                                 <div class="form-group mb-3">
-                                    <label for="tahun_berdiri_modal" class="col-form-label">Tahun Berdiri</label>
-                                    <input type="number" class="form-control" id="tahun_berdiri_modal"
-                                        name="tahun_berdiri" min="1900" max="{{ date('Y') }}">
-                                    <span class="text-danger error-text tahun_berdiri_error"></span>
+                                    <label for="nama_prodi_kaprodi_modal" class="col-form-label">Nama Program
+                                        Studi</label>
+                                    <input type="text" class="form-control" id="nama_prodi_kaprodi_modal" readonly>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
                                 <div class="form-group mb-3">
-                                    <label for="kuota_modal" class="col-form-label">Kuota</label>
-                                    <input type="number" class="form-control" id="kuota_modal" name="kuota"
-                                        min="0">
-                                    <span class="text-danger error-text kuota_error"></span>
+                                    <label for="id_kaprodi_modal" class="col-form-label">Pilih Kaprodi</label>
+                                    <select class="form-control" id="id_kaprodi_modal" name="id_kaprodi">
+                                        <option value="">-- Pilih Dosen --</option>
+                                    </select>
+                                    <span class="text-danger error-text id_kaprodi_error"></span>
                                 </div>
-                            </div>
+                                <div class="form-group mb-0">
+                                    <button type="submit" class="btn btn-success" id="saveKaprodiBtn">
+                                        <i class="fas fa-save"></i> Simpan Kaprodi
+                                    </button>
+                                </div>
+                            </form>
                         </div>
-                        <div class="form-group mb-3">
-                            <label for="gelar_lulusan_modal" class="col-form-label">Gelar Lulusan</label>
-                            <input type="text" class="form-control" id="gelar_lulusan_modal" name="gelar_lulusan">
-                            <span class="text-danger error-text gelar_lulusan_error"></span>
-                        </div>
-
-                        <div class="form-group mb-0">
-                            <button type="submit" class="btn btn-primary" id="saveBtnModal">
-                                <i class="fas fa-save"></i> Simpan
-                            </button>
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                <i class="fas fa-times"></i> Batal
-                            </button>
-                        </div>
-                    </form>
+                    </div>
                 </div>
             </div>
         </div>
@@ -350,23 +382,53 @@
 
 @push('scripts-custom')
     <script src="{{ asset('') }}template/assets/js/core/jquery-3.7.1.min.js"></script>
-    <!-- Datatables -->
     <script src="{{ asset('') }}template/assets/js/plugin/datatables/datatables.min.js"></script>
-    <!-- SweetAlert2 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         $(document).ready(function() {
-            // Ambil data dari variabel PHP yang dilewatkan ke view
+            // Ambil data dari PHP
             var prodiData = @json($prodi);
             var jenjangPendidikan = @json($jenjangPendidikan);
+            var dosenList = @json($dosenList); // 🔥 Ditambahkan
 
-            // Inisialisasi DataTables dengan data dari PHP
+            // Isi dropdown jenjang
+            fillJenjangOptions();
+
+            function fillJenjangOptions() {
+                const createSelect = $('#id_jenjang_pendidikan');
+                const editSelect = $('#id_jenjang_pendidikan_modal');
+
+                createSelect.empty().append('<option value="">Pilih Jenjang...</option>');
+                editSelect.empty().append('<option value="">Pilih Jenjang...</option>');
+
+                if (jenjangPendidikan && Array.isArray(jenjangPendidikan)) {
+                    $.each(jenjangPendidikan, function(index, jenjang) {
+                        const option =
+                            `<option value="${jenjang.id}">${jenjang.kode_jenjang} - ${jenjang.nama_jenjang}</option>`;
+                        createSelect.append(option);
+                        editSelect.append(option);
+                    });
+                }
+            }
+
+            // Isi dropdown kaprodi
+            function fillDosenOptions() {
+                const select = $('#id_kaprodi_modal');
+                select.empty().append('<option value="">-- Pilih Dosen --</option>');
+                if (dosenList && Array.isArray(dosenList)) {
+                    $.each(dosenList, function(index, dosen) {
+                        select.append(
+                            `<option value="${dosen.id}">${dosen.nama_dosen} (${dosen.nup})</option>`);
+                    });
+                }
+            }
+
+            // DataTables
             var table = $('#prodi-table').DataTable({
-                data: prodiData, // Gunakan data dari PHP
+                data: prodiData,
                 columns: [{
                         data: null,
                         render: function(data, type, row, meta) {
-                            // Kolom No (indeks baris + 1)
                             return meta.row + meta.settings._iDisplayStart + 1;
                         },
                         orderable: false,
@@ -380,16 +442,14 @@
                     },
                     {
                         data: 'id_jenjang_pendidikan',
-                        render: function(data, type, row) {
-                            // Cari nama jenjang berdasarkan ID
+                        render: function(data) {
                             const jenjang = jenjangPendidikan.find(j => j.id === data);
                             return jenjang ? jenjang.nama_jenjang : 'N/A';
                         }
                     },
                     {
                         data: 'akreditasi',
-                        render: function(data, type, row) {
-                            // Tampilkan '-' jika akreditasi kosong
+                        render: function(data) {
                             return data || '-';
                         }
                     },
@@ -397,55 +457,36 @@
                         data: 'gelar_lulusan'
                     },
                     {
-                        data: null, // Tidak ada data spesifik dari API untuk kolom ini
+                        data: 'id_kaprodi',
                         render: function(data, type, row) {
-                            // Generate tombol aksi berdasarkan ID dari data API
+                            return row.kaprodi ? row.kaprodi.nama_dosen : '-';
+                        }
+                    }, // 🔥 Kolom kaprodi
+                    {
+                        data: null,
+                        render: function(data) {
                             return `
-                               <div class="d-flex justify-content-center gap-2 flex-wrap">
-                                    <button class="btn btn-warning btn-sm edit-btn" data-id="${row.id}">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-danger btn-sm delete-btn" data-id="${row.id}">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                               </div>
-                            `;
+                            <div class="d-flex justify-content-center gap-2 flex-wrap">
+                                <button class="btn btn-warning btn-sm edit-btn" data-id="${data.id}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-danger btn-sm delete-btn" data-id="${data.id}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        `;
                         },
                         orderable: false,
                         searchable: false
                     }
                 ],
                 language: {
-                    url: '{{ asset('') }}template/assets/js/plugin/datatables/i18n/id.json' // Bahasa Indonesia
+                    url: '{{ asset('') }}template/assets/js/plugin/datatables/i18n/id.json'
                 },
-                drawCallback: function(settings) {
-                    // Sembunyikan loader setelah tabel selesai digambar
+                drawCallback: function() {
                     $('#tableLoader').addClass('hidden');
                 }
             });
-
-            // Isi opsi jenjang pendidikan dari data PHP
-            fillJenjangOptions();
-
-            // Fungsi untuk mengisi opsi jenjang pendidikan
-            function fillJenjangOptions() {
-                const createSelect = $('#id_jenjang_pendidikan');
-                const editSelect = $('#id_jenjang_pendidikan_modal');
-
-                // Kosongkan dropdown
-                createSelect.empty().append('<option value="">Pilih Jenjang...</option>');
-                editSelect.empty().append('<option value="">Pilih Jenjang...</option>');
-
-                // Isi dengan data dari PHP
-                if (jenjangPendidikan && Array.isArray(jenjangPendidikan)) {
-                    $.each(jenjangPendidikan, function(index, jenjang) {
-                        const option =
-                            `<option value="${jenjang.id}">${jenjang.kode_jenjang} - ${jenjang.nama_jenjang}</option>`;
-                        createSelect.append(option);
-                        editSelect.append(option);
-                    });
-                }
-            }
 
             // Reset form
             $('#resetBtn').click(function() {
@@ -469,15 +510,12 @@
                     success: function(response) {
                         if (response.success) {
                             Swal.fire({
-                                icon: 'success',
-                                title: 'Berhasil!',
-                                text: response.message,
-                                confirmButtonText: 'OK'
-                            }).then(() => {
-                                $('#prodiForm')[0].reset(); // Reset form setelah sukses
-                                location
-                                    .reload(); // Reload halaman untuk menampilkan data baru
-                            });
+                                    icon: 'success',
+                                    title: 'Berhasil!',
+                                    text: response.message,
+                                    confirmButtonText: 'OK'
+                                })
+                                .then(() => location.reload());
                         } else {
                             if (response.errors) {
                                 $.each(response.errors, function(key, value) {
@@ -487,19 +525,17 @@
                                 Swal.fire({
                                     icon: 'error',
                                     title: 'Gagal!',
-                                    text: response.message ||
-                                        'Terjadi kesalahan saat menyimpan data.',
+                                    text: response.message || 'Terjadi kesalahan.',
                                     confirmButtonText: 'OK'
                                 });
                             }
                         }
                     },
                     error: function(xhr) {
-                        console.error('AJAX Error:', xhr);
                         let errorMessage = 'Gagal menyimpan data.';
-                        if (xhr.responseJSON && xhr.responseJSON.message) {
-                            errorMessage = xhr.responseJSON.message;
-                        } else if (xhr.responseJSON && xhr.responseJSON.errors) {
+                        if (xhr.responseJSON && xhr.responseJSON.message) errorMessage = xhr
+                            .responseJSON.message;
+                        else if (xhr.responseJSON && xhr.responseJSON.errors) {
                             const errors = xhr.responseJSON.errors;
                             errorMessage = Object.values(errors)[0][0] || errorMessage;
                         }
@@ -509,11 +545,6 @@
                             text: errorMessage,
                             confirmButtonText: 'OK'
                         });
-                        if (xhr.responseJSON && xhr.responseJSON.errors) {
-                            $.each(xhr.responseJSON.errors, function(key, value) {
-                                $('#' + key + '_error').text(value[0]);
-                            });
-                        }
                     },
                     complete: function() {
                         $('#saveBtn').prop('disabled', false).html(
@@ -522,11 +553,10 @@
                 });
             });
 
-            // Edit button click (gunakan event delegation karena elemen dibuat oleh DataTables)
+            // Edit button click
             $(document).on('click', '.edit-btn', function() {
                 const id = $(this).data('id');
-                // Ambil data prodi spesifik dari API
-                $.get("{{ route('prodi.show', '') }}/" + id) // Pastikan route ini sesuai
+                $.get("{{ route('prodi.show', '') }}/" + id)
                     .done(function(data) {
                         if (data && data.data) {
                             $('#modelHeading').text('Edit Program Studi');
@@ -550,7 +580,6 @@
                         }
                     })
                     .fail(function(xhr) {
-                        console.error('Error fetching data for edit:', xhr);
                         Swal.fire({
                             icon: 'error',
                             title: 'Gagal!',
@@ -575,15 +604,12 @@
                     success: function(response) {
                         if (response.success) {
                             Swal.fire({
-                                icon: 'success',
-                                title: 'Berhasil!',
-                                text: response.message,
-                                confirmButtonText: 'OK'
-                            }).then(() => {
-                                $('#modalProdi').modal('hide');
-                                location
-                                    .reload(); // Reload halaman untuk menampilkan data terbaru
-                            });
+                                    icon: 'success',
+                                    title: 'Berhasil!',
+                                    text: response.message,
+                                    confirmButtonText: 'OK'
+                                })
+                                .then(() => location.reload());
                         } else {
                             if (response.errors) {
                                 $.each(response.errors, function(key, value) {
@@ -593,19 +619,17 @@
                                 Swal.fire({
                                     icon: 'error',
                                     title: 'Gagal!',
-                                    text: response.message ||
-                                        'Terjadi kesalahan saat memperbarui data.',
+                                    text: response.message,
                                     confirmButtonText: 'OK'
                                 });
                             }
                         }
                     },
                     error: function(xhr) {
-                        console.error('AJAX Error:', xhr);
                         let errorMessage = 'Gagal memperbarui data.';
-                        if (xhr.responseJSON && xhr.responseJSON.message) {
-                            errorMessage = xhr.responseJSON.message;
-                        } else if (xhr.responseJSON && xhr.responseJSON.errors) {
+                        if (xhr.responseJSON && xhr.responseJSON.message) errorMessage = xhr
+                            .responseJSON.message;
+                        else if (xhr.responseJSON && xhr.responseJSON.errors) {
                             const errors = xhr.responseJSON.errors;
                             errorMessage = Object.values(errors)[0][0] || errorMessage;
                         }
@@ -615,11 +639,6 @@
                             text: errorMessage,
                             confirmButtonText: 'OK'
                         });
-                        if (xhr.responseJSON && xhr.responseJSON.errors) {
-                            $.each(xhr.responseJSON.errors, function(key, value) {
-                                $('#' + key + '_error').text(value[0]);
-                            });
-                        }
                     },
                     complete: function() {
                         $('#saveBtnModal').prop('disabled', false).html(
@@ -628,7 +647,7 @@
                 });
             });
 
-            // Delete button click (gunakan event delegation)
+            // Delete button click
             $(document).on('click', '.delete-btn', function() {
                 const id = $(this).data('id');
                 Swal.fire({
@@ -642,7 +661,7 @@
                     cancelButtonText: 'Batal'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        $('#tableLoader').removeClass('hidden'); // Tampilkan loader saat menghapus
+                        $('#tableLoader').removeClass('hidden');
                         $.ajax({
                             url: "{{ route('prodi.destroy', '') }}/" + id,
                             type: 'DELETE',
@@ -652,14 +671,12 @@
                             success: function(response) {
                                 if (response.success) {
                                     Swal.fire({
-                                        icon: 'success',
-                                        title: 'Berhasil!',
-                                        text: response.message,
-                                        confirmButtonText: 'OK'
-                                    }).then(() => {
-                                        location
-                                            .reload(); // Reload halaman setelah sukses
-                                    });
+                                            icon: 'success',
+                                            title: 'Berhasil!',
+                                            text: response.message,
+                                            confirmButtonText: 'OK'
+                                        })
+                                        .then(() => location.reload());
                                 } else {
                                     Swal.fire({
                                         icon: 'error',
@@ -671,11 +688,9 @@
                                 }
                             },
                             error: function(xhr) {
-                                console.error('AJAX Error:', xhr);
                                 let errorMessage = 'Gagal menghapus data.';
-                                if (xhr.responseJSON && xhr.responseJSON.message) {
+                                if (xhr.responseJSON && xhr.responseJSON.message)
                                     errorMessage = xhr.responseJSON.message;
-                                }
                                 Swal.fire({
                                     icon: 'error',
                                     title: 'Gagal!',
@@ -684,9 +699,66 @@
                                 });
                             },
                             complete: function() {
-                                $('#tableLoader').addClass(
-                                    'hidden'); // Sembunyikan loader setelah selesai
+                                $('#tableLoader').addClass('hidden');
                             }
+                        });
+                    }
+                });
+            });
+
+            // Load dosen options saat tab kaprodi aktif
+            $(document).on('shown.bs.tab', 'button[data-bs-target="#kaprodi"]', function() {
+                const id = $('#prodi_id_modal').val();
+                if (id) {
+                    fillDosenOptions();
+                    $.get("{{ route('prodi.show', '') }}/" + id)
+                        .done(function(response) {
+                            if (response.success && response.data) {
+                                $('#nama_prodi_kaprodi_modal').val(response.data.nama_prodi);
+                                $('#id_kaprodi_modal').val(response.data.id_kaprodi || '');
+                            }
+                        });
+                }
+            });
+
+            // Simpan kaprodi
+            $('#kaprodiFormModal').on('submit', function(e) {
+                e.preventDefault();
+                const id = $('#prodi_id_modal').val();
+                const formData = $(this).serialize();
+                $('#saveKaprodiBtn').prop('disabled', true).text('Menyimpan...');
+
+                $.ajax({
+                    url: "{{ route('prodi.updateKaprodi', ':id') }}".replace(':id', id),
+                    type: 'PUT',
+                    data: formData,
+                    success: function(response) {
+                        if (response.success) {
+                            Swal.fire({
+                                    icon: 'success',
+                                    title: 'Berhasil!',
+                                    text: response.message,
+                                    confirmButtonText: 'OK'
+                                })
+                                .then(() => location.reload());
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal!',
+                                text: response.message || 'Gagal menyimpan kaprodi.',
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    },
+                    error: function(xhr) {
+                        let message = xhr.responseJSON?.errors.error ||
+                            'Gagal menyimpan kaprodi.';
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal!',
+                            text: message,
+                            confirmButtonText: 'OK'
                         });
                     }
                 });

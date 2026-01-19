@@ -25,13 +25,21 @@
     <div class="sidebar-wrapper scrollbar scrollbar-inner">
         <div class="sidebar-content">
             <ul class="nav nav-secondary">
-                <li class="nav-item">
+                <li class="nav-item {{ request()->routeIs('profile') ? 'active' : '' }}">
                     <a href="{{ route('profile') }}">
                         <i class="fas fa-home"></i>
                         <p>Profile</p>
                     </a>
                 </li>
 
+                @canAnyApi(
+                'dashboard.admin',
+                'dashboard.baak',
+                'dashboard.kaprodi',
+                'dashboard.dosen_pa',
+                'dashboard.dosen_pengampu',
+                'dashboard.mahasiswa'
+                )
                 <li class="nav-section">
                     <span class="sidebar-mini-icon">
                         <i class="fa fa-ellipsis-h"></i>
@@ -39,7 +47,7 @@
                     <h4 class="text-section">Dashboard</h4>
                 </li>
                 @canApi('dashboard.admin')
-                <li class="nav-item">
+                <li class="nav-item {{ request()->routeIs('dashboard.administrator') ? 'active' : '' }}">
                     <a href="{{ route('dashboard.administrator') }}">
                         <i class="fas fa-home"></i>
                         <p>Dashboard ADMIN</p>
@@ -48,7 +56,7 @@
                 @endcanApi
 
                 @canApi('dashboard.baak')
-                <li class="nav-item">
+                <li class="nav-item {{ request()->routeIs('dashboard.baak') ? 'active' : '' }}">
                     <a href="{{ route('dashboard.baak') }}">
                         <i class="fas fa-home"></i>
                         <p>Dashboard BAAK</p>
@@ -57,7 +65,7 @@
                 @endcanApi
 
                 @canApi('dashboard.kaprodi')
-                <li class="nav-item">
+                <li class="nav-item {{ request()->routeIs('dashboard.kaprodi') ? 'active' : '' }}">
                     <a href="{{ route('dashboard.kaprodi') }}">
                         <i class="fas fa-home"></i>
                         <p>Dashboard KAPRODI</p>
@@ -66,7 +74,7 @@
                 @endcanApi
 
                 @canApi('dashboard.dosen_pa')
-                <li class="nav-item">
+                <li class="nav-item {{ request()->routeIs('dashboard.dosen_pa') ? 'active' : '' }}">
                     <a href="{{ route('dashboard.dosen_pa') }}">
                         <i class="fas fa-home"></i>
                         <p>Dashboard DOSEN PA</p>
@@ -75,7 +83,7 @@
                 @endcanApi
 
                 @canApi('dashboard.dosen_pengampu')
-                <li class="nav-item">
+                <li class="nav-item {{ request()->routeIs('dashboard.dosen_pengampu') ? 'active' : '' }}">
                     <a href="{{ route('dashboard.dosen_pengampu') }}">
                         <i class="fas fa-home"></i>
                         <p>Dashboard DOSEN PENGAAMPU</p>
@@ -84,74 +92,156 @@
                 @endcanApi
 
                 @canApi('dashboard.mahasiswa')
-                <li class="nav-item">
+                <li class="nav-item {{ request()->routeIs('dashboard.mahasiswa') ? 'active' : '' }}">
                     <a href="{{ route('dashboard.mahasiswa') }}">
                         <i class="fas fa-home"></i>
                         <p>Dashboard MAHASISWA</p>
                     </a>
                 </li>
                 @endcanApi
+                @endcanAnyApi
 
+
+                @canAnyApi(
+                'websitekampus.landing.pengumuman.index',
+                'websitekampus.landing.prestasi.index',
+                'websitekampus.landing.beasiswa.index',
+                'websitekampus.landing.berita.index',
+                'websitekampus.landing.galeri.index',
+                'websitekampus.landing.faq.index',
+                'websitekampus.landing.landing-content.index',
+                'websitekampus.landing.ormawa.index',
+                'websitekampus.landing.profile-kampus.index',
+                )
                 <li class="nav-section">
                     <span class="sidebar-mini-icon">
                         <i class="fa fa-ellipsis-h"></i>
                     </span>
                     <h4 class="text-section">Website Kampus</h4>
                 </li>
-                <li class="nav-item active">
-                    <a data-bs-toggle="collapse" href="#masterwebsite" class="collapsed" aria-expanded="false">
+                <li
+                    class="nav-item {{ request()->routeIs([
+                        'pengumuman.*',
+                        'prestasi.*',
+                        'beasiswa.*',
+                        'berita.*',
+                        'galeri.*',
+                        'faq.*',
+                        'landing-content.*',
+                        'ormawa.*',
+                        'profile-kampus.*',
+                    ])
+                        ? 'active'
+                        : '' }}">
+                    <a data-bs-toggle="collapse" href="#masterwebsite"
+                        class="{{ request()->routeIs([
+                            'pengumuman.*',
+                            'prestasi.*',
+                            'beasiswa.*',
+                            'berita.*',
+                            'galeri.*',
+                            'faq.*',
+                            'landing-content.*',
+                            'ormawa.*',
+                            'profile-kampus.*',
+                        ])
+                            ? ''
+                            : 'collapsed' }}"
+                        aria-expanded="{{ request()->routeIs([
+                            'pengumuman.*',
+                            'prestasi.*',
+                            'beasiswa.*',
+                            'berita.*',
+                            'galeri.*',
+                            'faq.*',
+                            'landing-content.*',
+                            'ormawa.*',
+                            'profile-kampus.*',
+                        ])
+                            ? 'true'
+                            : 'false' }}">
                         <i class="fas fa-home"></i>
                         <p>Menu Landing</p>
                         <span class="caret"></span>
                     </a>
-                    <div class="collapse" id="masterwebsite">
+                    <div class="collapse {{ request()->routeIs([
+                        'pengumuman.*',
+                        'prestasi.*',
+                        'beasiswa.*',
+                        'berita.*',
+                        'galeri.*',
+                        'faq.*',
+                        'landing-content.*',
+                        'ormawa.*',
+                        'profile-kampus.*',
+                    ])
+                        ? 'show'
+                        : '' }}"
+                        id="masterwebsite">
                         <ul class="nav nav-collapse">
-                            <li>
+                            @canApi('websitekampus.landing.pengumuman.index')
+                            <li class="{{ request()->routeIs('pengumuman.*') ? 'active' : '' }}">
                                 <a href="{{ route('pengumuman.index') }}">
                                     <span class="sub-item">Pengumuman</span>
                                 </a>
                             </li>
-                            <li>
+                            @endcanApi
+                            @canApi('websitekampus.landing.prestasi.index')
+                            <li class="{{ request()->routeIs('prestasi.*') ? 'active' : '' }}">
                                 <a href="{{ route('prestasi.index') }}">
                                     <span class="sub-item">Prestasi</span>
                                 </a>
                             </li>
-                            <li>
+                            @endcanApi
+                            @canApi('websitekampus.landing.beasiswa.index')
+                            <li class="{{ request()->routeIs('beasiswa.*') ? 'active' : '' }}">
                                 <a href="{{ route('beasiswa.index') }}">
                                     <span class="sub-item">Beasiswa</span>
                                 </a>
                             </li>
-                            <li>
+                            @endcanApi
+                            @canApi('websitekampus.landing.berita.index')
+                            <li class="{{ request()->routeIs('berita.*') ? 'active' : '' }}">
                                 <a href="{{ route('berita.index') }}">
                                     <span class="sub-item">Berita</span>
                                 </a>
                             </li>
-                            <li>
+                            @endcanApi
+                            @canApi('websitekampus.landing.galeri.index')
+                            <li class="{{ request()->routeIs('galeri.*') ? 'active' : '' }}">
                                 <a href="{{ route('galeri.index') }}">
                                     <span class="sub-item">Galeri</span>
                                 </a>
                             </li>
-                            <li>
+                            @endcanApi
+                            @canApi('websitekampus.landing.faq.index')
+                            <li class="{{ request()->routeIs('faq.*') ? 'active' : '' }}">
                                 <a href="{{ route('faq.index') }}">
                                     <span class="sub-item">Faq</span>
                                 </a>
                             </li>
-                            <li>
+                            @endcanApi
+                            @canApi('websitekampus.landing.landing-content.index')
+                            <li class="{{ request()->routeIs('landing-content.*') ? 'active' : '' }}">
                                 <a href="{{ route('landing-content.index') }}">
                                     <span class="sub-item">Landing Content</span>
                                 </a>
                             </li>
-                            <li>
+                            @endcanApi
+                            @canApi('websitekampus.landing.ormawa.index')
+                            <li class="{{ request()->routeIs('ormawa.*') ? 'active' : '' }}">
                                 <a href="{{ route('ormawa.index') }}">
                                     <span class="sub-item">Ormawa</span>
                                 </a>
                             </li>
-                            <li>
+                            @endcanApi
+                            @canApi('websitekampus.landing.profile-kampus.index')
+                            <li class="{{ request()->routeIs('profile-kampus.*') ? 'active' : '' }}">
                                 <a href="{{ route('profile-kampus.index') }}">
                                     <span class="sub-item">Profile Kampus</span>
                                 </a>
                             </li>
-
+                            @endcanApi
                         </ul>
                     </div>
                 </li>
@@ -166,7 +256,7 @@
                         <i class="fas fa-home"></i>
                         <p>Pembayaran</p>
                     </a>
-                   
+
                 </li>
                 <li class="nav-section">
                     <span class="sidebar-mini-icon">
@@ -174,45 +264,202 @@
                     </span>
                     <h4 class="text-section">SIAKAD</h4>
                 </li>
-                <li class="nav-item active">
-                    <a data-bs-toggle="collapse" href="#mastersiakad" class="collapsed" aria-expanded="false">
+                <li
+                    class="nav-item {{ request()->routeIs([
+                        'jenjang-pendidikan.*',
+                        'prodi.*',
+                        'tahun-akademik.*',
+                        'kurikulum.*',
+                        'mata-kuliah.*',
+                        'jenis-kelas.*',
+                        'kelas-pararel.*',
+                        'kelas-mk.*',
+                        'jenis-pembayaran.*',
+                        'ruang.*',
+                        'dosen.*',
+                        'mahasiswa.*',
+                    ])
+                        ? 'active'
+                        : '' }}">
+                    <a data-bs-toggle="collapse" href="#mastersiakad"
+                        class="{{ request()->routeIs([
+                            'jenjang-pendidikan.*',
+                            'prodi.*',
+                            'tahun-akademik.*',
+                            'kurikulum.*',
+                            'mata-kuliah.*',
+                            'jenis-kelas.*',
+                            'kelas-pararel.*',
+                            'kelas-mk.*',
+                            'jenis-pembayaran.*',
+                            'ruang.*',
+                            'dosen.*',
+                            'mahasiswa.*',
+                        ])
+                            ? ''
+                            : 'collapsed' }}"
+                        aria-expanded="{{ request()->routeIs([
+                            'jenjang-pendidikan.*',
+                            'prodi.*',
+                            'tahun-akademik.*',
+                            'kurikulum.*',
+                            'mata-kuliah.*',
+                            'jenis-kelas.*',
+                            'kelas-pararel.*',
+                            'kelas-mk.*',
+                            'jenis-pembayaran.*',
+                            'ruang.*',
+                            'dosen.*',
+                            'mahasiswa.*',
+                        ])
+                            ? 'true'
+                            : 'false' }}">
                         <i class="fas fa-home"></i>
                         <p>Master Data</p>
                         <span class="caret"></span>
                     </a>
-                    <div class="collapse" id="mastersiakad">
+                    <div class="collapse {{ request()->routeIs([
+                        'jenjang-pendidikan.*',
+                        'prodi.*',
+                        'tahun-akademik.*',
+                        'kurikulum.*',
+                        'mata-kuliah.*',
+                        'jenis-kelas.*',
+                        'kelas-pararel.*',
+                        'kelas-mk.*',
+                        'jenis-pembayaran.*',
+                        'ruang.*',
+                        'dosen.*',
+                        'mahasiswa.*',
+                    ])
+                        ? 'show'
+                        : '' }}"
+                        id="mastersiakad">
                         <ul class="nav nav-collapse">
-
                             <!-- REFERENSI -->
-                            <li>
-                                <a data-bs-toggle="collapse" href="#subnavRef">
+                            <li
+                                class="{{ request()->routeIs([
+                                    'jenjang-pendidikan.*',
+                                    'prodi.*',
+                                    'tahun-akademik.*',
+                                    'kurikulum.*',
+                                    'mata-kuliah.*',
+                                    'jenis-kelas.*',
+                                    'kelas-pararel.*',
+                                    'kelas-mk.*',
+                                    'jenis-pembayaran.*',
+                                    'ruang.*',
+                                ])
+                                    ? 'active'
+                                    : '' }}">
+                                <a data-bs-toggle="collapse" href="#subnavRef"
+                                    class="{{ request()->routeIs([
+                                        'jenjang-pendidikan.*',
+                                        'prodi.*',
+                                        'tahun-akademik.*',
+                                        'kurikulum.*',
+                                        'mata-kuliah.*',
+                                        'jenis-kelas.*',
+                                        'kelas-pararel.*',
+                                        'kelas-mk.*',
+                                        'jenis-pembayaran.*',
+                                        'ruang.*',
+                                    ])
+                                        ? ''
+                                        : 'collapsed' }}">
                                     <span class="sub-item">Referensi</span>
                                     <span class="caret"></span>
                                 </a>
-                                <div class="collapse" id="subnavRef">
+                                <div class="collapse {{ request()->routeIs([
+                                    'jenjang-pendidikan.*',
+                                    'prodi.*',
+                                    'tahun-akademik.*',
+                                    'kurikulum.*',
+                                    'mata-kuliah.*',
+                                    'jenis-kelas.*',
+                                    'kelas-pararel.*',
+                                    'kelas-mk.*',
+                                    'jenis-pembayaran.*',
+                                    'ruang.*',
+                                ])
+                                    ? 'show'
+                                    : '' }}"
+                                    id="subnavRef">
                                     <ul class="nav nav-collapse subnav">
-                                        <li><a href="{{ route('jenjang-pendidikan.index') }}"><span
-                                                    class="sub-item">Jenjang Pendidikan</span></a></li>
-                                        <li><a href="{{ route('prodi.index') }}"><span class="sub-item">Program
-                                                    Studi</span></a></li>
-                                        <li><a href="{{ route('tahun-akademik.index') }}"><span
-                                                    class="sub-item">Tahun
-                                                    Akademik</span></a></li>
-                                        <li><a href="{{ route('kurikulum.index') }}"><span
-                                                    class="sub-item">Kurikulum</span></a></li>
-                                        <li><a href="{{ route('mata-kuliah.index') }}"><span class="sub-item">Mata
-                                                    Kuliah</span></a></li>
-                                        <li><a href="{{ route('jenis-kelas.index') }}"><span class="sub-item">Jenis
-                                                    Kelas</span></a></li>
-                                        <li><a href="{{ route('jenis-pembayaran.index') }}"><span
-                                                    class="sub-item">Jenis
-                                                    Pembayaran</span></a></li>
-                                        <li><a href="{{ route('ruang.index') }}"><span class="sub-item">Ruang
-                                                    Kuliah</span></a>
+                                        @canApi('siakad.master.refrensi.jenjang-pendidikan.index')
+                                        <li class="{{ request()->routeIs('jenjang-pendidikan.*') ? 'active' : '' }}">
+                                            <a href="{{ route('jenjang-pendidikan.index') }}">
+                                                <span class="sub-item">Jenjang Pendidikan</span>
+                                            </a>
                                         </li>
+                                        @endcanApi
+                                        @canApi('siakad.master.refrensi.prodi.index')
+                                        <li class="{{ request()->routeIs('prodi.*') ? 'active' : '' }}">
+                                            <a href="{{ route('prodi.index') }}">
+                                                <span class="sub-item">Program Studi</span>
+                                            </a>
+                                        </li>
+                                        @endcanApi
+                                        @canApi('siakad.master.refrensi.tahun-akademik.index')
+                                        <li class="{{ request()->routeIs('tahun-akademik.*') ? 'active' : '' }}">
+                                            <a href="{{ route('tahun-akademik.index') }}">
+                                                <span class="sub-item">Tahun Akademik</span>
+                                            </a>
+                                        </li>
+                                        @endcanApi
+                                        @canApi('siakad.master.refrensi.kurikulum.index')
+                                        <li class="{{ request()->routeIs('kurikulum.*') ? 'active' : '' }}">
+                                            <a href="{{ route('kurikulum.index') }}">
+                                                <span class="sub-item">Kurikulum</span>
+                                            </a>
+                                        </li>
+                                        @endcanApi
+                                        @canApi('siakad.master.refrensi.mata-kuliah.index')
+                                        <li class="{{ request()->routeIs('mata-kuliah.*') ? 'active' : '' }}">
+                                            <a href="{{ route('mata-kuliah.index') }}">
+                                                <span class="sub-item">Mata Kuliah</span>
+                                            </a>
+                                        </li>
+                                        @endcanApi
+                                        @canApi('siakad.master.refrensi.jenis-kelas.index')
+                                        <li class="{{ request()->routeIs('jenis-kelas.*') ? 'active' : '' }}">
+                                            <a href="{{ route('jenis-kelas.index') }}">
+                                                <span class="sub-item">Jenis Kelas</span>
+                                            </a>
+                                        </li>
+                                        @endcanApi
+                                        @canApi('siakad.master.refrensi.kelas-pararel.index')
+                                        <li class="{{ request()->routeIs('kelas-pararel.*') ? 'active' : '' }}">
+                                            <a href="{{ route('kelas-pararel.index') }}">
+                                                <span class="sub-item">Kelas Pararel</span>
+                                            </a>
+                                        </li>
+                                        @endcanApi
+                                        @canApi('siakad.master.refrensi.kelas-mk.index')
+                                        <li class="{{ request()->routeIs('kelas-mk.*') ? 'active' : '' }}">
+                                            <a href="{{ route('kelas-mk.index') }}">
+                                                <span class="sub-item">Kelas Mata Kuliah</span>
+                                            </a>
+                                        </li>
+                                        @endcanApi
+                                        @canApi('siakad.master.refrensi.jenis-pembayaran.index')
+                                        <li class="{{ request()->routeIs('jenis-pembayaran.*') ? 'active' : '' }}">
+                                            <a href="{{ route('jenis-pembayaran.index') }}">
+                                                <span class="sub-item">Jenis Pembayaran</span>
+                                            </a>
+                                        </li>
+                                        @endcanApi
+                                        @canApi('siakad.master.refrensi.ruang.index')
+                                        <li class="{{ request()->routeIs('ruang.*') ? 'active' : '' }}">
+                                            <a href="{{ route('ruang.index') }}">
+                                                <span class="sub-item">Ruang Kuliah</span>
+                                            </a>
+                                        </li>
+                                        @endcanApi
                                     </ul>
                                 </div>
                             </li>
+<<<<<<< HEAD
 
                             <!-- SETTING AKADEMIK -->
                             {{-- <li>
@@ -254,23 +501,30 @@
 
                             {{-- <li class="nav-item">
                                 <a href="#">
+=======
+                            @canApi('siakad.master.refrensi.dosen.index')
+                            <li class="nav-item {{ request()->routeIs('dosen.*') ? 'active' : '' }}">
+                                <a href="{{ route('dosen.index') }}">
+>>>>>>> ab5a9f5 (pembaruan code)
                                     <i class="fas fa-home"></i>
                                     <p>Data Dosen</p>
                                 </a>
                             </li>
-
-                            <li class="nav-item">
-                                <a href="#">
+                            @endcanApi
+                            @canApi('siakad.master.refrensi.mahasiswa.index')
+                            <li class="nav-item {{ request()->routeIs('mahasiswa.*') ? 'active' : '' }}">
+                                <a href="{{ route('mahasiswa.index') }}">
                                     <i class="fas fa-home"></i>
                                     <p>Data Mahasiswa</p>
                                 </a>
-                            </li> --}}
-
+                            </li>
+                            @endcanApi
                         </ul>
                     </div>
                 </li>
+                @endcanAnyApi
 
-                @canAnyApi(
+                @canAnyApiPengguna(
                 'pengguna.setting.users.index',
                 'pengguna.setting.roles.index',
                 'pengguna.setting.permissions.index'
@@ -283,33 +537,49 @@
                     <h4 class="text-section">Pengguna</h4>
                 </li>
 
-                <li class="nav-item active">
-                    <a data-bs-toggle="collapse" href="#masterpengguna" class="collapsed">
+                <li
+                    class="nav-item {{ request()->routeIs(['users.*', 'roles.*', 'permissions.*']) ? 'active' : '' }}">
+                    <a data-bs-toggle="collapse" href="#masterpengguna"
+                        class="{{ request()->routeIs(['users.*', 'roles.*', 'permissions.*']) ? '' : 'collapsed' }}"
+                        aria-expanded="{{ request()->routeIs(['users.*', 'roles.*', 'permissions.*']) ? 'true' : 'false' }}">
                         <i class="fas fa-home"></i>
                         <p>Setting</p>
                         <span class="caret"></span>
                     </a>
 
-                    <div class="collapse" id="masterpengguna">
+                    <div class="collapse {{ request()->routeIs(['users.*', 'roles.*', 'permissions.*']) ? 'show' : '' }}"
+                        id="masterpengguna">
                         <ul class="nav nav-collapse">
 
-                            @canApi('pengguna.setting.users.index')
-                            <li><a href="{{ route('users.index') }}"><span class="sub-item">User</span></a></li>
-                            @endcanApi
-
-                            @canApi('pengguna.setting.roles.index')
-                            <li><a href="{{ route('roles.index') }}"><span class="sub-item">Role</span></a></li>
-                            @endcanApi
-                            @canApi('pengguna.setting.permissions.index')
-                            <li><a href="{{ route('permissions.index') }}"><span
-                                        class="sub-item">Permission</span></a>
+                            @canApiPengguna('pengguna.setting.users.index')
+                            <li class="{{ request()->routeIs('users.*') ? 'active' : '' }}">
+                                <a href="{{ route('users.index') }}">
+                                    <span class="sub-item">User</span>
+                                </a>
                             </li>
-                            @endcanApi
+                            @endcanApiPengguna
+
+                            @canApiPengguna('pengguna.setting.roles.index')
+                            <li class="{{ request()->routeIs('roles.*') ? 'active' : '' }}">
+                                <a href="{{ route('roles.index') }}">
+                                    <span class="sub-item">Role</span>
+                                </a>
+                            </li>
+                            @endcanApiPengguna
+
+                            @canApiPengguna('pengguna.setting.permissions.index')
+                            <li class="{{ request()->routeIs('permissions.*') ? 'active' : '' }}">
+                                <a href="{{ route('permissions.index') }}">
+                                    <span class="sub-item">Permission</span>
+                                </a>
+                            </li>
+                            @endcanApiPengguna
+
                         </ul>
                     </div>
                 </li>
 
-                @endcanAnyApi
+                @endcanAnyApiPengguna
 
 
                 <li class="nav-section">
@@ -318,7 +588,7 @@
                     </span>
                     <h4 class="text-section">Sign-Out</h4>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item {{ request()->routeIs('logout') ? 'active' : '' }}">
                     <a href="#"
                         onclick="event.preventDefault(); document.getElementById('logout-form-nav').submit();">
                         <i class="fas fa-sign-out-alt"></i>

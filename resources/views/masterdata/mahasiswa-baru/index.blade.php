@@ -44,7 +44,7 @@
 @section('content')
     <div class="page-inner">
         <div class="page-header">
-            <h3 class="fw-bold mb-3">Mahasiswa Management</h3>
+            <h3 class="fw-bold mb-3">Mahasiswa PMB Baru</h3>
             <ul class="breadcrumbs mb-3">
                 <li class="nav-home"><a href="{{ url('/') }}"><i class="icon-home"></i></a></li>
                 <li class="separator"><i class="icon-arrow-right"></i></li>
@@ -72,8 +72,8 @@
                                     <tr>
                                         <th>No</th>
                                         <th>Nama</th>
-                                        <th>NIM</th>
-                                        <th>Prodi</th>
+                                        <th>NIM Sementara</th>
+                                        <th>Prodi yang Dipilih</th>
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
@@ -278,7 +278,7 @@
                 $('#id_periode_pendaftaran').html('<option value="">-- Memuat --</option>');
                 syncModal.show();
 
-                $.get(`{{ config('api.pmb_url') }}/periode-pendaftaran`)
+                $.get(`{{ config('api.pmb_url') }}periode-pendaftaran`)
                     .done(res => {
                         if (res.success && res.data) {
                             let options = '<option value="">-- Pilih Periode --</option>';

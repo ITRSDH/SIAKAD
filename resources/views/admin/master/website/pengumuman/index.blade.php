@@ -106,7 +106,7 @@
                     <!-- Card Body dengan kelas collapse dan show untuk tampil awal -->
                     <div class="collapse show" id="collapsePengumumanForm">
                         <div class="card-body">
-                            <form id="pengumumanForm" name="pengumumanForm">
+                            <form id="pengumumanForm" name="pengumumanForm" method="POST" enctype="multipart/form-data">
                                 @csrf
                                 <input type="hidden" name="id" id="pengumuman_id">
 
@@ -406,10 +406,10 @@
             });
 
             // Store/Update Form Submit
-            $('#pengumumanForm').submit(function(e) {
+            $('#pengumumanForm').on('submit', function(e) {
                 e.preventDefault();
                 
-                var url = '/pengumuman';
+                var url = "{{ route('pengumuman.store') }}";
                 var data = {
                     'judul': $('#judul').val(),
                     'kategori': $('#kategori').val(),
@@ -474,7 +474,7 @@
             });
 
             // Update Form Submit (Modal)
-            $('#pengumumanFormModal').submit(function(e) {
+            $('#pengumumanFormModal').on('submit', function(e) {
                 e.preventDefault();
                 
                 var id = $('#pengumuman_id_modal').val();

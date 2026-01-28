@@ -139,7 +139,7 @@
                     <!-- Card Body dengan kelas collapse dan show untuk tampil awal -->
                     <div class="collapse show" id="collapseBeritaForm">
                         <div class="card-body">
-                            <form id="beritaForm" name="beritaForm">
+                            <form id="beritaForm" name="beritaForm" method="POST" enctype="multipart/form-data">
                                 @csrf
                                 <input type="hidden" name="id" id="berita_id">
 
@@ -517,11 +517,11 @@
             });
 
             // Store/Update Form Submit
-            $('#beritaForm').submit(function(e) {
+            $('#beritaForm').on('submit', function(e) {
                 e.preventDefault();
                 
                 var formData = new FormData(this);
-                var url = '/berita';
+                var url = "{{ route('berita.store') }}";
                 
                 // Add CSRF token to FormData
                 formData.append('_token', '{{ csrf_token() }}');
@@ -585,7 +585,7 @@
             });
 
             // Update Form Submit (Modal)
-            $('#beritaFormModal').submit(function(e) {
+            $('#beritaFormModal').on('submit', function(e) {
                 e.preventDefault();
                 
                 var formData = new FormData(this);

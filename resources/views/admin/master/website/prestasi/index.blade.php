@@ -139,7 +139,7 @@
                     <!-- Card Body dengan kelas collapse dan show untuk tampil awal -->
                     <div class="collapse show" id="collapsePrestasiForm">
                         <div class="card-body">
-                            <form id="prestasiForm" name="prestasiForm">
+                            <form id="prestasiForm" name="prestasiForm" method="POST" enctype="multipart/form-data">
                                 @csrf
                                 <input type="hidden" name="id" id="prestasi_id">
 

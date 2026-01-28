@@ -139,7 +139,7 @@
                     <!-- Card Body dengan kelas collapse dan show untuk tampil awal -->
                     <div class="collapse show" id="collapseGaleriForm">
                         <div class="card-body">
-                            <form id="galeriForm" name="galeriForm">
+                            <form id="galeriForm" name="galeriForm" method="POST" enctype="multipart/form-data">
                                 @csrf
                                 <input type="hidden" name="id" id="galeri_id">
 
@@ -522,11 +522,11 @@
             });
 
             // Store/Update Form Submit
-            $('#galeriForm').submit(function(e) {
+            $('#galeriForm').on('submit', function(e) {
                 e.preventDefault();
                 
                 var formData = new FormData(this);
-                var url = '/galeri';
+                var url = "{{ route('galeri.store') }}";
                 
                 // Add CSRF token to FormData
                 formData.append('_token', '{{ csrf_token() }}');
@@ -549,39 +549,30 @@
                             
                             // Reset form
                             $('#galeriForm')[0].reset();
-                            $('#preview-container').hide();
+                            $('#galeri_id').val('');
                             
-                            // Reload page to show updated data
+                            // Reload page untuk melihat data baru
                             setTimeout(() => {
-                                window.location.reload();
-                            }, 1500);
+                                location.reload();
+                            }, 1600);
                         } else {
-                            // Handle validation errors
-                            if (response.errors) {
-                                // Clear previous errors
-                                $('.error-text').text('');
-                                
-                                // Show validation errors
-                                $.each(response.errors, function(key, value) {
-                                    var fieldId = key + '_error';
-                                    $('#' + fieldId).text(value[0]);
-                                });
-                            } else {
-                                Swal.fire('Error', response.message || 'Terjadi kesalahan', 'error');
-                            }
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal!',
+                                text: response.message || 'Terjadi kesalahan'
+                            });
                         }
                     },
                     error: function(xhr) {
-                        var response = xhr.responseJSON;
-                        if (response && response.errors) {
-                            // Clear previous errors
-                            $('.error-text').text('');
-                            
-                            // Show validation errors
-                            $.each(response.errors, function(key, value) {
-                                var fieldId = key + '_error';
-                                $('#' + fieldId).text(value[0]);
-                            });
+                        var errorMessage = 'Terjadi kesalahan saat menyimpan data';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                            if (xhr.responseJSON.errors) {
+                                $.each(xhr.responseJSON.errors, function(key, value) {
+                                    var fieldId = key + '_error';
+                                    $('#' + fieldId).text(value[0]);
+                                });
+                            }
                         } else {
                             Swal.fire('Error', 'Terjadi kesalahan saat menyimpan data', 'error');
                         }

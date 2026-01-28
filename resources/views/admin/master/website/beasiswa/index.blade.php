@@ -139,7 +139,7 @@
                     <!-- Card Body dengan kelas collapse dan show untuk tampil awal -->
                     <div class="collapse show" id="collapseBeasiswaForm">
                         <div class="card-body">
-                            <form id="beasiswaForm" name="beasiswaForm">
+                            <form id="beasiswaForm" name="beasiswaForm" method="POST" enctype="multipart/form-data">
                                 @csrf
                                 <input type="hidden" name="id" id="beasiswa_id">
 
@@ -539,11 +539,11 @@
             });
 
             // Store/Update Form Submit
-            $('#beasiswaForm').submit(function(e) {
+            $('#beasiswaForm').on('submit', function(e) {
                 e.preventDefault();
                 
                 var formData = new FormData(this);
-                var url = '/beasiswa';
+                var url = "{{ route('beasiswa.store') }}";
                 
                 // Add CSRF token to FormData
                 formData.append('_token', '{{ csrf_token() }}');
@@ -607,7 +607,7 @@
             });
 
             // Update Form Submit (Modal)
-            $('#beasiswaFormModal').submit(function(e) {
+            $('#beasiswaFormModal').on('submit', function(e) {
                 e.preventDefault();
                 
                 var formData = new FormData(this);

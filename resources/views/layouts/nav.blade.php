@@ -300,7 +300,8 @@
                 'siakad.master.refrensi.jenis-pembayaran.index',
                 'siakad.master.refrensi.ruang.index',
                 'siakad.master.refrensi.dosen.index',
-                'siakad.master.refrensi.mahasiswa.index'
+                'siakad.master.refrensi.mahasiswa.index',
+                'siakad.master.refrensi.mahasiswa-baru.index',
                 )
                 <li class="nav-section">
                     <span class="sidebar-mini-icon">
@@ -327,7 +328,8 @@
                         ? 'active'
                         : '' }}">
                     <a data-bs-toggle="collapse" href="#mastersiakad"
-                        class="{{ request()->routeIs([
+                        class="{{ !request()->routeIs('mahasiswa.baru.*') &&
+                        request()->routeIs([
                             'jenjang-pendidikan.*',
                             'prodi.*',
                             'tahun-akademik.*',
@@ -340,10 +342,25 @@
                             'ruang.*',
                             'dosen.*',
                             'mahasiswa.*',
-                            'mahasiswa.baru.*',
                         ])
                             ? ''
-                            : 'collapsed' }}"
+                            : (request()->routeIs([
+                                'jenjang-pendidikan.*',
+                                'prodi.*',
+                                'tahun-akademik.*',
+                                'kurikulum.*',
+                                'mata-kuliah.*',
+                                'jenis-kelas.*',
+                                'kelas-pararel.*',
+                                'kelas-mk.*',
+                                'jenis-pembayaran.*',
+                                'ruang.*',
+                                'dosen.*',
+                                'mahasiswa.*',
+                                'mahasiswa.baru.*',
+                            ])
+                                ? ''
+                                : 'collapsed') }}"
                         aria-expanded="{{ request()->routeIs([
                             'jenjang-pendidikan.*',
                             'prodi.*',
@@ -515,14 +532,17 @@
                                 </a>
                             </li>
                             @endcanApi
+
                             @canApi('siakad.master.refrensi.mahasiswa.index')
-                            <li class="nav-item {{ request()->routeIs('mahasiswa.*') ? 'active' : '' }}">
+                            <li
+                                class="nav-item {{ request()->routeIs('mahasiswa.*') && !request()->routeIs('mahasiswa.baru.*') ? 'active' : '' }}">
                                 <a href="{{ route('mahasiswa.index') }}">
                                     <i class="fas fa-home"></i>
                                     <p>Data Mahasiswa</p>
                                 </a>
                             </li>
                             @endcanApi
+
                             @canApi('siakad.master.refrensi.mahasiswa-baru.index')
                             <li class="nav-item {{ request()->routeIs('mahasiswa.baru.*') ? 'active' : '' }}">
                                 <a href="{{ route('mahasiswa.baru.index') }}">

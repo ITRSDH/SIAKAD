@@ -260,62 +260,7 @@
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    @forelse($beasiswa as $index => $item)
-                                        <tr>
-                                            <td>{{ $index + 1 }}</td>
-                                            <td>
-                                                @if($item['gambar'])
-                                                    <img src="{{ config('api.storage_url') . $item['gambar'] }}" 
-                                                         alt="{{ $item['nama'] }}" 
-                                                         class="img-thumbnail" 
-                                                         style="max-width: 80px; max-height: 60px; cursor: pointer;"
-                                                         onclick="viewImage('{{ config('api.storage_url') . $item['gambar'] }}', '{{ $item['nama'] }}')">
-                                                @else
-                                                    <span class="text-muted">Tidak ada gambar</span>
-                                                @endif
-                                            </td>
-                                            <td>{{ $item['nama'] }}</td>
-                                            <td>
-                                                <span class="badge bg-{{ $item['kategori'] == 'akademik' ? 'primary' : 'success' }}">
-                                                    {{ ucfirst($item['kategori']) }}
-                                                </span>
-                                            </td>
-                                            <td>{{ \Carbon\Carbon::parse($item['deadline'])->format('d M Y') }}</td>
-                                            <td>
-                                                <span class="badge bg-info">{{ $item['kuota'] }}</span>
-                                            </td>
-                                            <td>
-                                                <span class="text-truncate d-inline-block" style="max-width: 200px;" 
-                                                      title="{{ $item['deskripsi'] }}">
-                                                    {{ Str::limit($item['deskripsi'], 50) }}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <div class="d-flex justify-content-center gap-1">
-                                                    <button type="button" 
-                                                            class="btn btn-sm btn-warning btn-icon edit-btn" 
-                                                            data-id="{{ $item['id'] }}" 
-                                                            title="Edit">
-                                                        <i class="fas fa-edit"></i>
-                                                    </button>
-                                                    <button type="button" 
-                                                            class="btn btn-sm btn-danger btn-icon delete-btn" 
-                                                            data-id="{{ $item['id'] }}" 
-                                                            title="Hapus">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="8" class="text-center text-muted">
-                                                <i class="fas fa-inbox"></i> Tidak ada data beasiswa
-                                            </td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
+                                <tbody></tbody>
                             </table>
                         </div>
                     </div>
@@ -444,11 +389,112 @@
     <script src="https://cdn.datatables.net/2.3.6/js/dataTables.js"></script>
     <script>
         $(document).ready(function() {
-            // Initialize DataTable
-            $('#beasiswaTable').DataTable();
+            // Ambil data dari variabel PHP yang dilewatkan ke view (pola seperti Prestasi/Pengumuman/FAQ)
+            var beasiswaData = @json($beasiswa);
 
             // Ambil storage URL API dari config
             var apiStorageUrl = '{{ config('api.storage_url') }}';
+
+            function stripHtml(html) {
+                if (!html) return '';
+                return $('<div>').html(html).text();
+            }
+
+            function truncateText(text, maxLen) {
+                if (!text) return '-';
+                if (text.length <= maxLen) return text;
+                return text.substring(0, maxLen) + '...';
+            }
+
+            function formatTanggalIndonesia(dateStr) {
+                if (!dateStr) return null;
+                const d = new Date(dateStr);
+                if (isNaN(d.getTime())) return null;
+                return d.toLocaleDateString('id-ID', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric'
+                });
+            }
+
+            // Initialize DataTable client-side dari data PHP
+            const table = $('#beasiswaTable').DataTable({
+                data: beasiswaData,
+                columns: [{
+                        data: null,
+                        render: function(data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        },
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'gambar',
+                        render: function(data, type, row) {
+                            if (!data) return '<span class="text-muted">Tidak ada gambar</span>';
+                            const title = (row.nama ?? 'Beasiswa').replace(/"/g, '&quot;');
+                            const imageUrl = apiStorageUrl + data;
+                            return `<img src="${imageUrl}" alt="${title}" class="img-thumbnail" style="max-width: 80px; max-height: 60px; cursor: pointer;" onclick="viewImage('${imageUrl}', '${title}')">`;
+                        },
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'nama',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'kategori',
+                        render: function(data) {
+                            if (!data) return '<span class="text-muted">-</span>';
+                            const kategori = String(data);
+                            const cls = kategori === 'akademik' ? 'primary' : 'success';
+                            return `<span class="badge bg-${cls}">${kategori.charAt(0).toUpperCase() + kategori.slice(1)}</span>`;
+                        }
+                    },
+                    {
+                        data: 'deadline',
+                        render: function(data) {
+                            if (!data) return '<span class="text-muted">-</span>';
+                            const formatted = formatTanggalIndonesia(data);
+                            return formatted ?? data;
+                        }
+                    },
+                    {
+                        data: 'kuota',
+                        render: function(data) {
+                            if (data === null || data === undefined || data === '') return '<span class="text-muted">-</span>';
+                            return `<span class="badge bg-info">${data}</span>`;
+                        }
+                    },
+                    {
+                        data: 'deskripsi',
+                        render: function(data) {
+                            const plain = stripHtml(data);
+                            const short = truncateText(plain, 50);
+                            const escapedTitle = String(plain).replace(/"/g, '&quot;');
+                            return `<span class="text-truncate d-inline-block" style="max-width: 200px;" title="${escapedTitle}">${short}</span>`;
+                        }
+                    },
+                    {
+                        data: null,
+                        render: function(data, type, row) {
+                            return `
+                                <div class="d-flex justify-content-center gap-1">
+                                    <button type="button" class="btn btn-sm btn-warning btn-icon edit-btn" data-id="${row.id}" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-danger btn-icon delete-btn" data-id="${row.id}" title="Hapus">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            `;
+                        },
+                        orderable: false,
+                        searchable: false
+                    }
+                ]
+            });
 
             // View Image Function
             window.viewImage = function(imageSrc, title) {
@@ -523,9 +569,7 @@
                             success: function(response) {
                                 if (response.success) {
                                     Swal.fire('Berhasil!', 'Data beasiswa berhasil dihapus', 'success');
-                                    setTimeout(() => {
-                                        window.location.reload();
-                                    }, 1500);
+                                    table.row($('button[data-id="' + id + '"]').closest('tr')).remove().draw(false);
                                 } else {
                                     Swal.fire('Error', 'Gagal menghapus data beasiswa', 'error');
                                 }
@@ -567,11 +611,10 @@
                             // Reset form
                             $('#beasiswaForm')[0].reset();
                             $('#preview-container').hide();
-                            
-                            // Reload page to show updated data
-                            setTimeout(() => {
-                                window.location.reload();
-                            }, 1500);
+
+                            if (response.data) {
+                                table.row.add(response.data).draw(false);
+                            }
                         } else {
                             // Handle validation errors
                             if (response.errors) {
@@ -683,13 +726,13 @@
                             showConfirmButton: false,
                             timer: 1500
                         });
-                        
+
+                        if (response.data) {
+                            const row = table.row($('button[data-id="' + id + '"]').closest('tr'));
+                            row.data(response.data).invalidate().draw(false);
+                        }
+
                         $('#modalBeasiswa').modal('hide');
-                        
-                        // Reload page to show updated data
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1500);
                     } else {
                         if (response.errors) {
                             $('.error-text').text('');

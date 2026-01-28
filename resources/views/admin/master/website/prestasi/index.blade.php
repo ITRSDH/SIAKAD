@@ -295,73 +295,7 @@
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    @forelse($prestasi as $index => $item)
-                                        <tr>
-                                            <td>{{ $index + 1 }}</td>
-                                            <td>
-                                                @if(!empty($item['gambar']))
-                                                    <img src="{{ config('api.storage_url') . $item['gambar'] }}"
-                                                         alt="{{ $item['judul_prestasi'] ?? 'Prestasi' }}"
-                                                         class="table-image"
-                                                         onclick="showImageModal('{{ config('api.storage_url') . $item['gambar'] }}', '{{ addslashes($item['judul_prestasi'] ?? 'Prestasi') }}')">
-                                                @else
-                                                    <span class="badge bg-secondary">No Image</span>
-                                                @endif
-                                            </td>
-                                            <td>{{ $item['nama_mahasiswa'] ?? '-' }}</td>
-                                            <td>
-                                                @if(isset($item['prodi']) && is_array($item['prodi']) && !empty($item['prodi']['nama_prodi']))
-                                                    {{ $item['prodi']['nama_prodi'] }}
-                                                @else
-                                                    <span class="text-muted">-</span>
-                                                @endif
-                                            </td>
-                                            <td>{{ $item['judul_prestasi'] ?? '-' }}</td>
-                                            <td>
-                                                @if($item['tingkat'] === 'kampus')
-                                                    <span class="badge bg-primary">Kampus</span>
-                                                @elseif($item['tingkat'] === 'nasional')
-                                                    <span class="badge bg-success">Nasional</span>
-                                                @elseif($item['tingkat'] === 'internasional')
-                                                    <span class="badge bg-warning">Internasional</span>
-                                                @else
-                                                    <span class="badge bg-light text-dark">-</span>
-                                                @endif
-                                            </td>
-                                            <td>{{ $item['tahun'] ?? '-' }}</td>
-                                            <td>
-                                                <span class="text-truncate d-inline-block" style="max-width: 220px;"
-                                                      title="{{ $item['deskripsi'] ?? '' }}">
-                                                    {{ Str::limit(strip_tags($item['deskripsi'] ?? ''), 80) }}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <div class="d-flex justify-content-center gap-1">
-                                                    <button type="button"
-                                                            class="btn btn-sm btn-warning btn-icon edit-btn"
-                                                            data-id="{{ $item['id'] }}"
-                                                            title="Edit">
-                                                        <i class="fas fa-edit"></i>
-                                                    </button>
-
-                                                    <button type="button"
-                                                            class="btn btn-sm btn-danger btn-icon delete-btn"
-                                                            data-id="{{ $item['id'] }}"
-                                                            title="Hapus">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="9" class="text-center text-muted">
-                                                <i class="fas fa-inbox"></i> Tidak ada data prestasi
-                                            </td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
+                                <tbody></tbody>
                             </table>
                         </div>
                     </div>
@@ -516,11 +450,100 @@
     <script src="https://cdn.datatables.net/2.3.6/js/dataTables.js"></script>
     <script>
         $(document).ready(function() {
-            // Initialize DataTable
-            $('#prestasiTable').DataTable();
+            // Ambil data dari variabel PHP yang dilewatkan ke view (pola seperti Pengumuman/FAQ)
+            var prestasiData = @json($prestasi);
 
             // Ambil storage URL API dari config
             var apiStorageUrl = '{{ config('api.storage_url') }}';
+
+            function stripHtml(html) {
+                if (!html) return '';
+                return $('<div>').html(html).text();
+            }
+
+            function truncateText(text, maxLen) {
+                if (!text) return '-';
+                if (text.length <= maxLen) return text;
+                return text.substring(0, maxLen) + '...';
+            }
+
+            // Initialize DataTable client-side dari data PHP
+            const table = $('#prestasiTable').DataTable({
+                data: prestasiData,
+                columns: [{
+                        data: null,
+                        render: function(data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        },
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'gambar',
+                        render: function(data, type, row) {
+                            if (!data) return '<span class="badge bg-secondary">No Image</span>';
+                            const title = (row.judul_prestasi ?? 'Prestasi').replace(/"/g, '&quot;');
+                            const imageUrl = apiStorageUrl + data;
+                            return `<img src="${imageUrl}" alt="${title}" class="table-image" onclick="showImageModal('${imageUrl}', '${title}')">`;
+                        },
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'nama_mahasiswa',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: null,
+                        render: function(data, type, row) {
+                            return row.prodi?.nama_prodi ?? '<span class="text-muted">-</span>';
+                        }
+                    },
+                    {
+                        data: 'judul_prestasi',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'tingkat',
+                        render: function(data) {
+                            if (data === 'kampus') return '<span class="badge bg-primary">Kampus</span>';
+                            if (data === 'nasional') return '<span class="badge bg-success">Nasional</span>';
+                            if (data === 'internasional') return '<span class="badge bg-warning">Internasional</span>';
+                            return '<span class="badge bg-light text-dark">-</span>';
+                        }
+                    },
+                    {
+                        data: 'tahun',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'deskripsi',
+                        render: function(data) {
+                            const plain = stripHtml(data);
+                            const short = truncateText(plain, 80);
+                            const escapedTitle = String(plain).replace(/"/g, '&quot;');
+                            return `<span class="text-truncate d-inline-block" style="max-width: 220px;" title="${escapedTitle}">${short}</span>`;
+                        }
+                    },
+                    {
+                        data: null,
+                        render: function(data, type, row) {
+                            return `
+                                <div class="d-flex justify-content-center gap-1">
+                                    <button type="button" class="btn btn-sm btn-warning btn-icon edit-btn" data-id="${row.id}" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-danger btn-icon delete-btn" data-id="${row.id}" title="Hapus">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            `;
+                        },
+                        orderable: false,
+                        searchable: false
+                    }
+                ]
+            });
 
             // Reset form
             $('#resetBtn').click(function() {
@@ -621,9 +644,25 @@
                                 confirmButtonText: 'OK'
                             });
 
-                            setTimeout(() => {
-                                window.location.reload();
-                            }, 1200);
+                            if (response.data) {
+                                // Pastikan data yang ditambahkan ke tabel sudah membawa relasi prodi
+                                // (kadang response create hanya mengembalikan field inti, sehingga prodi kosong sampai refresh)
+                                if (!response.data.prodi && response.data.id) {
+                                    $.get("{{ route('prestasi.show', '') }}/" + response.data.id)
+                                        .done(function(detail) {
+                                            if (detail && detail.data) {
+                                                table.row.add(detail.data).draw(false);
+                                            } else {
+                                                table.row.add(response.data).draw(false);
+                                            }
+                                        })
+                                        .fail(function() {
+                                            table.row.add(response.data).draw(false);
+                                        });
+                                } else {
+                                    table.row.add(response.data).draw(false);
+                                }
+                            }
                         } else {
                             // Ganti alert dengan SweetAlert2
                             Swal.fire({
@@ -802,9 +841,14 @@
                                 text: response.message ||
                                     'Prestasi berhasil diperbarui.',
                                 confirmButtonText: 'OK'
-                            }).then(() => {
-                                window.location.reload();
+
                             });
+
+                            // Update baris di DataTable
+                            if (response.data) {
+                                const row = table.row($('button[data-id="' + id + '"]').closest('tr'));
+                                row.data(response.data).invalidate().draw(false);
+                            }
                         } else {
                             // Ganti alert dengan SweetAlert2
                             Swal.fire({
@@ -888,9 +932,8 @@
                                         confirmButtonText: 'OK'
                                     });
 
-                                    setTimeout(() => {
-                                        window.location.reload();
-                                    }, 1200);
+                                    // Remove dari DataTable
+                                    table.row($('button[data-id="' + id + '"]').closest('tr')).remove().draw(false);
                                 } else {
                                     Swal.fire({
                                         icon: 'error',

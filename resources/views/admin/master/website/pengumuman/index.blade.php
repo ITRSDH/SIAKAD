@@ -196,56 +196,7 @@
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    @forelse($pengumuman as $index => $item)
-                                        <tr>
-                                            <td>{{ $index + 1 }}</td>
-                                            <td>{{ $item['judul'] }}</td>
-                                            <td>
-                                                @if($item['kategori'])
-                                                    <span class="badge bg-info">{{ ucfirst($item['kategori']) }}</span>
-                                                @else
-                                                    <span class="text-muted">-</span>
-                                                @endif
-                                            </td>
-                                            <td>
-                                                @if($item['tanggal'])
-                                                    {{ \Carbon\Carbon::parse($item['tanggal'])->format('d M Y') }}
-                                                @else
-                                                    <span class="text-muted">-</span>
-                                                @endif
-                                            </td>
-                                            <td>
-                                                <span class="text-truncate d-inline-block" style="max-width: 200px;" 
-                                                      title="{{ $item['isi'] }}">
-                                                    {{ Str::limit(strip_tags($item['isi']), 50) }}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <div class="d-flex justify-content-center gap-1">
-                                                    <button type="button" 
-                                                            class="btn btn-sm btn-warning btn-icon edit-btn" 
-                                                            data-id="{{ $item['id'] }}" 
-                                                            title="Edit">
-                                                        <i class="fas fa-edit"></i>
-                                                    </button>
-                                                    <button type="button" 
-                                                            class="btn btn-sm btn-danger btn-icon delete-btn" 
-                                                            data-id="{{ $item['id'] }}" 
-                                                            title="Hapus">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="6" class="text-center text-muted">
-                                                <i class="fas fa-inbox"></i> Tidak ada data pengumuman
-                                            </td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
+                                <tbody></tbody>
                             </table>
                         </div>
                     </div>
@@ -331,8 +282,89 @@
     <script src="https://cdn.datatables.net/2.3.6/js/dataTables.js"></script>
     <script>
         $(document).ready(function() {
-            // Initialize DataTable
-            const table = $('#pengumumanTable').DataTable();
+            // Ambil data dari variabel PHP yang dilewatkan ke view (seperti FAQ)
+            var pengumumanData = @json($pengumuman);
+
+            function stripHtml(html) {
+                if (!html) return '';
+                return $('<div>').html(html).text();
+            }
+
+            function truncateText(text, maxLen) {
+                if (!text) return '-';
+                if (text.length <= maxLen) return text;
+                return text.substring(0, maxLen) + '...';
+            }
+
+            function formatTanggalIndonesia(dateStr) {
+                if (!dateStr) return null;
+                const d = new Date(dateStr);
+                if (isNaN(d.getTime())) return null;
+                return d.toLocaleDateString('id-ID', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric'
+                });
+            }
+
+            // Inisialisasi DataTables client-side dari data PHP
+            const table = $('#pengumumanTable').DataTable({
+                data: pengumumanData,
+                columns: [{
+                        data: null,
+                        render: function(data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        },
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'judul',
+                        defaultContent: '-'
+                    },
+                    {
+                        data: 'kategori',
+                        render: function(data) {
+                            if (!data) return '<span class="text-muted">-</span>';
+                            return `<span class="badge bg-info">${data.charAt(0).toUpperCase() + data.slice(1)}</span>`;
+                        }
+                    },
+                    {
+                        data: 'tanggal',
+                        render: function(data) {
+                            if (!data) return '<span class="text-muted">-</span>';
+                            const formatted = formatTanggalIndonesia(data);
+                            return formatted ?? data;
+                        }
+                    },
+                    {
+                        data: 'isi',
+                        render: function(data) {
+                            const plain = stripHtml(data);
+                            const short = truncateText(plain, 50);
+                            const escapedTitle = String(plain).replace(/"/g, '&quot;');
+                            return `<span class="text-truncate d-inline-block" style="max-width: 200px;" title="${escapedTitle}">${short}</span>`;
+                        }
+                    },
+                    {
+                        data: null,
+                        render: function(data, type, row) {
+                            return `
+                                <div class="d-flex justify-content-center gap-1">
+                                    <button type="button" class="btn btn-sm btn-warning btn-icon edit-btn" data-id="${row.id}" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-danger btn-icon delete-btn" data-id="${row.id}" title="Hapus">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            `;
+                        },
+                        orderable: false,
+                        searchable: false
+                    }
+                ]
+            });
 
             // Edit Function - Use event delegation for dynamic content
             $(document).on('click', '.edit-btn', function(e) {
@@ -408,6 +440,12 @@
             // Store/Update Form Submit
             $('#pengumumanForm').on('submit', function(e) {
                 e.preventDefault();
+
+                const $saveBtn = $('#saveBtn');
+                const originalSaveBtnHtml = $saveBtn.html();
+                $saveBtn.prop('disabled', true).html(
+                    '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Menyimpan...'
+                );
                 
                 var url = "{{ route('pengumuman.store') }}";
                 var data = {
@@ -467,6 +505,9 @@
                         } else {
                             Swal.fire('Error', 'Terjadi kesalahan saat menyimpan data', 'error');
                         }
+                    },
+                    complete: function() {
+                        $saveBtn.prop('disabled', false).html(originalSaveBtnHtml);
                     }
                 });
             });
@@ -508,22 +549,9 @@
                             timer: 1500
                         });
                         
-                        // Update baris di tabel
+                        // Update baris di tabel (pakai object agar konsisten dengan DataTables columns)
                         const row = table.row($('button[data-id="' + id + '"]').closest('tr'));
-                        const updatedData = [
-                            response.data.judul,
-                            response.data.kategori,
-                            response.data.tanggal,
-                            `<div class="d-flex gap-2">
-                                <button class="btn btn-warning btn-sm edit-btn" data-id="${response.data.id}">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-danger btn-sm delete-btn" data-id="${response.data.id}">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>`
-                        ];
-                        row.data(updatedData).draw();
+                        row.data(response.data).invalidate().draw(false);
                         
                         $('#modalPengumuman').modal('hide');
                     } else {

@@ -270,7 +270,7 @@
                                         <div class="info-section">
                                             <h6><i class="fas fa-check-circle me-2"></i>Verifikasi</h6>
                                             <p class="mb-0">Tanggal Verifikasi:
-                                                {{ \Carbon\Carbon::parse($krs['tanggal_verifikasi'])->timezone('Asia/Jakarta')->format('Y-m-d') }}
+                                                {{ \Carbon\Carbon::parse($krs['tanggal_verifikasi'])->timezone('Asia/Jakarta')->format('d M Y') }}
                                             </p>
                                         </div>
                                     @endif

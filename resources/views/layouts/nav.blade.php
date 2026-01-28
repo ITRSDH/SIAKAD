@@ -259,25 +259,34 @@
                         <p>Pembayaran</p>
                     </a>
                 </li>
+                @canApi('siakad.master.refrensi.pengajuan-krs.daftar-matkul')
                 <li class="nav-item {{ request()->routeIs('mahasiswa.pengajuan-krs.daftar-matkul') ? 'active' : '' }}">
                     <a href="{{ route('mahasiswa.pengajuan-krs.daftar-matkul') }}">
                         <i class="fas fa-home"></i>
                         <p>KRS</p>
                     </a>
                 </li>
+                @endcanApi
 
+                @canAnyApi(
+                'siakad.master.refrensi.dosen-verifikasi-krs.daftar-verifikasi'
+                )
                 <li class="nav-section">
                     <span class="sidebar-mini-icon">
                         <i class="fa fa-ellipsis-h"></i>
                     </span>
                     <h4 class="text-section">Dosen</h4>
                 </li>
-                <li class="nav-item {{ request()->routeIs('dosen-verifikasi-krs.daftar-verifikasi') ? 'active' : '' }}">
+                @canApi('siakad.master.refrensi.dosen-verifikasi-krs.daftar-verifikasi')
+                <li
+                    class="nav-item {{ request()->routeIs('dosen-verifikasi-krs.daftar-verifikasi') ? 'active' : '' }}">
                     <a href="{{ route('dosen-verifikasi-krs.daftar-verifikasi') }}">
                         <i class="fas fa-home"></i>
                         <p>Verifikasi KRS</p>
                     </a>
                 </li>
+                @endcanApi
+                @endcanAnyApi
 
                 @canAnyApi(
                 'siakad.master.refrensi.jenjang-pendidikan.index',

@@ -550,6 +550,12 @@
             // Store/Update Form Submit
             $('#beritaForm').on('submit', function(e) {
                 e.preventDefault();
+
+                const $saveBtn = $('#saveBtn');
+                const originalSaveBtnHtml = $saveBtn.html();
+                $saveBtn.prop('disabled', true).html(
+                    '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Menyimpan...'
+                );
                 
                 var formData = new FormData(this);
                 var url = "{{ route('berita.store') }}";
@@ -610,6 +616,9 @@
                         } else {
                             Swal.fire('Error', 'Terjadi kesalahan saat menyimpan data', 'error');
                         }
+                    },
+                    complete: function() {
+                        $saveBtn.prop('disabled', false).html(originalSaveBtnHtml);
                     }
                 });
             });

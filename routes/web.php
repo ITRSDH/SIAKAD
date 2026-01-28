@@ -1,16 +1,16 @@
 <?php
 
-use App\Http\Controllers\Mahasiswa\PembayaranController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
-// Route Website
 use App\Http\Controllers\Website\FaqController;
+// Route Website
 use App\Http\Controllers\Website\BeritaController;
 use App\Http\Controllers\Website\GaleriController;
 use App\Http\Controllers\Website\OrmawaController;
 use App\Http\Controllers\Website\BeasiswaController;
 use App\Http\Controllers\Website\PrestasiController;
 use App\Http\Controllers\Website\PengumumanController;
+use App\Http\Controllers\Mahasiswa\PembayaranController;
 use App\Http\Controllers\Website\ProfileKampusController;
 use App\Http\Controllers\Website\LandingContentController;
 
@@ -20,7 +20,7 @@ use App\Http\Controllers\ManagementPengguna\UserController;
 use App\Http\Controllers\Siakad\MasterData\DosenController;
 use App\Http\Controllers\Siakad\MasterData\ProdiController;
 use App\Http\Controllers\Siakad\MasterData\RuangController;
-use App\Http\Controllers\Siakad\BAAK\DashboardBAAKController;
+use App\Http\Controllers\Siakad\MasterData\DosenMKController;
 use App\Http\Controllers\Siakad\MasterData\KelasMKController;
 use App\Http\Controllers\Siakad\MasterData\KurikulumController;
 use App\Http\Controllers\Siakad\MasterData\MahasiswaController;
@@ -29,14 +29,10 @@ use App\Http\Controllers\Siakad\MasterData\JenisKelasController;
 use App\Http\Controllers\Siakad\MasterData\MataKuliahController;
 use App\Http\Controllers\ManagementPengguna\PermissionController;
 use App\Http\Controllers\Siakad\MasterData\KelasPararelController;
-use App\Http\Controllers\Siakad\KAPRODI\DashboardKaprodiController;
 use App\Http\Controllers\Siakad\MasterData\TahunAkademikController;
-use App\Http\Controllers\Siakad\DOSEN_PA\DashboardDosenPAController;
 use App\Http\Controllers\Siakad\MasterData\JenisPembayaranController;
-use App\Http\Controllers\Siakad\ADMINISTRATOR\DashboardAdminController;
-use App\Http\Controllers\Siakad\MAHASISWA\DashboardMahasiswaController;
 use App\Http\Controllers\Siakad\MasterData\JenjangPendidikanController;
-use App\Http\Controllers\Siakad\DOSEN_PENGAMPU\DashboardDosenPengampuController;
+use App\Http\Controllers\Siakad\MasterData\JadwalBebanAjarDosenController;
 
 Route::middleware(['guest.token'])->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -48,13 +44,6 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
     // Route::get('/dashboard', function () {
     //     return view('admin.dashboard.index');
     // });
-
-    Route::get('/dashboard/administrator', [DashboardAdminController::class, 'index'])->name('dashboard.administrator');
-    Route::get('/dashboard/baak', [DashboardBAAKController::class, 'index'])->name('dashboard.baak');
-    Route::get('/dashboard/kaprodi', [DashboardKaprodiController::class, 'index'])->name('dashboard.kaprodi');
-    Route::get('/dashboard/dosen_pa', [DashboardDosenPAController::class, 'index'])->name('dashboard.dosen_pa');
-    Route::get('/dashboard/dosen_pengampu', [DashboardDosenPengampuController::class, 'index'])->name('dashboard.dosen_pengampu');
-    Route::get('/dashboard/mahasiswa', [DashboardMahasiswaController::class, 'index'])->name('dashboard.mahasiswa');
 
     Route::get('/', [AuthController::class, 'profile'])->name('profile');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
@@ -143,7 +132,8 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
         Route::get('/', [KelasMKController::class, 'index'])->name('index');
         Route::get('/create', [KelasMKController::class, 'create'])->name('create');
         Route::post('/', [KelasMKController::class, 'store'])->name('store');
-        Route::get('/{id}', [KelasMKController::class, 'show'])->name('show');
+        // Route::get('/{id}', [KelasMKController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [KelasMKController::class, 'edit'])->name('edit');
         Route::put('/{id}', [KelasMKController::class, 'update'])->name('update');
         Route::delete('/{id}', [KelasMKController::class, 'destroy'])->name('destroy');
     });
@@ -171,6 +161,23 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
         Route::get('/{id}', [DosenController::class, 'show'])->name('show');
         Route::put('/{id}', [DosenController::class, 'update'])->name('update');
         Route::delete('/{id}', [DosenController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::prefix('dosen-mk')->name('dosen-mk.')->group(function () {
+        Route::get('/', [DosenMKController::class, 'index'])->name('index');
+        Route::get('/create', [DosenMKController::class, 'create'])->name('create');
+        Route::post('/', [DosenMKController::class, 'store'])->name('store');
+        Route::get('/{id}', [DosenMKController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [DosenMKController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [DosenMKController::class, 'update'])->name('update');
+        Route::delete('/{id}', [DosenMKController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::prefix('jadwal')->name('jadwal.beban-ajar-dosen.')->group(function () {
+        Route::get('/{dosenmk}', [JadwalBebanAjarDosenController::class, 'index'])->name('index');
+        Route::post('/', [JadwalBebanAjarDosenController::class, 'storeOrUpdate'])->name('store');
+        Route::get('/{dosenmk}/edit', [JadwalBebanAjarDosenController::class, 'edit'])->name('edit');
+        Route::delete('/{id}', [JadwalBebanAjarDosenController::class, 'destroy'])->name('destroy');
     });
 
     // Route Mahasiswa
@@ -263,4 +270,19 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
     Route::get('/pembayaran', [PembayaranController::class, 'index'])->name('student.pembayaran.index');
     Route::get('/pembayaran/{tagihanId}/create', [PembayaranController::class, 'create'])->name('student.pembayaran.create');
     Route::post('/pembayaran/{tagihanId}/pay', [PembayaranController::class, 'store'])->name('student.pembayaran.store');
+
+    // Route Pengajuan KRS Mahasiswa
+    Route::get('/pengajuan-krs/daftar-matkul', [App\Http\Controllers\Siakad\Mahasiswa\PengajuanKRSController::class, 'daftarMatkulPilihan'])->name('mahasiswa.pengajuan-krs.daftar-matkul');
+    Route::post('/pengajuan-krs', [App\Http\Controllers\Siakad\Mahasiswa\PengajuanKRSController::class, 'pengajuanKrs'])->name('mahasiswa.pengajuan-krs.store');
+    Route::post('/pengajuan-krs/draft', [App\Http\Controllers\Siakad\Mahasiswa\PengajuanKRSController::class, 'simpanDraftKrs'])->name('mahasiswa.pengajuan-krs.draft');
+    Route::post('/pengajuan-krs/{id}/submit', [App\Http\Controllers\Siakad\Mahasiswa\PengajuanKRSController::class, 'submitKrs'])->name('mahasiswa.pengajuan-krs.submit');
+    Route::post('/pengajuan-krs/{id}/batal', [App\Http\Controllers\Siakad\Mahasiswa\PengajuanKRSController::class, 'batalPengajuanKrs'])->name('mahasiswa.pengajuan-krs.batal');
+    Route::get('/pengajuan-krs/status', [App\Http\Controllers\Siakad\Mahasiswa\PengajuanKRSController::class, 'statusPengajuanKrs'])->name('mahasiswa.pengajuan-krs.status');
+
+    // Route Verifikasi KRS Dosen Wali
+    Route::get('/dosen/verifikasi-krs/daftar-verifikasi', [App\Http\Controllers\Siakad\Dosen\DosenWaliVerifikasiKRSController::class, 'daftarKrsPerluVerifikasi'])->name('dosen-verifikasi-krs.daftar-verifikasi');
+    Route::get('/dosen/verifikasi-krs/{id}', [App\Http\Controllers\Siakad\Dosen\DosenWaliVerifikasiKRSController::class, 'detailKrs'])->name('dosen-verifikasi-krs.detail');
+    Route::post('/dosen/verifikasi-krs/{id}/approve', [App\Http\Controllers\Siakad\Dosen\DosenWaliVerifikasiKRSController::class, 'approveKrs'])->name('dosen-verifikasi-krs.approve');
+    Route::post('/dosen/verifikasi-krs/{id}/reject', [App\Http\Controllers\Siakad\Dosen\DosenWaliVerifikasiKRSController::class, 'rejectKrs'])->name('dosen-verifikasi-krs.reject');
+    Route::get('/dosen/verifikasi-krs/daftar-terverifikasi', [App\Http\Controllers\Siakad\Dosen\DosenWaliVerifikasiKRSController::class, 'daftarKrsTerverifikasi'])->name('dosen-verifikasi-krs.daftar-terverifikasi');
 });

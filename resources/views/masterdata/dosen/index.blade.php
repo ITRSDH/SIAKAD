@@ -57,15 +57,19 @@
                 <div class="card position-relative">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h3 class="card-title mb-0"><i class="fas fa-user-tie me-2"></i>Data Dosen</h3>
-                        <button id="addDosenBtn" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Tambah
-                            Dosen</button>
+                        <div class="d-flex gap-2"> <!-- Container untuk tombol-tombol -->
+                            <a class="btn btn-success btn-sm" href="{{ route('dosen-mk.index') }}">
+                                <i class="fas fa-calendar-plus me-1"></i>Lihat Dosen Mata Kuliah
+                            </a>
+                            <button id="addDosenBtn" class="btn btn-primary btn-sm">
+                                <i class="fas fa-plus me-1"></i>Tambah Dosen
+                            </button>
+                        </div>
                     </div>
-
                     <div class="card-body">
                         <div id="tableLoader" class="loader-overlay">
                             <div class="loader-spinner"></div>
                         </div>
-
                         <div class="table-responsive">
                             <table id="dosen-table" class="table table-bordered table-striped table-hover">
                                 <thead>
@@ -74,13 +78,12 @@
                                         <th>Nama Dosen</th>
                                         <th>NIDN</th>
                                         <th>Prodi</th>
-                                        <th>Aksi</th>
+                                        <th style="width: 100px;">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody></tbody>
                             </table>
                         </div>
-
                     </div>
                 </div>
             </div>

@@ -21,7 +21,7 @@
                     <i class="icon-arrow-right"></i>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ route('kelas-mk.index') }}">List Kelas Mata Kuliah</a>
+                    <a href="#">Tambah Kelas Mata Kuliah</a>
                 </li>
             </ul>
         </div>
@@ -36,193 +36,284 @@
                     </div>
                     <div class="card-body">
 
-                        <!-- Informasi Tahun Akademik dan Semester Aktif -->
-                        <div class="alert alert-info mb-4">
-                            <h5 class="mb-2"><i class="fas fa-calendar-alt me-2"></i>Tahun Akademik dan Semester Aktif
-                            </h5>
-                            <p class="mb-1">
-                                <strong>Tahun Akademik:</strong>
-                                {{ $tahun_akademik ? $tahun_akademik['tahun_akademik'] : 'Tidak ditemukan' }}
-                            </p>
-                            <p class="mb-0">
-                                <strong>Semester:</strong>
-                                {{ $semester ? $semester['nama_semester'] : 'Tidak ditemukan' }}
-                            </p>
-                        </div>
+                        <!-- Filter Prodi -->
+                        @if (!request()->has('nama_prodi'))
+                            <div class="alert alert-info mb-4">
+                                <h5 class="mb-2"><i class="fas fa-filter me-2"></i>Filter Program Studi</h5>
+                                <form method="GET" action="{{ route('kelas-mk.create') }}" id="filterForm">
+                                    <div class="row mb-3">
+                                        <label for="prodi_filter" class="col-sm-2 col-form-label">
+                                            Program Studi <span class="text-danger">*</span>
+                                        </label>
+                                        <div class="col-sm-10">
+                                            <select class="form-select" id="prodi_filter" name="nama_prodi" required>
+                                                <option value="">-- Pilih Program Studi --</option>
+                                                @if (isset($prodiList) && !empty($prodiList))
+                                                    @foreach ($prodiList as $prodi)
+                                                        <option value="{{ $prodi['nama_prodi'] }}"
+                                                            {{ request('nama_prodi') == $prodi['nama_prodi'] ? 'selected' : '' }}>
+                                                            {{ $prodi['nama_prodi'] }}
+                                                        </option>
+                                                    @endforeach
+                                                @endif
+                                            </select>
+                                            <small class="form-text text-muted">
+                                                Pilih program studi untuk menampilkan data yang relevan
+                                            </small>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-0">
+                                        <div class="offset-sm-2 col-sm-10">
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="fas fa-search me-1"></i>Terapkan Filter
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        @endif
 
-                        <!-- Panduan Pengisian Form -->
-                        <div class="alert alert-light border mb-4">
-                            <h6 class="text-muted mb-2"><i class="fas fa-info-circle me-2"></i>Panduan Pengisian Form</h6>
-                            <ol class="mb-0">
-                                <li>Pastikan <strong>Tahun Akademik dan Semester</strong> sesuai dengan periode aktif</li>
-                                <li>Pilih <strong>Program Studi</strong> terlebih dahulu</li>
-                                <li>Isi <strong>Kuota Kelas</strong> sesuai kapasitas maksimal</li>
-                                <li><strong>Kode Kelas MK</strong> akan digunakan sebagai identitas unik</li>
-                                <li>Pilih <strong>Jenis Kelas</strong> (Reguler, Karyawan, dll)</li>
-                            </ol>
-                        </div>
+                        <!-- Form Utama -->
+                        @if (request()->has('nama_prodi') && isset($dropdownData))
+                            <!-- Informasi Tahun Akademik dan Semester -->
+                            @if (isset($tahun_akademik) && $tahun_akademik)
+                                <div class="alert alert-info mb-4">
+                                    <h5 class="mb-2"><i class="fas fa-calendar-alt me-2"></i>Tahun Akademik dan Semester
+                                        Aktif</h5>
+                                    <p class="mb-1">
+                                        <strong>Tahun Akademik:</strong>
+                                        {{ $tahun_akademik['tahun_akademik'] ?? 'Tidak ditemukan' }}
+                                    </p>
+                                    <p class="mb-0">
+                                        <strong>Semester:</strong>
+                                        {{ $semester['nama_semester'] ?? 'Tidak ditemukan' }}
+                                    </p>
+                                </div>
+                            @else
+                                <div class="alert alert-warning mb-4">
+                                    <h5 class="mb-2"><i class="fas fa-exclamation-triangle me-2"></i>Peringatan</h5>
+                                    <p class="mb-0">Tidak ada tahun akademik atau semester aktif.</p>
+                                </div>
+                            @endif
 
-                        <form action="{{ route('kelas-mk.store') }}" method="POST">
-                            @csrf
+                            <!-- Panduan -->
+                            <div class="alert alert-light border mb-4">
+                                <h6 class="text-muted mb-2"><i class="fas fa-info-circle me-2"></i>Panduan Pengisian Form
+                                </h6>
+                                <ol class="mb-0">
+                                    <li>Pastikan <strong>Tahun Akademik dan Semester</strong> sesuai dengan periode aktif
+                                    </li>
+                                    <li>Data yang ditampilkan sudah difilter berdasarkan <strong>Program Studi</strong> yang
+                                        dipilih</li>
+                                    <li>Isi <strong>Kuota Kelas</strong> sesuai kapasitas maksimal</li>
+                                    <li><strong>Kode Kelas MK</strong> akan digunakan sebagai identitas unik</li>
+                                    <li>Pilih <strong>Jenis Kelas</strong> (Reguler, Karyawan, dll)</li>
+                                </ol>
+                            </div>
 
-                            <div class="form-group row mb-3">
-                                <label for="kode_kelas_mk" class="col-sm-2 col-form-label">
-                                    Kode Kelas Mata Kuliah <span class="text-danger">*</span>
-                                </label>
-                                <div class="col-sm-10">
-                                    <input type="text" class="form-control @error('kode_kelas_mk') is-invalid @enderror"
-                                        id="kode_kelas_mk" name="kode_kelas_mk" value="{{ old('kode_kelas_mk') }}"
-                                        placeholder="Contoh: IF101A-Ganjil2025/2026">
-                                    <small class="form-text text-muted">
-                                        Gunakan format: [Kode Prodi][Kode MK][Kelas] (Misal: IF101A)
-                                    </small>
-                                    <span id="kode_kelas_mk_error" class="text-danger error-text"></span>
+                            <!-- Ganti Prodi -->
+                            <div class="alert alert-warning mb-4">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span>
+                                        <i class="fas fa-exclamation-triangle me-2"></i>
+                                        <strong>Program Studi Saat Ini:</strong>
+                                        {{ $dropdownData['prodi'][0]['nama_prodi'] ?? 'Tidak diketahui' }}
+                                    </span>
+                                    <a href="{{ route('kelas-mk.create') }}" class="btn btn-outline-warning btn-sm">
+                                        <i class="fas fa-sync-alt me-1"></i>Ganti Prodi
+                                    </a>
                                 </div>
                             </div>
 
-                            <div class="form-group row mb-3">
-                                <label for="kuota" class="col-sm-2 col-form-label">
-                                    Kuota <span class="text-danger">*</span>
-                                </label>
-                                <div class="col-sm-10">
-                                    <input type="number" class="form-control @error('kuota') is-invalid @enderror"
-                                        id="kuota" name="kuota" value="{{ old('kuota') }}" min="1"
-                                        max="100" placeholder="Masukkan jumlah kuota mahasiswa">
-                                    <small class="form-text text-muted">
-                                        Jumlah maksimum mahasiswa yang dapat mendaftar di kelas ini
-                                    </small>
-                                    <span id="kuota_error" class="text-danger error-text"></span>
+                            <form action="{{ route('kelas-mk.store') }}" method="POST" id="kelasMkForm">
+                                @csrf
+
+                                <div class="row mb-3">
+                                    <label for="kode_kelas_mk" class="col-sm-2 col-form-label">
+                                        Kode Kelas MK <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="col-sm-10">
+                                        <input type="text"
+                                            class="form-control @error('kode_kelas_mk') is-invalid @enderror"
+                                            id="kode_kelas_mk" name="kode_kelas_mk" value="{{ old('kode_kelas_mk') }}"
+                                            placeholder="Contoh: IF101A-Ganjil2025/2026">
+                                        <small class="form-text text-muted">
+                                            Gunakan format: [Kode Prodi][Kode MK][Kelas] (Misal: IF101A)
+                                        </small>
+                                        <span id="kode_kelas_mk_error" class="text-danger error-text"></span>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div class="form-group row mb-3">
-                                <label for="semester_nama" class="col-sm-2 col-form-label">
-                                    Semester <span class="text-danger">*</span>
-                                </label>
-                                <div class="col-sm-10">
-                                    <!-- Input yang terlihat user: nama semester -->
-                                    <input type="text" class="form-control bg-light" id="semester_nama"
-                                        name="semester_nama"
-                                        value="{{ $semester ? $semester['nama_semester'] : 'Tidak ditemukan' }}"
-                                        placeholder="Semester Aktif" readonly disabled>
-
-                                    <!-- Hidden input untuk mengirim ID semester ke server -->
-                                    <input type="hidden" name="id_semester" value="{{ $semester ? $semester['id'] : '' }}">
-
-                                    <small class="form-text text-muted">
-                                        Semester ini sedang aktif dan digunakan untuk kelas ini
-                                    </small>
+                                <div class="row mb-3">
+                                    <label for="kuota" class="col-sm-2 col-form-label">
+                                        Kuota <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="col-sm-10">
+                                        <input type="number" class="form-control @error('kuota') is-invalid @enderror"
+                                            id="kuota" name="kuota" value="{{ old('kuota') }}" min="1"
+                                            max="100" placeholder="Masukkan jumlah kuota mahasiswa">
+                                        <small class="form-text text-muted">
+                                            Jumlah maksimum mahasiswa yang dapat mendaftar di kelas ini
+                                        </small>
+                                        <span id="kuota_error" class="text-danger error-text"></span>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <!-- Prodi Dropdown -->
-                            <div class="form-group row mb-3">
-                                <label for="id_prodi" class="col-sm-2 col-form-label">
-                                    Program Studi <span class="text-danger">*</span>
-                                </label>
-                                <div class="col-sm-10">
-                                    <select class="form-select @error('id_prodi') is-invalid @enderror" id="id_prodi"
-                                        name="id_prodi">
-                                        <option value="" disabled selected>Pilih Program Studi</option>
-                                        @foreach ($dropdownData['prodi'] as $prodi)
-                                            <option value="{{ $prodi['id'] }}"
-                                                {{ old('id_prodi') == $prodi['id'] ? 'selected' : '' }}>
-                                                {{ $prodi['nama_prodi'] }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    <small class="form-text text-muted">
-                                        Pilih program studi tempat kelas mata kuliah ini diselenggarakan
-                                    </small>
-                                    <span id="id_prodi_error" class="text-danger error-text"></span>
+                                <div class="row mb-3">
+                                    <label class="col-sm-2 col-form-label">
+                                        Semester <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control bg-light"
+                                            value="{{ $semester['nama_semester'] ?? 'Tidak ditemukan' }}" readonly>
+                                        <input type="hidden" name="id_semester" value="{{ $semester['id'] ?? '' }}">
+                                        <small class="form-text text-muted">
+                                            Semester ini sedang aktif dan digunakan untuk kelas ini
+                                        </small>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <!-- Kurikulum Dropdown -->
-                            <div class="form-group row mb-3">
-                                <label for="id_kurikulum" class="col-sm-2 col-form-label">
-                                    Kurikulum <span class="text-danger">*</span>
-                                </label>
-                                <div class="col-sm-10">
-                                    <select class="form-select @error('id_kurikulum') is-invalid @enderror"
-                                        id="id_kurikulum" name="id_kurikulum" disabled>
-                                        <option value="" disabled selected>Pilih Kurikulum</option>
-                                    </select>
-                                    <small class="form-text text-muted">
-                                        Kurikulum otomatis muncul setelah memilih program studi
-                                    </small>
-                                    <span id="id_kurikulum_error" class="text-danger error-text"></span>
+                                <div class="row mb-3">
+                                    <label class="col-sm-2 col-form-label">
+                                        Program Studi <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control bg-light"
+                                            value="{{ $dropdownData['prodi'][0]['nama_prodi'] ?? 'Tidak ditemukan' }}"
+                                            readonly>
+                                        <input type="hidden" name="id_prodi"
+                                            value="{{ $dropdownData['prodi'][0]['id'] ?? '' }}">
+                                        <small class="form-text text-muted">
+                                            Program studi sudah difilter dan tidak dapat diubah pada form ini
+                                        </small>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <!-- Mata Kuliah Dropdown -->
-                            <div class="form-group row mb-3">
-                                <label for="id_mk" class="col-sm-2 col-form-label">
-                                    Mata Kuliah <span class="text-danger">*</span>
-                                </label>
-                                <div class="col-sm-10">
-                                    <select class="form-select @error('id_mk') is-invalid @enderror" id="id_mk"
-                                        name="id_mk" disabled>
-                                        <option value="" disabled selected>Pilih Mata Kuliah</option>
-                                    </select>
-                                    <small class="form-text text-muted">
-                                        Pilih mata kuliah berdasarkan kurikulum yang dipilih
-                                    </small>
-                                    <span id="id_mk_error" class="text-danger error-text"></span>
+                                <div class="row mb-3">
+                                    <label class="col-sm-2 col-form-label">
+                                        Kurikulum <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control bg-light"
+                                            value="{{ $dropdownData['prodi'][0]['kurikulum'][0]['nama_kurikulum'] ?? 'Tidak ditemukan' }}"
+                                            readonly>
+                                        <input type="hidden" name="id_kurikulum"
+                                            value="{{ $dropdownData['prodi'][0]['kurikulum'][0]['id'] ?? '' }}">
+                                        <small class="form-text text-muted">
+                                            Kurikulum otomatis diambil dari data terbaru
+                                        </small>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <!-- Kelas Pararel Dropdown -->
-                            <div class="form-group row mb-3">
-                                <label for="id_kelas_pararel" class="col-sm-2 col-form-label">
-                                    Kelas Pararel <span class="text-danger">*</span>
-                                </label>
-                                <div class="col-sm-10">
-                                    <select class="form-select @error('id_kelas_pararel') is-invalid @enderror"
-                                        id="id_kelas_pararel" name="id_kelas_pararel" disabled>
-                                        <option value="" disabled selected>Pilih Kelas Pararel</option>
-                                    </select>
-                                    <small class="form-text text-muted">
-                                        Kelas pararel digunakan untuk mengelompokkan kelas-kelas sejenis
-                                    </small>
-                                    <span id="id_kelas_pararel_error" class="text-danger error-text"></span>
+                                <!-- Filter Semester untuk MK -->
+                                <div class="row mb-3">
+                                    <div class="col-sm-2">
+                                        <label class="col-form-label pt-0">Filter Semester</label>
+                                    </div>
+                                    <div class="col-sm-10">
+                                        <select class="form-select" id="filter_semester" name="semester_filter">
+                                            <option value="" disabled selected>-- Pilih Semester --</option>
+                                            @php
+                                                $allSemesters = collect();
+                                                foreach ($dropdownData['prodi'][0]['kurikulum'] ?? [] as $kurikulum) {
+                                                    if (isset($kurikulum['mata_kuliah_by_semester'])) {
+                                                        foreach ($kurikulum['mata_kuliah_by_semester'] as $mks) {
+                                                            $allSemesters->push($mks['semester']);
+                                                        }
+                                                    }
+                                                }
+                                                $uniqueSemesters = $allSemesters->unique()->sort();
+                                            @endphp
+                                            @foreach ($uniqueSemesters as $sem)
+                                                <option value="{{ $sem }}">Semester {{ $sem }}</option>
+                                            @endforeach
+                                        </select>
+                                        <small class="form-text text-muted mt-1">
+                                            Pilih semester untuk menampilkan mata kuliah tertentu
+                                        </small>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div class="form-group row mb-3">
-                                <label for="id_jenis_kelas" class="col-sm-2 col-form-label">
-                                    Jenis Kelas <span class="text-danger">*</span>
-                                </label>
-                                <div class="col-sm-10">
-                                    <select class="form-select @error('id_jenis_kelas') is-invalid @enderror"
-                                        id="id_jenis_kelas" name="id_jenis_kelas">
-                                        <option value="" disabled selected>Pilih Jenis Kelas</option>
-                                        @foreach ($dropdownData['jenis_kelas'] as $jk)
-                                            <option value="{{ $jk['id'] }}"
-                                                {{ old('id_jenis_kelas') == $jk['id'] ? 'selected' : '' }}>
-                                                {{ $jk['nama_kelas'] }}</option>
-                                        @endforeach
-                                    </select>
-                                    <small class="form-text text-muted">
-                                        Jenis kelas seperti Reguler, Karyawan, atau Khusus
-                                    </small>
-                                    <span id="id_jenis_kelas_error" class="text-danger error-text"></span>
+                                <!-- Mata Kuliah Select (Tunggal) -->
+                                <div class="row mb-3">
+                                    <label class="col-sm-2 col-form-label">
+                                        Mata Kuliah <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="col-sm-10">
+                                        <select name="id_mk" id="mata-kuliah-select" class="form-select" disabled>
+                                            <option value="">Pilih semester terlebih dahulu</option>
+                                        </select>
+
+                                        <small class="form-text text-muted">
+                                            Pilih satu mata kuliah berdasarkan semester
+                                        </small>
+                                        <span id="id_mk_error" class="text-danger error-text"></span>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <hr class="mt-4 mb-3">
 
-                            <div class="form-group row mb-0">
-                                <div class="col-sm-12 text-end">
-                                    <button type="submit" class="btn btn-primary me-2" id="saveBtn">
-                                        <i class="fas fa-save me-1"></i>Simpan Kelas
-                                    </button>
-                                    <button type="button" class="btn btn-secondary" id="resetBtn">
-                                        <i class="fas fa-redo me-1"></i>Reset Form
-                                    </button>
+                                <div class="row mb-3">
+                                    <label for="id_kelas_pararel" class="col-sm-2 col-form-label">
+                                        Kelas Pararel <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="col-sm-10">
+                                        <select class="form-select @error('id_kelas_pararel') is-invalid @enderror"
+                                            id="id_kelas_pararel" name="id_kelas_pararel" required>
+                                            <option value="" disabled selected>Pilih Kelas Pararel</option>
+                                            @if (isset($dropdownData['prodi'][0]['kelas_pararel']) && !empty($dropdownData['prodi'][0]['kelas_pararel']))
+                                                @foreach ($dropdownData['prodi'][0]['kelas_pararel'] as $kelasPararel)
+                                                    <option value="{{ $kelasPararel['id'] }}"
+                                                        {{ old('id_kelas_pararel') == $kelasPararel['id'] ? 'selected' : '' }}>
+                                                        {{ $kelasPararel['nama_kelas'] }}
+                                                    </option>
+                                                @endforeach
+                                            @endif
+                                        </select>
+                                        <small class="form-text text-muted">
+                                            Kelas pararel digunakan untuk mengelompokkan kelas-kelas sejenis
+                                        </small>
+                                        <span id="id_kelas_pararel_error" class="text-danger error-text"></span>
+                                    </div>
                                 </div>
-                            </div>
-                        </form>
+
+                                <div class="row mb-3">
+                                    <label for="id_jenis_kelas" class="col-sm-2 col-form-label">
+                                        Jenis Kelas <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="col-sm-10">
+                                        <select class="form-select @error('id_jenis_kelas') is-invalid @enderror"
+                                            id="id_jenis_kelas" name="id_jenis_kelas" required>
+                                            <option value="" disabled selected>Pilih Jenis Kelas</option>
+                                            @if (isset($dropdownData['jenis_kelas']) && !empty($dropdownData['jenis_kelas']))
+                                                @foreach ($dropdownData['jenis_kelas'] as $jk)
+                                                    <option value="{{ $jk['id'] }}"
+                                                        {{ old('id_jenis_kelas') == $jk['id'] ? 'selected' : '' }}>
+                                                        {{ $jk['nama_kelas'] }}
+                                                    </option>
+                                                @endforeach
+                                            @endif
+                                        </select>
+                                        <small class="form-text text-muted">
+                                            Jenis kelas seperti Reguler, Karyawan, atau Khusus
+                                        </small>
+                                        <span id="id_jenis_kelas_error" class="text-danger error-text"></span>
+                                    </div>
+                                </div>
+
+                                <hr class="mt-4 mb-3">
+
+                                <div class="row mb-0">
+                                    <div class="offset-sm-2 col-sm-10">
+                                        <button type="submit" class="btn btn-primary me-2" id="saveBtn">
+                                            <i class="fas fa-save me-1"></i>Simpan Kelas
+                                        </button>
+                                        <button type="button" class="btn btn-secondary" id="resetBtn">
+                                            <i class="fas fa-redo me-1"></i>Reset Form
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -233,139 +324,84 @@
 @push('scripts-custom')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const prodiSelect = document.getElementById('id_prodi');
-            const kurikulumSelect = document.getElementById('id_kurikulum');
-            const mataKuliahSelect = document.getElementById('id_mk');
-            const kelasPararelSelect = document.getElementById('id_kelas_pararel');
-            const resetBtn = document.getElementById('resetBtn');
+            @if (request()->has('nama_prodi') && isset($dropdownData))
 
-            // Ambil data dari blade template
-            const dropdownData = @json($dropdownData);
+                const dropdownData = @json($dropdownData);
 
-            // Event listener untuk prodi
-            prodiSelect.addEventListener('change', function() {
-                const selectedProdiId = this.value;
+                if (!dropdownData.prodi?.length) return;
 
-                // Reset dan disable dropdown berikutnya
-                resetDropdown(kurikulumSelect, 'Pilih Kurikulum');
-                resetDropdown(mataKuliahSelect, 'Pilih Mata Kuliah');
+                const prodi = dropdownData.prodi[0];
+                if (!prodi.kurikulum?.length) return;
 
-                // Untuk kelas pararel, kita isi saat prodi dipilih
-                if (selectedProdiId) {
-                    // Cari prodi yang dipilih
-                    const selectedProdi = dropdownData.prodi.find(p => p.id == selectedProdiId);
+                const kurikulum = prodi.kurikulum[0];
+                const semesterFilter = document.getElementById('filter_semester');
+                const mkSelect = document.getElementById('mata-kuliah-select');
+                const form = document.getElementById('kelasMkForm');
+                const resetBtn = document.getElementById('resetBtn');
 
-                    // Reset dropdown kelas pararel
-                    resetDropdown(kelasPararelSelect, 'Pilih Kelas Pararel');
+                const mataKuliahBySemester = kurikulum.mata_kuliah_by_semester || [];
 
-                    if (selectedProdi && selectedProdi.kelas_pararel.length > 0) {
-                        // Aktifkan dropdown kelas pararel
-                        kelasPararelSelect.disabled = false;
+                // Filter semester
+                semesterFilter.addEventListener('change', function() {
+                    const selectedSemester = parseInt(this.value);
 
-                        // Isi dropdown kelas pararel
-                        selectedProdi.kelas_pararel.forEach(kp => {
-                            const option = document.createElement('option');
-                            option.value = kp.id;
-                            option.textContent = kp.nama_kelas;
-                            kelasPararelSelect.appendChild(option);
-                        });
+                    mkSelect.innerHTML = '';
+                    mkSelect.disabled = true;
+
+                    if (isNaN(selectedSemester)) {
+                        mkSelect.innerHTML = '<option value="">Pilih semester terlebih dahulu</option>';
+                        return;
+                    }
+
+                    const semesterData = mataKuliahBySemester.find(
+                        sem => sem.semester === selectedSemester
+                    );
+
+                    if (semesterData?.mata_kuliah?.length) {
+                        displayMataKuliah(semesterData.mata_kuliah);
                     } else {
+                        mkSelect.innerHTML = '<option value="">Tidak ada mata kuliah</option>';
+                    }
+                });
+
+                // Render option
+                function displayMataKuliah(mataKuliahList) {
+                    mkSelect.innerHTML = '<option value="">-- Pilih Mata Kuliah --</option>';
+                    mkSelect.disabled = false;
+
+                    mataKuliahList.forEach(mk => {
                         const option = document.createElement('option');
-                        option.value = '';
-                        option.textContent = 'Tidak ada kelas pararel';
-                        kelasPararelSelect.appendChild(option);
-                        kelasPararelSelect.disabled = true;
-                    }
-                } else {
-                    // Jika prodi tidak dipilih, disable kelas pararel
-                    resetDropdown(kelasPararelSelect, 'Pilih Kelas Pararel');
+                        option.value = mk.id;
+                        option.textContent = `[${mk.kode_mk}] ${mk.nama_mk} (SKS: ${mk.sks})`;
+                        mkSelect.appendChild(option);
+                    });
                 }
 
-                if (selectedProdiId) {
-                    // Aktifkan dropdown kurikulum
-                    kurikulumSelect.disabled = false;
+                // Validasi submit
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
 
-                    // Cari prodi yang dipilih
-                    const selectedProdi = dropdownData.prodi.find(p => p.id == selectedProdiId);
-
-                    if (selectedProdi && selectedProdi.kurikulum.length > 0) {
-                        // Isi dropdown kurikulum
-                        selectedProdi.kurikulum.forEach(kurikulum => {
-                            const option = document.createElement('option');
-                            option.value = kurikulum.id;
-                            option.textContent = kurikulum.nama_kurikulum;
-                            kurikulumSelect.appendChild(option);
-                        });
-                    } else {
-                        const option = document.createElement('option');
-                        option.value = '';
-                        option.textContent = 'Tidak ada kurikulum';
-                        kurikulumSelect.appendChild(option);
-                        kurikulumSelect.disabled = true;
+                    if (!mkSelect.value) {
+                        document.getElementById('id_mk_error').textContent =
+                            'Harap pilih satu mata kuliah.';
+                        mkSelect.classList.add('is-invalid');
+                        return;
                     }
-                }
-            });
 
-            // Event listener untuk kurikulum
-            kurikulumSelect.addEventListener('change', function() {
-                const selectedProdiId = prodiSelect.value;
-                const selectedKurikulumId = this.value;
+                    this.submit();
+                });
 
-                // Reset dan disable dropdown mata kuliah
-                resetDropdown(mataKuliahSelect, 'Pilih Mata Kuliah');
+                // Reset
+                resetBtn.addEventListener('click', function() {
+                    form.reset();
+                    mkSelect.innerHTML = '<option value="">Pilih semester terlebih dahulu</option>';
+                    mkSelect.disabled = true;
+                    mkSelect.classList.remove('is-invalid');
 
-                if (selectedKurikulumId) {
-                    // Aktifkan dropdown mata kuliah
-                    mataKuliahSelect.disabled = false;
-
-                    // Cari prodi dan kurikulum yang dipilih
-                    const selectedProdi = dropdownData.prodi.find(p => p.id == selectedProdiId);
-                    if (selectedProdi) {
-                        const selectedKurikulum = selectedProdi.kurikulum.find(k => k.id ==
-                            selectedKurikulumId);
-
-                        if (selectedKurikulum && selectedKurikulum.mata_kuliah.length > 0) {
-                            // Isi dropdown mata kuliah
-                            selectedKurikulum.mata_kuliah.forEach(mk => {
-                                const option = document.createElement('option');
-                                option.value = mk.id;
-                                option.textContent = `${mk.kode_mk} - ${mk.nama_mk}`;
-                                mataKuliahSelect.appendChild(option);
-                            });
-                        } else {
-                            const option = document.createElement('option');
-                            option.value = '';
-                            option.textContent = 'Tidak ada mata kuliah';
-                            mataKuliahSelect.appendChild(option);
-                            mataKuliahSelect.disabled = true;
-                        }
-                    }
-                }
-            });
-
-            // Fungsi untuk mereset dropdown
-            function resetDropdown(dropdown, placeholderText) {
-                dropdown.innerHTML = `<option value="" disabled selected>${placeholderText}</option>`;
-                dropdown.disabled = true;
-            }
-
-            // Reset button functionality
-            resetBtn.addEventListener('click', function() {
-                // Reset semua dropdown
-                resetDropdown(kurikulumSelect, 'Pilih Kurikulum');
-                resetDropdown(mataKuliahSelect, 'Pilih Mata Kuliah');
-                resetDropdown(kelasPararelSelect, 'Pilih Kelas Pararel');
-
-                // Reset prodi selection
-                prodiSelect.selectedIndex = 0;
-
-                // Reset form
-                document.querySelector('form').reset();
-
-                // Reset error messages
-                document.querySelectorAll('.error-text').forEach(el => el.textContent = '');
-                document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-            });
+                    document.querySelectorAll('.error-text')
+                        .forEach(el => el.textContent = '');
+                });
+            @endif
         });
     </script>
 @endpush

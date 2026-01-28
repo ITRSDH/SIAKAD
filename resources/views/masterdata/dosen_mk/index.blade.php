@@ -1,5 +1,5 @@
 @extends('layouts.index')
-@section('title', 'Kelas Mata Kuliah')
+@section('title', 'Dosen Mata Kuliah')
 @push('styles-custom')
     <style>
         .loader-overlay {
@@ -43,13 +43,23 @@
         .card-body {
             position: relative;
         }
+
+        .action-buttons .btn {
+            margin-bottom: 5px;
+        }
+
+        @media (min-width: 768px) {
+            .action-buttons .btn {
+                margin-bottom: 0;
+            }
+        }
     </style>
 @endpush
 
 @section('content')
     <div class="page-inner">
         <div class="page-header">
-            <h3 class="fw-bold mb-3">Kelas Mata Kuliah</h3>
+            <h3 class="fw-bold mb-3">Dosen Mata Kuliah</h3>
             <ul class="breadcrumbs mb-3">
                 <li class="nav-home">
                     <a href="{{ url('/') }}">
@@ -60,27 +70,20 @@
                     <i class="icon-arrow-right"></i>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ route('kelas-mk.index') }}">Kelas Mata Kuliah</a>
-                </li>
-                <li class="separator">
-                    <i class="icon-arrow-right"></i>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('kelas-mk.index') }}">List Kelas Mata Kuliah</a>
+                    <a href="#">Dosen Mata Kuliah</a>
                 </li>
             </ul>
         </div>
-
         <div class="row">
             <!-- Tabel Data -->
             <div class="col-md-12">
                 <div class="card shadow-sm">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h3 class="card-title mb-0">
-                            <i class="fas fa-list me-2 text-primary"></i>Daftar Kelas Mata Kuliah
+                            <i class="fas fa-list me-2 text-primary"></i>Daftar Dosen Mata Kuliah
                         </h3>
-                        <a href="{{ route('kelas-mk.create') }}" class="btn btn-sm btn-primary">
-                            <i class="fas fa-plus me-1"></i> Tambah Kelas Mata Kuliah
+                        <a href="{{ route('dosen-mk.create') }}" class="btn btn-sm btn-primary">
+                            <i class="fas fa-plus me-1"></i> Buat Dosen Mata Kuliah Baru
                         </a>
                     </div>
                     <div class="card-body">
@@ -88,19 +91,16 @@
                             <div class="loader-spinner"></div>
                         </div>
                         <div class="table-responsive">
-                            <table id="kelas-table" class="table table-bordered table-striped table-hover"
+                            <table id="dosenmk-table" class="table table-bordered table-striped table-hover"
                                 style="width:100%">
                                 <thead class="table-light">
                                     <tr>
-                                        <th>No</th>
-                                        <th>Kode Kelas MK</th>
-                                        <th>Prodi</th>
-                                        <th>Kurikulum</th>
-                                        <th>Mata Kuliah</th>
-                                        <th>Kelas</th>
-                                        <th>Semester</th>
-                                        <th>Kuota</th>
-                                        <th>Aksi</th>
+                                        <th style="width: 150px;" class="text-center">Aksi</th>
+                                        <th class="text-center">Nama Dosen</th>
+                                        <th class="text-center">NUP</th>
+                                        <th class="text-center">Mata Kuliah</th>
+                                        <th class="text-center">Kelas</th>
+                                        <th class="text-center">Status</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -124,81 +124,39 @@
     <script>
         $(document).ready(function() {
             // Ambil data dari variabel PHP yang dilewatkan ke view
-            var kelasData = @json($kelasmk); // Nama variabel disesuaikan
+            var dosenData =
+            @json($dosen); // Pastikan nama variabel sesuai dengan yang dikirim dari controller
 
             // Inisialisasi DataTables dengan data dari PHP
-            var table = $('#kelas-table').DataTable({
-                data: kelasData,
+            var table = $('#dosenmk-table').DataTable({
+                data: dosenData,
                 columns: [{
-                        data: null,
-                        render: function(data, type, row, meta) {
-                            // Kolom No (indeks baris + 1)
-                            return meta.row + meta.settings._iDisplayStart + 1;
-                        },
-                        orderable: false,
-                        searchable: false
-                    },
-                    {
-                        data: 'kode_kelas_mk',
-                    },
-                    {
-                        data: 'prodi.nama_prodi',
-                        defaultContent: '-'
-                    },
-                    {
-                        data: 'kurikulum.nama_kurikulum',
-                        defaultContent: '-'
-                    },
-                    {
-                        data: 'mata_kuliah.nama_mk',
-                        render: function(data, type, row) {
-                            if (row.mata_kuliah && row.mata_kuliah.semester_rekomendasi) {
-                                return row.mata_kuliah.nama_mk + ' ' + '(Semester ' +
-                                    row.mata_kuliah.semester_rekomendasi + ')';
-                            }
-                            return '-';
-                        }
-                    },
-                    {
-                        data: null,
-                        render: function(data, type, row) {
-                            if (row.kelas_pararel && row.jenis_kelas) {
-                                return row.kelas_pararel.nama_kelas + ' ' +
-                                    row.jenis_kelas.nama_kelas;
-                            }
-                            return '-';
-                        }
-                    },
-                    {
-                        data: null,
-                        render: function(data, type, row) {
-                            if (row.semester && row.semester.tahun_akademik) {
-                                return row.semester.nama_semester + ' ' +
-                                    row.semester.tahun_akademik.tahun_akademik;
-                            }
-                            return '-';
-                        }
-                    },
-                    {
-                        data: 'kuota',
-                    },
-                    {
                         data: null, // Tidak ada data spesifik dari API untuk kolom ini
                         render: function(data, type, row) {
                             // Generate tombol aksi berdasarkan ID dari data API
-                            var editUrl = "{{ route('kelas-mk.edit', ':id') }}".replace(':id', row
+                            var editUrl = "{{ route('dosen-mk.edit', ':id') }}".replace(':id', row
                                 .id);
+
+                            // URL untuk halaman beban ajar dan jadwal
+                            var bebanAjarUrl = "{{ route('jadwal.beban-ajar-dosen.index', ':id') }}"
+                                .replace(':id', row.id);
+
                             return `
-                            <div class="d-flex justify-content-center gap-2 flex-wrap">
+                            <div class="d-flex justify-content-center gap-2 flex-wrap action-buttons">
+                                <a href="${bebanAjarUrl}"
+                                   class="btn btn-info btn-sm"
+                                   title="Beban Ajar & Jadwal">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </a>
                                 <a href="${editUrl}"
                                    class="btn btn-warning btn-sm edit-btn"
-                                   title="Edit Kelas">
+                                   title="Edit Dosen Mata Kuliah">
                                     <i class="fas fa-edit"></i>
                                 </a>
                                 <button class="btn btn-danger btn-sm delete-btn"
                                         data-id="${row.id}"
-                                        data-nama="${row.kode_kelas_mk}"
-                                        title="Hapus Kelas">
+                                        data-nama="${row.dosen.nama_dosen}"
+                                        title="Hapus Dosen Mata Kuliah">
                                     <i class="fas fa-trash"></i>
                                 </button>
                            </div>
@@ -206,6 +164,47 @@
                         },
                         orderable: false,
                         searchable: false
+                    },
+                    {
+                        data: 'dosen.nama_dosen',
+                        render: function(data) {
+                            return data || 'N/A';
+                        },
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'dosen.nup',
+                        render: function(data) {
+                            return data || 'N/A';
+                        },
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'kelas_mk.mata_kuliah.nama_mk',
+                        render: function(data) {
+                            return data || 'N/A';
+                        },
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'kelas_mk.kode_kelas_mk',
+                        render: function(data) {
+                            return data || 'N/A';
+                        },
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'status',
+                        render: function(data, type, row) {
+                            // Cek apakah sudah ada jadwal
+                            var hasSchedule = row.jadwal_kuliah && Object.keys(row.jadwal_kuliah)
+                                .length > 0;
+                            var statusClass = hasSchedule ? 'badge-success' : 'badge-warning';
+                            var statusText = hasSchedule ? 'Sudah Ada Jadwal' : 'Belum Ada Jadwal';
+
+                            return `<span class="badge ${statusClass}">${statusText}</span>`;
+                        },
+                        className: 'text-center'
                     }
                 ],
                 language: {
@@ -224,7 +223,7 @@
 
                 Swal.fire({
                     title: 'Apakah Anda yakin?',
-                    text: `Anda akan menghapus kelas "${nama}"`,
+                    text: `Anda akan menghapus Dosen Mata Kuliah "${nama}"`,
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#d33',
@@ -234,27 +233,31 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
-                            url: `{{ route('kelas-mk.destroy', '__ID__') }}`.replace(
+                            url: `{{ route('dosen-mk.destroy', '__ID__') }}`.replace(
                                 '__ID__', id),
                             type: 'DELETE',
                             headers: {
                                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                             },
                             success: function(response) {
-                                if (response.success) {
+                                if (response.success || response.status === 'success') {
                                     Swal.fire({
                                         icon: 'success',
                                         title: 'Berhasil!',
-                                        text: response.message,
+                                        text: response.message || response
+                                            .success,
                                         confirmButtonText: 'OK'
                                     }).then(() => {
-                                        location.reload();
+                                        table.row($('button[data-id="' + id +
+                                                '"]').parents('tr')).remove()
+                                            .draw();
                                     });
                                 } else {
                                     Swal.fire({
                                         icon: 'error',
                                         title: 'Gagal!',
-                                        text: response.message,
+                                        text: response.message ||
+                                            'Terjadi kesalahan.',
                                         confirmButtonText: 'OK'
                                     });
                                 }

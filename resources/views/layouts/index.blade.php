@@ -34,6 +34,9 @@
     <link rel="stylesheet" href="{{ asset('') }}template/assets/css/plugins.min.css" />
     <link rel="stylesheet" href="{{ asset('') }}template/assets/css/kaiadmin.min.css" />
 
+    <!-- CSS untuk Select2 -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
     <!-- CSS Just for demo purpose, don't include it in your project -->
     <link rel="stylesheet" href="{{ asset('') }}template/assets/css/demo.css" />
 
@@ -199,6 +202,19 @@
 
     <!-- Kaiadmin DEMO methods, don't include it in your project! -->
     <script src="{{ asset('') }}template/assets/js/setting-demo.js"></script>
+
+    <!-- Tambahkan Select2 -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <!-- Script tambahan -->
+    <script>
+        $(document).ready(function() {
+            // Aktifkan Select2 untuk elemen dengan class .select2
+            $('.select2').select2({
+                width: '100%'
+            });
+        });
+    </script>
     {{-- <script src="{{ asset('') }}template/assets/js/demo.js"></script> --}}
 
     {{-- <script>

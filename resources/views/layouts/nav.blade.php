@@ -32,7 +32,7 @@
                     </a>
                 </li>
 
-                @canAnyApi(
+                {{-- @canAnyApi(
                 'dashboard.admin',
                 'dashboard.baak',
                 'dashboard.kaprodi',
@@ -99,7 +99,7 @@
                     </a>
                 </li>
                 @endcanApi
-                @endcanAnyApi
+                @endcanAnyApi --}}
 
 
                 @canAnyApi(
@@ -245,6 +245,8 @@
                         </ul>
                     </div>
                 </li>
+                @endcanAnyApi
+
                 <li class="nav-section">
                     <span class="sidebar-mini-icon">
                         <i class="fa fa-ellipsis-h"></i>
@@ -256,8 +258,41 @@
                         <i class="fas fa-home"></i>
                         <p>Pembayaran</p>
                     </a>
-
                 </li>
+                <li class="nav-item {{ request()->routeIs('mahasiswa.pengajuan-krs.daftar-matkul') ? 'active' : '' }}">
+                    <a href="{{ route('mahasiswa.pengajuan-krs.daftar-matkul') }}">
+                        <i class="fas fa-home"></i>
+                        <p>KRS</p>
+                    </a>
+                </li>
+
+                <li class="nav-section">
+                    <span class="sidebar-mini-icon">
+                        <i class="fa fa-ellipsis-h"></i>
+                    </span>
+                    <h4 class="text-section">Dosen</h4>
+                </li>
+                <li class="nav-item {{ request()->routeIs('dosen-verifikasi-krs.daftar-verifikasi') ? 'active' : '' }}">
+                    <a href="{{ route('dosen-verifikasi-krs.daftar-verifikasi') }}">
+                        <i class="fas fa-home"></i>
+                        <p>Verifikasi KRS</p>
+                    </a>
+                </li>
+
+                @canAnyApi(
+                'siakad.master.refrensi.jenjang-pendidikan.index',
+                'siakad.master.refrensi.prodi.index',
+                'siakad.master.refrensi.tahun-akademik.index',
+                'siakad.master.refrensi.kurikulum.index',
+                'siakad.master.refrensi.mata-kuliah.index',
+                'siakad.master.refrensi.jenis-kelas.index',
+                'siakad.master.refrensi.kelas-pararel.index',
+                'siakad.master.refrensi.kelas-mk.index',
+                'siakad.master.refrensi.jenis-pembayaran.index',
+                'siakad.master.refrensi.ruang.index',
+                'siakad.master.refrensi.dosen.index',
+                'siakad.master.refrensi.mahasiswa.index'
+                )
                 <li class="nav-section">
                     <span class="sidebar-mini-icon">
                         <i class="fa fa-ellipsis-h"></i>

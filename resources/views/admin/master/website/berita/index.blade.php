@@ -156,13 +156,13 @@
                                 </div>
 
                                 <div class="row">
-                                    <div class="col-md-6">
+                                    <div class="col-md-12">
                                         <div class="form-group mb-3">
                                             <label for="kategori" class="form-label">Kategori</label>
                                             <select class="form-select" id="kategori" name="kategori">
                                                 <option value="">Pilih Kategori</option>
                                                 <option value="akademik">Akademik</option>
-                                                <option value="kemahasiswaan">Kemahasiswaan</option>
+                                                <option value="non-akademik">Non-Akademik</option>
                                                 <option value="pengumuman">Pengumuman</option>
                                                 <option value="kegiatan">Kegiatan</option>
                                                 <option value="berita_umum">Berita Umum</option>
@@ -170,6 +170,9 @@
                                             <div class="text-danger error-text" id="kategori_error"></div>
                                         </div>
                                     </div>
+                                </div>
+
+                                <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
                                             <label for="tanggal" class="form-label">Tanggal Berita</label>
@@ -177,21 +180,7 @@
                                             <div class="text-danger error-text" id="tanggal_error"></div>
                                         </div>
                                     </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group mb-3">
-                                            <label for="isi" class="form-label">Isi Berita <span
-                                                    class="text-danger">*</span></label>
-                                            <textarea class="form-control" id="isi" name="isi" rows="8" placeholder="Masukkan isi berita"></textarea>
-                                            <div class="text-danger error-text" id="isi_error"></div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-md-12">
+                                    <div class="col-md-6">
                                         <div class="form-group mb-3">
                                             <label for="gambar" class="form-label">Gambar Berita</label>
                                             <input type="file" class="form-control" id="gambar" name="gambar"
@@ -205,6 +194,17 @@
                                                     class="image-preview">
                                                 <p class="text-muted small mb-0">Preview Gambar</p>
                                             </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group mb-3">
+                                            <label for="isi" class="form-label">Isi Berita <span
+                                                    class="text-danger">*</span></label>
+                                            <textarea class="form-control" id="isi" name="isi" rows="8" placeholder="Masukkan isi berita"></textarea>
+                                            <div class="text-danger error-text" id="isi_error"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -225,35 +225,91 @@
         </div>
 
         <div class="row">
-            <!-- Tabel Data -->
-            <div class="col-md-12">
+            <div class="col-12">
                 <div class="card shadow-sm">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h3 class="card-title mb-0">
-                            <i class="fas fa-list text-primary me-2"></i>Data Berita
-                        </h3>
+                    <div class="card-header">
+                        <h3 class="card-title mb-0">Data Berita</h3>
                     </div>
+
                     <div class="card-body">
-                        <div id="tableLoader" class="loader-overlay">
-                            <div class="loader-spinner"></div>
-                        </div>
                         <div class="table-responsive">
-                            <table id="berita-table" class="table table-striped table-hover">
+                            <table class="table table-striped table-bordered" id="beritaTable">
                                 <thead class="table-dark">
                                     <tr>
-                                        <th style="width: 4%;">No</th>
-                                        <th style="width: 8%;">Gambar</th>
-                                        <th style="width: 25%;">Judul Berita</th>
-                                        <th style="width: 12%;">Kategori</th>
-                                        <th style="width: 10%;">Tanggal</th>
-                                        <th style="width: 33%;">Isi Berita</th>
-                                        <th style="width: 8%;">Aksi</th>
+                                        <th>No</th>
+                                        <th>Gambar</th>
+                                        <th>Judul Berita</th>
+                                        <th>Kategori</th>
+                                        <th>Tanggal</th>
+                                        <th>Isi</th>
+                                        <th>Aksi</th>
                                     </tr>
                                 </thead>
-                                <tbody></tbody>
+                                <tbody>
+                                    @forelse($berita as $index => $item)
+                                        <tr>
+                                            <td>{{ $index + 1 }}</td>
+                                            <td>
+                                                @if($item['gambar'])
+                                                    <img src="{{ config('api.storage_url') . $item['gambar'] }}" 
+                                                         alt="{{ $item['judul'] }}" 
+                                                         class="img-thumbnail" 
+                                                         style="max-width: 80px; max-height: 60px; cursor: pointer;"
+                                                         onclick="viewImage('{{ config('api.storage_url') . $item['gambar'] }}', '{{ $item['judul'] }}')">
+                                                @else
+                                                    <span class="text-muted">Tidak ada gambar</span>
+                                                @endif
+                                            </td>
+                                            <td>{{ $item['judul'] }}</td>
+                                            <td>
+                                                @if($item['kategori'])
+                                                    <span class="badge bg-info">{{ ucfirst($item['kategori']) }}</span>
+                                                @else
+                                                    <span class="text-muted">-</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if($item['tanggal'])
+                                                    {{ \Carbon\Carbon::parse($item['tanggal'])->format('d M Y') }}
+                                                @else
+                                                    <span class="text-muted">-</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <span class="text-truncate d-inline-block" style="max-width: 200px;" 
+                                                      title="{{ $item['isi'] }}">
+                                                    {{ Str::limit(strip_tags($item['isi']), 50) }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex justify-content-center gap-1">
+                                                    <button type="button" 
+                                                            class="btn btn-sm btn-warning btn-icon edit-btn" 
+                                                            data-id="{{ $item['id'] }}" 
+                                                            title="Edit">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button type="button" 
+                                                            class="btn btn-sm btn-danger btn-icon delete-btn" 
+                                                            data-id="{{ $item['id'] }}" 
+                                                            title="Hapus">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="7" class="text-center text-muted">
+                                                <i class="fas fa-inbox"></i> Tidak ada data berita
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
                             </table>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
@@ -300,26 +356,40 @@
                             <div class="text-danger error-text" id="judul_modal_error"></div>
                         </div>
 
+                        <div class="form-group mb-3">
+                            <label for="kategori_modal" class="form-label">Kategori</label>
+                            <select class="form-select" id="kategori_modal" name="kategori">
+                                <option value="">Pilih Kategori</option>
+                                <option value="akademik">Akademik</option>
+                                <option value="non-akademik">Non-Akademik</option>
+                                <option value="pengumuman">Pengumuman</option>
+                                <option value="kegiatan">Kegiatan</option>
+                                <option value="berita_umum">Berita Umum</option>
+                            </select>
+                            <div class="text-danger error-text" id="kategori_modal_error"></div>
+                        </div>
+
                         <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label for="kategori_modal" class="form-label">Kategori</label>
-                                    <select class="form-select" id="kategori_modal" name="kategori">
-                                        <option value="">Pilih Kategori</option>
-                                        <option value="akademik">Akademik</option>
-                                        <option value="kemahasiswaan">Kemahasiswaan</option>
-                                        <option value="pengumuman">Pengumuman</option>
-                                        <option value="kegiatan">Kegiatan</option>
-                                        <option value="berita_umum">Berita Umum</option>
-                                    </select>
-                                    <div class="text-danger error-text" id="kategori_modal_error"></div>
-                                </div>
-                            </div>
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
                                     <label for="tanggal_modal" class="form-label">Tanggal Berita</label>
                                     <input type="date" class="form-control" id="tanggal_modal" name="tanggal">
                                     <div class="text-danger error-text" id="tanggal_modal_error"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="gambar_modal" class="form-label">Gambar Berita</label>
+                                    <input type="file" class="form-control" id="gambar_modal" name="gambar"
+                                        accept="image/*">
+                                    <small class="form-text text-muted">Format yang diizinkan: JPG, JPEG, PNG, GIF. Maksimal
+                                        2MB.</small>
+                                    <div class="text-danger error-text" id="gambar_modal_error"></div>
+                                    <div id="preview-container-modal" class="image-preview-container mt-2"
+                                        style="display: none;">
+                                        <img id="image-preview-modal" src="" alt="Preview" class="image-preview">
+                                        <p class="text-muted small mb-0">Preview Gambar</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -329,20 +399,6 @@
                                     class="text-danger">*</span></label>
                             <textarea class="form-control" id="isi_modal" name="isi" rows="6" placeholder="Masukkan isi berita"></textarea>
                             <div class="text-danger error-text" id="isi_modal_error"></div>
-                        </div>
-
-                        <div class="form-group mb-3">
-                            <label for="gambar_modal" class="form-label">Gambar Berita</label>
-                            <input type="file" class="form-control" id="gambar_modal" name="gambar"
-                                accept="image/*">
-                            <small class="form-text text-muted">Format yang diizinkan: JPG, JPEG, PNG, GIF. Maksimal
-                                2MB.</small>
-                            <div class="text-danger error-text" id="gambar_modal_error"></div>
-                            <div id="preview-container-modal" class="image-preview-container mt-2"
-                                style="display: none;">
-                                <img id="image-preview-modal" src="" alt="Preview" class="image-preview">
-                                <p class="text-muted small mb-0">Preview Gambar</p>
-                            </div>
                         </div>
 
                         <div class="form-group mb-0">
@@ -362,562 +418,289 @@
 
 @push('scripts-custom')
     <script src="{{ asset('') }}template/assets/js/core/jquery-3.7.1.min.js"></script>
-    <!-- Datatables -->
-    <script src="{{ asset('') }}template/assets/js/plugin/datatables/datatables.min.js"></script>
     <!-- SweetAlert2 CDN untuk production -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.3.6/css/dataTables.dataTables.css" />
+    <script src="https://cdn.datatables.net/2.3.6/js/dataTables.js"></script>
     <script>
         $(document).ready(function() {
+            // Initialize DataTable
+            $('#beritaTable').DataTable();
+
             // Ambil storage URL API dari config
             var apiStorageUrl = '{{ config('api.storage_url') }}';
 
-            // Inisialisasi DataTables dengan data dari PHP
-            var table = $('#berita-table').DataTable({
-                processing: true,
-                serverSide: true,
-                ajax: "{{ route('berita.datatable') }}",
-                columns: [{
-                        data: 'DT_RowIndex',
-                        orderable: false,
-                        searchable: false
-                    },
-                    {
-                        data: 'gambar',
-                        render: function(data, type, row) {
-                            if (data) {
-                                let imageUrl = data;
+            // View Image Function
+            window.viewImage = function(imageSrc, title) {
+                $('#modalImageView').attr('src', imageSrc);
+                $('#imageModalTitle').text(title);
+                $('#modalViewImage').modal('show');
+            };
 
-                                // Handle different URL formats
-                                if (data.startsWith('http://') || data.startsWith('https://')) {
-                                    // Absolute URL - use as is
-                                    imageUrl = data;
-                                } else if (data.startsWith('/')) {
-                                    // Relative URL starting with / - could be from API server
-                                    if (data.startsWith('/storage/')) {
-                                        imageUrl = data; // Local storage
-                                    } else {
-                                        // Assume it's from API server
-                                        imageUrl = apiStorageUrl.replace('/storage/', '') + data;
-                                    }
-                                } else {
-                                    // Plain filename or relative path
-                                    // Check if it contains folder or similar pattern
-                                    if (data.includes('/')) {
-                                        // Has path separators, likely from API storage
-                                        imageUrl = apiStorageUrl + data;
-                                    } else {
-                                        // Plain filename, try local storage first, fallback to API
-                                        imageUrl = '/storage/' + data;
-                                    }
-                                }
-
-                                return `
-                                    <div class="text-center">
-                                        <img src="${imageUrl}" alt="Berita ${row.judul || ''}"
-                                             class="table-image"
-                                             onclick="showImageModal('${imageUrl}', '${row.judul || 'Berita'}')"
-                                             title="Klik untuk memperbesar"
-                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                                        <div style="display:none;" class="text-center">
-                                            <span class="badge bg-warning">Image Error</span>
-                                        </div>
-                                    </div>
-                                `;
-                            }
-                            return '<div class="text-center"><span class="badge bg-secondary">No Image</span></div>';
-                        },
-                        orderable: false,
-                        searchable: false
-                    },
-                    {
-                        data: 'judul'
-                    },
-                    {
-                        data: 'kategori',
-                        render: function(data, type, row) {
-                            const kategoriMap = {
-                                'akademik': '<span class="badge bg-primary">Akademik</span>',
-                                'kemahasiswaan': '<span class="badge bg-success">Kemahasiswaan</span>',
-                                'pengumuman': '<span class="badge bg-info">Pengumuman</span>',
-                                'kegiatan': '<span class="badge bg-warning">Kegiatan</span>',
-                                'berita_umum': '<span class="badge bg-secondary">Berita Umum</span>'
-                            };
-                            return kategoriMap[data] ||
-                                '<span class="badge bg-light text-dark">-</span>';
-                        }
-                    },
-                    {
-                        data: 'tanggal',
-                        render: function(data, type, row) {
-                            if (data) {
-                                const date = new Date(data);
-                                return date.toLocaleDateString('id-ID');
-                            }
-                            return '-';
-                        }
-                    },
-                    {
-                        data: 'isi',
-                        render: function(data, type, row) {
-                            // Batasi panjang isi berita dan tambahkan ellipsis jika terlalu panjang
-                            if (data && data.length > 100) {
-                                return '<div class="content-preview" title="' + data + '">' + data
-                                    .substring(0, 100) + '...</div>';
-                            }
-                            return data || '-';
-                        }
-                    },
-                    {
-                        data: 'aksi',
-                        orderable: false,
-                        searchable: false
-                    }
-                ],
-                language: {
-                    url: '{{ asset('') }}template/assets/js/plugin/datatables/i18n/id.json' // Bahasa Indonesia
-                },
-                drawCallback: function(settings) {
-                    // Sembunyikan loader setelah tabel selesai digambar
-                    $('#tableLoader').addClass('hidden');
-                }
-            });
-
-            // Reset form
-            $('#resetBtn').click(function() {
-                $('#beritaForm')[0].reset();
-                $('#berita_id').val('');
-                $('.error-text').text(''); // Hapus pesan error
-                $('#preview-container').hide();
-                $('#saveBtn').prop('disabled', false).html(
-                    '<i class="fas fa-save"></i> Simpan'
-                );
-            });
-
-            // Submit form create
-            $('#beritaForm').on('submit', function(e) {
+            // Edit Function - Use event delegation for dynamic content
+            $(document).on('click', '.edit-btn', function(e) {
                 e.preventDefault();
-
-                // Hapus pesan error sebelumnya
-                $('.error-text').text('');
-
-                // Validasi required fields
-                const judul = $('#judul').val().trim();
-                const isi = $('#isi').val().trim();
-
-                if (!judul || !isi) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Validasi Error!',
-                        text: 'Harap isi semua field yang wajib (Judul dan Isi Berita)!',
-                        confirmButtonText: 'OK'
-                    });
-                    return;
-                }
-
-                // Gunakan FormData untuk mengirim file
-                const formData = new FormData(this);
-
-                // Nonaktifkan tombol dan tampilkan loader
-                $('#saveBtn').prop('disabled', true).text('Menyimpan...');
-
-                $.ajax({
-                    url: "{{ route('berita.store') }}",
-                    type: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            // Tambah data ke tabel
-                            table.ajax.reload();
-                            // Reset form
-                            $('#beritaForm')[0].reset();
-                            $('#preview-container').hide();
-                            // Ganti alert dengan SweetAlert2
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Berhasil!',
-                                text: response.message ||
-                                    'Berita berhasil ditambahkan.',
-                                confirmButtonText: 'OK'
-                            });
-                        } else {
-                            // Ganti alert dengan SweetAlert2
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Gagal!',
-                                text: response.message ||
-                                    'Terjadi kesalahan saat menyimpan data.',
-                                confirmButtonText: 'OK'
-                            });
-                            // Tampilkan error spesifik jika ada
-                            if (response.errors) {
-                                Object.keys(response.errors).forEach(function(key) {
-                                    $('#' + key + '_error').text(response.errors[key][
-                                        0]);
-                                });
-                            }
-                        }
-                    },
-                    error: function(xhr) {
-                        console.error('AJAX Error:', xhr);
-                        console.error('Response Text:', xhr.responseText);
-                        console.error('Status:', xhr.status);
-
-                        let errorMessage = 'Gagal menyimpan data.';
-                        if (xhr.responseJSON && xhr.responseJSON.message) {
-                            errorMessage = xhr.responseJSON.message;
-                        } else if (xhr.responseJSON && xhr.responseJSON.errors) {
-                            errorMessage = Object.values(xhr.responseJSON.errors).flat().join(
-                                ', ');
-                        } else if (xhr.responseText) {
-                            // Tampilkan response text jika tidak ada JSON
-                            errorMessage = 'Error: ' + xhr.responseText.substring(0, 200) +
-                                '...';
-                        }
-
-                        // Ganti alert dengan SweetAlert2
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error!',
-                            text: errorMessage,
-                            confirmButtonText: 'OK'
-                        });
-
-                        // Tampilkan error spesifik jika ada
-                        if (xhr.responseJSON && xhr.responseJSON.errors) {
-                            Object.keys(xhr.responseJSON.errors).forEach(function(key) {
-                                $('#' + key + '_error').text(xhr.responseJSON.errors[
-                                    key][0]);
-                            });
-                        }
-                    },
-                    complete: function() {
-                        // Aktifkan kembali tombol setelah permintaan selesai
-                        $('#saveBtn').prop('disabled', false).html(
-                            '<i class="fas fa-save"></i> Simpan'
-                        );
-                    }
-                });
-            });
-
-            // Edit button click
-            $(document).on('click', '.edit-btn', function() {
-                const id = $(this).data('id');
-
-                // Reset modal sebelum mengisi data
-                $('#beritaFormModal')[0].reset();
-                $('.error-text').text('');
-                $('#preview-container-modal').hide();
-
-                // Ambil data berita spesifik dari API
-                $.get("{{ route('berita.show', '') }}/" + id)
+                var id = $(this).data('id');
+                
+                $.get("/berita/" + id)
                     .done(function(data) {
                         if (data && data.data) {
+                            $('#modelHeading').text('Edit Berita');
                             $('#berita_id_modal').val(data.data.id);
                             $('#judul_modal').val(data.data.judul);
                             $('#kategori_modal').val(data.data.kategori);
                             $('#isi_modal').val(data.data.isi);
-
-                            // Format tanggal untuk input date
-                            let tanggalValue = '';
+                            
+                            // Format tanggal untuk input date (YYYY-MM-DD)
                             if (data.data.tanggal) {
-                                // Convert tanggal ke format YYYY-MM-DD untuk input date
-                                const tanggalDate = new Date(data.data.tanggal);
-                                if (!isNaN(tanggalDate.getTime())) {
-                                    // Format ke YYYY-MM-DD
-                                    const year = tanggalDate.getFullYear();
-                                    const month = String(tanggalDate.getMonth() + 1).padStart(2, '0');
-                                    const day = String(tanggalDate.getDate()).padStart(2, '0');
-                                    tanggalValue = `${year}-${month}-${day}`;
-                                }
+                                var tanggalDate = new Date(data.data.tanggal);
+                                var formattedDate = tanggalDate.toISOString().split('T')[0];
+                                $('#tanggal_modal').val(formattedDate);
                             }
-                            $('#tanggal_modal').val(tanggalValue);
-
-                            // Handle gambar jika ada
+                            
+                            // Show existing image if exists
                             if (data.data.gambar) {
-                                let imageUrl = data.data.gambar;
-
-                                // Handle different URL formats
-                                if (data.data.gambar.startsWith('http://') || data.data.gambar
-                                    .startsWith('https://')) {
-                                    // Absolute URL - use as is
-                                    imageUrl = data.data.gambar;
-                                } else if (data.data.gambar.startsWith('/')) {
-                                    // Relative URL starting with / - could be from API server
-                                    if (data.data.gambar.startsWith('/storage/')) {
-                                        imageUrl = data.data.gambar; // Local storage
-                                    } else {
-                                        // Assume it's from API server
-                                        imageUrl = apiStorageUrl.replace('/storage/', '') + data.data
-                                            .gambar;
-                                    }
-                                } else {
-                                    // Plain filename or relative path
-                                    if (data.data.gambar.includes('/')) {
-                                        // Has path separators, likely from API storage
-                                        imageUrl = apiStorageUrl + data.data.gambar;
-                                    } else {
-                                        // Plain filename, try local storage first
-                                        imageUrl = '/storage/' + data.data.gambar;
-                                    }
-                                }
-
+                                $('#image-preview-modal').attr('src', apiStorageUrl + data.data.gambar);
                                 $('#preview-container-modal').show();
-                                $('#image-preview-modal').attr('src', imageUrl);
                             } else {
                                 $('#preview-container-modal').hide();
                             }
-
-                            $('#modelHeading').text('Edit Berita');
+                            
                             $('#modalBerita').modal('show');
                         } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error!',
-                                text: 'Data tidak ditemukan.',
-                                confirmButtonText: 'OK'
-                            });
+                            Swal.fire('Error', 'Gagal mengambil data berita', 'error');
                         }
                     })
-                    .fail(function(xhr) {
-                        // Ganti alert dengan SweetAlert2
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error!',
-                            text: 'Gagal mengambil data untuk diedit.',
-                            confirmButtonText: 'OK'
-                        });
+                    .fail(function() {
+                        Swal.fire('Error', 'Terjadi kesalahan saat mengambil data', 'error');
                     });
             });
 
-            // Submit edit via modal
-            $('#beritaFormModal').on('submit', function(e) {
+            // Delete Function - Use event delegation for dynamic content
+            $(document).on('click', '.delete-btn', function(e) {
                 e.preventDefault();
-
-                // Hapus pesan error sebelumnya
-                $('.error-text').text('');
-
-                const id = $('#berita_id_modal').val();
-
-                // Validasi required fields untuk modal
-                const judul = $('#judul_modal').val().trim();
-                const isi = $('#isi_modal').val().trim();
-
-                if (!id) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error!',
-                        text: 'ID berita tidak ditemukan!',
-                        confirmButtonText: 'OK'
-                    });
-                    return;
-                }
-
-                if (!judul || !isi) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Validasi Error!',
-                        text: 'Harap isi semua field yang wajib (Judul dan Isi Berita)!',
-                        confirmButtonText: 'OK'
-                    });
-                    return;
-                }
-
-                const formData = new FormData(this);
-
-                // Nonaktifkan tombol dan tampilkan loader
-                $('#saveBtnModal').prop('disabled', true).text('Menyimpan...');
-
-                $.ajax({
-                    url: "{{ route('berita.update', '') }}/" + id,
-                    type: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
-                        'X-HTTP-Method-Override': 'PUT'
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            // Update data di tabel dengan cara mencari row dan memperbarui data
-                            table.ajax.reload(null, false); // Reload tanpa reset paging
-                            // Tutup modal
-                            $('#modalBerita').modal('hide');
-                            // Ganti alert dengan SweetAlert2
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Berhasil!',
-                                text: response.message || 'Berita berhasil diperbarui.',
-                                confirmButtonText: 'OK'
-                            });
-                        } else {
-                            // Ganti alert dengan SweetAlert2
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Gagal!',
-                                text: response.message ||
-                                    'Terjadi kesalahan saat memperbarui data.',
-                                confirmButtonText: 'OK'
-                            });
-                            // Tampilkan error spesifik jika ada
-                            if (response.errors) {
-                                Object.keys(response.errors).forEach(function(key) {
-                                    $('#' + key + '_modal_error').text(response.errors[
-                                        key][0]);
-                                });
-                            }
-                        }
-                    },
-                    error: function(xhr) {
-                        let errorMessage = 'Gagal memperbarui data.';
-                        if (xhr.responseJSON && xhr.responseJSON.message) {
-                            errorMessage = xhr.responseJSON.message;
-                        } else if (xhr.responseJSON && xhr.responseJSON.errors) {
-                            errorMessage = Object.values(xhr.responseJSON.errors).flat().join(
-                                ', ');
-                        } else if (xhr.responseText) {
-                            errorMessage = 'Error: ' + xhr.responseText.substring(0, 200) +
-                                '...';
-                        }
-
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error!',
-                            text: errorMessage,
-                            confirmButtonText: 'OK'
-                        });
-
-                        // Tampilkan error spesifik jika ada
-                        if (xhr.responseJSON && xhr.responseJSON.errors) {
-                            Object.keys(xhr.responseJSON.errors).forEach(function(key) {
-                                $('#' + key + '_modal_error').text(xhr.responseJSON
-                                    .errors[key][0]);
-                            });
-                        }
-                    },
-                    complete: function() {
-                        $('#saveBtnModal').prop('disabled', false).html(
-                            '<i class="fas fa-save"></i> Update'
-                        );
-                    }
-                });
-            });
-
-            // Delete button click
-            $(document).on('click', '.delete-btn', function() {
-                const id = $(this).data('id');
-                // Ganti confirm dengan SweetAlert2
+                var id = $(this).data('id');
+                
                 Swal.fire({
-                    title: 'Anda yakin?',
-                    text: "Berita ini akan dihapus secara permanen!",
+                    title: 'Apakah Anda yakin?',
+                    text: 'Data berita akan dihapus permanently!',
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#d33',
                     cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Ya, Hapus!',
+                    confirmButtonText: 'Ya, hapus!',
                     cancelButtonText: 'Batal'
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
-                            url: "{{ route('berita.destroy', '') }}/" + id,
+                            url: '/berita/' + id,
                             type: 'DELETE',
                             data: {
-                                _token: $('meta[name="csrf-token"]').attr('content')
+                                _token: '{{ csrf_token() }}'
                             },
                             success: function(response) {
                                 if (response.success) {
-                                    // Hapus baris dari tabel
-                                    table.ajax.reload(null,
-                                    false); // Reload tanpa reset paging
-                                    // Ganti alert dengan SweetAlert2
-                                    Swal.fire({
-                                        icon: 'success',
-                                        title: 'Terhapus!',
-                                        text: response.message ||
-                                            'Berita berhasil dihapus.',
-                                        confirmButtonText: 'OK'
-                                    });
+                                    Swal.fire('Berhasil!', 'Data berita berhasil dihapus', 'success');
+                                    setTimeout(() => {
+                                        window.location.reload();
+                                    }, 1500);
                                 } else {
-                                    Swal.fire({
-                                        icon: 'error',
-                                        title: 'Gagal!',
-                                        text: response.message ||
-                                            'Terjadi kesalahan saat menghapus data.',
-                                        confirmButtonText: 'OK'
-                                    });
+                                    Swal.fire('Error', 'Gagal menghapus data berita', 'error');
                                 }
                             },
-                            error: function(xhr) {
-                                let errorMessage = 'Gagal menghapus data.';
-                                if (xhr.responseJSON && xhr.responseJSON.message) {
-                                    errorMessage = xhr.responseJSON.message;
-                                }
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Error!',
-                                    text: errorMessage,
-                                    confirmButtonText: 'OK'
-                                });
+                            error: function() {
+                                Swal.fire('Error', 'Terjadi kesalahan saat menghapus data', 'error');
                             }
                         });
                     }
                 });
             });
 
-            // Preview gambar saat file dipilih
-            $('#gambar').on('change', function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        $('#image-preview').attr('src', e.target.result);
-                        $('#preview-container').show();
-                    };
-                    reader.readAsDataURL(file);
+            // Store/Update Form Submit
+            $('#beritaForm').submit(function(e) {
+                e.preventDefault();
+                
+                var formData = new FormData(this);
+                var url = '/berita';
+                
+                // Add CSRF token to FormData
+                formData.append('_token', '{{ csrf_token() }}');
+                
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        if (response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil!',
+                                text: 'Data berita berhasil ditambahkan',
+                                showConfirmButton: false,
+                                timer: 1500
+                            });
+                            
+                            // Reset form
+                            $('#beritaForm')[0].reset();
+                            $('#preview-container').hide();
+                            
+                            // Reload page to show updated data
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1500);
+                        } else {
+                            // Handle validation errors
+                            if (response.errors) {
+                                // Clear previous errors
+                                $('.error-text').text('');
+                                
+                                // Show validation errors
+                                $.each(response.errors, function(key, value) {
+                                    var fieldId = key + '_error';
+                                    $('#' + fieldId).text(value[0]);
+                                });
+                            } else {
+                                Swal.fire('Error', response.message || 'Terjadi kesalahan', 'error');
+                            }
+                        }
+                    },
+                    error: function(xhr) {
+                        var response = xhr.responseJSON;
+                        if (response && response.errors) {
+                            // Clear previous errors
+                            $('.error-text').text('');
+                            
+                            // Show validation errors
+                            $.each(response.errors, function(key, value) {
+                                var fieldId = key + '_error';
+                                $('#' + fieldId).text(value[0]);
+                            });
+                        } else {
+                            Swal.fire('Error', 'Terjadi kesalahan saat menyimpan data', 'error');
+                        }
+                    }
+                });
+            });
+
+            // Update Form Submit (Modal)
+            $('#beritaFormModal').submit(function(e) {
+                e.preventDefault();
+                
+                var formData = new FormData(this);
+                var id = $('#berita_id_modal').val();
+                var url = '/berita/' + id;
+                
+                // Add CSRF token to FormData
+                formData.append('_token', '{{ csrf_token() }}');
+                
+                // For PUT method with file, we need to use POST with _method parameter
+                if ($('#gambar_modal')[0].files.length > 0) {
+                    formData.append('_method', 'PUT');
+                    $.ajax({
+                        url: url,
+                        type: 'POST',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function(response) {
+                            handleUpdateResponse(response);
+                        },
+                        error: function(xhr) {
+                            handleUpdateError(xhr);
+                        }
+                    });
                 } else {
-                    $('#preview-container').hide();
+                    // No file, use PUT
+                    var data = {
+                        'judul': $('#judul_modal').val(),
+                        'kategori': $('#kategori_modal').val(),
+                        'isi': $('#isi_modal').val(),
+                        'tanggal': $('#tanggal_modal').val(),
+                        '_token': '{{ csrf_token() }}',
+                        '_method': 'PUT'
+                    };
+                    
+                    $.ajax({
+                        url: url,
+                        type: 'POST',
+                        data: data,
+                        success: function(response) {
+                            handleUpdateResponse(response);
+                        },
+                        error: function(xhr) {
+                            handleUpdateError(xhr);
+                        }
+                    });
+                }
+                
+                function handleUpdateResponse(response) {
+                    if (response.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: 'Data berita berhasil diperbarui',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                        
+                        $('#modalBerita').modal('hide');
+                        
+                        // Reload page to show updated data
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    } else {
+                        if (response.errors) {
+                            $('.error-text').text('');
+                            $.each(response.errors, function(key, value) {
+                                var fieldId = key + '_modal_error';
+                                $('#' + fieldId).text(value[0]);
+                            });
+                        } else {
+                            Swal.fire('Error', response.message || 'Terjadi kesalahan', 'error');
+                        }
+                    }
+                }
+                
+                function handleUpdateError(xhr) {
+                    var response = xhr.responseJSON;
+                    if (response && response.errors) {
+                        $('.error-text').text('');
+                        $.each(response.errors, function(key, value) {
+                            var fieldId = key + '_modal_error';
+                            $('#' + fieldId).text(value[0]);
+                        });
+                    } else {
+                        Swal.fire('Error', 'Terjadi kesalahan saat memperbarui data', 'error');
+                    }
                 }
             });
 
-            // Preview gambar modal saat file dipilih
-            $('#gambar_modal').on('change', function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        $('#image-preview-modal').attr('src', e.target.result);
-                        $('#preview-container-modal').show();
-                    };
-                    reader.readAsDataURL(file);
-                } else {
-                    $('#preview-container-modal').hide();
-                }
-            });
-
-            // Modal close handlers untuk reset form
-            $('#modalBerita').on('hidden.bs.modal', function() {
-                $('#beritaFormModal')[0].reset();
+            // Reset Form
+            $('#resetBtn').click(function() {
+                $('#beritaForm')[0].reset();
+                $('#preview-container').hide();
                 $('.error-text').text('');
-                $('#preview-container-modal').hide();
-                $('#berita_id_modal').val('');
             });
-        });
 
-        // Function untuk menampilkan modal gambar
-        function showImageModal(imageUrl, title) {
-            $('#modalImageView').attr('src', imageUrl);
-            $('#imageModalTitle').text(title);
-            $('#modalViewImage').modal('show');
-        }
-
-        // Function untuk debug gambar yang gagal load
-        $(document).on('error', 'img.table-image', function() {
-            // Image failed to load, error already handled by onerror attribute
+            // Image Preview
+            $('#gambar, #gambar_modal').change(function() {
+                var preview = $(this).attr('id') === 'gambar' ? '#image-preview' : '#image-preview-modal';
+                var container = $(this).attr('id') === 'gambar' ? '#preview-container' : '#preview-container-modal';
+                
+                if (this.files && this.files[0]) {
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        $(preview).attr('src', e.target.result);
+                        $(container).show();
+                    };
+                    reader.readAsDataURL(this.files[0]);
+                } else {
+                    $(container).hide();
+                }
+            });
         });
     </script>
 @endpush

@@ -247,7 +247,7 @@
 
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table id="beasiswa-table" class="table table-striped table-bordered w-100">
+                            <table class="table table-striped table-bordered" id="beasiswaTable">
                                 <thead class="table-dark">
                                     <tr>
                                         <th>No</th>
@@ -260,7 +260,62 @@
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
-                                <tbody></tbody>
+                                <tbody>
+                                    @forelse($beasiswa as $index => $item)
+                                        <tr>
+                                            <td>{{ $index + 1 }}</td>
+                                            <td>
+                                                @if($item['gambar'])
+                                                    <img src="{{ config('api.storage_url') . $item['gambar'] }}" 
+                                                         alt="{{ $item['nama'] }}" 
+                                                         class="img-thumbnail" 
+                                                         style="max-width: 80px; max-height: 60px; cursor: pointer;"
+                                                         onclick="viewImage('{{ config('api.storage_url') . $item['gambar'] }}', '{{ $item['nama'] }}')">
+                                                @else
+                                                    <span class="text-muted">Tidak ada gambar</span>
+                                                @endif
+                                            </td>
+                                            <td>{{ $item['nama'] }}</td>
+                                            <td>
+                                                <span class="badge bg-{{ $item['kategori'] == 'akademik' ? 'primary' : 'success' }}">
+                                                    {{ ucfirst($item['kategori']) }}
+                                                </span>
+                                            </td>
+                                            <td>{{ \Carbon\Carbon::parse($item['deadline'])->format('d M Y') }}</td>
+                                            <td>
+                                                <span class="badge bg-info">{{ $item['kuota'] }}</span>
+                                            </td>
+                                            <td>
+                                                <span class="text-truncate d-inline-block" style="max-width: 200px;" 
+                                                      title="{{ $item['deskripsi'] }}">
+                                                    {{ Str::limit($item['deskripsi'], 50) }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex justify-content-center gap-1">
+                                                    <button type="button" 
+                                                            class="btn btn-sm btn-warning btn-icon edit-btn" 
+                                                            data-id="{{ $item['id'] }}" 
+                                                            title="Edit">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button type="button" 
+                                                            class="btn btn-sm btn-danger btn-icon delete-btn" 
+                                                            data-id="{{ $item['id'] }}" 
+                                                            title="Hapus">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="8" class="text-center text-muted">
+                                                <i class="fas fa-inbox"></i> Tidak ada data beasiswa
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
                             </table>
                         </div>
                     </div>
@@ -383,578 +438,308 @@
 
 @push('scripts-custom')
     <script src="{{ asset('') }}template/assets/js/core/jquery-3.7.1.min.js"></script>
-    <!-- Datatables -->
-    <script src="{{ asset('') }}template/assets/js/plugin/datatables/datatables.min.js"></script>
     <!-- SweetAlert2 CDN untuk production -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.3.6/css/dataTables.dataTables.css" />
+    <script src="https://cdn.datatables.net/2.3.6/js/dataTables.js"></script>
     <script>
         $(document).ready(function() {
+            // Initialize DataTable
+            $('#beasiswaTable').DataTable();
+
             // Ambil storage URL API dari config
             var apiStorageUrl = '{{ config('api.storage_url') }}';
 
-            // Inisialisasi DataTables dengan data dari PHP
-            var table = $('#beasiswa-table').DataTable({
-                processing: true,
-                serverSide: true,
-                ajax: "{{ route('beasiswa.datatable') }}",
-                columns: [{
-                        data: 'DT_RowIndex',
-                        orderable: false,
-                        searchable: false
-                    },
-                    {
-                        data: 'gambar',
-                        render: function(data, type, row) {
-                            if (data) {
-                                let imageUrl = data;
+            // View Image Function
+            window.viewImage = function(imageSrc, title) {
+                $('#modalImageView').attr('src', imageSrc);
+                $('#imageModalTitle').text(title);
+                $('#modalViewImage').modal('show');
+            };
 
-                                // Handle different URL formats
-                                if (data.startsWith('http://') || data.startsWith('https://')) {
-                                    // Absolute URL - use as is
-                                    imageUrl = data;
-                                } else if (data.startsWith('/')) {
-                                    // Relative URL starting with / - could be from API server
-                                    if (data.startsWith('/storage/')) {
-                                        imageUrl = data; // Local storage
-                                    } else {
-                                        // Assume it's from API server
-                                        imageUrl = apiStorageUrl.replace('/storage/', '') + data;
-                                    }
-                                } else {
-                                    // Plain filename or relative path
-                                    // Check if it contains folder or similar pattern
-                                    if (data.includes('/')) {
-                                        // Has path separators, likely from API storage
-                                        imageUrl = apiStorageUrl + data;
-                                    } else {
-                                        // Plain filename, try local storage first, fallback to API
-                                        imageUrl = '/storage/' + data;
-                                    }
-                                }
-
-                                return `
-                                    <div class="text-center">
-                                        <img src="${imageUrl}" alt="Beasiswa ${row.nama || ''}"
-                                             class="table-image"
-                                             onclick="showImageModal('${imageUrl}', '${row.nama || 'Beasiswa'}')"
-                                             title="Klik untuk memperbesar"
-                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                                        <div style="display:none;" class="text-center">
-                                            <span class="badge bg-warning">Image Error</span>
-                                        </div>
-                                    </div>
-                                `;
-                            }
-                            return '<div class="text-center"><span class="badge bg-secondary">No Image</span></div>';
-                        },
-                        orderable: false,
-                        searchable: false
-                    },
-                    {
-                        data: 'nama'
-                    },
-                    {
-                        data: 'kategori',
-                        render: function(data, type, row) {
-                            const kategoriMap = {
-                                'akademik': '<span class="badge bg-primary">Akademik</span>',
-                                'prestasi': '<span class="badge bg-success">Prestasi</span>',
-                                'kurang_mampu': '<span class="badge bg-info">Kurang Mampu</span>',
-                                'bantuan_pemerintah': '<span class="badge bg-warning">Bantuan Pemerintah</span>',
-                                'lainnya': '<span class="badge bg-secondary">Lainnya</span>'
-                            };
-                            return kategoriMap[data] ||
-                                '<span class="badge bg-light text-dark">-</span>';
-                        }
-                    },
-                    {
-                        data: 'deadline',
-                        render: function(data, type, row) {
-                            if (data) {
-                                const date = new Date(data);
-                                return date.toLocaleDateString('id-ID');
-                            }
-                            return '-';
-                        }
-                    },
-                    {
-                        data: 'kuota'
-                    },
-                    {
-                        data: 'deskripsi',
-                        render: function(data, type, row) {
-                            // Batasi panjang deskripsi dan tambahkan ellipsis jika terlalu panjang
-                            if (data && data.length > 50) {
-                                return '<div class="content-preview" title="' + data + '">' + data
-                                    .substring(0, 50) + '...</div>';
-                            }
-                            return data || '-';
-                        }
-                    },
-                    {
-                        data: 'aksi',
-                        orderable: false,
-                        searchable: false
-                    }
-                ],
-                language: {
-                    url: '{{ asset('') }}template/assets/js/plugin/datatables/i18n/id.json' // Bahasa Indonesia
-                },
-                drawCallback: function(settings) {
-                    // Sembunyikan loader setelah tabel selesai digambar
-                    $('#tableLoader').addClass('hidden');
-                }
-            });
-
-            // Reset form
-            $('#resetBtn').click(function() {
-                $('#beasiswaForm')[0].reset();
-                $('#beasiswa_id').val('');
-                $('.error-text').text(''); // Hapus pesan error
-                $('#preview-container').hide();
-                $('#saveBtn').prop('disabled', false).html(
-                    '<i class="fas fa-save"></i> Simpan'
-                );
-            });
-
-            // Submit form create
-            $('#beasiswaForm').on('submit', function(e) {
+            // Edit Function - Use event delegation for dynamic content
+            $(document).on('click', '.edit-btn', function(e) {
                 e.preventDefault();
-
-                // Hapus pesan error sebelumnya
-                $('.error-text').text('');
-
-                // Validasi required fields
-                const nama = $('#nama').val();
-                const kategori = $('#kategori').val();
-                const deadline = $('#deadline').val();
-                const kuota = $('#kuota').val();
-
-                if (!nama || !kategori || !deadline || !kuota) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Validasi Error!',
-                        text: 'Harap isi semua field yang wajib!',
-                        confirmButtonText: 'OK'
-                    });
-                    return;
-                }
-
-                // Gunakan FormData untuk mengirim file
-                const formData = new FormData(this);
-
-                // Nonaktifkan tombol dan tampilkan loader
-                $('#saveBtn').prop('disabled', true).text('Menyimpan...');
-
-                $.ajax({
-                    url: "{{ route('beasiswa.store') }}",
-                    type: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            // Tambah data ke tabel
-                            table.ajax.reload();
-                            // Reset form
-                            $('#beasiswaForm')[0].reset();
-                            $('#preview-container').hide();
-                            // Ganti alert dengan SweetAlert2
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Berhasil!',
-                                text: response.message ||
-                                    'Beasiswa berhasil ditambahkan.',
-                                confirmButtonText: 'OK'
-                            });
-                        } else {
-                            // Ganti alert dengan SweetAlert2
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Gagal!',
-                                text: response.message ||
-                                    'Terjadi kesalahan saat menyimpan data.',
-                                confirmButtonText: 'OK'
-                            });
-                            // Tampilkan error spesifik jika ada
-                            if (response.errors) {
-                                Object.keys(response.errors).forEach(function(key) {
-                                    $('#' + key + '_error').text(response.errors[key][
-                                        0]);
-                                });
-                            }
-                        }
-                    },
-                    error: function(xhr) {
-                        console.error('AJAX Error:', xhr);
-                        console.error('Response Text:', xhr.responseText);
-                        console.error('Status:', xhr.status);
-
-                        let errorMessage = 'Gagal menyimpan data.';
-                        if (xhr.responseJSON && xhr.responseJSON.message) {
-                            errorMessage = xhr.responseJSON.message;
-                        } else if (xhr.responseJSON && xhr.responseJSON.errors) {
-                            errorMessage = Object.values(xhr.responseJSON.errors).flat().join(
-                                ', ');
-                        } else if (xhr.responseText) {
-                            // Tampilkan response text jika tidak ada JSON
-                            errorMessage = 'Error: ' + xhr.responseText.substring(0, 200) +
-                                '...';
-                        }
-
-                        // Ganti alert dengan SweetAlert2
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error!',
-                            text: errorMessage,
-                            confirmButtonText: 'OK'
-                        });
-
-                        // Tampilkan error spesifik jika ada
-                        if (xhr.responseJSON && xhr.responseJSON.errors) {
-                            Object.keys(xhr.responseJSON.errors).forEach(function(key) {
-                                $('#' + key + '_error').text(xhr.responseJSON.errors[
-                                    key][0]);
-                            });
-                        }
-                    },
-                    complete: function() {
-                        // Aktifkan kembali tombol setelah permintaan selesai
-                        $('#saveBtn').prop('disabled', false).html(
-                            '<i class="fas fa-save"></i> Simpan'
-                        );
-                    }
-                });
-            });
-
-            // Edit button click
-            $(document).on('click', '.edit-btn', function() {
-                const id = $(this).data('id');
-
-                // Reset modal sebelum mengisi data
-                $('#beasiswaFormModal')[0].reset();
-                $('.error-text').text('');
-                $('#preview-container-modal').hide();
-
-                // Ambil data beasiswa spesifik dari API
-                $.get("{{ route('beasiswa.show', '') }}/" + id)
+                var id = $(this).data('id');
+                
+                $.get("/beasiswa/" + id)
                     .done(function(data) {
                         if (data && data.data) {
+                            $('#modelHeading').text('Edit Beasiswa');
                             $('#beasiswa_id_modal').val(data.data.id);
                             $('#nama_modal').val(data.data.nama);
                             $('#kategori_modal').val(data.data.kategori);
-
-                            // Format deadline untuk input date
-                            let deadlineValue = '';
-                            if (data.data.deadline) {
-                                // Convert deadline ke format YYYY-MM-DD untuk input date
-                                const deadlineDate = new Date(data.data.deadline);
-                                if (!isNaN(deadlineDate.getTime())) {
-                                    // Format ke YYYY-MM-DD
-                                    const year = deadlineDate.getFullYear();
-                                    const month = String(deadlineDate.getMonth() + 1).padStart(2, '0');
-                                    const day = String(deadlineDate.getDate()).padStart(2, '0');
-                                    deadlineValue = `${year}-${month}-${day}`;
-                                }
-                            }
-                            $('#deadline_modal').val(deadlineValue);
-
-                            $('#kuota_modal').val(data.data.kuota);
                             $('#deskripsi_modal').val(data.data.deskripsi);
-
-                            // Handle gambar jika ada
+                            
+                            // Format tanggal untuk input date (YYYY-MM-DD)
+                            if (data.data.deadline) {
+                                var deadlineDate = new Date(data.data.deadline);
+                                var formattedDate = deadlineDate.toISOString().split('T')[0];
+                                $('#deadline_modal').val(formattedDate);
+                            }
+                            
+                            $('#kuota_modal').val(data.data.kuota);
+                            
+                            // Show existing image if exists
                             if (data.data.gambar) {
-                                let imageUrl = data.data.gambar;
-
-                                // Handle different URL formats
-                                if (data.data.gambar.startsWith('http://') || data.data.gambar
-                                    .startsWith('https://')) {
-                                    // Absolute URL - use as is
-                                    imageUrl = data.data.gambar;
-                                } else if (data.data.gambar.startsWith('/')) {
-                                    // Relative URL starting with / - could be from API server
-                                    if (data.data.gambar.startsWith('/storage/')) {
-                                        imageUrl = data.data.gambar; // Local storage
-                                    } else {
-                                        // Assume it's from API server
-                                        imageUrl = apiStorageUrl.replace('/storage/', '') + data.data
-                                            .gambar;
-                                    }
-                                } else {
-                                    // Plain filename or relative path
-                                    if (data.data.gambar.includes('/')) {
-                                        // Has path separators, likely from API storage
-                                        imageUrl = apiStorageUrl + data.data.gambar;
-                                    } else {
-                                        // Plain filename, try local storage first
-                                        imageUrl = '/storage/' + data.data.gambar;
-                                    }
-                                }
-
+                                $('#image-preview-modal').attr('src', apiStorageUrl + data.data.gambar);
                                 $('#preview-container-modal').show();
-                                $('#image-preview-modal').attr('src', imageUrl);
                             } else {
                                 $('#preview-container-modal').hide();
                             }
-
-                            $('#modelHeading').text('Edit Beasiswa');
+                            
                             $('#modalBeasiswa').modal('show');
                         } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error!',
-                                text: 'Data tidak ditemukan.',
-                                confirmButtonText: 'OK'
-                            });
+                            Swal.fire('Error', 'Gagal mengambil data beasiswa', 'error');
                         }
                     })
-                    .fail(function(xhr) {
-                        console.error('Error fetching data for edit:', xhr);
-                        // Ganti alert dengan SweetAlert2
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error!',
-                            text: 'Gagal mengambil data untuk diedit.',
-                            confirmButtonText: 'OK'
-                        });
+                    .fail(function() {
+                        Swal.fire('Error', 'Terjadi kesalahan saat mengambil data', 'error');
                     });
             });
 
-            // Submit edit via modal
-            $('#beasiswaFormModal').on('submit', function(e) {
+            // Delete Function - Use event delegation for dynamic content
+            $(document).on('click', '.delete-btn', function(e) {
                 e.preventDefault();
-
-                // Hapus pesan error sebelumnya
-                $('.error-text').text('');
-
-                const id = $('#beasiswa_id_modal').val();
-
-                // Validasi required fields untuk modal
-                const nama = $('#nama_modal').val().trim();
-                const kategori = $('#kategori_modal').val();
-                const deadline = $('#deadline_modal').val();
-                const kuota = $('#kuota_modal').val();
-
-                if (!id) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error!',
-                        text: 'ID beasiswa tidak ditemukan!',
-                        confirmButtonText: 'OK'
-                    });
-                    return;
-                }
-
-                if (!nama || !kategori || !deadline || !kuota) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Validasi Error!',
-                        text: 'Harap isi semua field yang wajib (Nama, Kategori, Deadline, dan Kuota)!',
-                        confirmButtonText: 'OK'
-                    });
-                    return;
-                }
-
-                const formData = new FormData(this);
-
-                // Nonaktifkan tombol dan tampilkan loader
-                $('#saveBtnModal').prop('disabled', true).text('Menyimpan...');
-
-                $.ajax({
-                    url: "{{ route('beasiswa.update', '') }}/" + id,
-                    type: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
-                        'X-HTTP-Method-Override': 'PUT'
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            // Update data di tabel dengan cara mencari row dan memperbarui data
-                            table.ajax.reload(null, false); // Reload tanpa reset paging
-                            // Tutup modal
-                            $('#modalBeasiswa').modal('hide');
-                            // Ganti alert dengan SweetAlert2
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Berhasil!',
-                                text: response.message ||
-                                    'Beasiswa berhasil diperbarui.',
-                                confirmButtonText: 'OK'
-                            });
-                        } else {
-                            // Ganti alert dengan SweetAlert2
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Gagal!',
-                                text: response.message ||
-                                    'Terjadi kesalahan saat memperbarui data.',
-                                confirmButtonText: 'OK'
-                            });
-                            // Tampilkan error spesifik jika ada
-                            if (response.errors) {
-                                Object.keys(response.errors).forEach(function(key) {
-                                    $('#' + key + '_modal_error').text(response.errors[
-                                        key][0]);
-                                });
-                            }
-                        }
-                    },
-                    error: function(xhr) {
-                        console.error('AJAX Error:', xhr);
-                        console.error('Response Text:', xhr.responseText);
-                        console.error('Status:', xhr.status);
-
-                        let errorMessage = 'Gagal memperbarui data.';
-                        if (xhr.responseJSON && xhr.responseJSON.message) {
-                            errorMessage = xhr.responseJSON.message;
-                        } else if (xhr.responseJSON && xhr.responseJSON.errors) {
-                            errorMessage = Object.values(xhr.responseJSON.errors).flat().join(
-                                ', ');
-                        } else if (xhr.responseText) {
-                            errorMessage = 'Error: ' + xhr.responseText.substring(0, 200) +
-                                '...';
-                        }
-
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error!',
-                            text: errorMessage,
-                            confirmButtonText: 'OK'
-                        });
-
-                        // Tampilkan error spesifik jika ada
-                        if (xhr.responseJSON && xhr.responseJSON.errors) {
-                            Object.keys(xhr.responseJSON.errors).forEach(function(key) {
-                                $('#' + key + '_modal_error').text(xhr.responseJSON
-                                    .errors[key][0]);
-                            });
-                        }
-                    },
-                    complete: function() {
-                        $('#saveBtnModal').prop('disabled', false).html(
-                            '<i class="fas fa-save"></i> Update'
-                        );
-                    }
-                });
-            });
-
-            // Delete button click
-            $(document).on('click', '.delete-btn', function() {
-                const id = $(this).data('id');
-                // Ganti confirm dengan SweetAlert2
+                var id = $(this).data('id');
+                
                 Swal.fire({
-                    title: 'Anda yakin?',
-                    text: "Beasiswa ini akan dihapus secara permanen!",
+                    title: 'Apakah Anda yakin?',
+                    text: 'Data beasiswa akan dihapus permanently!',
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#d33',
                     cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Ya, Hapus!',
+                    confirmButtonText: 'Ya, hapus!',
                     cancelButtonText: 'Batal'
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
-                            url: "{{ route('beasiswa.destroy', '') }}/" + id,
+                            url: '/beasiswa/' + id,
                             type: 'DELETE',
                             data: {
-                                _token: $('meta[name="csrf-token"]').attr('content')
+                                _token: '{{ csrf_token() }}'
                             },
                             success: function(response) {
                                 if (response.success) {
-                                    // Hapus baris dari tabel
-                                    table.ajax.reload(null,
-                                    false); // Reload tanpa reset paging
-                                    // Ganti alert dengan SweetAlert2
-                                    Swal.fire({
-                                        icon: 'success',
-                                        title: 'Terhapus!',
-                                        text: response.message ||
-                                            'Beasiswa berhasil dihapus.',
-                                        confirmButtonText: 'OK'
-                                    });
+                                    Swal.fire('Berhasil!', 'Data beasiswa berhasil dihapus', 'success');
+                                    setTimeout(() => {
+                                        window.location.reload();
+                                    }, 1500);
                                 } else {
-                                    Swal.fire({
-                                        icon: 'error',
-                                        title: 'Gagal!',
-                                        text: response.message ||
-                                            'Terjadi kesalahan saat menghapus data.',
-                                        confirmButtonText: 'OK'
-                                    });
+                                    Swal.fire('Error', 'Gagal menghapus data beasiswa', 'error');
                                 }
                             },
-                            error: function(xhr) {
-                                console.error('AJAX Error:', xhr);
-                                let errorMessage = 'Gagal menghapus data.';
-                                if (xhr.responseJSON && xhr.responseJSON.message) {
-                                    errorMessage = xhr.responseJSON.message;
-                                }
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Error!',
-                                    text: errorMessage,
-                                    confirmButtonText: 'OK'
-                                });
+                            error: function() {
+                                Swal.fire('Error', 'Terjadi kesalahan saat menghapus data', 'error');
                             }
                         });
                     }
                 });
             });
 
-            // Preview gambar saat file dipilih
-            $('#gambar').on('change', function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        $('#image-preview').attr('src', e.target.result);
-                        $('#preview-container').show();
-                    };
-                    reader.readAsDataURL(file);
+            // Store/Update Form Submit
+            $('#beasiswaForm').submit(function(e) {
+                e.preventDefault();
+                
+                var formData = new FormData(this);
+                var url = '/beasiswa';
+                
+                // Add CSRF token to FormData
+                formData.append('_token', '{{ csrf_token() }}');
+                
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        if (response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil!',
+                                text: 'Data beasiswa berhasil ditambahkan',
+                                showConfirmButton: false,
+                                timer: 1500
+                            });
+                            
+                            // Reset form
+                            $('#beasiswaForm')[0].reset();
+                            $('#preview-container').hide();
+                            
+                            // Reload page to show updated data
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1500);
+                        } else {
+                            // Handle validation errors
+                            if (response.errors) {
+                                // Clear previous errors
+                                $('.error-text').text('');
+                                
+                                // Show validation errors
+                                $.each(response.errors, function(key, value) {
+                                    var fieldId = key + '_error';
+                                    $('#' + fieldId).text(value[0]);
+                                });
+                            } else {
+                                Swal.fire('Error', response.message || 'Terjadi kesalahan', 'error');
+                            }
+                        }
+                    },
+                    error: function(xhr) {
+                        var response = xhr.responseJSON;
+                        if (response && response.errors) {
+                            // Clear previous errors
+                            $('.error-text').text('');
+                            
+                            // Show validation errors
+                            $.each(response.errors, function(key, value) {
+                                var fieldId = key + '_error';
+                                $('#' + fieldId).text(value[0]);
+                            });
+                        } else {
+                            Swal.fire('Error', 'Terjadi kesalahan saat menyimpan data', 'error');
+                        }
+                    }
+                });
+            });
+
+            // Update Form Submit (Modal)
+            $('#beasiswaFormModal').submit(function(e) {
+                e.preventDefault();
+                
+                var formData = new FormData(this);
+                var id = $('#beasiswa_id_modal').val();
+                var url = '/beasiswa/' + id;
+                
+                console.log('=== UPDATE DEBUG ===');
+                console.log('ID:', id);
+                console.log('URL:', url);
+                console.log('Has file:', $('#gambar_modal')[0].files.length > 0);
+                
+                // Add CSRF token to FormData
+                formData.append('_token', '{{ csrf_token() }}');
+                
+                // For PUT method with file, we need to use POST with _method parameter
+                if ($('#gambar_modal')[0].files.length > 0) {
+                    console.log('Using FormData with file');
+                    formData.append('_method', 'PUT');
+                    $.ajax({
+                        url: url,
+                        type: 'POST',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function(response) {
+                            console.log('Update response:', response);
+                            handleUpdateResponse(response);
+                        },
+                        error: function(xhr, status, error) {
+                            console.log('Update error:', xhr.responseText);
+                            console.log('Status:', status);
+                            console.log('Error:', error);
+                            handleUpdateError(xhr);
+                        }
+                    });
                 } else {
-                    $('#preview-container').hide();
+                    // No file, use PUT
+                    var data = {
+                        'nama': $('#nama_modal').val(),
+                        'kategori': $('#kategori_modal').val(),
+                        'deskripsi': $('#deskripsi_modal').val(),
+                        'deadline': $('#deadline_modal').val(),
+                        'kuota': $('#kuota_modal').val(),
+                        '_token': '{{ csrf_token() }}',
+                        '_method': 'PUT'
+                    };
+                    
+                    console.log('Using data object:', data);
+                    
+                    $.ajax({
+                        url: url,
+                        type: 'POST',
+                        data: data,
+                        success: function(response) {
+                            console.log('Update response:', response);
+                            handleUpdateResponse(response);
+                        },
+                        error: function(xhr, status, error) {
+                            console.log('Update error:', xhr.responseText);
+                            console.log('Status:', status);
+                            console.log('Error:', error);
+                            handleUpdateError(xhr);
+                        }
+                    });
+                }
+                
+                function handleUpdateResponse(response) {
+                    if (response.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: 'Data beasiswa berhasil diperbarui',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                        
+                        $('#modalBeasiswa').modal('hide');
+                        
+                        // Reload page to show updated data
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    } else {
+                        if (response.errors) {
+                            $('.error-text').text('');
+                            $.each(response.errors, function(key, value) {
+                                var fieldId = key + '_modal_error';
+                                $('#' + fieldId).text(value[0]);
+                            });
+                        } else {
+                            Swal.fire('Error', response.message || 'Terjadi kesalahan', 'error');
+                        }
+                    }
+                }
+                
+                function handleUpdateError(xhr) {
+                    var response = xhr.responseJSON;
+                    if (response && response.errors) {
+                        $('.error-text').text('');
+                        $.each(response.errors, function(key, value) {
+                            var fieldId = key + '_modal_error';
+                            $('#' + fieldId).text(value[0]);
+                        });
+                    } else {
+                        Swal.fire('Error', 'Terjadi kesalahan saat memperbarui data', 'error');
+                    }
                 }
             });
 
-            // Preview gambar modal saat file dipilih
-            $('#gambar_modal').on('change', function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        $('#image-preview-modal').attr('src', e.target.result);
-                        $('#preview-container-modal').show();
-                    };
-                    reader.readAsDataURL(file);
-                } else {
-                    $('#preview-container-modal').hide();
-                }
-            });
-
-            // Modal close handlers untuk reset form
-            $('#modalBeasiswa').on('hidden.bs.modal', function() {
-                $('#beasiswaFormModal')[0].reset();
+            // Reset Form
+            $('#resetBtn').click(function() {
+                $('#beasiswaForm')[0].reset();
+                $('#preview-container').hide();
                 $('.error-text').text('');
-                $('#preview-container-modal').hide();
-                $('#beasiswa_id_modal').val('');
             });
-        });
 
-        // Function untuk menampilkan modal gambar
-        function showImageModal(imageUrl, title) {
-            $('#modalImageView').attr('src', imageUrl);
-            $('#imageModalTitle').text(title);
-            $('#modalViewImage').modal('show');
-        }
-
-        // Function untuk debug gambar yang gagal load
-        $(document).on('error', 'img.table-image', function() {
-            // Image failed to load, error already handled by onerror attribute
+            // Image Preview
+            $('#gambar, #gambar_modal').change(function() {
+                var preview = $(this).attr('id') === 'gambar' ? '#image-preview' : '#image-preview-modal';
+                var container = $(this).attr('id') === 'gambar' ? '#preview-container' : '#preview-container-modal';
+                
+                if (this.files && this.files[0]) {
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        $(preview).attr('src', e.target.result);
+                        $(container).show();
+                    };
+                    reader.readAsDataURL(this.files[0]);
+                } else {
+                    $(container).hide();
+                }
+            });
         });
     </script>
 @endpush

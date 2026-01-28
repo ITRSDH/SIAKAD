@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Website;
 
 use App\Http\Controllers\Controller;
-use App\Services\DataTableResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
@@ -20,86 +19,19 @@ class BeasiswaController extends Controller
 
     public function index()
     {
-       return view('admin.master.website.beasiswa.index');
-    }
-
-    /**
-     * =========================================
-     * 2️⃣ DataTables Server-Side (AJAX)
-     * =========================================
-     */
-    public function datatable(Request $request)
-    {
         try {
-            $page = $request->start / $request->length + 1;
-            $perPage = $request->length;
-            $search = $request->search['value'] ?? null;
-
-            $params = [
-                'page' => $page,
-                'per_page' => $perPage,
-            ];
-
-            // Tambahkan parameter search jika ada
-            if (!empty($search)) {
-                $params['search'] = $search;
-            }
-
-            $response = Http::withToken($this->apiToken)
-                ->timeout(10)
-                ->retry(2, 200)
-                ->get($this->apiUrl . 'beasiswa', $params);
-                
+            // Ambil data beasiswa dari API (tanpa paginate)
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl . 'beasiswa');
+            
             if (!$response->successful()) {
-                return DataTableResponse::empty($request);
+                return back()->with('error', 'Gagal mengambil data beasiswa dari API');
             }
 
-            $json = $response->json();
-
-            // ⬇️ INI KUNCI UTAMA
-            if (!isset($json['data']['data'])) {
-                return DataTableResponse::empty($request);
-            }
-
-            $payload = $json['data'];
-
-            return DataTableResponse::fromApi(
-                $request,
-                $payload,
-                fn($row, $i, $request) => [
-                    'DT_RowIndex' => $request->start + $i + 1,
-                    'gambar' => $row['gambar'] ?? null,
-                    'nama' => $row['nama'] ?? null,
-                    'kategori' => $row['kategori'] ?? null,
-                    'deadline' => $row['deadline'] ?? null,
-                    'kuota' => $row['kuota'] ?? null,
-                    'deskripsi' => $row['deskripsi'] ?? null,
-                    'aksi' => '
-                                <div class="d-flex justify-content-center gap-1">
-                                    <button
-                                        type="button"
-                                        class="btn btn-sm btn-warning btn-icon edit-btn"
-                                        data-id="'.$row['id'].'"
-                                        title="Edit"
-                                    >
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        class="btn btn-sm btn-danger btn-icon delete-btn"
-                                        data-id="'.$row['id'].'"
-                                        title="Hapus"
-                                    >
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            ',
-
-                ],
-            );
-        } catch (\Throwable $e) {
-            return DataTableResponse::empty($request);
+            $beasiswa = $response->json()['data'] ?? [];
+            
+            return view('admin.master.website.beasiswa.index', compact('beasiswa'));
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
         }
     }
 

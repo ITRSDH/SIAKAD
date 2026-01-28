@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Website;
 
 use App\Http\Controllers\Controller;
-use App\Services\DataTableResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
@@ -20,108 +19,28 @@ class PrestasiController extends Controller
 
     public function index()
     {
-        try { 
-            // Ambil data prodi untuk dropdown
+        try {
             $prodiResponse = Http::withToken($this->apiToken)->get($this->apiUrl . 'prodi');
 
-            if ($prodiResponse->successful()) {
-                // Ambil data prodi dan jenjang pendidikan jika berhasil
-                $prodi = [];
-                $jenjangPendidikan = [];
-                if ($prodiResponse->successful()) {
-                    $prodiData = $prodiResponse->json()['data'] ?? [];
-                    $prodi = $prodiData['prodi'] ?? [];
-                    $jenjangPendidikan = $prodiData['jenjang_pendidikan'] ?? [];
-                }
-                
-                return view('admin.master.website.prestasi.index', compact('prodi', 'jenjangPendidikan'));
+            if (!$prodiResponse->successful()) {
+                return back()->with('error', 'Gagal mengambil data dari API');
             }
 
-            return back()->with('error', 'Gagal mengambil data dari API');
+            $prodiData = $prodiResponse->json()['data'] ?? [];
+            $prodi = $prodiData['prodi'] ?? [];
+            $jenjangPendidikan = $prodiData['jenjang_pendidikan'] ?? [];
+
+            $prestasiResponse = Http::withToken($this->apiToken)->get($this->apiUrl . 'prestasi');
+
+            if (!$prestasiResponse->successful()) {
+                return back()->with('error', 'Gagal mengambil data prestasi dari API');
+            }
+
+            $prestasi = $prestasiResponse->json()['data'] ?? [];
+
+            return view('admin.master.website.prestasi.index', compact('prestasi', 'prodi', 'jenjangPendidikan'));
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
-        }
-    }
-
-     /**
-     * =========================================
-     * 2️⃣ DataTables Server-Side (AJAX)
-     * =========================================
-     */
-    public function datatable(Request $request)
-    {
-        try {
-            $page = $request->start / $request->length + 1;
-            $perPage = $request->length;
-            $search = $request->search['value'] ?? null;
-
-            $params = [
-                'page' => $page,
-                'per_page' => $perPage,
-            ];
-
-            // Tambahkan parameter search jika ada
-            if (!empty($search)) {
-                $params['search'] = $search;
-            }
-
-            $response = Http::withToken($this->apiToken)
-                ->timeout(10)
-                ->retry(2, 200)
-                ->get($this->apiUrl . 'prestasi', $params);
-
-            if (!$response->successful()) {
-                return DataTableResponse::empty($request);
-            }
-
-            $json = $response->json();
-
-            // ⬇️ INI KUNCI UTAMA
-            if (!isset($json['data']['data'])) {
-                return DataTableResponse::empty($request);
-            }
-
-            $payload = $json['data'];
-
-            return DataTableResponse::fromApi(
-                $request,
-                $payload,
-                fn($row, $i, $request) => [
-                    'DT_RowIndex' => $request->start + $i + 1,
-                    'gambar' => $row['gambar'] ?? null,
-                    'nama_mahasiswa' => $row['nama_mahasiswa'] ?? null,
-                    'prodi' => $row['prodi'] ?? ($row['program_studi'] ?? null),
-                    'id_prodi' => $row['id_prodi'] ?? null,
-                    'judul_prestasi' => $row['judul_prestasi'] ?? null,
-                    'tingkat' => $row['tingkat'] ?? null,
-                    'tahun' => $row['tahun'] ?? null,
-                    'deskripsi' => $row['deskripsi'] ?? null,
-                    'aksi' => '
-                                <div class="d-flex justify-content-center gap-1">
-                                    <button
-                                        type="button"
-                                        class="btn btn-sm btn-warning btn-icon edit-btn"
-                                        data-id="'.$row['id'].'"
-                                        title="Edit"
-                                    >
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        class="btn btn-sm btn-danger btn-icon delete-btn"
-                                        data-id="'.$row['id'].'"
-                                        title="Hapus"
-                                    >
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            ',
-
-                ],
-            );
-        } catch (\Throwable $e) {
-            return DataTableResponse::empty($request);
         }
     }
 

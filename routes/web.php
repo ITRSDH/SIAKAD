@@ -24,6 +24,7 @@ use App\Http\Controllers\Siakad\BAAK\DashboardBAAKController;
 use App\Http\Controllers\Siakad\MasterData\KelasMKController;
 use App\Http\Controllers\Siakad\MasterData\KurikulumController;
 use App\Http\Controllers\Siakad\MasterData\MahasiswaController;
+use App\Http\Controllers\Siakad\MasterData\MahasiswaBaruController;
 use App\Http\Controllers\Siakad\MasterData\JenisKelasController;
 use App\Http\Controllers\Siakad\MasterData\MataKuliahController;
 use App\Http\Controllers\ManagementPengguna\PermissionController;
@@ -181,6 +182,16 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
         Route::delete('/{id}', [MahasiswaController::class, 'destroy'])->name('destroy');
     });
 
+    // Route Mahasiswa Baru
+    Route::prefix('mahasiswa-baru')->name('mahasiswa.baru.')->group(function () {
+        Route::get('/', [MahasiswaBaruController::class, 'index'])->name('index');
+        Route::post('/', [MahasiswaBaruController::class, 'store'])->name('store');
+        Route::post('/sync', [MahasiswaBaruController::class, 'sync'])->name('sync');
+        Route::get('/{id}', [MahasiswaBaruController::class, 'show'])->name('show');
+        Route::put('/{id}', [MahasiswaBaruController::class, 'update'])->name('update');
+        Route::delete('/{id}', [MahasiswaBaruController::class, 'destroy'])->name('destroy');
+    });
+
     // Route Pengumuman
     Route::get('/pengumuman', [PengumumanController::class, 'index'])->name('pengumuman.index');
     Route::get('/pengumuman/datatable', [PengumumanController::class, 'datatable'])->name('pengumuman.datatable');
@@ -199,7 +210,6 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
 
     // Route Beasiswa
     Route::get('/beasiswa', [BeasiswaController::class, 'index'])->name('beasiswa.index');
-    Route::get('/beasiswa/datatable', [BeasiswaController::class, 'datatable'])->name('beasiswa.datatable');
     Route::post('/beasiswa', [BeasiswaController::class, 'store'])->name('beasiswa.store');
     Route::get('/beasiswa/{id}', [BeasiswaController::class, 'show'])->name('beasiswa.show');
     Route::put('/beasiswa/{id}', [BeasiswaController::class, 'update'])->name('beasiswa.update');

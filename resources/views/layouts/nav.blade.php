@@ -278,6 +278,7 @@
                         'ruang.*',
                         'dosen.*',
                         'mahasiswa.*',
+                        'mahasiswa.baru.*',
                     ])
                         ? 'active'
                         : '' }}">
@@ -295,6 +296,7 @@
                             'ruang.*',
                             'dosen.*',
                             'mahasiswa.*',
+                            'mahasiswa.baru.*',
                         ])
                             ? ''
                             : 'collapsed' }}"
@@ -311,6 +313,7 @@
                             'ruang.*',
                             'dosen.*',
                             'mahasiswa.*',
+                            'mahasiswa.baru.*',
                         ])
                             ? 'true'
                             : 'false' }}">
@@ -331,6 +334,7 @@
                         'ruang.*',
                         'dosen.*',
                         'mahasiswa.*',
+                        'mahasiswa.baru.*',
                     ])
                         ? 'show'
                         : '' }}"
@@ -459,53 +463,9 @@
                                     </ul>
                                 </div>
                             </li>
-<<<<<<< HEAD
-
-                            <!-- SETTING AKADEMIK -->
-                            {{-- <li>
-                                <a data-bs-toggle="collapse" href="#subnavSet">
-                                    <span class="sub-item">Setting Akademik</span>
-                                    <span class="caret"></span>
-                                </a>
-                                <div class="collapse" id="subnavSet">
-                                    <ul class="nav nav-collapse subnav">
-                                        <li><a href="{{ route('tahun-akademik.index') }}"><span class="sub-item">Tahun
-                                                    Akademik</span></a></li>
-                                        <li><a href="{{ route('semester.index') }}"><span
-                                                    class="sub-item">Semester</span></a></li>
-                                        <li><a href="{{ route('kurikulum.index') }}"><span
-                                                    class="sub-item">Kurikulum</span></a></li>
-                                        <li><a href="{{ route('matakuliah.index') }}"><span class="sub-item">Mata
-                                                    Kuliah</span></a></li>
-                                        <li><a href="{{ route('kelas-pararel.index') }}"><span class="sub-item">Kelas
-                                                    Pararel</span></a></li>
-                                        <li><a href="#"><span class="sub-item">Kelas Mata Kuliah</span></a></li>
-                                        <li><a href="#"><span class="sub-item">Jadwal Kuliah</span></a></li>
-                                        <li><a href="#"><span class="sub-item">Presensi Mahasiswa</span></a>
-                                        </li>
-                                        <li><a href="#"><span class="sub-item">Nilai Mahasiswa</span></a></li>
-                                        <li><a href="#"><span class="sub-item">Kartu Rencana Studi
-                                                    (KRS)</span></a></li>
-                                        <li><a href="#"><span class="sub-item">Kartu Hasil Studi
-                                                    (KHS)</span></a>
-                                        </li>
-                                        <li><a href="#"><span class="sub-item">Wali Kelas</span></a></li>
-                                        <li><a href="#"><span class="sub-item">Status Akademik</span></a></li>
-                                        <li><a href="{{ route('student.pembayaran.index') }}"><span class="sub-item">Pembayaran Mahasiswa</span></a>
-                                        </li>
-                                        <li><a href="#"><span class="sub-item">Berkas Mahasiswa</span></a></li>
-                                        <li><a href="#"><span class="sub-item">Alumni</span></a></li>
-                                    </ul>
-                                </div>
-                            </li> --}}
-
-                            {{-- <li class="nav-item">
-                                <a href="#">
-=======
                             @canApi('siakad.master.refrensi.dosen.index')
                             <li class="nav-item {{ request()->routeIs('dosen.*') ? 'active' : '' }}">
                                 <a href="{{ route('dosen.index') }}">
->>>>>>> ab5a9f5 (pembaruan code)
                                     <i class="fas fa-home"></i>
                                     <p>Data Dosen</p>
                                 </a>
@@ -516,6 +476,14 @@
                                 <a href="{{ route('mahasiswa.index') }}">
                                     <i class="fas fa-home"></i>
                                     <p>Data Mahasiswa</p>
+                                </a>
+                            </li>
+                            @endcanApi
+                            @canApi('siakad.master.refrensi.mahasiswa-baru.index')
+                            <li class="nav-item {{ request()->routeIs('mahasiswa.baru.*') ? 'active' : '' }}">
+                                <a href="{{ route('mahasiswa.baru.index') }}">
+                                    <i class="fas fa-home"></i>
+                                    <p>Data Mahasiswa Baru</p>
                                 </a>
                             </li>
                             @endcanApi

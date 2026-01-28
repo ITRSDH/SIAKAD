@@ -8,11 +8,15 @@ class DataTableResponse
 {
     public static function fromApi(Request $request, array $payload, callable $mapper)
     {
+        // Handle berbagai kemungkinan struktur response API
+        $data = $payload['data'] ?? $payload;
+        $total = $payload['total'] ?? (is_array($data) ? count($data) : 0);
+        
         return response()->json([
             'draw' => intval($request->draw),
-            'recordsTotal' => $payload['total'] ?? 0,
-            'recordsFiltered' => $payload['total'] ?? 0,
-            'data' => collect($payload['data'] ?? [])
+            'recordsTotal' => $total,
+            'recordsFiltered' => $total,
+            'data' => collect($data)
                 ->values()
                 ->map(fn ($row, $i) =>
                     $mapper($row, $i, $request)

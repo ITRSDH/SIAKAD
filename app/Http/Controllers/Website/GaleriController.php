@@ -20,85 +20,19 @@ class GaleriController extends Controller
 
     public function index()
     {
-        return view('admin.master.website.galeri.index');
-    }
-
-    /**
-     * =========================================
-     * 2️⃣ DataTables Server-Side (AJAX)
-     * =========================================
-     */
-    public function datatable(Request $request)
-    {
         try {
-            $page = $request->start / $request->length + 1;
-            $perPage = $request->length;
-            $search = $request->search['value'] ?? null;
-
-            $params = [
-                'page' => $page,
-                'per_page' => $perPage,
-            ];
-
-            // Tambahkan parameter search jika ada
-            if (!empty($search)) {
-                $params['search'] = $search;
-            }
-
-            $response = Http::withToken($this->apiToken)
-                ->timeout(10)
-                ->retry(2, 200)
-                ->get($this->apiUrl . 'galeri', $params);
-
+            // Ambil data beasiswa dari API (tanpa paginate)
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl . 'galeri');
+            
             if (!$response->successful()) {
-                return DataTableResponse::empty($request);
+                return back()->with('error', 'Gagal mengambil data galeri dari API');
             }
 
-            $json = $response->json();
-
-            // ⬇️ INI KUNCI UTAMA
-            if (!isset($json['data']['data'])) {
-                return DataTableResponse::empty($request);
-            }
-
-            $payload = $json['data'];
-
-            return DataTableResponse::fromApi(
-                $request,
-                $payload,
-                fn($row, $i, $request) => [
-                    'DT_RowIndex' => $request->start + $i + 1,
-                    'gambar' => $row['gambar'],
-                    'judul' => $row['judul'],
-                    'kategori' => $row['kategori'],
-                    'tanggal' => $row['tanggal'],
-                    'deskripsi' => $row['deskripsi'],
-                    'aksi' => '
-                                <div class="d-flex justify-content-center gap-1">
-                                    <button
-                                        type="button"
-                                        class="btn btn-sm btn-warning btn-icon edit-btn"
-                                        data-id="'.$row['id'].'"
-                                        title="Edit"
-                                    >
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        class="btn btn-sm btn-danger btn-icon delete-btn"
-                                        data-id="'.$row['id'].'"
-                                        title="Hapus"
-                                    >
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            ',
-
-                ],
-            );
-        } catch (\Throwable $e) {
-            return DataTableResponse::empty($request);
+            $galeri = $response->json()['data'] ?? [];
+            
+            return view('admin.master.website.galeri.index', compact('galeri'));
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
         }
     }
 

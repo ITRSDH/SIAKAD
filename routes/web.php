@@ -24,13 +24,16 @@ use App\Http\Controllers\Siakad\MasterData\DosenMKController;
 use App\Http\Controllers\Siakad\MasterData\KelasMKController;
 use App\Http\Controllers\Siakad\MasterData\KurikulumController;
 use App\Http\Controllers\Siakad\MasterData\MahasiswaController;
-use App\Http\Controllers\Siakad\MasterData\MahasiswaBaruController;
 use App\Http\Controllers\Siakad\MasterData\JenisKelasController;
 use App\Http\Controllers\Siakad\MasterData\MataKuliahController;
 use App\Http\Controllers\ManagementPengguna\PermissionController;
+use App\Http\Controllers\Siakad\MAHASISWA\PengajuanKRSController;
 use App\Http\Controllers\Siakad\MasterData\KelasPararelController;
+use App\Http\Controllers\Siakad\MasterData\MahasiswaBaruController;
 use App\Http\Controllers\Siakad\MasterData\TahunAkademikController;
+use App\Http\Controllers\Siakad\DOSEN\DosenMkgetmahasiswaController;
 use App\Http\Controllers\Siakad\MasterData\JenisPembayaranController;
+use App\Http\Controllers\Siakad\DOSEN\DosenWaliVerifikasiKRSController;
 use App\Http\Controllers\Siakad\MasterData\JenjangPendidikanController;
 use App\Http\Controllers\Siakad\MasterData\JadwalBebanAjarDosenController;
 
@@ -272,17 +275,21 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
     Route::post('/pembayaran/{tagihanId}/pay', [PembayaranController::class, 'store'])->name('student.pembayaran.store');
 
     // Route Pengajuan KRS Mahasiswa
-    Route::get('/pengajuan-krs/daftar-matkul', [App\Http\Controllers\Siakad\MAHASISWA\PengajuanKRSController::class, 'daftarMatkulPilihan'])->name('mahasiswa.pengajuan-krs.daftar-matkul');
-    Route::post('/pengajuan-krs', [App\Http\Controllers\Siakad\MAHASISWA\PengajuanKRSController::class, 'pengajuanKrs'])->name('mahasiswa.pengajuan-krs.store');
-    Route::post('/pengajuan-krs/draft', [App\Http\Controllers\Siakad\MAHASISWA\PengajuanKRSController::class, 'simpanDraftKrs'])->name('mahasiswa.pengajuan-krs.draft');
-    Route::post('/pengajuan-krs/{id}/submit', [App\Http\Controllers\Siakad\MAHASISWA\PengajuanKRSController::class, 'submitKrs'])->name('mahasiswa.pengajuan-krs.submit');
-    Route::post('/pengajuan-krs/{id}/batal', [App\Http\Controllers\Siakad\MAHASISWA\PengajuanKRSController::class, 'batalPengajuanKrs'])->name('mahasiswa.pengajuan-krs.batal');
-    Route::get('/pengajuan-krs/status', [App\Http\Controllers\Siakad\MAHASISWA\PengajuanKRSController::class, 'statusPengajuanKrs'])->name('mahasiswa.pengajuan-krs.status');
+    Route::get('/pengajuan-krs/daftar-matkul', [PengajuanKRSController::class, 'daftarMatkulPilihan'])->name('mahasiswa.pengajuan-krs.daftar-matkul');
+    Route::post('/pengajuan-krs', [PengajuanKRSController::class, 'pengajuanKrs'])->name('mahasiswa.pengajuan-krs.store');
+    Route::post('/pengajuan-krs/draft', [PengajuanKRSController::class, 'simpanDraftKrs'])->name('mahasiswa.pengajuan-krs.draft');
+    Route::post('/pengajuan-krs/{id}/submit', [PengajuanKRSController::class, 'submitKrs'])->name('mahasiswa.pengajuan-krs.submit');
+    Route::post('/pengajuan-krs/{id}/batal', [PengajuanKRSController::class, 'batalPengajuanKrs'])->name('mahasiswa.pengajuan-krs.batal');
+    Route::get('/pengajuan-krs/status', [PengajuanKRSController::class, 'statusPengajuanKrs'])->name('mahasiswa.pengajuan-krs.status');
 
     // Route Verifikasi KRS Dosen Wali
-    Route::get('/dosen/verifikasi-krs/daftar-verifikasi', [App\Http\Controllers\Siakad\DOSEN\DosenWaliVerifikasiKRSController::class, 'daftarKrsPerluVerifikasi'])->name('dosen-verifikasi-krs.daftar-verifikasi');
-    Route::get('/dosen/verifikasi-krs/{id}', [App\Http\Controllers\Siakad\DOSEN\DosenWaliVerifikasiKRSController::class, 'detailKrs'])->name('dosen-verifikasi-krs.detail');
-    Route::post('/dosen/verifikasi-krs/{id}/approve', [App\Http\Controllers\Siakad\DOSEN\DosenWaliVerifikasiKRSController::class, 'approveKrs'])->name('dosen-verifikasi-krs.approve');
-    Route::post('/dosen/verifikasi-krs/{id}/reject', [App\Http\Controllers\Siakad\DOSEN\DosenWaliVerifikasiKRSController::class, 'rejectKrs'])->name('dosen-verifikasi-krs.reject');
-    Route::get('/dosen/verifikasi-krs/daftar-terverifikasi', [App\Http\Controllers\Siakad\DOSEN\DosenWaliVerifikasiKRSController::class, 'daftarKrsTerverifikasi'])->name('dosen-verifikasi-krs.daftar-terverifikasi');
+    Route::get('/dosen/verifikasi-krs/daftar-verifikasi', [DosenWaliVerifikasiKRSController::class, 'daftarKrsPerluVerifikasi'])->name('dosen-verifikasi-krs.daftar-verifikasi');
+    Route::get('/dosen/verifikasi-krs/{id}', [DosenWaliVerifikasiKRSController::class, 'detailKrs'])->name('dosen-verifikasi-krs.detail');
+    Route::post('/dosen/verifikasi-krs/{id}/approve', [DosenWaliVerifikasiKRSController::class, 'approveKrs'])->name('dosen-verifikasi-krs.approve');
+    Route::post('/dosen/verifikasi-krs/{id}/reject', [DosenWaliVerifikasiKRSController::class, 'rejectKrs'])->name('dosen-verifikasi-krs.reject');
+    Route::get('/dosen/verifikasi-krs/daftar-terverifikasi', [DosenWaliVerifikasiKRSController::class, 'daftarKrsTerverifikasi'])->name('dosen-verifikasi-krs.daftar-terverifikasi');
+
+    // Route Dosen MK Get Mahasiswa
+    Route::get('/dosenmk/mahasiswa', [DosenMkgetmahasiswaController::class, 'getmahasiswa'])->name('dosenmk.getmahasiswa');
+    Route::post('/dosenmk/nilai', [DosenMkgetmahasiswaController::class, 'storeNilai'])->name('dosenmk.store-nilai');
 });

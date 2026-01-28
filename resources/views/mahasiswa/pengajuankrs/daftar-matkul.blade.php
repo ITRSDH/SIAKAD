@@ -330,7 +330,7 @@
                             @endforelse
                         </div>
 
-                        {{-- @if ($krs['is_locked'])
+                        @if ($krs['is_locked'])
                             <div class="mt-4 text-center">
                                 <span class="badge bg-warning fs-6 px-4 py-3">
                                     <i class="fas fa-clock me-2"></i>
@@ -346,7 +346,7 @@
                                     </button>
                                 </div>
                             @endif
-                        @endif --}}
+                        @endif
 
                     </div>
                 </div>

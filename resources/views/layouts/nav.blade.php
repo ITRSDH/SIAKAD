@@ -269,7 +269,8 @@
                 @endcanApi
 
                 @canAnyApi(
-                'siakad.master.refrensi.dosen-verifikasi-krs.daftar-verifikasi'
+                'siakad.master.refrensi.dosen-verifikasi-krs.daftar-verifikasi',
+                'siakad.master.refrensi.dosen-matakuliah.get-mahasiswa'
                 )
                 <li class="nav-section">
                     <span class="sidebar-mini-icon">
@@ -283,6 +284,14 @@
                     <a href="{{ route('dosen-verifikasi-krs.daftar-verifikasi') }}">
                         <i class="fas fa-home"></i>
                         <p>Verifikasi KRS</p>
+                    </a>
+                </li>
+                @endcanApi
+                @canApi('siakad.master.refrensi.dosen-matakuliah.get-mahasiswa')
+                <li class="nav-item {{ request()->routeIs('dosenmk.getmahasiswa') ? 'active' : '' }}">
+                    <a href="{{ route('dosenmk.getmahasiswa') }}">
+                        <i class="fas fa-home"></i>
+                        <p>Penilaian Mahasiswa</p>
                     </a>
                 </li>
                 @endcanApi

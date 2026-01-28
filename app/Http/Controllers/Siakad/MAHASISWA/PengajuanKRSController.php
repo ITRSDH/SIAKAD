@@ -30,7 +30,7 @@ class PengajuanKRSController extends Controller
 
             $semester_aktif             = $apiData['semester_aktif'] ?? [];
             $kurikulum                  = $apiData['kurikulum'] ?? [];
-            // $krs                        = $apiData['krs'] ?? [];
+            $krs                        = $apiData['krs'] ?? [];
             $jumlah_matkul_tersedia     = $apiData['jumlah_matkul_tersedia'] ?? 0;
             $matkul_pilihan             = $apiData['matkul_pilihan'] ?? [];
 
@@ -39,7 +39,7 @@ class PengajuanKRSController extends Controller
             return view('mahasiswa.pengajuankrs.daftar-matkul', compact(
                 'semester_aktif',
                 'kurikulum',
-                // 'krs',
+                'krs',
                 'jumlah_matkul_tersedia',
                 'matkul_pilihan'
             ));

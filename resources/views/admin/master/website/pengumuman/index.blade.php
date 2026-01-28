@@ -332,7 +332,7 @@
     <script>
         $(document).ready(function() {
             // Initialize DataTable
-            $('#pengumumanTable').DataTable();
+            const table = $('#pengumumanTable').DataTable();
 
             // Edit Function - Use event delegation for dynamic content
             $(document).on('click', '.edit-btn', function(e) {
@@ -389,10 +389,10 @@
                             },
                             success: function(response) {
                                 if (response.success) {
+                                    // Hapus baris dari tabel
+                                    table.row($('button[data-id="' + id + '"]').closest('tr')).remove().draw();
+                                    
                                     Swal.fire('Berhasil!', 'Data pengumuman berhasil dihapus', 'success');
-                                    setTimeout(() => {
-                                        window.location.reload();
-                                    }, 1500);
                                 } else {
                                     Swal.fire('Error', 'Gagal menghapus data pengumuman', 'error');
                                 }
@@ -424,6 +424,12 @@
                     data: data,
                     success: function(response) {
                         if (response.success) {
+                            // Tambah data ke tabel
+                            table.row.add(response.data).draw();
+                            
+                            // Reset form
+                            $('#pengumumanForm')[0].reset();
+                            
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Berhasil!',
@@ -431,14 +437,6 @@
                                 showConfirmButton: false,
                                 timer: 1500
                             });
-                            
-                            // Reset form
-                            $('#pengumumanForm')[0].reset();
-                            
-                            // Reload page to show updated data
-                            setTimeout(() => {
-                                window.location.reload();
-                            }, 1500);
                         } else {
                             // Handle validation errors
                             if (response.errors) {
@@ -510,12 +508,24 @@
                             timer: 1500
                         });
                         
-                        $('#modalPengumuman').modal('hide');
+                        // Update baris di tabel
+                        const row = table.row($('button[data-id="' + id + '"]').closest('tr'));
+                        const updatedData = [
+                            response.data.judul,
+                            response.data.kategori,
+                            response.data.tanggal,
+                            `<div class="d-flex gap-2">
+                                <button class="btn btn-warning btn-sm edit-btn" data-id="${response.data.id}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-danger btn-sm delete-btn" data-id="${response.data.id}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>`
+                        ];
+                        row.data(updatedData).draw();
                         
-                        // Reload page to show updated data
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1500);
+                        $('#modalPengumuman').modal('hide');
                     } else {
                         if (response.errors) {
                             $('.error-text').text('');

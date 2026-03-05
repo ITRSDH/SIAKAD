@@ -326,7 +326,7 @@
                         : '' }}">
                     <a data-bs-toggle="collapse" href="#mastersiakad"
                         class="{{ !request()->routeIs('mahasiswa.baru.*') &&
-                        request()->routeIs(['prodi.*', 'tahun-akademik.*', 'kurikulum.*', 'mata-kuliah.*', , 'dosen.*', 'mahasiswa.*'])
+                        request()->routeIs(['prodi.*', 'tahun-akademik.*', 'kurikulum.*', 'mata-kuliah.*', 'dosen.*', 'mahasiswa.*'])
                             ? ''
                             : (request()->routeIs([
                                 'prodi.*',

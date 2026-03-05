@@ -58,9 +58,9 @@
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h3 class="card-title mb-0"><i class="fas fa-user-tie me-2"></i>Data Dosen</h3>
                         <div class="d-flex gap-2"> <!-- Container untuk tombol-tombol -->
-                            <a class="btn btn-success btn-sm" href="{{ route('dosen-mk.index') }}">
+                            {{-- <a class="btn btn-success btn-sm" href="{{ route('dosen-mk.index') }}">
                                 <i class="fas fa-calendar-plus me-1"></i>Lihat Dosen Mata Kuliah
-                            </a>
+                            </a> --}}
                             <button id="addDosenBtn" class="btn btn-primary btn-sm">
                                 <i class="fas fa-plus me-1"></i>Tambah Dosen
                             </button>

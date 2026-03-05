@@ -19,23 +19,12 @@ use App\Http\Controllers\ManagementPengguna\RoleController;
 use App\Http\Controllers\ManagementPengguna\UserController;
 use App\Http\Controllers\Siakad\MasterData\DosenController;
 use App\Http\Controllers\Siakad\MasterData\ProdiController;
-use App\Http\Controllers\Siakad\MasterData\RuangController;
-use App\Http\Controllers\Siakad\MasterData\DosenMKController;
-use App\Http\Controllers\Siakad\MasterData\KelasMKController;
 use App\Http\Controllers\Siakad\MasterData\KurikulumController;
 use App\Http\Controllers\Siakad\MasterData\MahasiswaController;
-use App\Http\Controllers\Siakad\MasterData\JenisKelasController;
 use App\Http\Controllers\Siakad\MasterData\MataKuliahController;
 use App\Http\Controllers\ManagementPengguna\PermissionController;
-use App\Http\Controllers\Siakad\MAHASISWA\PengajuanKRSController;
-use App\Http\Controllers\Siakad\MasterData\KelasPararelController;
 use App\Http\Controllers\Siakad\MasterData\MahasiswaBaruController;
 use App\Http\Controllers\Siakad\MasterData\TahunAkademikController;
-use App\Http\Controllers\Siakad\DOSEN\DosenMkgetmahasiswaController;
-use App\Http\Controllers\Siakad\MasterData\JenisPembayaranController;
-use App\Http\Controllers\Siakad\DOSEN\DosenWaliVerifikasiKRSController;
-use App\Http\Controllers\Siakad\MasterData\JenjangPendidikanController;
-use App\Http\Controllers\Siakad\MasterData\JadwalBebanAjarDosenController;
 
 Route::middleware(['guest.token'])->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -67,14 +56,6 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
     Route::post('/permissions/sync', [PermissionController::class, 'sync'])->name('permissions.sync');
     Route::delete('/permissions/{id}', [PermissionController::class, 'destroy'])->name('permissions.destroy');
 
-    Route::prefix('jenjang-pendidikan')->name('jenjang-pendidikan.')->group(function () {
-        Route::get('/', [JenjangPendidikanController::class, 'index'])->name('index');
-        Route::post('/', [JenjangPendidikanController::class, 'store'])->name('store');
-        Route::get('/{id}', [JenjangPendidikanController::class, 'show'])->name('show');
-        Route::put('/{id}', [JenjangPendidikanController::class, 'update'])->name('update');
-        Route::delete('/{id}', [JenjangPendidikanController::class, 'destroy'])->name('destroy');
-    });
-
     Route::prefix('prodi')->name('prodi.')->group(function () {
         Route::get('/', [ProdiController::class, 'index'])->name('index');
         Route::post('/', [ProdiController::class, 'store'])->name('store');
@@ -96,65 +77,38 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
         Route::put('/semester-aktif/{id}', [TahunAkademikController::class, 'setSemesterAktif'])->name('semester-aktif');
     });
 
+    Route::prefix('mata-kuliah')->name('mata-kuliah.')->group(function () {
+        Route::get('/prodi', [MataKuliahController::class, 'indexProdi'])->name('indexProdi');
+        Route::get('/data', [MataKuliahController::class, 'getDataProdi'])->name('dataProdi');
+        Route::get('/prodi/{id_prodi}', [MataKuliahController::class, 'index'])->name('index');
+        Route::get('/data/{id_prodi}', [MataKuliahController::class, 'getData'])->name('data');
+        Route::get('/prodi/{id_prodi}/tambah', [MataKuliahController::class, 'create'])->name('create');
+        Route::post('/prodi/{id_prodi}', [MataKuliahController::class, 'store'])->name('store');
+        Route::get('/detail/{id}', [MataKuliahController::class, 'detail'])->name('detail');
+        Route::put('/{id}/prodi/{id_prodi}', [MataKuliahController::class, 'update'])->name('update');
+        Route::delete('/{id}', [MataKuliahController::class, 'destroy'])->name('destroy');
+
+        // Import/Export Routes
+        Route::post('/import/{id_prodi}', [MataKuliahController::class, 'importExcel'])->name('import');
+        Route::get('/export/template/{id_prodi}', [MataKuliahController::class, 'downloadTemplate'])->name('export.template');
+        Route::get('/export/data', [MataKuliahController::class, 'exportData'])->name('export.data');
+    });
+
     Route::prefix('kurikulum')->name('kurikulum.')->group(function () {
+        Route::get('/data', [KurikulumController::class, 'getDatakurikulum'])->name('dataKurikulum');
         Route::get('/', [KurikulumController::class, 'index'])->name('index');
+        Route::get('/add', [KurikulumController::class, 'create'])->name('create');
         Route::post('/', [KurikulumController::class, 'store'])->name('store');
-        Route::get('/{id}', [KurikulumController::class, 'show'])->name('show');
+        Route::get('/detail/{id}', [KurikulumController::class, 'detail'])->name('detail');
+        Route::get('/edit-kolektif/{id}', [KurikulumController::class, 'editkolektif'])->name('edit-kolektif');
         Route::put('/{id}', [KurikulumController::class, 'update'])->name('update');
         Route::delete('/{id}', [KurikulumController::class, 'destroy'])->name('destroy');
-    });
 
-    Route::prefix('mata-kuliah')->name('mata-kuliah.')->group(function () {
-        Route::get('/', [MataKuliahController::class, 'index'])->name('index');
-        Route::get('/create', [MataKuliahController::class, 'create'])->name('create');
-        Route::post('/', [MataKuliahController::class, 'store'])->name('store');
-        Route::get('/{id}', [MataKuliahController::class, 'show'])->name('show'); // Opsional, untuk detail
-        Route::get('/semester/{semester}/edit', [MataKuliahController::class, 'edit'])->name('edit');
-        Route::put('/semester/{semester}', [MataKuliahController::class, 'update'])->name('update');
-        Route::delete('/semester/{semester}', [MataKuliahController::class, 'destroy'])->name('destroy');
-        Route::delete('/{id}', [MataKuliahController::class, 'destroySingle'])->name('destroy-single');
-    });
-
-    Route::prefix('jenis-kelas')->name('jenis-kelas.')->group(function () {
-        Route::get('/', [JenisKelasController::class, 'index'])->name('index');
-        Route::post('/', [JenisKelasController::class, 'store'])->name('store');
-        Route::get('/{id}', [JenisKelasController::class, 'show'])->name('show');
-        Route::put('/{id}', [JenisKelasController::class, 'update'])->name('update');
-        Route::delete('/{id}', [JenisKelasController::class, 'destroy'])->name('destroy');
-    });
-
-    Route::prefix('kelas-pararel')->name('kelas-pararel.')->group(function () {
-        Route::get('/', [KelasPararelController::class, 'index'])->name('index');
-        Route::post('/', [KelasPararelController::class, 'store'])->name('store');
-        Route::get('/{id}', [KelasPararelController::class, 'show'])->name('show');
-        Route::put('/{id}', [KelasPararelController::class, 'update'])->name('update');
-        Route::delete('/{id}', [KelasPararelController::class, 'destroy'])->name('destroy');
-    });
-
-    Route::prefix('kelas-mk')->name('kelas-mk.')->group(function () {
-        Route::get('/', [KelasMKController::class, 'index'])->name('index');
-        Route::get('/create', [KelasMKController::class, 'create'])->name('create');
-        Route::post('/', [KelasMKController::class, 'store'])->name('store');
-        // Route::get('/{id}', [KelasMKController::class, 'show'])->name('show');
-        Route::get('/{id}/edit', [KelasMKController::class, 'edit'])->name('edit');
-        Route::put('/{id}', [KelasMKController::class, 'update'])->name('update');
-        Route::delete('/{id}', [KelasMKController::class, 'destroy'])->name('destroy');
-    });
-
-    Route::prefix('jenis-pembayaran')->name('jenis-pembayaran.')->group(function () {
-        Route::get('/', [JenisPembayaranController::class, 'index'])->name('index');
-        Route::post('/', [JenisPembayaranController::class, 'store'])->name('store');
-        Route::get('/{id}', [JenisPembayaranController::class, 'show'])->name('show');
-        Route::put('/{id}', [JenisPembayaranController::class, 'update'])->name('update');
-        Route::delete('/{id}', [JenisPembayaranController::class, 'destroy'])->name('destroy');
-    });
-
-    Route::prefix('ruang')->name('ruang.')->group(function () {
-        Route::get('/', [RuangController::class, 'index'])->name('index');
-        Route::post('/', [RuangController::class, 'store'])->name('store');
-        Route::get('/{id}', [RuangController::class, 'show'])->name('show');
-        Route::put('/{id}', [RuangController::class, 'update'])->name('update');
-        Route::delete('/{id}', [RuangController::class, 'destroy'])->name('destroy');
+        // Tambahkan route tambahan untuk manajemen mata kuliah
+        Route::post('/{id}/tambah-mata-kuliah', [KurikulumController::class, 'tambahMataKuliahManual'])->name('tambah-mata-kuliah');
+        Route::post('/{id_tujuan}/clone-mata-kuliah', [KurikulumController::class, 'cloneMataKuliah'])->name('clone-mata-kuliah');
+        Route::put('/{id}/mata-kuliah/{id_mk}', [KurikulumController::class, 'updateMataKuliah'])->name('update-mata-kuliah');
+        Route::delete('/{id}/mata-kuliah/{id_mk}', [KurikulumController::class, 'hapusMataKuliah'])->name('hapus-mata-kuliah');
     });
 
     // Route Dosen
@@ -166,23 +120,6 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
         Route::delete('/{id}', [DosenController::class, 'destroy'])->name('destroy');
     });
 
-    Route::prefix('dosen-mk')->name('dosen-mk.')->group(function () {
-        Route::get('/', [DosenMKController::class, 'index'])->name('index');
-        Route::get('/create', [DosenMKController::class, 'create'])->name('create');
-        Route::post('/', [DosenMKController::class, 'store'])->name('store');
-        Route::get('/{id}', [DosenMKController::class, 'show'])->name('show');
-        Route::get('/{id}/edit', [DosenMKController::class, 'edit'])->name('edit');
-        Route::put('/{id}', [DosenMKController::class, 'update'])->name('update');
-        Route::delete('/{id}', [DosenMKController::class, 'destroy'])->name('destroy');
-    });
-
-    Route::prefix('jadwal')->name('jadwal.beban-ajar-dosen.')->group(function () {
-        Route::get('/{dosenmk}', [JadwalBebanAjarDosenController::class, 'index'])->name('index');
-        Route::post('/', [JadwalBebanAjarDosenController::class, 'storeOrUpdate'])->name('store');
-        Route::get('/{dosenmk}/edit', [JadwalBebanAjarDosenController::class, 'edit'])->name('edit');
-        Route::delete('/{id}', [JadwalBebanAjarDosenController::class, 'destroy'])->name('destroy');
-    });
-
     // Route Mahasiswa
     Route::prefix('mahasiswa')->name('mahasiswa.')->group(function () {
         Route::get('/', [MahasiswaController::class, 'index'])->name('index');
@@ -190,6 +127,10 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
         Route::get('/{id}', [MahasiswaController::class, 'show'])->name('show');
         Route::put('/{id}', [MahasiswaController::class, 'update'])->name('update');
         Route::delete('/{id}', [MahasiswaController::class, 'destroy'])->name('destroy');
+
+        // Import/Export Routes
+        Route::post('/import/{id_prodi}', [MahasiswaController::class, 'import'])->name('import');
+        Route::get('/export/template/{id_prodi}', [MahasiswaController::class, 'exportTemplate'])->name('export.template');
     });
 
     // Route Mahasiswa Baru
@@ -273,23 +214,4 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
     Route::get('/pembayaran', [PembayaranController::class, 'index'])->name('student.pembayaran.index');
     Route::get('/pembayaran/{tagihanId}/create', [PembayaranController::class, 'create'])->name('student.pembayaran.create');
     Route::post('/pembayaran/{tagihanId}/pay', [PembayaranController::class, 'store'])->name('student.pembayaran.store');
-
-    // Route Pengajuan KRS Mahasiswa
-    Route::get('/pengajuan-krs/daftar-matkul', [PengajuanKRSController::class, 'daftarMatkulPilihan'])->name('mahasiswa.pengajuan-krs.daftar-matkul');
-    Route::post('/pengajuan-krs', [PengajuanKRSController::class, 'pengajuanKrs'])->name('mahasiswa.pengajuan-krs.store');
-    Route::post('/pengajuan-krs/draft', [PengajuanKRSController::class, 'simpanDraftKrs'])->name('mahasiswa.pengajuan-krs.draft');
-    Route::post('/pengajuan-krs/{id}/submit', [PengajuanKRSController::class, 'submitKrs'])->name('mahasiswa.pengajuan-krs.submit');
-    Route::post('/pengajuan-krs/{id}/batal', [PengajuanKRSController::class, 'batalPengajuanKrs'])->name('mahasiswa.pengajuan-krs.batal');
-    Route::get('/pengajuan-krs/status', [PengajuanKRSController::class, 'statusPengajuanKrs'])->name('mahasiswa.pengajuan-krs.status');
-
-    // Route Verifikasi KRS Dosen Wali
-    Route::get('/dosen/verifikasi-krs/daftar-verifikasi', [DosenWaliVerifikasiKRSController::class, 'daftarKrsPerluVerifikasi'])->name('dosen-verifikasi-krs.daftar-verifikasi');
-    Route::get('/dosen/verifikasi-krs/{id}', [DosenWaliVerifikasiKRSController::class, 'detailKrs'])->name('dosen-verifikasi-krs.detail');
-    Route::post('/dosen/verifikasi-krs/{id}/approve', [DosenWaliVerifikasiKRSController::class, 'approveKrs'])->name('dosen-verifikasi-krs.approve');
-    Route::post('/dosen/verifikasi-krs/{id}/reject', [DosenWaliVerifikasiKRSController::class, 'rejectKrs'])->name('dosen-verifikasi-krs.reject');
-    Route::get('/dosen/verifikasi-krs/daftar-terverifikasi', [DosenWaliVerifikasiKRSController::class, 'daftarKrsTerverifikasi'])->name('dosen-verifikasi-krs.daftar-terverifikasi');
-
-    // Route Dosen MK Get Mahasiswa
-    Route::get('/dosenmk/mahasiswa', [DosenMkgetmahasiswaController::class, 'getmahasiswa'])->name('dosenmk.getmahasiswa');
-    Route::post('/dosenmk/nilai', [DosenMkgetmahasiswaController::class, 'storeNilai'])->name('dosenmk.store-nilai');
 });

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Siakad\MasterData;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Http;
+use App\Services\DropdownService;
 
 class KurikulumController extends Controller
 {
@@ -17,7 +18,7 @@ class KurikulumController extends Controller
         $this->apiToken = session('access_token');
     }
 
-    public function index()
+    public function getDatakurikulum()
     {
         try {
             // Ambil data kurikulum dari API
@@ -26,60 +27,234 @@ class KurikulumController extends Controller
                 return back()->with('error', 'Gagal mengambil data All Kurikulum dari API');
             }
 
-            $apiData = $response->json()['data'] ?? [];
-
-            // Ekstrak data
-            $kurikulum = $apiData['kurikulum'] ?? [];
-            $prodi = $apiData['prodi'] ?? [];
+            $kurikulum = $response->json()['data'] ?? [];
 
             // Kirim kedua data ke view
-            return view('masterdata.kurikulum.index', compact('kurikulum', 'prodi'));
+            return response()->json(['data' => $kurikulum]);
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
     }
 
-    public function store(Request $request)
+    public function index()
+    {
+        return view('masterdata.kurikulum.index');
+    }
+
+    public function create(DropdownService $dropdownService)
     {
         try {
-            $response = Http::withToken($this->apiToken)->post($this->apiUrl . 'kurikulum', $request->all());
 
-            if ($response->successful()) {
-                return response()->json($response->json());
-            }
+            $dropdown = $dropdownService->get('prodi,semester');
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal menyimpan data ke API',
-                'errors' => $response->json()
-            ], 422);
+            return view('masterdata.kurikulum.create', [
+                'prodi' => $dropdown['prodi'] ?? [],
+                'semester' => $dropdown['semester'] ?? []
+            ]);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage()
-            ], 500);
+            return back()->with('error', $e->getMessage());
         }
     }
 
-    public function show($id)
+
+    public function store(Request $request)
     {
         try {
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . "kurikulum/{$id}");
+            $response = Http::withToken($this->apiToken)
+                ->post($this->apiUrl . 'kurikulum', $request->all());
 
             if ($response->successful()) {
-                return response()->json($response->json());
+
+                // Ambil ID dari response API
+                $id = $response->json('data.id');
+
+                return redirect()
+                    ->route('kurikulum.detail', $id)
+                    ->with('success', 'Data berhasil disimpan');
             }
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal mengambil data dari API',
-                'errors' => $response->json()
-            ], 404);
+            return back()->withErrors(
+                $response->json('message') ?? 'Gagal menyimpan data'
+            );
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage()
-            ], 500);
+            return back()->withErrors($e->getMessage());
+        }
+    }
+
+
+    /**
+     * Menampilkan detail kurikulum beserta mata kuliahnya.
+     */
+    public function detail(DropdownService $dropdownService, $id)
+    {
+        try {
+            // Ambil data kurikulum dari API
+            $response = Http::withToken($this->apiToken)
+                ->get($this->apiUrl . "kurikulum/{$id}");
+
+            if (!$response->successful()) {
+                return back()->withErrors('Gagal mengambil data dari API');
+            }
+
+            $kurikulum = $response->json('data');
+
+            // Ambil dropdown mata kuliah berdasarkan prodi kurikulum
+            $mataKuliahResponse = Http::withToken($this->apiToken)
+                ->get($this->apiUrl . "kurikulum/{$id}/mata-kuliah-list"); // 🔥 Gunakan endpoint baru
+
+            if ($mataKuliahResponse->successful()) {
+                $matakuliah = $mataKuliahResponse->json('data.matakuliah', []);
+            } else {
+                $matakuliah = [];
+            }
+
+            // Ambil mata kuliah dari kurikulum (relasi mataKuliah)
+            $mataKuliahDiKurikulum = $kurikulum['mata_kuliah'] ?? [];
+
+            // Ambil dropdown kurikulum lain untuk clone (dari prodi yang sama)
+            $kurikulumLainResponse = Http::withToken($this->apiToken)
+                ->get($this->apiUrl . "kurikulum/{$id}/kurikulum-list"); // 🔥 Gunakan endpoint baru
+
+            if ($kurikulumLainResponse->successful()) {
+                $kurikulumLainRaw = $kurikulumLainResponse->json('data.kurikulum', []);
+
+                // Filter agar kurikulum saat ini tidak ikut
+                $kurikulumLain = array_filter($kurikulumLainRaw, function ($item) use ($id) {
+                    return $item['id'] !== $id; // Exclude kurikulum saat ini
+                });
+            } else {
+                $kurikulumLain = [];
+            }
+
+            $dropdown = $dropdownService->get('prodi,semester');
+
+            return view('masterdata.kurikulum.detail', [
+                'kurikulum' => $kurikulum,
+                'matakuliah' => $matakuliah,
+                'mataKuliahDiKurikulum' => $mataKuliahDiKurikulum,
+                'kurikulum_lain' => $kurikulumLain,
+                'prodi' => $dropdown['prodi'] ?? [],
+                'semester' => $dropdown['semester'] ?? []
+            ]);
+        } catch (\Exception $e) {
+            return back()->withErrors($e->getMessage());
+        }
+    }
+
+    public function editkolektif($id)
+    {
+        try {
+            // Ambil data kurikulum dari API
+            $response = Http::withToken($this->apiToken)
+                ->get($this->apiUrl . "kurikulum/{$id}");
+
+            if (!$response->successful()) {
+                return back()->withErrors('Gagal mengambil data dari API');
+            }
+
+            $kurikulum = $response->json('data');
+
+            // Ambil dropdown mata kuliah berdasarkan prodi kurikulum
+            $mataKuliahResponse = Http::withToken($this->apiToken)
+                ->get($this->apiUrl . "kurikulum/{$id}/mata-kuliah-list"); // 🔥 Gunakan endpoint baru
+
+            if ($mataKuliahResponse->successful()) {
+                $matakuliah = $mataKuliahResponse->json('data.matakuliah', []);
+            } else {
+                $matakuliah = [];
+            }
+
+            return view('masterdata.kurikulum.edit-kolektif', [
+                'kurikulum' => $kurikulum,
+                'matakuliah' => $matakuliah,
+            ]);
+        } catch (\Exception $e) {
+            return back()->withErrors($e->getMessage());
+        }
+    }
+
+    /**
+     * Menambahkan mata kuliah ke kurikulum via API.
+     */
+    public function tambahMataKuliahManual(Request $request, $id_kurikulum)
+    {
+        try {
+            $response = Http::withToken($this->apiToken)
+                ->post($this->apiUrl . "kurikulum/{$id_kurikulum}/tambah-mata-kuliah", $request->all());
+
+            if ($response->successful()) {
+                return redirect()->back()->with('success', 'Mata kuliah berhasil ditambahkan.');
+            }
+
+            return back()->withErrors($response->json('message', 'Gagal menambahkan mata kuliah.'));
+        } catch (\Exception $e) {
+            return back()->withErrors($e->getMessage());
+        }
+    }
+
+    public function cloneMataKuliah(Request $request, $id_kurikulum_tujuan)
+    {
+        $request->validate([
+            'id_kurikulum_asal' => 'required|string',
+        ]);
+
+        try {
+            // Validasi existensi kurikulum di API
+            $checkResponse = Http::withToken($this->apiToken)
+                ->get($this->apiUrl . "kurikulum/{$request->id_kurikulum_asal}");
+
+            if (!$checkResponse->successful()) {
+                return back()->withErrors('Kurikulum asal tidak ditemukan.');
+            }
+
+            $response = Http::withToken($this->apiToken)
+                ->post($this->apiUrl . "kurikulum/{$id_kurikulum_tujuan}/clone-mata-kuliah/{$request->id_kurikulum_asal}", []);
+
+            if ($response->successful()) {
+                return redirect()->back()->with('success', 'Mata kuliah berhasil dikloning.');
+            }
+
+            return back()->withErrors($response->json('message', 'Gagal mengkloning mata kuliah.'));
+        } catch (\Exception $e) {
+            return back()->withErrors($e->getMessage());
+        }
+    }
+
+    /**
+     * Update mata kuliah (pivot) via API.
+     */
+    public function updateMataKuliah(Request $request, $id_kurikulum, $id_mata_kuliah)
+    {
+        try {
+            $response = Http::withToken($this->apiToken)
+                ->put($this->apiUrl . "kurikulum/{$id_kurikulum}/mata-kuliah/{$id_mata_kuliah}", $request->all());
+
+            if ($response->successful()) {
+                return redirect()->back()->with('success', 'Mata kuliah berhasil diperbarui.');
+            }
+
+            return back()->withErrors($response->json('message', 'Gagal memperbarui mata kuliah.'));
+        } catch (\Exception $e) {
+            return back()->withErrors($e->getMessage());
+        }
+    }
+
+    /**
+     * Hapus mata kuliah dari kurikulum via API.
+     */
+    public function hapusMataKuliah(Request $request, $id_kurikulum, $id_mata_kuliah)
+    {
+        try {
+            $response = Http::withToken($this->apiToken)
+                ->delete($this->apiUrl . "kurikulum/{$id_kurikulum}/mata-kuliah/{$id_mata_kuliah}");
+
+            if ($response->successful()) {
+                return redirect()->back()->with('success', 'Mata kuliah berhasil dihapus.');
+            }
+
+            return back()->withErrors($response->json('message', 'Gagal menghapus mata kuliah.'));
+        } catch (\Exception $e) {
+            return back()->withErrors($e->getMessage());
         }
     }
 
@@ -89,12 +264,14 @@ class KurikulumController extends Controller
             $response = Http::withToken($this->apiToken)->put($this->apiUrl . "kurikulum/{$id}", $request->all());
 
             if ($response->successful()) {
-                return response()->json($response->json());
+                return $response->successful()
+                    ? redirect()->route('kurikulum.index')->with('success', 'Data berhasil diupdate')
+                    : back()->withErrors($response->json('message'));
             }
 
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal memperbarui data di API',
+                'message' => 'Gagal mengupdate data ke API',
                 'errors' => $response->json()
             ], 422);
         } catch (\Exception $e) {

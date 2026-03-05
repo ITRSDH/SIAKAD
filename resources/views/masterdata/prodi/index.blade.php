@@ -124,17 +124,14 @@
                                 </div>
 
                                 <div class="form-group row mb-3">
-                                    <label for="id_jenjang_pendidikan" class="col-sm-3 col-form-label text-end">
-                                        Jenjang Pendidikan <span class="text-danger">*</span>
+                                    <label for="jenjang_pendidikan" class="col-sm-3 col-form-label text-end">
+                                        Jenjang Penididikan <span class="text-danger">*</span>
                                     </label>
                                     <div class="col-sm-9">
-                                        <select class="form-control" id="id_jenjang_pendidikan" name="id_jenjang_pendidikan"
-                                            required>
-                                            <option value="">Pilih Jenjang Pendidikan...</option>
-                                        </select>
-                                        <small class="form-text text-muted">Pilih tingkat pendidikan jurusan ini (Diploma,
-                                            Sarjana, Pascasarjana).</small>
-                                        <span id="id_jenjang_pendidikan_error" class="text-danger error-text"></span>
+                                        <input type="text" class="form-control" id="jenjang_pendidikan"
+                                            name="jenjang_pendidikan" placeholder="Contoh: D3, S1, S2, S3" required>
+                                        <small class="form-text text-muted">Jenjang pendidikan dari Program Studi.</small>
+                                        <span id="jenjang_pendidikan_error" class="text-danger error-text"></span>
                                     </div>
                                 </div>
 
@@ -162,16 +159,6 @@
                                         <small class="form-text text-muted">Tahun jurusan ini didirikan (antara 1900 dan
                                             {{ date('Y') }}).</small>
                                         <span id="tahun_berdiri_error" class="text-danger error-text"></span>
-                                    </div>
-                                </div>
-
-                                <div class="form-group row mb-3">
-                                    <label for="kuota" class="col-sm-3 col-form-label text-end">Kuota Mahasiswa</label>
-                                    <div class="col-sm-9">
-                                        <input type="number" class="form-control" id="kuota" name="kuota"
-                                            placeholder="Contoh: 50" min="0">
-                                        <small class="form-text text-muted">Jumlah kuota mahasiswa baru per tahun.</small>
-                                        <span id="kuota_error" class="text-danger error-text"></span>
                                     </div>
                                 </div>
 
@@ -225,8 +212,8 @@
                                     <tr>
                                         <th>No</th>
                                         <th>Kode</th>
-                                        <th>Nama</th>
                                         <th>Jenjang</th>
+                                        <th>Nama</th>
                                         <th>Akreditasi</th>
                                         <th>Gelar</th>
                                         <th>Kaprodi</th> <!-- 🔥 Kolom baru -->
@@ -290,15 +277,14 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="id_jenjang_pendidikan_modal" class="col-form-label">Jenjang
+                                            <label for="jenjang_pendidikan_modal" class="col-form-label">Jenjang
                                                 Pendidikan</label>
-                                            <select class="form-control" id="id_jenjang_pendidikan_modal"
-                                                name="id_jenjang_pendidikan" required>
-                                                <option value="">Pilih Jenjang...</option>
-                                            </select>
-                                            <span class="text-danger error-text id_jenjang_pendidikan_error"></span>
+                                            <input type="text" class="form-control" id="jenjang_pendidikan_modal"
+                                                name="jenjang_pendidikan" required>
+                                            <span class="text-danger error-text jenjang_pendidikan_error"></span>
                                         </div>
                                     </div>
+
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
                                             <label for="akreditasi_modal" class="col-form-label">Akreditasi</label>
@@ -325,18 +311,12 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="kuota_modal" class="col-form-label">Kuota</label>
-                                            <input type="number" class="form-control" id="kuota_modal" name="kuota"
-                                                min="0">
-                                            <span class="text-danger error-text kuota_error"></span>
+                                            <label for="gelar_lulusan_modal" class="col-form-label">Gelar Lulusan</label>
+                                            <input type="text" class="form-control" id="gelar_lulusan_modal"
+                                                name="gelar_lulusan">
+                                            <span class="text-danger error-text gelar_lulusan_error"></span>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="form-group mb-3">
-                                    <label for="gelar_lulusan_modal" class="col-form-label">Gelar Lulusan</label>
-                                    <input type="text" class="form-control" id="gelar_lulusan_modal"
-                                        name="gelar_lulusan">
-                                    <span class="text-danger error-text gelar_lulusan_error"></span>
                                 </div>
 
                                 <div class="form-group mb-0">
@@ -388,28 +368,7 @@
         $(document).ready(function() {
             // Ambil data dari PHP
             var prodiData = @json($prodi);
-            var jenjangPendidikan = @json($jenjangPendidikan);
             var dosenList = @json($dosenList); // 🔥 Ditambahkan
-
-            // Isi dropdown jenjang
-            fillJenjangOptions();
-
-            function fillJenjangOptions() {
-                const createSelect = $('#id_jenjang_pendidikan');
-                const editSelect = $('#id_jenjang_pendidikan_modal');
-
-                createSelect.empty().append('<option value="">Pilih Jenjang...</option>');
-                editSelect.empty().append('<option value="">Pilih Jenjang...</option>');
-
-                if (jenjangPendidikan && Array.isArray(jenjangPendidikan)) {
-                    $.each(jenjangPendidikan, function(index, jenjang) {
-                        const option =
-                            `<option value="${jenjang.id}">${jenjang.kode_jenjang} - ${jenjang.nama_jenjang}</option>`;
-                        createSelect.append(option);
-                        editSelect.append(option);
-                    });
-                }
-            }
 
             // Isi dropdown kaprodi
             function fillDosenOptions() {
@@ -438,14 +397,10 @@
                         data: 'kode_prodi'
                     },
                     {
-                        data: 'nama_prodi'
+                        data: 'jenjang_pendidikan',
                     },
                     {
-                        data: 'id_jenjang_pendidikan',
-                        render: function(data) {
-                            const jenjang = jenjangPendidikan.find(j => j.id === data);
-                            return jenjang ? jenjang.nama_jenjang : 'N/A';
-                        }
+                        data: 'nama_prodi'
                     },
                     {
                         data: 'akreditasi',
@@ -466,15 +421,15 @@
                         data: null,
                         render: function(data) {
                             return `
-                            <div class="d-flex justify-content-center gap-2 flex-wrap">
-                                <button class="btn btn-warning btn-sm edit-btn" data-id="${data.id}">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-danger btn-sm delete-btn" data-id="${data.id}">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        `;
+                                <div class="d-flex justify-content-center gap-2 flex-wrap">
+                                    <button class="btn btn-warning btn-sm edit-btn" data-id="${data.id}">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-danger btn-sm delete-btn" data-id="${data.id}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            `;
                         },
                         orderable: false,
                         searchable: false
@@ -563,10 +518,9 @@
                             $('#prodi_id_modal').val(data.data.id);
                             $('#kode_prodi_modal').val(data.data.kode_prodi);
                             $('#nama_prodi_modal').val(data.data.nama_prodi);
-                            $('#id_jenjang_pendidikan_modal').val(data.data.id_jenjang_pendidikan);
+                            $('#jenjang_pendidikan_modal').val(data.data.jenjang_pendidikan);
                             $('#akreditasi_modal').val(data.data.akreditasi);
                             $('#tahun_berdiri_modal').val(data.data.tahun_berdiri);
-                            $('#kuota_modal').val(data.data.kuota);
                             $('#gelar_lulusan_modal').val(data.data.gelar_lulusan);
                             $('.error-text').text('');
                             $('#modalProdi').modal('show');

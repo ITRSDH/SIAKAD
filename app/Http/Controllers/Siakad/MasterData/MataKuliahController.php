@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Siakad\MasterData;
 
 use Illuminate\Http\Request;
+use App\Services\DropdownService;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Http;
 
@@ -17,64 +18,127 @@ class MataKuliahController extends Controller
         $this->apiToken = session('access_token');
     }
 
-    public function index(Request $request)
+    public function getDataProdi(DropdownService $dropdownService)
     {
         try {
             // Ambil data mata kuliah terkelompok dari API
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . 'mata-kuliah');
-            if (!$response->successful()) {
-                return back()->with('error', 'Gagal mengambil data master dari API');
-            }
-
-            $apiData = $response->json()['data'] ?? [];
-
-            // Karena struktur data sekarang berbentuk array prodi → kurikulum → semester,
-            // maka kita kirim langsung ke view
-            $groupedMataKuliah = $apiData; // Langsung gunakan data baru
-
+            $prodi = $dropdownService->get('prodi');
             // Kirim data ke view
-            return view('masterdata.mata_kuliah.index', compact('groupedMataKuliah'));
+            return response()->json(['data' => $prodi['prodi']]);
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
     }
 
-    public function create()
+    public function indexProdi(Request $request)
+    {
+        return view('masterdata.mata_kuliah.indexProdi');
+    }
+
+    public function getData(Request $request, $id_prodi)
     {
         try {
-            // Ambil data master untuk membuat mata kuliah
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . 'mata-kuliah/create');
+
+            $response = Http::withToken($this->apiToken)
+                ->get($this->apiUrl . "mata-kuliah/prodi/{$id_prodi}", $request->all());
+
             if (!$response->successful()) {
-                return back()->with('error', 'Gagal mengambil data master dari API');
+                return response()->json([
+                    'error' => 'Gagal mengambil data dari API'
+                ], 500);
             }
 
-            $apiData = $response->json()['data'] ?? [];
+            // Langsung forward response apa adanya
+            return response()->json(
+                $response->json(),
+                $response->status()
+            );
+        } catch (\Exception $e) {
 
-            // Ekstrak data
-            $prodi = $apiData['prodi'] ?? [];
-            $kurikulum = $apiData['kurikulum'] ?? [];
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 
-            return view('masterdata.mata_kuliah.create', compact('prodi', 'kurikulum'));
+
+    public function index(Request $request, $id_prodi)
+    {
+        try {
+            // Panggil getData
+            $response = Http::withToken($this->apiToken)
+                ->get($this->apiUrl . "prodi/{$id_prodi}");
+
+            // Ambil data
+            $prodi = $response->json()['data'] ?? [];
+            // dd($prodi);
+
+            return view('masterdata.mata_kuliah.index', compact(
+                'id_prodi',
+                'prodi',
+            ));
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
     }
 
-    public function store(Request $request)
+    public function detail($id)
     {
         try {
             $response = Http::withToken($this->apiToken)
-                ->post($this->apiUrl . 'mata-kuliah', $request->all());
+                ->get($this->apiUrl . "mata-kuliah/{$id}");
+
+            $matakuliah = $response->json()['data'] ?? [];
+
+            // dd($matakuliah);
 
             if ($response->successful()) {
-                return response()->json($response->json());
+                return view('masterdata.mata_kuliah.detail', compact('matakuliah'));
+            }
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    public function create($id_prodi)
+    {
+         try {
+            // Panggil getData
+            $response = Http::withToken($this->apiToken)
+                ->get($this->apiUrl . "prodi/{$id_prodi}");
+
+            // Ambil data
+            $prodi = $response->json()['data'] ?? [];
+            // dd($prodi);
+
+            return view('masterdata.mata_kuliah.create', compact(
+                'id_prodi',
+                'prodi',
+            ));
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    public function store(Request $request, $id_prodi)
+    {
+        try {
+            $response = Http::withToken($this->apiToken)
+                ->post($this->apiUrl . "mata-kuliah/prodi/{$id_prodi}", $request->all());
+
+           if ($response->successful()) {
+
+                // Ambil ID dari response API
+                $id = $response->json('data.id');
+
+                return redirect()
+                    ->route('mata-kuliah.detail', $id)
+                    ->with('success', 'Data berhasil disimpan');
             }
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal menyimpan data ke API',
-                'errors' => $response->json()
-            ], 422);
+            return back()->withErrors(
+                $response->json('message') ?? 'Gagal menyimpan data'
+            );
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -83,11 +147,30 @@ class MataKuliahController extends Controller
         }
     }
 
-    public function show($id)
+
+    // Panggil endpoint update dari API
+    public function update(Request $request, $id, $id_prodi)
     {
         try {
             $response = Http::withToken($this->apiToken)
-                ->get($this->apiUrl . "mata-kuliah/{$id}");
+                ->put($this->apiUrl . "mata-kuliah/{$id}/prodi/{$id_prodi}", $request->all());
+
+            if ($response->successful()) {
+                return back()->with('success', 'Data berhasil diperbarui');
+            }
+
+            return back()->withErrors(
+                $response->json('message') ?? 'Gagal memperbarui data'
+            );
+        } catch (\Exception $e) {
+            return back()->withErrors($e->getMessage());
+        }
+    }
+
+    public function destroy(Request $request, $id)
+    {
+        try {
+            $response = Http::withToken($this->apiToken)->delete($this->apiUrl . "mata-kuliah/{$id}");
 
             if ($response->successful()) {
                 return response()->json($response->json());
@@ -95,7 +178,7 @@ class MataKuliahController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal mengambil data dari API',
+                'message' => 'Gagal menghapus data di API',
                 'errors' => $response->json()
             ], 404);
         } catch (\Exception $e) {
@@ -106,152 +189,110 @@ class MataKuliahController extends Controller
         }
     }
 
-    // Panggil endpoint edit dari API
-    public function edit($semester, Request $request)
+    /**
+     * Import matakuliah dari Excel
+     */
+    public function importExcel(Request $request, $id_prodi)
     {
         try {
-            $idKurikulum = $request->query('id_kurikulum');
+            $request->validate([
+                'file' => 'required|mimes:xlsx,xls,csv|max:10240', // max 10MB
+            ]);
 
-            if (!$idKurikulum) {
-                return back()->with('error', 'ID Kurikulum diperlukan.');
-            }
+            $file = $request->file('file');
+            
+            // Prepare file for upload
+            $formData = [
+                'file' => fopen($file->getPathname(), 'r'),
+                'filename' => $file->getClientOriginalName(),
+                'mime_type' => $file->getMimeType(),
+                'size' => $file->getSize()
+            ];
 
-            // Panggil API untuk mengambil data semester
             $response = Http::withToken($this->apiToken)
-                ->get($this->apiUrl . "mata-kuliah/semester/{$semester}?id_kurikulum={$idKurikulum}");
-
-            if (!$response->successful()) {
-                $errorData = $response->json();
-                return back()->with('error', $errorData['message'] ?? 'Gagal mengambil data semester dari API');
-            }
-
-            $apiData = $response->json()['data'] ?? [];
-
-            // Ekstrak data dari respons API
-            $mataKuliah = $apiData['mata_kuliah'] ?? [];
-            $prodi = $apiData['prodi'] ?? [];
-            $kurikulum = $apiData['kurikulum'] ?? [];
-            $selectedProdi = $apiData['selected_prodi'] ?? null;
-            $selectedKurikulum = $apiData['selected_kurikulum'] ?? $idKurikulum;
-
-            return view('masterdata.mata_kuliah.edit-semester', compact(
-                'mataKuliah',
-                'prodi',
-                'kurikulum',
-                'selectedProdi',
-                'selectedKurikulum',
-                'semester'
-            ));
-        } catch (\Exception $e) {
-            return back()->with('error', $e->getMessage());
-        }
-    }
-
-    // Panggil endpoint update dari API
-    public function update(Request $request, $semester)
-    {
-        try {
-            $response = Http::withToken($this->apiToken)
-                ->put($this->apiUrl . "mata-kuliah/semester/{$semester}", $request->all());
+                ->attach('file', fopen($file->getPathname(), 'r'), $file->getClientOriginalName())
+                ->post($this->apiUrl . "mata-kuliah/import/prodi/{$id_prodi}");
 
             if ($response->successful()) {
-                $responseData = $response->json();
-                if (request()->ajax()) {
-                    return response()->json($responseData);
-                }
-                return redirect()->route('mata-kuliah.index')
-                    ->with('success', $responseData['message'] ?? 'Data semester berhasil diperbarui.');
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Data mata kuliah berhasil diimport',
+                    'data' => $response->json()
+                ]);
             }
 
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal memperbarui data ke API',
-                'errors' => $response->json()
+                'message' => $response->json('message') ?? 'Gagal import data',
+                'errors' => $response->json('errors') ?? []
             ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => 'Gagal import data: ' . $e->getMessage()
             ], 500);
         }
     }
 
-    // Panggil endpoint destroy semester dari API
-    public function destroy(Request $request, $semester)
+    /**
+     * Download template Excel untuk import matakuliah
+     */
+    public function downloadTemplate($id_prodi)
     {
         try {
-            $idKurikulum = $request->query('id_kurikulum');
-
-            if (!$idKurikulum) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'ID Kurikulum diperlukan.'
-                ], 422);
-            }
-
             $response = Http::withToken($this->apiToken)
-                ->delete($this->apiUrl . "mata-kuliah/semester/{$semester}?id_kurikulum={$idKurikulum}");
+                ->get($this->apiUrl . "mata-kuliah/format/prodi/{$id_prodi}");
 
             if ($response->successful()) {
-                $responseData = $response->json();
-                if (request()->ajax()) {
-                    return response()->json($responseData);
-                }
-                return redirect()->route('mata-kuliah.index')
-                    ->with('success', $responseData['message'] ?? 'Data semester berhasil dihapus.');
+                // Get the file content from API response
+                $fileContent = $response->body();
+                $filename = 'template_matakuliah_import.xlsx';
+
+                return response($fileContent)
+                    ->header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+                    ->header('Content-Disposition', "attachment; filename=\"{$filename}\"")
+                    ->header('Cache-Control', 'no-cache, must-revalidate')
+                    ->header('Pragma', 'no-cache')
+                    ->header('Expires', '0');
             }
 
-            $errors = $response->json();
-            if (request()->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $errors['message'] ?? 'Gagal menghapus data dari API',
-                ], 404);
-            }
-            return back()->with('error', $errors['message'] ?? 'Gagal menghapus data.');
+            return back()->with('error', 'Gagal download template');
         } catch (\Exception $e) {
-            if (request()->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $e->getMessage()
-                ], 500);
-            }
-            return back()->with('error', $e->getMessage());
+            return back()->with('error', 'Gagal download template: ' . $e->getMessage());
         }
     }
 
-    // Tambahkan method baru di controller frontend
-    public function destroySingle($id)
+    /**
+     * Export data matakuliah ke Excel
+     */
+    public function exportData(Request $request)
     {
         try {
+            $id_prodi = $request->input('id_prodi');
+            
+            if (!$id_prodi) {
+                return back()->with('error', 'ID Prodi wajib diisi');
+            }
+
             $response = Http::withToken($this->apiToken)
-                ->delete($this->apiUrl . "mata-kuliah/{$id}");
+                ->get($this->apiUrl . "mata-kuliah/export/prodi/{$id_prodi}");
 
             if ($response->successful()) {
-                $responseData = $response->json();
-                if (request()->ajax()) {
-                    return response()->json($responseData);
-                }
-                return redirect()->route('mata-kuliah.index')
-                    ->with('success', $responseData['message'] ?? 'Data berhasil dihapus.');
+                // Get the file content from API response
+                $fileContent = $response->body();
+                $filename = 'data_matakuliah_' . date('Y-m-d_H-i-s') . '.xlsx';
+
+                return response($fileContent)
+                    ->header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+                    ->header('Content-Disposition', "attachment; filename=\"{$filename}\"")
+                    ->header('Cache-Control', 'no-cache, must-revalidate')
+                    ->header('Pragma', 'no-cache')
+                    ->header('Expires', '0');
             }
 
-            $errors = $response->json();
-            if (request()->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $errors['message'] ?? 'Gagal menghapus data dari API',
-                ], 404);
-            }
-            return back()->with('error', $errors['message'] ?? 'Gagal menghapus data.');
+            return back()->with('error', 'Gagal export data');
         } catch (\Exception $e) {
-            if (request()->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $e->getMessage()
-                ], 500);
-            }
-            return back()->with('error', $e->getMessage());
+            return back()->with('error', 'Gagal export data: ' . $e->getMessage());
         }
     }
 }

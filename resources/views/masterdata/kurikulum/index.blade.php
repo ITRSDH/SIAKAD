@@ -82,201 +82,55 @@
         </div>
 
         <div class="row">
-            <!-- Form Create -->
-            <div class="col-md-12">
-                <div class="card shadow-sm">
-                    <div class="card-header d-flex justify-content-between align-items-center" role="button"
-                        data-bs-toggle="collapse" href="#collapseKurikulumForm" aria-expanded="true"
-                        aria-controls="collapseKurikulumForm">
-                        <h3 class="card-title mb-0">
-                            <i class="fas fa-plus-circle me-2"></i>Tambah Kurikulum
-                        </h3>
-                        <div class="card-tools">
-                            <!-- Ikon panah untuk indikasi collapse -->
-                            <i class="fas fa-chevron-up collapse-icon"></i>
-                        </div>
-                    </div>
-                    <!-- Card Body dengan kelas collapse dan show untuk tampil awal -->
-                    <div class="collapse show" id="collapseKurikulumForm">
-                        <div class="card-body">
-                            <form id="kurikulumForm" name="kurikulumForm" class="form-horizontal">
-                                @csrf
-                                <input type="hidden" name="id" id="kurikulum_id">
-
-                                <div class="form-group row mb-3">
-                                    <label for="id_prodi" class="col-sm-3 col-form-label text-end">
-                                        Prodi <span class="text-danger">*</span>
-                                    </label>
-                                    <div class="col-sm-9">
-                                        <select class="form-control" id="id_prodi" name="id_prodi" required>
-                                            <option value="">Pilih Program Studi...</option>
-                                            <!-- Opsi akan diisi oleh AJAX -->
-                                        </select>
-                                        <small class="form-text text-muted">Pilih program studi yang terkait.</small>
-                                        <span id="id_prodi_error" class="text-danger error-text"></span>
-                                    </div>
-                                </div>
-
-                                <div class="form-group row mb-3">
-                                    <label for="nama_kurikulum" class="col-sm-3 col-form-label text-end">
-                                        Nama Kurikulum <span class="text-danger">*</span>
-                                    </label>
-                                    <div class="col-sm-9">
-                                        <input type="text" class="form-control" id="nama_kurikulum" name="nama_kurikulum"
-                                            placeholder="Contoh: Kurikulum 2020" required>
-                                        <small class="form-text text-muted">Nama resmi dari kurikulum.</small>
-                                        <span id="nama_kurikulum_error" class="text-danger error-text"></span>
-                                    </div>
-                                </div>
-
-                                <div class="form-group row mb-3">
-                                    <label for="tahun_kurikulum" class="col-sm-3 col-form-label text-end">
-                                        Tahun Kurikulum <span class="text-danger">*</span>
-                                    </label>
-                                    <div class="col-sm-9">
-                                        <input type="number" class="form-control" id="tahun_kurikulum"
-                                            name="tahun_kurikulum" placeholder="Contoh: 2020" min="2000"
-                                            max="{{ date('Y') + 10 }}" required>
-                                        <small class="form-text text-muted">Tahun berlakunya kurikulum (antara 2000 dan
-                                            {{ date('Y') + 10 }}).</small>
-                                        <span id="tahun_kurikulum_error" class="text-danger error-text"></span>
-                                    </div>
-                                </div>
-
-                                <div class="form-group row mb-3">
-                                    <label class="col-sm-3 col-form-label text-end">Status Aktif</label>
-                                    <div class="col-sm-9">
-                                        <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" id="status" name="status"
-                                                value="1">
-                                            <label class="form-check-label" for="status">Kurikulum Aktif</label>
-                                        </div>
-                                        <small class="form-text text-muted">Centang jika kurikulum ini sedang
-                                            berlaku.</small>
-                                        <span id="status_error" class="text-danger error-text"></span>
-                                    </div>
-                                </div>
-
-                                <hr class="mt-0 mb-4">
-                                <div class="form-group row mb-0">
-                                    <div class="offset-sm-3 col-sm-9">
-                                        <button type="submit" class="btn btn-primary" id="saveBtn">
-                                            <i class="fas fa-save"></i> Simpan
-                                        </button>
-                                        <button type="button" class="btn btn-secondary" id="resetBtn">
-                                            <i class="fas fa-redo"></i> Reset
-                                        </button>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
             <!-- Tabel Data -->
             <div class="col-md-12">
                 <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h3 class="card-title mb-0">
-                            <i class="fas fa-list me-2"></i>Data Kurikulum
-                        </h3>
+                    <div class="card-header">
+                        <div class="fs-4 fw-semibold d-flex justify-content-between align-items-center">
+                            <h4 class="card-title"> Data Kurikulum</h4>
+                            <div class="d-flex gap-2">
+                                <a href="{{ route('kurikulum.create') }}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-plus me-1"></i> Tambah
+                                </a>
+                            </div>
+                        </div>
                     </div>
                     <div class="card-body">
                         <div id="tableLoader" class="loader-overlay">
                             <div class="loader-spinner"></div>
                         </div>
                         <div class="table-responsive">
-                            <table id="kurikulum-table" class="table table-bordered table-striped table-hover"
+                            <table id="kurikulum-table" class="table table-bordered table-striped table-hover text-center"
                                 style="width:100%">
-                                <thead>
+
+                                <thead class="table-dark opacity-75">
                                     <tr>
-                                        <th>No</th>
-                                        <th>Prodi</th>
-                                        <th>Nama Kurikulum</th>
-                                        <th>Tahun Kurikulum</th>
-                                        <th>Status</th>
-                                        <th>Aksi</th>
+                                        <th rowspan="2" width="5%">No</th>
+                                        <th rowspan="2" width="20%">Nama Kurikulum</th>
+                                        <th rowspan="2" width="15%">Program Studi</th>
+                                        <th rowspan="2" width="15%">Mulai Berlaku</th>
+
+                                        <th colspan="3" width="20%">Aturan Jumlah SKS</th>
+                                        <th colspan="2" width="15%">Jumlah SKS Matakuliah</th>
+
+                                        <th rowspan="2" width="10%">Aksi</th>
+                                    </tr>
+                                    <tr>
+                                        <th>Lulus</th>
+                                        <th>Wajib</th>
+                                        <th>Pilihan</th>
+
+                                        <th>Wajib</th>
+                                        <th>Pilihan</th>
                                     </tr>
                                 </thead>
+
                                 <tbody>
-                                    <!-- DataTables akan mengisi ini -->
+                                    <!-- DataTables isi disini -->
                                 </tbody>
                             </table>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Edit -->
-    <div class="modal fade" id="modalKurikulum" aria-hidden="true">
-        <div class="modal-dialog modal-xl">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title" id="modelHeading"></h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="kurikulumFormModal" name="kurikulumFormModal" class="form-horizontal">
-                        @csrf
-                        @method('PUT')
-                        <input type="hidden" name="id" id="kurikulum_id_modal">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label for="id_prodi_modal" class="col-form-label">Prodi</label>
-                                    <select class="form-control" id="id_prodi_modal" name="id_prodi" required>
-                                        <option value="">Pilih Prodi...</option>
-                                        <!-- Opsi akan diisi oleh AJAX -->
-                                    </select>
-                                    <span class="text-danger error-text id_prodi_error"></span>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label for="status_modal" class="col-form-label">Status Aktif</label>
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" id="status_modal" name="status"
-                                            value="1">
-                                        <label class="form-check-label" for="status_modal">Aktif</label>
-                                    </div>
-                                    <span class="text-danger error-text status_error"></span> <!-- Tetap pakai class -->
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label for="nama_kurikulum_modal" class="col-form-label">Nama Kurikulum</label>
-                                    <input type="text" class="form-control" id="nama_kurikulum_modal"
-                                        name="nama_kurikulum" placeholder="Kurikulum: 2020" required>
-                                    <span class="text-danger error-text nama_kurikulum_error"></span>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label for="tahun_kurikulum_modal" class="col-form-label">Tahun Kurikulum</label>
-                                    <input type="number" class="form-control" id="tahun_kurikulum_modal"
-                                        name="tahun_kurikulum" placeholder="Contoh: 2020" min="2000"
-                                        max="{{ date('Y') + 10 }}" required>
-                                    <span class="text-danger error-text tahun_kurikulum_error"></span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-group mb-0">
-                            <button type="submit" class="btn btn-primary" id="saveBtnModal">
-                                <i class="fas fa-save"></i> Simpan
-                            </button>
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                <i class="fas fa-times"></i> Batal
-                            </button>
-                        </div>
-                    </form>
                 </div>
             </div>
         </div>
@@ -291,15 +145,18 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- Perbaiki URL -->
     <script>
         $(document).ready(function() {
-            // Ambil data dari variabel PHP yang dilewatkan ke view
-            var kurikulumData = @json($kurikulum ?? []);
-            var prodiList = @json($prodi ?? []);
-
             // Inisialisasi DataTables dengan data dari PHP
             var table = $('#kurikulum-table').DataTable({
-                data: kurikulumData, // Gunakan data dari PHP
+                ajax: {
+                    url: "{{ route('kurikulum.dataKurikulum') }}"
+                },
+                columnDefs: [{
+                    orderable: false,
+                    targets: [4, 5, 6, 7, 8]
+                }],
                 columns: [{
                         data: null,
+                        className: 'text-center',
                         render: function(data, type, row, meta) {
                             return meta.row + meta.settings._iDisplayStart + 1;
                         },
@@ -307,50 +164,93 @@
                         searchable: false
                     },
                     {
-                        data: 'id_prodi',
-                        render: function(data, type, row) {
-                            // Cari nama prodi berdasarkan ID
-                            const prodi = prodiList.find(p => p.id === data);
-                            return prodi ? prodi.kode_prodi + ' - ' + prodi.nama_prodi : 'N/A';
-                        }
-                    },
-                    {
                         data: 'nama_kurikulum',
+                        className: 'text-center',
+                        render: function(data, type, row) {
+                            var detailUrl = "{{ route('kurikulum.detail', ':id') }}".replace(':id',
+                                row
+                                .id);
+                            return `
+                                <a href="${detailUrl}"
+                                class="fw-bold text-primary"
+                                data-id="${row.id}">
+                                    ${data}
+                                </a>
+                            `;
+                        }
+                    },
+                    {
+                        data: 'prodi',
+                        className: 'text-center',
                         render: function(data) {
                             return data || '-';
                         }
                     },
                     {
-                        data: 'tahun_kurikulum',
+                        data: 'semester_mulai',
+                        className: 'text-center',
                         render: function(data) {
                             return data || '-';
                         }
                     },
                     {
-                        data: 'status',
+                        data: 'jumlah_sks_lulus',
+                        className: 'text-center',
                         render: function(data) {
-                            if (data == 1) return 'Aktif';
-                            if (data == 0) return 'Tidak-Aktif';
-                            return '-';
+                            return data || 0;
+                        }
+                    },
+                    {
+                        data: 'jumlah_sks_wajib',
+                        className: 'text-center',
+                        render: function(data) {
+                            return data || 0;
+                        }
+                    },
+                    {
+                        data: 'jumlah_sks_pilihan',
+                        className: 'text-center',
+                        render: function(data) {
+                            return data || 0;
+                        }
+                    },
+
+                    {
+                        data: 'jumlah_sks_wajib_mk',
+                        className: 'text-center',
+                        render: function(data) {
+                            return data || 0;
+                        }
+                    },
+                    {
+                        data: 'jumlah_sks_pilihan_mk',
+                        className: 'text-center',
+                        render: function(data) {
+                            return data || 0;
                         }
                     },
                     {
                         data: null,
+                        className: 'text-center',
                         render: function(data, type, row) {
+                            var detailUrl = "{{ route('kurikulum.detail', ':id') }}".replace(':id',
+                                row
+                                .id);
                             return `
-                               <div class="d-flex justify-content-center gap-2 flex-wrap">
-                                    <button class="btn btn-warning btn-sm edit-btn" data-id="${row.id}">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-danger btn-sm delete-btn" data-id="${row.id}">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                               </div>
-                            `;
+                                <div class="d-flex justify-content-center gap-2 flex-wrap">
+                                        <a href="${detailUrl}" class="btn btn-warning btn-sm text-white">
+                                            <i class="fas fa-pen"></i>
+                                        </a>
+                                        <button class="btn btn-danger btn-sm delete-btn" data-id="${row.id}" data-nama="${row.nama_kurikulum}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                </div>
+                                `;
                         },
                         orderable: false,
                         searchable: false
                     }
+
                 ],
                 language: {
                     url: '{{ asset('') }}template/assets/js/plugin/datatables/i18n/id.json'
@@ -360,244 +260,21 @@
                 }
             });
 
-            // Isi opsi prodi dari data PHP
-            fillProdiOptions();
+            $('#kurikulum-table').on('click', '.detail-btn', function() {
+                let id = $(this).data('id');
 
-            function fillProdiOptions() {
-                const createSelect = $('#id_prodi');
-                const editSelect = $('#id_prodi_modal');
-                createSelect.empty().append('<option value="">Pilih Prodi...</option>');
-                editSelect.empty().append('<option value="">Pilih Prodi...</option>');
-                if (prodiList && Array.isArray(prodiList)) {
-                    $.each(prodiList, function(index, prodi) {
-                        const option =
-                            `<option value="${prodi.id}">${prodi.kode_prodi} - ${prodi.nama_prodi}</option>`;
-                        createSelect.append(option);
-                        editSelect.append(option);
-                    });
-                }
-            }
-
-            // Reset form
-            $('#resetBtn').click(function() {
-                $('#kurikulumForm')[0].reset();
-                $('#kurikulum_id').val('');
-                $('.error-text').text('');
-                $('#saveBtn').prop('disabled', false).html('<i class="fas fa-save"></i> Simpan');
+                $('#detailId').val(id);
+                $('#detailForm').submit();
             });
 
-            // Submit form create - Perbaikan untuk menangani checkbox
-            $('#kurikulumForm').on('submit', function(e) {
-                e.preventDefault();
-                $('.error-text').text('');
-                // Ambil data form secara manual
-                const formData = $(this).serializeArray();
-                // Ambil status checkbox
-                const statusChecked = $('#status').is(':checked');
-                // Tambahkan status ke formData
-                formData.push({
-                    name: 'status',
-                    value: statusChecked ? 1 : 0
-                });
-
-                // Buat object dari array untuk dikirim ke AJAX
-                const finalData = {};
-                $.each(formData, function(i, field) {
-                    finalData[field.name] = field.value;
-                });
-
-                $('#saveBtn').prop('disabled', true).text('Menyimpan...');
-
-                $.ajax({
-                    url: "{{ route('kurikulum.store') }}",
-                    type: 'POST',
-                    data: finalData, // Kirim object finalData
-                    success: function(response) {
-                        if (response.success) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Berhasil!',
-                                text: response.message,
-                                confirmButtonText: 'OK'
-                            }).then(() => {
-                                $('#kurikulumForm')[0].reset();
-                                location
-                                    .reload(); // Refresh untuk menampilkan data baru
-                            });
-                        } else {
-                            if (response.errors) {
-                                $.each(response.errors, function(key, value) {
-                                    $('#' + key + '_error').text(value[0]);
-                                });
-                            } else {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Gagal!',
-                                    text: response.message ||
-                                        'Terjadi kesalahan saat menyimpan data.',
-                                    confirmButtonText: 'OK'
-                                });
-                            }
-                        }
-                    },
-                    error: function(xhr) {
-                        let errorMessage = 'Gagal menyimpan data.';
-                        if (xhr.responseJSON && xhr.responseJSON.message) {
-                            errorMessage = xhr.responseJSON.message;
-                        } else if (xhr.responseJSON && xhr.responseJSON.errors) {
-                            const errors = xhr.responseJSON.errors;
-                            errorMessage = Object.values(errors)[0][0] || errorMessage;
-                        }
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Gagal!',
-                            text: errorMessage,
-                            confirmButtonText: 'OK'
-                        });
-                        if (xhr.responseJSON && xhr.responseJSON.errors) {
-                            $.each(xhr.responseJSON.errors, function(key, value) {
-                                $('#' + key + '_error').text(value[0]);
-                            });
-                        }
-                    },
-                    complete: function() {
-                        $('#saveBtn').prop('disabled', false).html(
-                            '<i class="fas fa-save"></i> Simpan');
-                    }
-                });
-            });
-
-            // Edit button click - Perbaikan utama di sini
-            $(document).on('click', '.edit-btn', function() {
-                const id = $(this).data('id');
-                $.get("{{ route('kurikulum.show', '') }}/" + id)
-                    .done(function(data) {
-                        if (data && data.data) {
-                            $('#modelHeading').text('Edit Kurikulum');
-                            $('#kurikulum_id_modal').val(data.data.id);
-                            $('#id_prodi_modal').val(data.data.id_prodi);
-                            $('#nama_kurikulum_modal').val(data.data.nama_kurikulum);
-                            $('#tahun_kurikulum_modal').val(data.data.tahun_kurikulum);
-                            // Perbaikan: Set checkbox status berdasarkan nilai dari server
-                            $('#status_modal').prop('checked', data.data.status == 1);
-                            $('.error-text', '#kurikulumFormModal').text(
-                                ''); // Bersihkan error di modal
-                            $('#modalKurikulum').modal('show');
-                        } else {
-                            Swal.fire({
-                                icon: 'warning',
-                                title: 'Data Tidak Ditemukan',
-                                text: 'Data yang Anda cari tidak ditemukan.',
-                                confirmButtonText: 'OK'
-                            });
-                        }
-                    })
-                    .fail(function(xhr) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Gagal!',
-                            text: 'Gagal mengambil data untuk diedit.',
-                            confirmButtonText: 'OK'
-                        });
-                    });
-            });
-
-            // Submit edit via modal - Perbaikan untuk menangani checkbox
-            $('#kurikulumFormModal').on('submit', function(e) {
-                e.preventDefault();
-                // Kosongkan semua span error di modal
-                $('.error-text', '#kurikulumFormModal').text('');
-                const id = $('#kurikulum_id_modal').val();
-                // Ambil data form secara manual
-                const formData = $(this).serializeArray();
-                // Ambil status checkbox dari modal
-                const statusChecked = $('#status_modal').is(':checked');
-                // Tambahkan status ke formData
-                formData.push({
-                    name: 'status',
-                    value: statusChecked ? 1 : 0
-                });
-
-                // Buat object dari array untuk dikirim ke AJAX
-                const finalData = {};
-                $.each(formData, function(i, field) {
-                    finalData[field.name] = field.value;
-                });
-
-                $('#saveBtnModal').prop('disabled', true).text('Menyimpan...');
-
-                $.ajax({
-                    // Perbaikan: Pastikan URL update benar
-                    url: "{{ route('kurikulum.update', '') }}/" + id,
-                    type: 'PUT',
-                    data: finalData, // Kirim object finalData
-                    success: function(response) {
-                        if (response.success) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Berhasil!',
-                                text: response.message,
-                                confirmButtonText: 'OK'
-                            }).then(() => {
-                                $('#modalKurikulum').modal('hide');
-                                location
-                                    .reload(); // Refresh untuk menampilkan perubahan
-                            });
-                        } else {
-                            if (response.errors) {
-                                // Loop melalui error dan isi span yang sesuai di modal
-                                $.each(response.errors, function(key, value) {
-                                    // Target span error di dalam form modal berdasarkan class
-                                    $('.error-text.' + key + '_error',
-                                        '#kurikulumFormModal').text(value[0]);
-                                });
-                            } else {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Gagal!',
-                                    text: response.message ||
-                                        'Terjadi kesalahan saat memperbarui data.',
-                                    confirmButtonText: 'OK'
-                                });
-                            }
-                        }
-                    },
-                    error: function(xhr) {
-                        let errorMessage = 'Gagal memperbarui data.';
-                        if (xhr.responseJSON && xhr.responseJSON.message) {
-                            errorMessage = xhr.responseJSON.message;
-                        } else if (xhr.responseJSON && xhr.responseJSON.errors) {
-                            const errors = xhr.responseJSON.errors;
-                            errorMessage = Object.values(errors)[0][0] || errorMessage;
-                        }
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Gagal!',
-                            text: errorMessage,
-                            confirmButtonText: 'OK'
-                        });
-                        if (xhr.responseJSON && xhr.responseJSON.errors) {
-                            // Loop melalui error dan isi span yang sesuai di modal
-                            $.each(xhr.responseJSON.errors, function(key, value) {
-                                // Target span error di dalam form modal berdasarkan class
-                                $('.error-text.' + key + '_error',
-                                    '#kurikulumFormModal').text(value[0]);
-                            });
-                        }
-                    },
-                    complete: function() {
-                        $('#saveBtnModal').prop('disabled', false).html(
-                            '<i class="fas fa-save"></i> Simpan');
-                    }
-                });
-            });
-
-            // Delete button click
+            // Event handler untuk tombol delete
             $(document).on('click', '.delete-btn', function() {
-                const id = $(this).data('id');
+                var id = $(this).data('id');
+                var nama = $(this).data('nama');
+
                 Swal.fire({
-                    title: 'Anda yakin?',
-                    text: "Data ini akan dihapus secara permanen!",
+                    title: 'Apakah Anda yakin?',
+                    text: `Anda akan menghapus kurikulum "${nama}"`,
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#d33',
@@ -606,12 +283,12 @@
                     cancelButtonText: 'Batal'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        $('#tableLoader').removeClass('hidden');
                         $.ajax({
-                            url: "{{ route('kurikulum.destroy', '') }}/" + id,
+                            url: `{{ route('kurikulum.destroy', '__ID__') }}`.replace(
+                                '__ID__', id),
                             type: 'DELETE',
-                            data: {
-                                _token: '{{ csrf_token() }}'
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                             },
                             success: function(response) {
                                 if (response.success) {
@@ -621,21 +298,19 @@
                                         text: response.message,
                                         confirmButtonText: 'OK'
                                     }).then(() => {
-                                        location
-                                            .reload(); // Refresh untuk menampilkan perubahan
+                                        location.reload();
                                     });
                                 } else {
                                     Swal.fire({
                                         icon: 'error',
                                         title: 'Gagal!',
-                                        text: response.message ||
-                                            'Gagal menghapus data.',
+                                        text: response.message,
                                         confirmButtonText: 'OK'
                                     });
                                 }
                             },
                             error: function(xhr) {
-                                let errorMessage = 'Gagal menghapus data.';
+                                let errorMessage = 'Terjadi kesalahan saat menghapus.';
                                 if (xhr.responseJSON && xhr.responseJSON.message) {
                                     errorMessage = xhr.responseJSON.message;
                                 }
@@ -645,14 +320,12 @@
                                     text: errorMessage,
                                     confirmButtonText: 'OK'
                                 });
-                            },
-                            complete: function() {
-                                $('#tableLoader').addClass('hidden');
                             }
                         });
                     }
                 });
             });
+
         });
     </script>
 @endpush

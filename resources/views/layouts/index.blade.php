@@ -215,6 +215,7 @@
             });
         });
     </script>
+
     {{-- <script src="{{ asset('') }}template/assets/js/demo.js"></script> --}}
 
     {{-- <script>

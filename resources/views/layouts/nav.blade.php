@@ -298,7 +298,6 @@
                 @endcanAnyApi
 
                 @canAnyApi(
-                'siakad.master.refrensi.jenjang-pendidikan.index',
                 'siakad.master.refrensi.prodi.index',
                 'siakad.master.refrensi.tahun-akademik.index',
                 'siakad.master.refrensi.kurikulum.index',
@@ -320,7 +319,6 @@
                 </li>
                 <li
                     class="nav-item {{ request()->routeIs([
-                        'jenjang-pendidikan.*',
                         'prodi.*',
                         'tahun-akademik.*',
                         'kurikulum.*',
@@ -339,7 +337,6 @@
                     <a data-bs-toggle="collapse" href="#mastersiakad"
                         class="{{ !request()->routeIs('mahasiswa.baru.*') &&
                         request()->routeIs([
-                            'jenjang-pendidikan.*',
                             'prodi.*',
                             'tahun-akademik.*',
                             'kurikulum.*',
@@ -354,7 +351,6 @@
                         ])
                             ? ''
                             : (request()->routeIs([
-                                'jenjang-pendidikan.*',
                                 'prodi.*',
                                 'tahun-akademik.*',
                                 'kurikulum.*',
@@ -371,7 +367,6 @@
                                 ? ''
                                 : 'collapsed') }}"
                         aria-expanded="{{ request()->routeIs([
-                            'jenjang-pendidikan.*',
                             'prodi.*',
                             'tahun-akademik.*',
                             'kurikulum.*',
@@ -392,7 +387,6 @@
                         <span class="caret"></span>
                     </a>
                     <div class="collapse {{ request()->routeIs([
-                        'jenjang-pendidikan.*',
                         'prodi.*',
                         'tahun-akademik.*',
                         'kurikulum.*',
@@ -413,7 +407,6 @@
                             <!-- REFERENSI -->
                             <li
                                 class="{{ request()->routeIs([
-                                    'jenjang-pendidikan.*',
                                     'prodi.*',
                                     'tahun-akademik.*',
                                     'kurikulum.*',
@@ -428,7 +421,6 @@
                                     : '' }}">
                                 <a data-bs-toggle="collapse" href="#subnavRef"
                                     class="{{ request()->routeIs([
-                                        'jenjang-pendidikan.*',
                                         'prodi.*',
                                         'tahun-akademik.*',
                                         'kurikulum.*',
@@ -445,7 +437,6 @@
                                     <span class="caret"></span>
                                 </a>
                                 <div class="collapse {{ request()->routeIs([
-                                    'jenjang-pendidikan.*',
                                     'prodi.*',
                                     'tahun-akademik.*',
                                     'kurikulum.*',
@@ -460,13 +451,6 @@
                                     : '' }}"
                                     id="subnavRef">
                                     <ul class="nav nav-collapse subnav">
-                                        @canApi('siakad.master.refrensi.jenjang-pendidikan.index')
-                                        <li class="{{ request()->routeIs('jenjang-pendidikan.*') ? 'active' : '' }}">
-                                            <a href="{{ route('jenjang-pendidikan.index') }}">
-                                                <span class="sub-item">Jenjang Pendidikan</span>
-                                            </a>
-                                        </li>
-                                        @endcanApi
                                         @canApi('siakad.master.refrensi.prodi.index')
                                         <li class="{{ request()->routeIs('prodi.*') ? 'active' : '' }}">
                                             <a href="{{ route('prodi.index') }}">
@@ -481,17 +465,17 @@
                                             </a>
                                         </li>
                                         @endcanApi
+                                        @canApi('siakad.master.refrensi.mata-kuliah.index')
+                                        <li class="{{ request()->routeIs('mata-kuliah.*') ? 'active' : '' }}">
+                                            <a href="{{ route('mata-kuliah.indexProdi') }}">
+                                                <span class="sub-item">Mata Kuliah</span>
+                                            </a>
+                                        </li>
+                                        @endcanApi
                                         @canApi('siakad.master.refrensi.kurikulum.index')
                                         <li class="{{ request()->routeIs('kurikulum.*') ? 'active' : '' }}">
                                             <a href="{{ route('kurikulum.index') }}">
                                                 <span class="sub-item">Kurikulum</span>
-                                            </a>
-                                        </li>
-                                        @endcanApi
-                                        @canApi('siakad.master.refrensi.mata-kuliah.index')
-                                        <li class="{{ request()->routeIs('mata-kuliah.*') ? 'active' : '' }}">
-                                            <a href="{{ route('mata-kuliah.index') }}">
-                                                <span class="sub-item">Mata Kuliah</span>
                                             </a>
                                         </li>
                                         @endcanApi

@@ -1,5 +1,43 @@
 @extends('layouts.index')
 @section('title', 'Tambah Mata Kuliah')
+@push('styles-custom')
+    <style>
+        .select2-container .select2-selection--single {
+            height: 38px !important;
+            padding: 5px 10px;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 26px;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 38px;
+        }
+
+        .upload-area {
+            background-color: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area:hover {
+            background-color: #e9f7ef;
+            border-color: #198754;
+        }
+
+        .border-dashed {
+            border-style: dashed !important;
+        }
+
+        .file-input {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+    </style>
+@endpush
 
 @section('content')
     <div class="page-inner">
@@ -15,183 +53,374 @@
                     <i class="icon-arrow-right"></i>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ route('mata-kuliah.index') }}">Mata Kuliah</a>
+                    <a href="{{ route('mata-kuliah.index', $id_prodi) }}">Mata Kuliah</a>
                 </li>
                 <li class="separator">
                     <i class="icon-arrow-right"></i>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ route('mata-kuliah.create') }}">Tambah Mata Kuliah</a>
+                    <a href="{{ route('mata-kuliah.create', $id_prodi) }}">Tambah Mata Kuliah</a>
                 </li>
             </ul>
+        </div>
+
+        {{-- INFO NOTE --}}
+        <div class="card shadow-sm border">
+            <div class="card-header">
+                <div class="fs-4 fw-semibold d-flex justify-content-between align-items-center">
+                    <h4 class="card-title"> Informasi Program Studi</h4>
+                    <div class="d-flex gap-2">
+                        <a href="{{ route('mata-kuliah.index', $id_prodi) }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Kembali
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+                        <div class="border rounded p-3 h-100">
+                            <div class="row align-items-center">
+                                <div class="col-6 fw-semibold fs-5">
+                                    Kode Program Studi
+                                </div>
+                                <div class="col-6 fs-5 fw-semibold">
+                                    : {{ $prodi['kode_prodi'] ?? '-' }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="border rounded p-3 h-100">
+                            <div class="row align-items-center">
+                                <div class="col-6 fw-semibold fs-5">
+                                    Program Studi
+                                </div>
+                                <div class="col-6 fs-5 fw-semibold">
+                                    : {{ $prodi['nama_prodi'] ?? '-' }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="border rounded p-3 h-100">
+                            <div class="row align-items-center">
+                                <div class="col-6 fw-semibold fs-5">
+                                    Akreditasi
+                                </div>
+                                <div class="col-6 fs-5 fw-semibold">
+                                    : {{ $prodi['akreditasi'] ?? '-' }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="border rounded p-3 h-100">
+                            <div class="row align-items-center">
+                                <div class="col-6 fw-semibold fs-5">
+                                    Jenjang Pendidikan
+                                </div>
+                                <div class="col-6 fs-5 fw-semibold">
+                                    : {{ $prodi['jenjang_pendidikan'] ?? '-' }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="border rounded p-3 h-100">
+                            <div class="row align-items-center">
+                                <div class="col-6 fw-semibold fs-5">
+                                    Tahun Berdiri
+                                </div>
+                                <div class="col-6 fs-5 fw-semibold">
+                                    : {{ $prodi['tahun_berdiri'] ?? '-' }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="border rounded p-3 h-100">
+                            <div class="row align-items-center">
+                                <div class="col-6 fw-semibold fs-5">
+                                    Gelar Lulusan
+                                </div>
+                                <div class="col-6 fs-5 fw-semibold">
+                                    : {{ $prodi['gelar_lulusan'] ?? '-' }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
         </div>
 
         <div class="row justify-content-center">
             <div class="col-md-12">
                 <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h3 class="card-title mb-0">
-                            <i class="fas fa-plus-circle me-2 text-primary"></i>Tambah Mata Kuliah
-                        </h3>
-                        <a href="{{ route('mata-kuliah.index') }}" class="btn btn-sm btn-outline-secondary">
-                            <i class="fas fa-arrow-left me-1"></i> Kembali
-                        </a>
+                    <div class="card-header">
+                        <h4 class="card-title">Tambah Mata Kuliah</h4>
                     </div>
                     <div class="card-body">
-                        <form id="mataKuliahForm">
-                            @csrf
+                        <!-- Tab Navigation -->
+                        <ul class="nav nav-tabs nav-line nav-color-secondary" id="matakuliahTab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="manual-tab" data-bs-toggle="tab"
+                                    data-bs-target="#manual" type="button" role="tab" aria-controls="manual"
+                                    aria-selected="true">
+                                    <i class="fas fa-plus-circle me-2"></i>Tambah Manual
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="import-tab" data-bs-toggle="tab" data-bs-target="#import"
+                                    type="button" role="tab" aria-controls="import" aria-selected="false">
+                                    <i class="fas fa-file-excel me-2"></i>Import Excel
+                                </button>
+                            </li>
+                        </ul>
 
-                            <!-- Prodi, Kurikulum, Semester -->
-                            <div class="row mb-4">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="id_prodi" class="col-form-label">
-                                            <i class="fas fa-graduation-cap me-1 text-info"></i>Program Studi <span
-                                                class="text-danger">*</span>
-                                        </label>
-                                        <select name="id_prodi" id="id_prodi"
-                                            class="form-control form-select @error('id_prodi') is-invalid @enderror"
-                                            required>
-                                            <option value="">Pilih Program Studi...</option>
-                                            @foreach ($prodi as $item)
-                                                <option value="{{ $item['id'] }}"
-                                                    {{ old('id_prodi') == $item['id'] ? 'selected' : '' }}>
-                                                    {{ $item['nama_prodi'] }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        @error('id_prodi')
-                                            <div class="invalid-feedback">
-                                                {{ $message }}
+                        <!-- Tab Content -->
+                        <div class="tab-content mt-3 mb-3" id="matakuliahTabContent">
+                            <!-- Manual Tab -->
+                            <div class="tab-pane fade show active" id="manual" role="tabpanel"
+                                aria-labelledby="manual-tab">
+                                <form id="formTambahMK"
+                                    action="{{ route('mata-kuliah.store', ['id_prodi' => $id_prodi]) }}" method="POST">
+                                    @csrf
+                                    <!-- Form fields will be added here -->
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="kode_mk" class="form-label">Kode Mata
+                                                    Kuliah</label>
+                                                <input type="text" class="form-control" id="kode_mk" name="kode_mk"
+                                                    required>
                                             </div>
-                                        @enderror
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-group">
-                                        <label for="id_kurikulum" class="col-form-label">
-                                            <i class="fas fa-book me-1 text-info"></i>Kurikulum <span
-                                                class="text-danger">*</span>
-                                        </label>
-                                        <select name="id_kurikulum" id="id_kurikulum"
-                                            class="form-control form-select @error('id_kurikulum') is-invalid @enderror"
-                                            required>
-                                            <option value="">Pilih Kurikulum...</option>
-                                            <!-- Diisi oleh JS -->
-                                        </select>
-                                        @error('id_kurikulum')
-                                            <div class="invalid-feedback">
-                                                {{ $message }}
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="nama_mk" class="form-label">Nama Mata
+                                                    Kuliah</label>
+                                                <input type="text" class="form-control" id="nama_mk" name="nama_mk"
+                                                    required>
                                             </div>
-                                        @enderror
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-group">
-                                        <label for="semester_rekomendasi" class="col-form-label">
-                                            <i class="fas fa-calendar-alt me-1 text-info"></i>Semester <span
-                                                class="text-danger">*</span>
-                                        </label>
-                                        <input type="number" id="semester_rekomendasi" name="semester_rekomendasi"
-                                            class="form-control @error('semester_rekomendasi') is-invalid @enderror"
-                                            min="1" max="14" required
-                                            value="{{ old('semester_rekomendasi', 1) }}">
-                                        @error('semester_rekomendasi')
-                                            <div class="invalid-feedback">
-                                                {{ $message }}
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="jenis_mk" class="form-label">Jenis Mata
+                                                    Kuliah</label>
+                                                <select class="form-select select2" id="jenis_mk" name="jenis_mk"
+                                                    required>
+                                                    <option value="" disabled selected>Pilih Jenis
+                                                        Mata Kuliah</option>
+                                                    <option value="wajib_prodi">Wajib Program Studi
+                                                    </option>
+                                                    <option value="wajib_nasional">Wajib Nasional</option>
+                                                    <option value="pilihan">Pilihan</option>
+                                                    <option value="peminatan">Peminatan</option>
+                                                    <option value="tugas_akhir/skripsi/tesis/disertasi">
+                                                        Tugas
+                                                        Akhir/Skripsi/Tesis/Disertasi</option>
+                                                </select>
                                             </div>
-                                        @enderror
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="kelompok_mk" class="form-label">Kelompok Mata
+                                                    Kuliah</label>
+                                                <select class="form-select select2" id="kelompok_mk" name="kelompok_mk"
+                                                    required>
+                                                    <option value="" disabled selected>Pilih Kelompok
+                                                        Mata Kuliah</option>
+                                                    <option value="MPK">MPK (Matakuliah Pengembangan
+                                                        Kepribadian)</option>
+                                                    <option value="MKK">MKK (Matakuliah Keilmuan dan
+                                                        Keterampilan)</option>
+                                                    <option value="MKB">MKB (Matakuliah Keahlian
+                                                        Berkarya)</option>
+                                                    <option value="MPB">MPB (Matakuliah Perilaku
+                                                        Berkarya)</option>
+                                                    <option value="MBB">MBB (Matakuliah Berkehidupan
+                                                        Bermasyarakat)</option>
+                                                    <option value="MKDK">MKDK (Matakuliah Dasar Keahlian
+                                                        )</option>
+                                                </select>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="sks" class="form-label">SKS Mata
+                                                    Kuliah</label>
+                                                <input type="number" class="form-control sks-total" id="sks"
+                                                    name="sks" placeholder="0" readonly>
+                                                <small class="text-muted">(SKS Tatap Muka + SKS Praktikum +
+                                                    SKS Praktik Lapangan +
+                                                    SKS Simulasi)</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="sks_tatap_muka" class="form-label">Bobot SKS
+                                                    Tatap Muka</label>
+                                                <input type="number" class="form-control sks-input" id="sks_tatap_muka"
+                                                    name="sks_tatap_muka" placeholder="0" min="0" value="0">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="sks_praktikum" class="form-label">Bobot SKS
+                                                    Praktikum</label>
+                                                <input type="number" class="form-control sks-input" id="sks_praktikum"
+                                                    name="sks_praktikum" placeholder="0" min="0" value="0">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="sks_praktek_lapangan" class="form-label">Bobot
+                                                    SKS Praktik
+                                                    Lapangan</label>
+                                                <input type="number" class="form-control sks-input"
+                                                    id="sks_praktek_lapangan" name="sks_praktek_lapangan" placeholder="0"
+                                                    min="0" value="0">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="sks_simulasi" class="form-label">Bobot SKS
+                                                    Simulasi</label>
+                                                <input type="number" class="form-control sks-input" id="sks_simulasi"
+                                                    name="sks_simulasi" placeholder="0" min="0" value="0">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <div class="d-flex justify-content-end align-items-center">
+                                        <button type="submit" class="btn btn-primary"><i
+                                                class="fas fa-save me-1"></i>Simpan</button>
+                                    </div>
+                                </form>
                             </div>
 
-                            <!-- Tabel Repeater -->
-                            <div class="table-responsive">
-                                <table class="table table-bordered">
-                                    <thead class="bg-light">
-                                        <tr>
-                                            <th width="7%" rowspan="2" class="align-middle text-center">NO</th>
-                                            <th width="10%" rowspan="2" class="align-middle text-center">KODE</th>
-                                            <th width="40%" rowspan="2" class="align-middle text-center">MATA
-                                                KULIAH</th>
-                                            <th colspan="4" class="text-center">SKS</th>
-                                            <th width="5%" rowspan="2" class="text-center">AKSI</th>
-                                            </th>
-                                        </tr>
-                                        <tr>
-                                            <th class="text-center">T</th>
-                                            <th class="text-center">P</th>
-                                            <th class="text-center">K</th>
-                                            <th class="text-center">JUMLAH</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="mataKuliahContainer">
-                                        <!-- Default Row -->
-                                        <tr class="repeater-item">
-                                            <td>
-                                                <input type="text" class="form-control" value="1" readonly>
-                                            </td>
-                                            <td>
-                                                <input type="text" name="mata_kuliah[0][kode_mk]" class="form-control"
-                                                    required>
-                                            </td>
-                                            <td>
-                                                <input type="text" name="mata_kuliah[0][nama_mk]" class="form-control"
-                                                    required>
-                                            </td>
-                                            <td>
-                                                <input type="number" name="mata_kuliah[0][teori]"
-                                                    class="form-control teori-input" min="0" value="0">
-                                            </td>
-                                            <td>
-                                                <input type="number" name="mata_kuliah[0][praktikum]"
-                                                    class="form-control praktikum-input" min="0" value="0">
-                                            </td>
-                                            <td>
-                                                <input type="number" name="mata_kuliah[0][klinik]"
-                                                    class="form-control klinik-input" min="0" value="0">
-                                            </td>
-                                            <td>
-                                                <input type="number" class="form-control sks-output" readonly>
-                                            </td>
-                                            <td class="text-center">
-                                                <button type="button" class="btn btn-danger btn-sm remove-row-btn"
-                                                    style="display:none;">
-                                                    <i class="fas fa-trash"></i>
+                            <!-- Import Tab -->
+                            <div class="tab-pane fade" id="import" role="tabpanel" aria-labelledby="import-tab">
+                                <!-- Alert Info -->
+                                <div class="alert alert-info" role="alert">
+                                    <h5 class="alert-heading"><i class="fas fa-info-circle me-2"></i>Panduan
+                                        Import</h5>
+                                    <p class="mb-2">Sebelum melakukan import, pastikan file Excel Anda sudah
+                                        sesuai
+                                        dengan
+                                        format yang ditentukan:</p>
+                                    <ul class="mb-0">
+                                        <li>Download template terlebih dahulu untuk melihat format yang benar</li>
+                                        <li>File yang diterima: .xlsx, .xls, .csv (maksimal 10MB)</li>
+                                        <li>Pastikan kode_prodi atau nama_prodi sudah ada di database</li>
+                                        <li>Kode Mata Kuliah harus unik per program studi</li>
+                                    </ul>
+                                </div>
+
+                                <!-- Download Template Section -->
+                                <div class="row mb-4">
+                                    <div class="col-md-12">
+                                        <div class="card border-primary">
+                                            <div class="card-body text-center">
+                                                <h5 class="card-title text-primary mb-3">
+                                                    <i class="fas fa-download me-2"></i>Download Template
+                                                </h5>
+                                                <p class="card-text">Download template Excel untuk format import
+                                                    data mata
+                                                    kuliah</p>
+                                                <button type="button" class="btn btn-primary" id="downloadTemplate">
+                                                    <i class=" fas fa-file-excel me-2"></i>Download Template Excel
                                                 </button>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                    <tfoot>
-                                        <tr class="fw-bold">
-                                            <td colspan="3" class="text-center">JUMLAH</td>
-                                            <td><input type="number" id="totalTeori" class="form-control" readonly></td>
-                                            <td><input type="number" id="totalPraktikum" class="form-control" readonly>
-                                            </td>
-                                            <td><input type="number" id="totalKlinik" class="form-control" readonly>
-                                            </td>
-                                            <td><input type="number" id="totalSKS" class="form-control" readonly></td>
-                                            <td></td>
-                                        </tr>
-                                    </tfoot>
-                                </table>
-                            </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
 
-                            <div class="mt-3">
-                                <button type="button" class="btn btn-sm btn-outline-primary" id="addRowBtn">
-                                    <i class="fas fa-plus me-1"></i> Tambah Mata Kuliah
-                                </button>
-                            </div>
+                                <!-- Import Form Section -->
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="card border-success">
+                                            <div class="card-body">
+                                                <h5 class="card-title text-success mb-3">
+                                                    <i class="fas fa-upload me-2"></i>Upload File Excel
+                                                </h5>
 
-                            <div class="form-group mt-4 d-flex justify-content-end">
-                                <button type="reset" class="btn btn-outline-secondary me-2">
-                                    <i class="fas fa-undo me-1"></i> Reset
-                                </button>
-                                <button type="submit" class="btn btn-primary" id="saveBtn">
-                                    <i class="fas fa-save me-1"></i> Simpan Semua
-                                </button>
+                                                <form id="formImportExcel" enctype="multipart/form-data">
+                                                    @csrf
+
+                                                    <div class="mb-4">
+                                                        <label class="form-label fw-bold">Import File Excel</label>
+
+                                                        <!-- Upload Area -->
+                                                        <div id="uploadArea"
+                                                            class="upload-area text-center p-5 rounded-4 border border-dashed position-relative">
+
+                                                            <input type="file" id="file_excel" name="file"
+                                                                accept=".xlsx,.xls,.csv" required class="file-input">
+
+                                                            <div id="uploadContent">
+                                                                <i
+                                                                    class="fas fa-cloud-upload-alt fa-3x mb-3 text-success"></i>
+                                                                <h5 class="mb-2">Drag & Drop file di sini</h5>
+                                                                <p class="text-muted mb-1">atau klik untuk memilih file</p>
+                                                                <small class="text-muted">Format: .xlsx, .xls, .csv (Maks:
+                                                                    10MB)</small>
+                                                            </div>
+
+                                                            <div id="fileName"
+                                                                class="mt-3 fw-semibold text-success d-none"></div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <button type="submit" class="btn btn-success px-4"
+                                                            id="btnImport">
+                                                            <i class="fas fa-file-import me-2"></i>Import Data
+                                                        </button>
+
+                                                        <button type="button" class="btn btn-secondary px-4"
+                                                            id="btnResetForm">
+                                                            <i class="fas fa-redo me-2"></i>Reset
+                                                        </button>
+                                                    </div>
+                                                </form>
+
+                                                <!-- Progress Bar (Hidden by default) -->
+                                                <div id="importProgress" class="mt-3" style="display: none;">
+                                                    <div class="progress">
+                                                        <div class="progress-bar progress-bar-striped progress-bar-animated"
+                                                            role="progressbar" style="width: 100%">
+                                                            Sedang mengimport...
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        </form>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -204,195 +433,212 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         $(document).ready(function() {
-            const kurikulumData = @json($kurikulum);
+            // Fungsi untuk menghitung total SKS
+            function calculateTotalSKS() {
+                const tatapMuka = parseInt($('#sks_tatap_muka').val()) || 0;
+                const praktikum = parseInt($('#sks_praktikum').val()) || 0;
+                const praktikLapangan = parseInt($('#sks_praktik_lapangan').val()) || 0;
+                const simulasi = parseInt($('#sks_simulasi').val()) || 0;
 
-            function fillKurikulumOptions(prodiId) {
-                const kurikulumSelect = $('#id_kurikulum');
-                kurikulumSelect.empty().append('<option value="">Pilih Kurikulum...</option>');
+                const total = tatapMuka + praktikum + praktikLapangan + simulasi;
 
-                if (prodiId) {
-                    const filtered = kurikulumData.filter(k => k.id_prodi == prodiId);
-                    filtered.forEach(k => {
-                        kurikulumSelect.append(`<option value="${k.id}">${k.nama_kurikulum}</option>`);
-                    });
+                $('#sks').val(total);
+            }
+
+            // Event listener untuk setiap input SKS detail
+            $('#sks_tatap_muka, #sks_praktikum, #sks_praktik_lapangan, #sks_simulasi').on('input', function() {
+                calculateTotalSKS();
+            });
+
+            // Validasi tambahan: pastikan SKS tidak negatif
+            $('input[id^="sks_"]').on('blur', function() {
+                if ($(this).val() < 0) {
+                    $(this).val(0);
+                    calculateTotalSKS();
                 }
-            }
-
-            $('#id_prodi').on('change', function() {
-                fillKurikulumOptions($(this).val());
             });
 
-            // Repeater Logic
-            let rowCounter = 1;
+            // Download Template
+            $('#downloadTemplate').on('click', function() {
+                const btn = $(this);
+                const originalText = btn.html();
 
-            function hitungSKS(row) {
-                const teori = parseInt(row.find('.teori-input').val()) || 0;
-                const praktikum = parseInt(row.find('.praktikum-input').val()) || 0;
-                const klinik = parseInt(row.find('.klinik-input').val()) || 0;
-                const total = teori + praktikum + klinik;
-                row.find('.sks-output').val(total);
-                return {
-                    teori,
-                    praktikum,
-                    klinik,
-                    total
-                };
-            }
+                btn.prop('disabled', true).html(
+                    '<i class="fas fa-spinner fa-spin me-2"></i>Downloading...');
 
-            function hitungTotalSemester() {
-                let totalT = 0,
-                    totalP = 0,
-                    totalK = 0,
-                    totalSKS = 0;
+                // Use Laravel route for download
+                window.location.href =
+                    "{{ route('mata-kuliah.export.template', ['id_prodi' => $id_prodi]) }}";
 
-                $('.repeater-item').each(function() {
-                    const data = hitungSKS($(this));
-                    totalT += data.teori;
-                    totalP += data.praktikum;
-                    totalK += data.klinik;
-                    totalSKS += data.total;
-                });
-
-                $('#totalTeori').val(totalT);
-                $('#totalPraktikum').val(totalP);
-                $('#totalKlinik').val(totalK);
-                $('#totalSKS').val(totalSKS);
-            }
-
-            $('#addRowBtn').on('click', function() {
-                const newRow = `
-                <tr class="repeater-item">
-                    <td>
-                        <input type="text" class="form-control" value="${rowCounter + 1}" readonly>
-                    </td>
-                    <td>
-                        <input type="text" name="mata_kuliah[${rowCounter}][kode_mk]" class="form-control" required>
-                    </td>
-                    <td>
-                        <input type="text" name="mata_kuliah[${rowCounter}][nama_mk]" class="form-control" required>
-                    </td>
-                    <td>
-                        <input type="number" name="mata_kuliah[${rowCounter}][teori]" class="form-control teori-input" min="0" value="0">
-                    </td>
-                    <td>
-                        <input type="number" name="mata_kuliah[${rowCounter}][praktikum]" class="form-control praktikum-input" min="0" value="0">
-                    </td>
-                    <td>
-                        <input type="number" name="mata_kuliah[${rowCounter}][klinik]" class="form-control klinik-input" min="0" value="0">
-                    </td>
-                    <td>
-                        <input type="number" class="form-control sks-output" readonly>
-                    </td>
-                    <td class="text-center">
-                        <button type="button" class="btn btn-danger btn-sm remove-row-btn">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </td>
-                </tr>
-            `;
-                const newRowElement = $(newRow);
-                hitungSKS(newRowElement);
-                $('#mataKuliahContainer').append(newRowElement);
-                rowCounter++;
-                hitungTotalSemester();
+                setTimeout(function() {
+                    btn.prop('disabled', false).html(originalText);
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil!',
+                        text: 'Template berhasil diunduh',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                }, 1000);
             });
 
-            $(document).on('input', '.teori-input, .praktikum-input, .klinik-input', function() {
-                const row = $(this).closest('.repeater-item');
-                hitungSKS(row);
-                hitungTotalSemester();
-            });
-
-            $(document).on('click', '.remove-row-btn', function() {
-                $(this).closest('.repeater-item').remove();
-                $('.repeater-item').each((index, el) => {
-                    $(el).find('input[type="text"]').eq(0).val(index + 1);
-                });
-                hitungTotalSemester();
-            });
-
-            $('#mataKuliahForm').on('submit', function(e) {
+            // Import Excel
+            $('#formImportExcel').on('submit', function(e) {
                 e.preventDefault();
 
-                const originalBtnText = $('#saveBtn').html();
-                $('#saveBtn').prop('disabled', true).html(
-                    '<i class="fas fa-spinner fa-spin me-1"></i> Menyimpan...');
+                const fileInput = $('#file_excel');
+                const file = fileInput[0].files[0];
 
-                // Buat FormData dan tambahkan data manual
+                if (!file) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Pilih file Excel terlebih dahulu!'
+                    });
+                    return;
+                }
+
+                // Validasi file size (10MB)
+                const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+                if (file.size > maxSize) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Ukuran file terlalu besar! Maksimal 10MB'
+                    });
+                    return;
+                }
+
+                // Validasi file type
+                const allowedTypes = ['application/vnd.ms-excel',
+                    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'text/csv'
+                ];
+                if (!allowedTypes.includes(file.type) && !file.name.match(/\.(xlsx|xls|csv)$/i)) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Format file tidak didukung! Gunakan .xlsx, .xls, atau .csv'
+                    });
+                    return;
+                }
+
                 const formData = new FormData();
-                formData.append('id_prodi', $('#id_prodi').val());
-                formData.append('id_kurikulum', $('#id_kurikulum').val());
-                formData.append('semester_rekomendasi', $('#semester_rekomendasi').val());
+                formData.append('file', file);
+                formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
 
-                // Ambil data mata kuliah
-                $('.repeater-item').each(function(index) {
-                    const row = $(this);
-                    formData.append(`mata_kuliah[${index}][kode_mk]`, row.find(
-                        'input[name*="[kode_mk]"]').val());
-                    formData.append(`mata_kuliah[${index}][nama_mk]`, row.find(
-                        'input[name*="[nama_mk]"]').val());
-                    formData.append(`mata_kuliah[${index}][teori]`, row.find(
-                        'input[name*="[teori]"]').val());
-                    formData.append(`mata_kuliah[${index}][praktikum]`, row.find(
-                        'input[name*="[praktikum]"]').val());
-                    formData.append(`mata_kuliah[${index}][klinik]`, row.find(
-                        'input[name*="[klinik]"]').val());
-                });
+                // Show progress
+                $('#importProgress').show();
+                $('#btnImport').prop('disabled', true).html(
+                    '<i class="fas fa-spinner fa-spin me-2"></i>Importing...');
 
-                // Kirim data ke endpoint API
                 $.ajax({
-                    url: "{{ route('mata-kuliah.store') }}",
+                    url: "{{ route('mata-kuliah.import', ['id_prodi' => $id_prodi]) }}",
                     type: 'POST',
                     data: formData,
                     processData: false,
                     contentType: false,
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
                     success: function(response) {
-                        if (response.success) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Berhasil!',
-                                text: response.message || 'Data berhasil disimpan.',
-                                confirmButtonText: 'OK'
-                            }).then(() => {
-                                window.location.href =
-                                    "{{ route('mata-kuliah.index') }}";
-                            });
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Gagal!',
-                                text: response.message || 'Terjadi kesalahan.',
-                                confirmButtonText: 'OK'
-                            });
-                        }
-                    },
-                    error: function(xhr) {
-                        console.error('AJAX Error:', xhr);
-                        let errorMessage = 'Gagal menyimpan data.';
-                        if (xhr.responseJSON && xhr.responseJSON.message) {
-                            errorMessage = xhr.responseJSON.message;
-                        } else if (xhr.responseJSON && xhr.responseJSON.errors) {
-                            const errors = Object.values(xhr.responseJSON.errors);
-                            errorMessage = Array.isArray(errors[0]) ? errors[0][0] :
-                                errorMessage;
-                        }
+                        $('#importProgress').hide();
+                        $('#btnImport').prop('disabled', false).html(
+                            '<i class="fas fa-file-import me-2"></i>Import Data');
+
                         Swal.fire({
-                            icon: 'error',
-                            title: 'Gagal!',
-                            text: errorMessage,
-                            confirmButtonText: 'OK'
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: response.message ||
+                                'Data mata kuliah berhasil diimport!',
+                            timer: 3000,
+                            showConfirmButton: true
+                        }).then((result) => {
+                            if (result.isConfirmed || result.dismiss === Swal
+                                .DismissReason.timer) {
+                                // Reset form and switch to manual tab
+                                $('#formImportExcel')[0].reset();
+                                $('#manual-tab').tab('show');
+                                // Reload page to show new data
+                                window.location.reload();
+                            }
                         });
                     },
-                    complete: function() {
-                        $('#saveBtn').prop('disabled', false).html(originalBtnText);
+                    error: function(xhr) {
+                        $('#importProgress').hide();
+                        $('#btnImport').prop('disabled', false).html(
+                            '<i class="fas fa-file-import me-2"></i>Import Data');
+
+                        let errorMessage = 'Terjadi kesalahan saat import data';
+
+                        if (xhr.responseJSON) {
+                            if (xhr.responseJSON.errors) {
+                                // Handle validation errors
+                                const errors = xhr.responseJSON.errors;
+                                errorMessage = Object.values(errors).flat().join('<br>');
+                            } else if (xhr.responseJSON.message) {
+                                errorMessage = xhr.responseJSON.message;
+                            }
+                        } else if (xhr.responseText) {
+                            errorMessage = 'Server error: ' + xhr.status;
+                        }
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Import Gagal',
+                            html: errorMessage,
+                            width: '600px'
+                        });
                     }
                 });
             });
 
-            hitungTotalSemester();
+            // Reset Form
+            $('#btnResetForm').on('click', function() {
+                $('#formImportExcel')[0].reset();
+                $('#importProgress').hide();
+            });
+
+            const fileInput = document.getElementById('file_excel');
+            const fileNameText = document.getElementById('fileName');
+            const uploadArea = document.getElementById('uploadArea');
+            const resetBtn = document.getElementById('btnResetForm');
+
+            // File change event
+            $('#file_excel').on('change', function() {
+                const file = this.files[0];
+
+                if (file) {
+                    const fileSize = (file.size / 1024 / 1024).toFixed(2);
+                    const fileName = file.name;
+
+                    const fileInfo = `<small class="text-info">File: ${fileName} (${fileSize} MB)</small>`;
+
+                    if ($('#fileInfo').length === 0) {
+                        $('#file_excel').after('<div id="fileInfo"></div>');
+                    }
+
+                    $('#fileInfo').html(fileInfo);
+
+                    // Update custom text
+                    fileNameText.textContent = "File dipilih: " + fileName;
+                    fileNameText.classList.remove('d-none');
+                }
+            });
+
+            // Reset button
+            resetBtn.addEventListener('click', function() {
+                fileInput.value = "";
+                fileNameText.classList.add('d-none');
+                fileNameText.textContent = "";
+                $('#fileInfo').html('');
+            });
+
+            // Drag effect
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                uploadArea.classList.add('border-success');
+            });
+
+            uploadArea.addEventListener('dragleave', function() {
+                uploadArea.classList.remove('border-success');
+            });
         });
     </script>
 @endpush

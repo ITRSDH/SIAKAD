@@ -30,11 +30,12 @@ class ProdiController extends Controller
 
             // Ekstrak data
             $prodi = $apiData['prodi'] ?? [];
-            $jenjangPendidikan = $apiData['jenjang_pendidikan'] ?? [];
             $dosenList = $apiData['dosen_list'] ?? []; // 🔥 Ditambahkan
 
+            // dd($apiData);
+
             // Kirim ketiga data ke view
-            return view('masterdata.prodi.index', compact('prodi', 'jenjangPendidikan', 'dosenList'));
+            return view('masterdata.prodi.index', compact('prodi', 'dosenList'));
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }

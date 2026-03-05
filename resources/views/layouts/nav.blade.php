@@ -259,7 +259,7 @@
                         <p>Pembayaran</p>
                     </a>
                 </li>
-                @canApi('siakad.master.refrensi.pengajuan-krs.daftar-matkul')
+                {{-- @canApi('siakad.master.refrensi.pengajuan-krs.daftar-matkul')
                 <li class="nav-item {{ request()->routeIs('mahasiswa.pengajuan-krs.daftar-matkul') ? 'active' : '' }}">
                     <a href="{{ route('mahasiswa.pengajuan-krs.daftar-matkul') }}">
                         <i class="fas fa-home"></i>
@@ -295,7 +295,7 @@
                     </a>
                 </li>
                 @endcanApi
-                @endcanAnyApi
+                @endcanAnyApi --}}
 
                 @canAnyApi(
                 'siakad.master.refrensi.prodi.index',

@@ -302,11 +302,6 @@
                 'siakad.master.refrensi.tahun-akademik.index',
                 'siakad.master.refrensi.kurikulum.index',
                 'siakad.master.refrensi.mata-kuliah.index',
-                'siakad.master.refrensi.jenis-kelas.index',
-                'siakad.master.refrensi.kelas-pararel.index',
-                'siakad.master.refrensi.kelas-mk.index',
-                'siakad.master.refrensi.jenis-pembayaran.index',
-                'siakad.master.refrensi.ruang.index',
                 'siakad.master.refrensi.dosen.index',
                 'siakad.master.refrensi.mahasiswa.index',
                 'siakad.master.refrensi.mahasiswa-baru.index',
@@ -323,11 +318,6 @@
                         'tahun-akademik.*',
                         'kurikulum.*',
                         'mata-kuliah.*',
-                        'jenis-kelas.*',
-                        'kelas-pararel.*',
-                        'kelas-mk.*',
-                        'jenis-pembayaran.*',
-                        'ruang.*',
                         'dosen.*',
                         'mahasiswa.*',
                         'mahasiswa.baru.*',
@@ -336,30 +326,13 @@
                         : '' }}">
                     <a data-bs-toggle="collapse" href="#mastersiakad"
                         class="{{ !request()->routeIs('mahasiswa.baru.*') &&
-                        request()->routeIs([
-                            'prodi.*',
-                            'tahun-akademik.*',
-                            'kurikulum.*',
-                            'mata-kuliah.*',
-                            'jenis-kelas.*',
-                            'kelas-pararel.*',
-                            'kelas-mk.*',
-                            'jenis-pembayaran.*',
-                            'ruang.*',
-                            'dosen.*',
-                            'mahasiswa.*',
-                        ])
+                        request()->routeIs(['prodi.*', 'tahun-akademik.*', 'kurikulum.*', 'mata-kuliah.*', , 'dosen.*', 'mahasiswa.*'])
                             ? ''
                             : (request()->routeIs([
                                 'prodi.*',
                                 'tahun-akademik.*',
                                 'kurikulum.*',
                                 'mata-kuliah.*',
-                                'jenis-kelas.*',
-                                'kelas-pararel.*',
-                                'kelas-mk.*',
-                                'jenis-pembayaran.*',
-                                'ruang.*',
                                 'dosen.*',
                                 'mahasiswa.*',
                                 'mahasiswa.baru.*',
@@ -371,11 +344,6 @@
                             'tahun-akademik.*',
                             'kurikulum.*',
                             'mata-kuliah.*',
-                            'jenis-kelas.*',
-                            'kelas-pararel.*',
-                            'kelas-mk.*',
-                            'jenis-pembayaran.*',
-                            'ruang.*',
                             'dosen.*',
                             'mahasiswa.*',
                             'mahasiswa.baru.*',
@@ -391,11 +359,6 @@
                         'tahun-akademik.*',
                         'kurikulum.*',
                         'mata-kuliah.*',
-                        'jenis-kelas.*',
-                        'kelas-pararel.*',
-                        'kelas-mk.*',
-                        'jenis-pembayaran.*',
-                        'ruang.*',
                         'dosen.*',
                         'mahasiswa.*',
                         'mahasiswa.baru.*',
@@ -406,49 +369,13 @@
                         <ul class="nav nav-collapse">
                             <!-- REFERENSI -->
                             <li
-                                class="{{ request()->routeIs([
-                                    'prodi.*',
-                                    'tahun-akademik.*',
-                                    'kurikulum.*',
-                                    'mata-kuliah.*',
-                                    'jenis-kelas.*',
-                                    'kelas-pararel.*',
-                                    'kelas-mk.*',
-                                    'jenis-pembayaran.*',
-                                    'ruang.*',
-                                ])
-                                    ? 'active'
-                                    : '' }}">
+                                class="{{ request()->routeIs(['prodi.*', 'tahun-akademik.*', 'kurikulum.*', 'mata-kuliah.*']) ? 'active' : '' }}">
                                 <a data-bs-toggle="collapse" href="#subnavRef"
-                                    class="{{ request()->routeIs([
-                                        'prodi.*',
-                                        'tahun-akademik.*',
-                                        'kurikulum.*',
-                                        'mata-kuliah.*',
-                                        'jenis-kelas.*',
-                                        'kelas-pararel.*',
-                                        'kelas-mk.*',
-                                        'jenis-pembayaran.*',
-                                        'ruang.*',
-                                    ])
-                                        ? ''
-                                        : 'collapsed' }}">
+                                    class="{{ request()->routeIs(['prodi.*', 'tahun-akademik.*', 'kurikulum.*', 'mata-kuliah.*']) ? '' : 'collapsed' }}">
                                     <span class="sub-item">Referensi</span>
                                     <span class="caret"></span>
                                 </a>
-                                <div class="collapse {{ request()->routeIs([
-                                    'prodi.*',
-                                    'tahun-akademik.*',
-                                    'kurikulum.*',
-                                    'mata-kuliah.*',
-                                    'jenis-kelas.*',
-                                    'kelas-pararel.*',
-                                    'kelas-mk.*',
-                                    'jenis-pembayaran.*',
-                                    'ruang.*',
-                                ])
-                                    ? 'show'
-                                    : '' }}"
+                                <div class="collapse {{ request()->routeIs(['prodi.*', 'tahun-akademik.*', 'kurikulum.*', 'mata-kuliah.*']) ? 'show' : '' }}"
                                     id="subnavRef">
                                     <ul class="nav nav-collapse subnav">
                                         @canApi('siakad.master.refrensi.prodi.index')
@@ -476,41 +403,6 @@
                                         <li class="{{ request()->routeIs('kurikulum.*') ? 'active' : '' }}">
                                             <a href="{{ route('kurikulum.index') }}">
                                                 <span class="sub-item">Kurikulum</span>
-                                            </a>
-                                        </li>
-                                        @endcanApi
-                                        @canApi('siakad.master.refrensi.jenis-kelas.index')
-                                        <li class="{{ request()->routeIs('jenis-kelas.*') ? 'active' : '' }}">
-                                            <a href="{{ route('jenis-kelas.index') }}">
-                                                <span class="sub-item">Jenis Kelas</span>
-                                            </a>
-                                        </li>
-                                        @endcanApi
-                                        @canApi('siakad.master.refrensi.kelas-pararel.index')
-                                        <li class="{{ request()->routeIs('kelas-pararel.*') ? 'active' : '' }}">
-                                            <a href="{{ route('kelas-pararel.index') }}">
-                                                <span class="sub-item">Kelas Pararel</span>
-                                            </a>
-                                        </li>
-                                        @endcanApi
-                                        @canApi('siakad.master.refrensi.kelas-mk.index')
-                                        <li class="{{ request()->routeIs('kelas-mk.*') ? 'active' : '' }}">
-                                            <a href="{{ route('kelas-mk.index') }}">
-                                                <span class="sub-item">Kelas Mata Kuliah</span>
-                                            </a>
-                                        </li>
-                                        @endcanApi
-                                        @canApi('siakad.master.refrensi.jenis-pembayaran.index')
-                                        <li class="{{ request()->routeIs('jenis-pembayaran.*') ? 'active' : '' }}">
-                                            <a href="{{ route('jenis-pembayaran.index') }}">
-                                                <span class="sub-item">Jenis Pembayaran</span>
-                                            </a>
-                                        </li>
-                                        @endcanApi
-                                        @canApi('siakad.master.refrensi.ruang.index')
-                                        <li class="{{ request()->routeIs('ruang.*') ? 'active' : '' }}">
-                                            <a href="{{ route('ruang.index') }}">
-                                                <span class="sub-item">Ruang Kuliah</span>
                                             </a>
                                         </li>
                                         @endcanApi

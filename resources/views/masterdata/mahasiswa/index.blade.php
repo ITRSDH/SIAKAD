@@ -118,7 +118,7 @@
 
                             <div class="col-md-6 mb-3">
                                 <label>Email</label>
-                                <input type="email" id="email" class="form-control" required>
+                                <input type="email" id="email" class="form-control">
                             </div>
 
                             <div class="col-md-6 mb-3">
@@ -133,7 +133,7 @@
 
                             <div class="col-md-6 mb-3">
                                 <label>Password</label>
-                                <input type="password" id="password" class="form-control" required>
+                                <input type="password" id="password" class="form-control">
                             </div>
 
                             <div class="col-md-6 mb-3">
@@ -212,7 +212,8 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i
                             class="fas fa-times me-1"></i>Batal</button>
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Simpan</button>
+                    <button type="button" class="btn btn-primary" id="submitMahasiswaBtn"><i
+                            class="fas fa-save me-1"></i>Simpan</button>
                 </div>
 
             </div>
@@ -242,8 +243,10 @@
                                 <li>Download template dengan klik tombol "Download Template"</li>
                                 <li>Isi data sesuai format yang tersedia</li>
                                 <li>File yang diperbolehkan: .xlsx, .xls, .csv (maksimal 10MB)</li>
-                                <li>Pastikan format tanggal: YYYY-MM-DD</li>
-                                <li>Email akan digunakan untuk membuat akun user mahasiswa</li>
+                                <li>Pada Saat Menggunakan Fitur ini, Akan Otomatis Membuatkan Akun User Mahasiswa dengan
+                                    Password Default "Tanggal Lahir Mahasiswa" dengan format tanggal-bulan-tahun (contoh:
+                                    01122000)</li>
+                                <li>Bisa Dihimbau Mahasiswa Untuk Mengganti Password nya setelah pertama kali login</li>
                             </ul>
                         </div>
 
@@ -412,7 +415,7 @@
             });
 
             // Simpan / Update
-            $('#mahasiswaForm').on('submit', function(e) {
+            $('#submitMahasiswaBtn').on('click', function(e) {
                 e.preventDefault();
 
                 const id = $('#mahasiswaId').val();
@@ -420,6 +423,13 @@
                     "{{ route('mahasiswa.update', ':id') }}".replace(':id', id) :
                     "{{ route('mahasiswa.store') }}";
                 const method = id ? 'PUT' : 'POST';
+
+                const submitBtn = $(this);
+                const originalHtml = submitBtn.html();
+
+                // Disable button dan tampilkan loading
+                submitBtn.prop('disabled', true).html(
+                    '<i class="fas fa-spinner fa-spin me-1"></i>Menyimpan...');
 
                 $.ajax({
                     url,
@@ -441,7 +451,6 @@
                         email: $('#email').val(),
                         password: $('#password').val()
                     },
-                    beforeSend: () => Swal.showLoading(),
                     success: res => {
                         Swal.fire({
                             icon: "success",
@@ -455,9 +464,11 @@
                     },
                     error: err => {
                         console.log(err);
-
-                        Swal.close();
                         Swal.fire('Gagal', 'Terjadi kesalahan.', 'error');
+                    },
+                    complete: () => {
+                        // Enable button kembali
+                        submitBtn.prop('disabled', false).html(originalHtml);
                     }
                 });
             });

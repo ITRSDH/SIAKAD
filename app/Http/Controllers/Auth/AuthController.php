@@ -128,6 +128,53 @@ class AuthController extends Controller
         return view('profile.index', compact('user', 'profile', 'profile_type'));
     }
 
+    public function changePassword(Request $request)
+    {
+        $token = session('access_token');
+
+        // Jika belum login, arahkan ke halaman login
+        if (!$token) {
+            return redirect()->route('login');
+        }
+
+        // Validasi input
+        $request->validate([
+            'current_password' => 'required',
+            'new_password' => 'required|min:6|confirmed',
+        ], [
+            'current_password.required' => 'Password saat ini wajib diisi.',
+            'new_password.required' => 'Password baru wajib diisi.',
+            'new_password.min' => 'Password baru minimal 6 karakter.',
+            'new_password.confirmed' => 'Konfirmasi password baru tidak cocok.',
+        ]);
+
+        try {
+            // Kirim request ke API untuk mengubah password
+            $response = Http::withToken($token)->post($this->apiUrl . 'auth/change-password', [
+                'current_password' => $request->current_password,
+                'new_password' => $request->new_password,
+                'new_password_confirmation' => $request->new_password_confirmation,
+            ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+
+                if ($data['success']) {
+                    return redirect()->back()->with('success', 'Password berhasil diubah.');
+                } else {
+                    return redirect()->back()->with('error', $data['message'] ?? 'Gagal mengubah password.');
+                }
+            } else {
+                $errorData = $response->json();
+                $errorMessage = $errorData['message'] ?? $errorData['error'] ?? 'Gagal mengubah password.';
+
+                return redirect()->back()->with('error', $errorMessage);
+            }
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat mengubah password.');
+        }
+    }
+
     // Logout
     public function logout()
     {

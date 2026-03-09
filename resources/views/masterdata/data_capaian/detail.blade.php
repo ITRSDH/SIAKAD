@@ -170,6 +170,8 @@
 
                                 <p>Konten Profile Lulusan</p>
 
+                                @include('masterdata.data_capaian.pl.index')
+
                             </div>
 
                             <!-- CPL -->

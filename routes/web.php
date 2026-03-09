@@ -17,14 +17,16 @@ use App\Http\Controllers\Website\LandingContentController;
 // Route Siakad
 use App\Http\Controllers\ManagementPengguna\RoleController;
 use App\Http\Controllers\ManagementPengguna\UserController;
+use App\Http\Controllers\ManagementPengguna\PermissionController;
 use App\Http\Controllers\Siakad\MasterData\DosenController;
 use App\Http\Controllers\Siakad\MasterData\ProdiController;
 use App\Http\Controllers\Siakad\MasterData\KurikulumController;
 use App\Http\Controllers\Siakad\MasterData\MahasiswaController;
 use App\Http\Controllers\Siakad\MasterData\MataKuliahController;
-use App\Http\Controllers\ManagementPengguna\PermissionController;
 use App\Http\Controllers\Siakad\MasterData\MahasiswaBaruController;
 use App\Http\Controllers\Siakad\MasterData\TahunAkademikController;
+use App\Http\Controllers\Siakad\MasterData\Capaian\CapaianController;
+use App\Http\Controllers\Siakad\MasterData\Capaian\ProfileLulusanController;
 
 Route::middleware(['guest.token'])->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -65,6 +67,18 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
         Route::delete('/{id}', [ProdiController::class, 'destroy'])->name('destroy');
         Route::put('/{id}/kaprodi', [ProdiController::class, 'updateKaprodi'])->name('updateKaprodi');
     });
+
+
+    Route::prefix('capaian')->name('capaian.')->group(function () {
+        Route::get('/prodi', [CapaianController::class, 'indexProdi'])->name('indexProdi');
+        Route::get('/data', [CapaianController::class, 'getDataProdi'])->name('dataProdi');
+        Route::get('/prodi/{id_prodi}', [CapaianController::class, 'detailProdi'])->name('detailProdi');
+        Route::prefix('pl')->name('pl.')->group(function () {
+            Route::get('/{id_prodi}', [ProfileLulusanController::class, 'index'])->name('index');
+            Route::get('/data/{id_prodi}', [ProfileLulusanController::class, 'getData'])->name('data');
+        });
+    });
+
 
     Route::prefix('tahun-akademik')->name('tahun-akademik.')->group(function () {
         Route::get('/', [TahunAkademikController::class, 'index'])->name('index');

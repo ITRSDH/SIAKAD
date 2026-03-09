@@ -436,6 +436,13 @@
                                 </a>
                             </li>
                             @endcanApi
+
+                            <li class="nav-item {{ request()->routeIs('capaian.*') ? 'active' : '' }}">
+                                <a href="{{ route('capaian.indexProdi') }}">
+                                    <i class="fas fa-home"></i>
+                                    <p>Data Capaian</p>
+                                </a>
+                            </li>
                         </ul>
                     </div>
                 </li>

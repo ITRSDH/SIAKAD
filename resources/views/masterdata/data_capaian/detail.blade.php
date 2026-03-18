@@ -1,6 +1,7 @@
 @extends('layouts.index')
 @section('title', 'Detail Capaian')
 @push('styles-custom')
+    @stack('styles-tab')
 @endpush
 
 @section('content')
@@ -28,7 +29,7 @@
                 <div class="fs-4 fw-semibold d-flex justify-content-between align-items-center">
                     <h4 class="card-title"> Informasi Program Studi</h4>
                     <div class="d-flex gap-2">
-                        <a href="{{ route('mata-kuliah.indexProdi') }}" class="btn btn-secondary">
+                        <a href="{{ route('capaian.indexProdi') }}" class="btn btn-secondary">
                             <i class="fas fa-arrow-left"></i> Kembali
                         </a>
                     </div>
@@ -120,9 +121,10 @@
             </div>
         </div>
 
-        <div class="row">
+        <div class="row justify-content-center">
             <div class="col-md-12">
                 <div class="card">
+
                     <div class="card-header">
                         <h4 class="card-title">Data Capaian</h4>
                     </div>
@@ -130,74 +132,49 @@
                     <div class="card-body">
 
                         <!-- NAV TAB -->
-                        <ul class="nav nav-tabs nav-line nav-color-secondary" id="line-tab" role="tablist">
+                        <ul class="nav nav-tabs nav-line nav-color-secondary">
 
                             <li class="nav-item">
-                                <a class="nav-link active" id="tab-pl" data-bs-toggle="pill" href="#content-pl"
-                                    role="tab" aria-controls="content-pl" aria-selected="true">
+                                <a class="nav-link active tab-link" data-tab="pl" href="#">
                                     Profile Lulusan
                                 </a>
                             </li>
 
                             <li class="nav-item">
-                                <a class="nav-link" id="tab-cpl" data-bs-toggle="pill" href="#content-cpl" role="tab"
-                                    aria-controls="content-cpl" aria-selected="false">
-                                    Capaian Pembelajaran Lulusan
+                                <a class="nav-link tab-link" data-tab="cpl" href="#">
+                                    CPL
                                 </a>
                             </li>
 
                             <li class="nav-item">
-                                <a class="nav-link" id="tab-pl-cpl" data-bs-toggle="pill" href="#content-pl-cpl"
-                                    role="tab" aria-controls="content-pl-cpl" aria-selected="false">
-                                    Pemetaan PL <i class="fas fa-arrow-right fs-7"></i> CPL
+                                <a class="nav-link tab-link" data-tab="pl-cpl" href="#">
+                                    Pemetaan PL → CPL
                                 </a>
                             </li>
 
                             <li class="nav-item">
-                                <a class="nav-link" id="tab-cpl-mk" data-bs-toggle="pill" href="#content-cpl-mk"
-                                    role="tab" aria-controls="content-cpl-mk" aria-selected="false">
-                                    Pemetaan CPL <i class="fas fa-arrow-right fs-7"></i> MK
+                                <a class="nav-link tab-link" data-tab="cpl-mk" href="#">
+                                    Pemetaan CPL → MK
                                 </a>
                             </li>
 
                         </ul>
 
-                        <!-- TAB CONTENT -->
-                        <div class="tab-content mt-3 mb-3" id="line-tabContent">
 
-                            <!-- PROFILE LULUSAN -->
-                            <div class="tab-pane fade show active" id="content-pl" role="tabpanel" aria-labelledby="tab-pl">
+                        <div class="tab-content mt-3">
 
-                                <p>Konten Profile Lulusan</p>
+                            <div id="tab-content-area">
 
-                                @include('masterdata.data_capaian.pl.index')
-
-                            </div>
-
-                            <!-- CPL -->
-                            <div class="tab-pane fade" id="content-cpl" role="tabpanel" aria-labelledby="tab-cpl">
-
-                                <p>Konten Capaian Pembelajaran Lulusan</p>
-
-                            </div>
-
-                            <!-- PL -> CPL -->
-                            <div class="tab-pane fade" id="content-pl-cpl" role="tabpanel" aria-labelledby="tab-pl-cpl">
-
-                                <p>Konten Pemetaan PL ke CPL</p>
-
-                            </div>
-
-                            <!-- CPL -> MK -->
-                            <div class="tab-pane fade" id="content-cpl-mk" role="tabpanel" aria-labelledby="tab-cpl-mk">
-
-                                <p>Konten Pemetaan CPL ke Mata Kuliah</p>
+                                <div class="text-center p-5">
+                                    Loading...
+                                </div>
 
                             </div>
 
                         </div>
 
                     </div>
+
                 </div>
             </div>
         </div>
@@ -206,4 +183,87 @@
 @endsection
 
 @push('scripts-custom')
+    <script src="{{ asset('template/assets/js/core/jquery-3.7.1.min.js') }}"></script>
+    <script src="{{ asset('template/assets/js/plugin/datatables/datatables.min.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    {{-- @stack('script-tab') --}}
+
+    <script>
+        let id_prodi = "{{ $id_prodi }}";
+
+        // Global function to ensure DataTables is available
+        window.ensureDataTables = function(callback) {
+            if (typeof $.fn.DataTable !== 'undefined') {
+                callback();
+            } else {
+                // console.warn('DataTables not available, loading...');
+                $.getScript('{{ asset('template/assets/js/plugin/datatables/datatables.min.js') }}', function() {
+                    // console.log('DataTables loaded successfully');
+                    callback();
+                }).fail(function() {
+                    // console.error('Failed to load DataTables');
+                });
+            }
+        };
+
+        function loadTab(tab) {
+
+            $("#tab-content-area").html(`
+                <div class="d-flex flex-column justify-content-center align-items-center" style="height:200px">
+
+                    <div class="spinner-border text-primary mb-3" style="width:3rem;height:3rem"></div>
+
+                    <div class="text-muted">Memuat data...</div>
+
+                </div>
+                `);
+
+            $.get(`/capaian/${tab}/${id_prodi}?t=` + Date.now(), function(res) {
+
+                $("#tab-content-area").html(res);
+
+                // Ensure DataTables is available before initializing
+                setTimeout(function() {
+                    if (typeof $.fn.DataTable !== 'undefined') {
+                        // console.log('DataTables is available');
+                        // Trigger initialization for CPL tab specifically
+                        if (tab === 'cpl' && typeof initCPLTable === 'function') {
+                            initCPLTable();
+                        }
+                    } else {
+                        // console.warn('DataTables is not available, reloading...');
+                        // Reload DataTables script
+                        $.getScript(
+                            '{{ asset('template/assets/js/plugin/datatables/datatables.min.js') }}',
+                            function() {
+                                // console.log('DataTables loaded dynamically');
+                                // Trigger initialization for CPL tab specifically
+                                if (tab === 'cpl' && typeof initCPLTable === 'function') {
+                                    initCPLTable();
+                                }
+                            });
+                    }
+                }, 300); // Increased delay to ensure content is fully loaded
+
+            });
+
+        }
+
+        // load pertama
+        loadTab('pl');
+
+        // klik tab
+        $(document).on('click', '.tab-link', function(e) {
+
+            e.preventDefault();
+
+            $('.tab-link').removeClass('active');
+            $(this).addClass('active');
+
+            let tab = $(this).data('tab');
+
+            loadTab(tab);
+
+        });
+    </script>
 @endpush

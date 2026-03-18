@@ -27,6 +27,9 @@ use App\Http\Controllers\Siakad\MasterData\MahasiswaBaruController;
 use App\Http\Controllers\Siakad\MasterData\TahunAkademikController;
 use App\Http\Controllers\Siakad\MasterData\Capaian\CapaianController;
 use App\Http\Controllers\Siakad\MasterData\Capaian\ProfileLulusanController;
+use App\Http\Controllers\Siakad\MasterData\Capaian\CPLController;
+use App\Http\Controllers\Siakad\MasterData\Capaian\MappingPLCPLController;
+use App\Http\Controllers\Siakad\MasterData\Capaian\MappingCPLMKController;
 
 Route::middleware(['guest.token'])->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -74,8 +77,36 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
         Route::get('/data', [CapaianController::class, 'getDataProdi'])->name('dataProdi');
         Route::get('/prodi/{id_prodi}', [CapaianController::class, 'detailProdi'])->name('detailProdi');
         Route::prefix('pl')->name('pl.')->group(function () {
-            Route::get('/{id_prodi}', [ProfileLulusanController::class, 'index'])->name('index');
+            Route::get('{id_prodi}', [ProfileLulusanController::class, 'index'])->name('index');
             Route::get('/data/{id_prodi}', [ProfileLulusanController::class, 'getData'])->name('data');
+            Route::post('/{id_prodi}', [ProfileLulusanController::class, 'store'])->name('store');
+            Route::get('/{id}', [ProfileLulusanController::class, 'show'])->name('show');
+            Route::put('/{id}/{id_prodi}', [ProfileLulusanController::class, 'update'])->name('update');
+            Route::delete('/{id}', [ProfileLulusanController::class, 'destroy'])->name('destroy');
+        });
+
+        Route::prefix('cpl')->name('cpl.')->group(function () {
+            Route::get('{id_prodi}', [CPLController::class, 'index'])->name('index');
+            Route::get('/data/{id_prodi}', [CPLController::class, 'getData'])->name('data');
+            Route::post('/{id_prodi}', [CPLController::class, 'store'])->name('store');
+            Route::get('/{id}', [CPLController::class, 'show'])->name('show');
+            Route::put('/{id}/{id_prodi}', [CPLController::class, 'update'])->name('update');
+            Route::delete('/{id}', [CPLController::class, 'destroy'])->name('destroy');
+        });
+        Route::prefix('indikator-kinerja')->name('indikator-kinerja.')->group(function () {
+            Route::post('/{id_cpl}', [CPLController::class, 'storeIndikatorKinerja'])->name('store');
+            Route::put('/{id}', [CPLController::class, 'updateIndikatorKinerja'])->name('update');
+            Route::delete('/{id}', [CPLController::class, 'destroyIndikatorKinerja'])->name('destroy');
+        });
+        Route::prefix('pl-cpl')->name('pl-cpl.')->group(function () {
+            Route::get('{id_prodi}', [MappingPLCPLController::class, 'index'])->name('index');
+            Route::get('/data/{id_prodi}', [MappingPLCPLController::class, 'getData'])->name('data');
+            Route::post('/', [MappingPLCPLController::class, 'store'])->name('store');
+        });
+        Route::prefix('cpl-mk')->name('cpl-mk.')->group(function () {
+            Route::get('{id_prodi}', [MappingCPLMKController::class, 'index'])->name('index');
+            Route::get('/data/{id_prodi}', [MappingCPLMKController::class, 'getData'])->name('data');
+            Route::post('/', [MappingCPLMKController::class, 'store'])->name('store');
         });
     });
 

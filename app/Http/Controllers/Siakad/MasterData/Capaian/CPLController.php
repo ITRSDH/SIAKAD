@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
-class ProfileLulusanController extends Controller
+class CPLController extends Controller
 {
     protected string $apiUrl;
     protected string $apiToken;
@@ -19,7 +19,7 @@ class ProfileLulusanController extends Controller
 
     public function index(Request $request, $id_prodi)
     {
-        return view('masterdata.data_capaian.pl.index', compact('id_prodi'));
+        return view('masterdata.data_capaian.cpl.index', compact('id_prodi'));
     }
 
     public function getData(Request $request, $id_prodi)
@@ -27,7 +27,7 @@ class ProfileLulusanController extends Controller
         try {
 
             $response = Http::withToken($this->apiToken)
-                ->get($this->apiUrl . "profile-lulusan/prodi/{$id_prodi}", $request->all());
+                ->get($this->apiUrl . "cpl/prodi/{$id_prodi}", $request->all());
 
             if ($response->successful()) {
 
@@ -55,12 +55,12 @@ class ProfileLulusanController extends Controller
     {
         try {
             $response = Http::withToken($this->apiToken)
-                ->post($this->apiUrl . "profile-lulusan/prodi/{$id_prodi}", $request->all());
+                ->post($this->apiUrl . "cpl/prodi/{$id_prodi}", $request->all());
 
             if ($response->successful()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Data Profile Lulusan berhasil ditambahkan',
+                    'message' => 'Data Capaian Pembelajaran Lulusan berhasil ditambahkan',
                     'data' => $response->json()
                 ]);
             }
@@ -82,7 +82,7 @@ class ProfileLulusanController extends Controller
     {
         try {
             $response = Http::withToken($this->apiToken)
-                ->get($this->apiUrl . "profile-lulusan/{$id}");
+                ->get($this->apiUrl . "cpl/{$id}");
 
             if ($response->successful()) {
                 return response()->json([
@@ -107,12 +107,12 @@ class ProfileLulusanController extends Controller
     {
         try {
             $response = Http::withToken($this->apiToken)
-                ->put($this->apiUrl . "profile-lulusan/{$id}/prodi/{$id_prodi}", $request->all());
+                ->put($this->apiUrl . "cpl/{$id}/prodi/{$id_prodi}", $request->all());
 
             if ($response->successful()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Data Profile Lulusan berhasil diperbarui',
+                    'message' => 'Data Capaian Pembelajaran Lulusan berhasil diperbarui',
                     'data' => $response->json()
                 ]);
             }
@@ -134,12 +134,91 @@ class ProfileLulusanController extends Controller
     {
         try {
             $response = Http::withToken($this->apiToken)
-                ->delete($this->apiUrl . "profile-lulusan/{$id}");
+                ->delete($this->apiUrl . "cpl/{$id}");
 
             if ($response->successful()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Data Profile Lulusan berhasil dihapus'
+                    'message' => 'Data Capaian Pembelajaran Lulusan berhasil dihapus'
+                ]);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus data'
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function storeIndikatorKinerja(Request $request, $id_cpl)
+    {
+        try {
+            $response = Http::withToken($this->apiToken)
+                ->post($this->apiUrl . "indikator-kinerja/{$id_cpl}", $request->all());
+
+            if ($response->successful()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Data Indikator Kinerja berhasil ditambahkan',
+                    'data' => $response->json()
+                ]);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menambahkan data',
+                'errors' => $response->json()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function updateIndikatorKinerja(Request $request, $id)
+    {
+        try {
+            $response = Http::withToken($this->apiToken)
+                ->put($this->apiUrl . "indikator-kinerja/{$id}", $request->all());
+
+            if ($response->successful()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Data Indikator Kinerja berhasil diperbarui',
+                    'data' => $response->json()
+                ]);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memperbarui data',
+                'errors' => $response->json()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function destroyIndikatorKinerja($id)
+    {
+        try {
+            $response = Http::withToken($this->apiToken)
+                ->delete($this->apiUrl . "indikator-kinerja/{$id}");
+
+            if ($response->successful()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Data Indikator Kinerja berhasil dihapus'
                 ]);
             }
 

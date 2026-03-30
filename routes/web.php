@@ -12,7 +12,10 @@ use App\Http\Controllers\Website\PrestasiController;
 use App\Http\Controllers\Website\PengumumanController;
 use App\Http\Controllers\Mahasiswa\PembayaranController;
 use App\Http\Controllers\Website\ProfileKampusController;
+use App\Http\Controllers\Website\ProfileDosenController;
 use App\Http\Controllers\Website\LandingContentController;
+use App\Http\Controllers\Website\PmbPendaftaranController;
+use App\Http\Controllers\Website\SertifikatAkreditasi;
 
 // Route Siakad
 use App\Http\Controllers\ManagementPengguna\RoleController;
@@ -228,6 +231,13 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
     Route::put('/galeri/{id}', [GaleriController::class, 'update'])->name('galeri.update');
     Route::delete('/galeri/{id}', [GaleriController::class, 'destroy'])->name('galeri.destroy');
 
+    // Route Profile Dosen
+    Route::get('/profile-dosen', [ProfileDosenController::class, 'index'])->name('profile-dosen.index');
+    Route::post('/profile-dosen', [ProfileDosenController::class, 'store'])->name('profile-dosen.store');
+    Route::get('/profile-dosen/{id}', [ProfileDosenController::class, 'show'])->name('profile-dosen.show');
+    Route::put('/profile-dosen/{id}', [ProfileDosenController::class, 'update'])->name('profile-dosen.update');
+    Route::delete('/profile-dosen/{id}', [ProfileDosenController::class, 'destroy'])->name('profile-dosen.destroy');
+
     // Route FAQ
     Route::get('/faq', [FaqController::class, 'index'])->name('faq.index');
     Route::post('/faq', [FaqController::class, 'store'])->name('faq.store');
@@ -241,6 +251,20 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
     Route::get('/landing/{id?}', [LandingContentController::class, 'show'])->name('landing-content.show');
     Route::put('/landing/{id?}', [LandingContentController::class, 'update'])->name('landing-content.update');
     Route::delete('/landing/{id?}', [LandingContentController::class, 'destroy'])->name('landing-content.destroy');
+
+    // Route PMB Pendaftaran
+    Route::get('/pmb-pendaftaran', [PmbPendaftaranController::class, 'index'])->name('pmb-pendaftaran.index');
+    Route::post('/pmb-pendaftaran', [PmbPendaftaranController::class, 'store'])->name('pmb-pendaftaran.store');
+    Route::get('/pmb-pendaftaran/{id?}', [PmbPendaftaranController::class, 'show'])->name('pmb-pendaftaran.show');
+    Route::put('/pmb-pendaftaran/{id?}', [PmbPendaftaranController::class, 'update'])->name('pmb-pendaftaran.update');
+    Route::delete('/pmb-pendaftaran/{id?}', [PmbPendaftaranController::class, 'destroy'])->name('pmb-pendaftaran.destroy');
+
+    // Route Sertifikat Akreditasi
+    Route::get('/sertifikat-akreditasi', [SertifikatAkreditasi::class, 'index'])->name('sertifikat-akreditasi.index');
+    Route::post('/sertifikat-akreditasi', [SertifikatAkreditasi::class, 'store'])->name('sertifikat-akreditasi.store');
+    Route::get('/sertifikat-akreditasi/{id}', [SertifikatAkreditasi::class, 'show'])->name('sertifikat-akreditasi.show');
+    Route::put('/sertifikat-akreditasi/{id}', [SertifikatAkreditasi::class, 'update'])->name('sertifikat-akreditasi.update');
+    Route::delete('/sertifikat-akreditasi/{id}', [SertifikatAkreditasi::class, 'destroy'])->name('sertifikat-akreditasi.destroy');
 
     // Route Ormawa
     Route::get('/ormawa', [OrmawaController::class, 'index'])->name('ormawa.index');

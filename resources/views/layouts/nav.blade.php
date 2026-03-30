@@ -112,6 +112,9 @@
                 'websitekampus.landing.landing-content.index',
                 'websitekampus.landing.ormawa.index',
                 'websitekampus.landing.profile-kampus.index',
+                'websitekampus.landing.profile-dosen.index',
+                'websitekampus.landing.pmb-pendaftaran.index',
+                'websitekampus.landing.sertifikat-akreditasi.index',
                 )
                 <li class="nav-section">
                     <span class="sidebar-mini-icon">
@@ -130,6 +133,9 @@
                         'landing-content.*',
                         'ormawa.*',
                         'profile-kampus.*',
+                        'profile-dosen.*',
+                        'pmb-pendaftaran.*',
+                        'sertifikat-akreditasi.*',
                     ])
                         ? 'active'
                         : '' }}">
@@ -144,6 +150,9 @@
                             'landing-content.*',
                             'ormawa.*',
                             'profile-kampus.*',
+                            'profile-dosen.*',
+                            'pmb-pendaftaran.*',
+                            'sertifikat-akreditasi.*',
                         ])
                             ? ''
                             : 'collapsed' }}"
@@ -157,6 +166,9 @@
                             'landing-content.*',
                             'ormawa.*',
                             'profile-kampus.*',
+                            'profile-dosen.*',
+                            'pmb-pendaftaran.*',
+                            'sertifikat-akreditasi.*',
                         ])
                             ? 'true'
                             : 'false' }}">
@@ -174,6 +186,9 @@
                         'landing-content.*',
                         'ormawa.*',
                         'profile-kampus.*',
+                        'profile-dosen.*',
+                        'pmb-pendaftaran.*',
+                        'sertifikat-akreditasi.*',
                     ])
                         ? 'show'
                         : '' }}"
@@ -239,6 +254,27 @@
                             <li class="{{ request()->routeIs('profile-kampus.*') ? 'active' : '' }}">
                                 <a href="{{ route('profile-kampus.index') }}">
                                     <span class="sub-item">Profile Kampus</span>
+                                </a>
+                            </li>
+                            @endcanApi
+                            @canApi('websitekampus.landing.profile-dosen.index')
+                            <li class="{{ request()->routeIs('profile-dosen.*') ? 'active' : '' }}">
+                                <a href="{{ route('profile-dosen.index') }}">
+                                    <span class="sub-item">Profile Dosen</span>
+                                </a>
+                            </li>
+                            @endcanApi
+                            @canApi('websitekampus.landing.pmb-pendaftaran.index')
+                            <li class="{{ request()->routeIs('pmb-pendaftaran.*') ? 'active' : '' }}">
+                                <a href="{{ route('pmb-pendaftaran.index') }}">
+                                    <span class="sub-item">PMB Pendaftaran</span>
+                                </a>
+                            </li>
+                            @endcanApi
+                            @canApi('websitekampus.landing.sertifikat-akreditasi.index')
+                            <li class="{{ request()->routeIs('sertifikat-akreditasi.*') ? 'active' : '' }}">
+                                <a href="{{ route('sertifikat-akreditasi.index') }}">
+                                    <span class="sub-item">Sertifikat Akreditasi</span>
                                 </a>
                             </li>
                             @endcanApi

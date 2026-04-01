@@ -170,8 +170,8 @@
                                         <div class="form-group mb-3">
                                             <label for="foto_sertifikat" class="form-label">Foto Sertifikat</label>
                                             <input type="file" class="form-control" id="foto_sertifikat" name="foto_sertifikat"
-                                                accept="image/*">
-                                            <small class="form-text text-muted">Format yang diizinkan: JPG, JPEG, PNG, GIF.
+                                                accept="image/jpeg, image/jpg, image/png, image/webp">
+                                            <small class="form-text text-muted">Format yang diizinkan: JPG, JPEG, PNG, WEBP.
                                                 Maksimal 2MB.</small>
                                             <div class="text-danger error-text" id="foto_sertifikat_error"></div>
                                             <div id="preview-container" class="image-preview-container mt-2"
@@ -283,8 +283,8 @@
                         <div class="form-group mb-3">
                             <label for="foto_sertifikat_modal" class="form-label">Foto Sertifikat</label>
                             <input type="file" class="form-control" id="foto_sertifikat_modal" name="foto_sertifikat"
-                                accept="image/*">
-                            <small class="form-text text-muted">Format yang diizinkan: JPG, JPEG, PNG, GIF. Maksimal
+                                accept="image/jpeg, image/jpg, image/png, image/webp">
+                            <small class="form-text text-muted">Format yang diizinkan: JPG, JPEG, PNG, WEBP. Maksimal
                                 2MB.</small>
                             <div class="text-danger error-text" id="foto_sertifikat_modal_error"></div>
                             <div id="preview-container-modal" class="image-preview-container mt-2"

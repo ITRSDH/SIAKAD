@@ -52,7 +52,7 @@ class ProfileKampusController extends Controller
                 'deskripsi' => 'nullable|string',
                 'visi' => 'nullable|string',
                 'misi' => 'nullable|string',
-                'struktur_image' => 'nullable|file|max:2048',
+                'struktur_image' => 'nullable|mimes:jpeg,png,jpg,webp|max:2048',
                 'fasilitas' => 'nullable|string',
             ]);
 
@@ -193,7 +193,7 @@ class ProfileKampusController extends Controller
                 'deskripsi' => 'nullable|string',
                 'visi' => 'nullable|string',
                 'misi' => 'nullable|string',
-                'struktur_image' => 'nullable|file|max:2048',
+                'struktur_image' => 'nullable|mimes:jpeg,png,jpg,webp|max:2048',
                 'fasilitas' => 'nullable|string',
             ]);
 

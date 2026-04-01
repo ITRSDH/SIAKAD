@@ -159,8 +159,8 @@
                                         <div class="form-group mb-3">
                                             <label for="hero_background" class="form-label">Hero Background</label>
                                             <input type="file" class="form-control" id="hero_background"
-                                                name="hero_background" accept="image/*">
-                                            <small class="form-text text-muted">Format yang diizinkan: JPG, JPEG, PNG.
+                                                name="hero_background" accept="image/jpeg, image/jpg, image/png, image/webp">
+                                            <small class="form-text text-muted">Format yang diizinkan: JPG, JPEG, PNG, WEBP.
                                                 Maksimal 2MB.</small>
                                             <div class="text-danger error-text" id="hero_background_error"></div>
                                             <div id="hero-preview-container" class="image-preview-container mt-2"
@@ -252,8 +252,8 @@
                                             <div class="form-group mb-3">
                                                 <label for="logo" class="form-label">Logo</label>
                                                 <input type="file" class="form-control" id="logo" name="logo"
-                                                    accept="image/*">
-                                                <small class="form-text text-muted">Format yang diizinkan: JPG, JPEG, PNG.
+                                                    accept="image/jpeg, image/jpg, image/png, image/webp">
+                                                <small class="form-text text-muted">Format yang diizinkan: JPG, JPEG, PNG, WEBP.
                                                     Maksimal 2MB.</small>
                                                 <div class="text-danger error-text" id="logo_error"></div>
                                                 <div id="logo-preview-container" class="image-preview-container mt-2"

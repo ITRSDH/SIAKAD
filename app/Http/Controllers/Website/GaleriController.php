@@ -43,7 +43,7 @@ class GaleriController extends Controller
             $request->validate([
                 'judul' => 'required|string|max:255',
                 'kategori' => 'required|string|max:100',
-                'gambar' => 'required|file|max:2048',
+                'gambar' => 'required|mimes:jpeg,png,jpg,webp|max:2048',
                 'deskripsi' => 'nullable|string',
                 'tanggal' => 'required|date',
             ]);
@@ -128,7 +128,7 @@ class GaleriController extends Controller
             $request->validate([
                 'judul' => 'required|string|max:255',
                 'kategori' => 'required|string|max:100',
-                'gambar' => 'nullable|file|max:2048',
+                'gambar' => 'nullable|mimes:jpeg,png,jpg,webp|max:2048',
                 'deskripsi' => 'nullable|string',
                 'tanggal' => 'required|date',
             ]);

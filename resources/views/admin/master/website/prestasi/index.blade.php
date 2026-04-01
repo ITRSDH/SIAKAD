@@ -164,11 +164,7 @@
                                                 <option value="">Pilih Program Studi</option>
                                                 @foreach ($prodi as $p)
                                                     @php
-                                                        $jenjang = collect($jenjangPendidikan)->firstWhere(
-                                                            'id',
-                                                            $p['id_jenjang_pendidikan'],
-                                                        );
-                                                        $namaJenjang = $jenjang['nama_jenjang'] ?? '';
+                                                        $namaJenjang = $p['jenjang_pendidikan'] ?? '';
                                                     @endphp
                                                     <option value="{{ $p['id'] }}">{{ $p['nama_prodi'] }}@if ($namaJenjang)
                                                             ({{ $namaJenjang }})
@@ -243,8 +239,8 @@
                                         <div class="form-group mb-3">
                                             <label for="gambar" class="form-label">Gambar Prestasi</label>
                                             <input type="file" class="form-control" id="gambar" name="gambar"
-                                                accept="image/*">
-                                            <small class="form-text text-muted">Format yang diizinkan: JPG, JPEG, PNG, GIF.
+                                                accept="image/jpeg, image/jpg, image/png, image/webp">
+                                            <small class="form-text text-muted">Format yang diizinkan: JPG, JPEG, PNG, WEBP.
                                                 Maksimal 2MB.</small>
                                             <div class="text-danger error-text" id="gambar_error"></div>
                                             <div id="preview-container" class="image-preview-container mt-2"
@@ -353,11 +349,7 @@
                                 <option value="">Pilih Program Studi</option>
                                 @foreach ($prodi as $p)
                                     @php
-                                        $jenjang = collect($jenjangPendidikan)->firstWhere(
-                                            'id',
-                                            $p['id_jenjang_pendidikan'],
-                                        );
-                                        $namaJenjang = $jenjang['nama_jenjang'] ?? '';
+                                        $namaJenjang = $p['jenjang_pendidikan'] ?? '';
                                     @endphp
                                     <option value="{{ $p['id'] }}">{{ $p['nama_prodi'] }}@if ($namaJenjang)
                                             ({{ $namaJenjang }})
@@ -416,8 +408,8 @@
                         <div class="form-group mb-3">
                             <label for="gambar_modal" class="form-label">Gambar Prestasi</label>
                             <input type="file" class="form-control" id="gambar_modal" name="gambar"
-                                accept="image/*">
-                            <small class="form-text text-muted">Format yang diizinkan: JPG, JPEG, PNG, GIF. Maksimal
+                                accept="image/jpeg, image/jpg, image/png, image/webp">
+                            <small class="form-text text-muted">Format yang diizinkan: JPG, JPEG, PNG, WEBP. Maksimal
                                 2MB.</small>
                             <div class="text-danger error-text" id="gambar_modal_error"></div>
                             <div id="preview-container-modal" class="image-preview-container mt-2"

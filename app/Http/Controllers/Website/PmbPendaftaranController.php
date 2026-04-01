@@ -57,37 +57,8 @@ class PmbPendaftaranController extends Controller
                 'tata_cara', 'deskripsi'
             ]);
 
-            // Siapkan HTTP request
-            $httpRequest = Http::withToken($this->apiToken);
-
-            // Jika ada file, gunakan multipart/form-data
-            $hasFiles = $request->hasFile('hero_background') || $request->hasFile('logo');
-            
-            if ($hasFiles) {
-                // Attach files jika ada
-                if ($request->hasFile('hero_background')) {
-                    $httpRequest = $httpRequest->attach(
-                        'hero_background', 
-                        file_get_contents($request->file('hero_background')), 
-                        $request->file('hero_background')->getClientOriginalName()
-                    );
-                }
-
-                if ($request->hasFile('logo')) {
-                    $httpRequest = $httpRequest->attach(
-                        'logo', 
-                        file_get_contents($request->file('logo')), 
-                        $request->file('logo')->getClientOriginalName()
-                    );
-                }
-
-                // Kirim sebagai multipart
-                $response = $httpRequest->post($this->apiUrl . 'pmb-pendaftaran', $data);
-            } else {
-                // Kirim sebagai JSON jika tidak ada file
-                $response = Http::withToken($this->apiToken)
+            $response = Http::withToken($this->apiToken)
                     ->post($this->apiUrl . 'pmb-pendaftaran', $data);
-            }
 
             if ($response->successful()) {
                 return response()->json($response->json());

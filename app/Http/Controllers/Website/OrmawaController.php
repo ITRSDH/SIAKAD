@@ -43,7 +43,7 @@ class OrmawaController extends Controller
             $request->validate([
                 'nama' => 'required|string|max:255',
                 'deskripsi' => 'nullable|string',
-                'gambar' => 'nullable|file|max:2048',
+                'gambar' => 'nullable|mimes:jpeg,png,jpg,webp|max:2048',
                 'kategori' => 'nullable|string|max:100',
             ]);
 
@@ -127,7 +127,7 @@ class OrmawaController extends Controller
             $request->validate([
                 'nama' => 'required|string|max:255',
                 'deskripsi' => 'nullable|string',
-                'gambar' => 'nullable|file|max:2048',
+                'gambar' => 'nullable|mimes:jpeg,png,jpg,webp|max:2048',
                 'kategori' => 'nullable|string|max:100',
             ]);
 

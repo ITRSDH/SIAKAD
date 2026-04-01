@@ -55,7 +55,7 @@ class ProfileDosenController extends Controller
                 'nidn' => 'required|string|max:255',
                 'status' => 'required|in:Aktif,Tidak Aktif',
                 'biografi' => 'required|string',
-                'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+                'foto' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048'
             ]);
 
             // Buat data untuk dikirim ke API

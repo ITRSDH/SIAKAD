@@ -28,7 +28,6 @@ class PrestasiController extends Controller
 
             $prodiData = $prodiResponse->json()['data'] ?? [];
             $prodi = $prodiData['prodi'] ?? [];
-            $jenjangPendidikan = $prodiData['jenjang_pendidikan'] ?? [];
 
             $prestasiResponse = Http::withToken($this->apiToken)->get($this->apiUrl . 'prestasi');
 
@@ -38,8 +37,9 @@ class PrestasiController extends Controller
 
             $prestasi = $prestasiResponse->json()['data'] ?? [];
 
-            return view('admin.master.website.prestasi.index', compact('prestasi', 'prodi', 'jenjangPendidikan'));
+            return view('admin.master.website.prestasi.index', compact('prestasi', 'prodi'));
         } catch (\Exception $e) {
+            dd($e->getMessage());
             return back()->with('error', $e->getMessage());
         }
     }
@@ -55,7 +55,7 @@ class PrestasiController extends Controller
                 'tingkat' => 'required|in:kampus,nasional,internasional',
                 'tahun' => 'required|integer|min:1900|max:2100',
                 'deskripsi' => 'required|string',
-                'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+                'gambar' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048'
             ]);
 
             // Buat data untuk dikirim ke API

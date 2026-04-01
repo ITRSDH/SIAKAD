@@ -42,7 +42,7 @@ class SertifikatAkreditasi extends Controller
             $request->validate([
                 'nama' => 'required|string|max:255',
                 'deskripsi' => 'nullable|string',
-                'foto_sertifikat' => 'nullable|file|max:2048',
+                'foto_sertifikat' => 'nullable|mimes:jpeg,png,jpg,webp|max:2048',
             ]);
 
             // Buat data untuk dikirim ke API
@@ -125,7 +125,7 @@ class SertifikatAkreditasi extends Controller
             $request->validate([
                 'nama' => 'required|string|max:255',
                 'deskripsi' => 'nullable|string',
-                'foto_sertifikat' => 'nullable|file|max:2048',
+                'foto_sertifikat' => 'nullable|mimes:jpeg,png,jpg,webp|max:2048',
             ]);
 
             // Buat data untuk dikirim ke API

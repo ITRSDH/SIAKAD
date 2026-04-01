@@ -188,8 +188,8 @@
                                             <label for="gambar" class="form-label">Gambar <span
                                                     class="text-danger">*</span></label>
                                             <input type="file" class="form-control" id="gambar" name="gambar"
-                                                accept="image/*">
-                                            <small class="form-text text-muted">Format yang diizinkan: JPG, JPEG, PNG, GIF.
+                                                accept="image/jpeg, image/jpg, image/png, image/webp">
+                                            <small class="form-text text-muted">Format yang diizinkan: JPG, JPEG, PNG, WEBP.
                                                 Maksimal 2MB.</small>
                                             <div class="text-danger error-text" id="gambar_error"></div>
                                             <div id="preview-container" class="image-preview-container mt-2"
@@ -327,8 +327,8 @@
                                 <div class="form-group mb-3">
                                     <label for="gambar_modal" class="form-label">Gambar</label>
                                     <input type="file" class="form-control" id="gambar_modal" name="gambar"
-                                        accept="image/*">
-                                    <small class="form-text text-muted">Format yang diizinkan: JPG, JPEG, PNG, GIF. Maksimal
+                                        accept="image/jpeg, image/jpg, image/png, image/webp">
+                                    <small class="form-text text-muted">Format yang diizinkan: JPG, JPEG, PNG, WEBP. Maksimal
                                         2MB.</small>
                                     <div class="text-danger error-text" id="gambar_modal_error"></div>
                                     <div id="preview-container-modal" class="image-preview-container mt-2"

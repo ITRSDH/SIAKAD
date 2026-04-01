@@ -181,7 +181,7 @@
                                 </div>
 
                                 <!-- Struktur Organisasi Section -->
-                                <div class="section-divider">
+                                {{-- <div class="section-divider">
                                     <div class="section-title">
                                         <i class="fas fa-sitemap text-warning me-2"></i>Struktur Organisasi
                                     </div>
@@ -205,7 +205,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                </div> --}}
 
                                 <!-- Fasilitas Section -->
                                 <div class="section-divider">

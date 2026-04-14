@@ -197,6 +197,7 @@
                                                     class="text-danger">*</span></label>
                                             <select class="form-select" id="tingkat" name="tingkat">
                                                 <option value="">Pilih Tingkat</option>
+                                                <option value="daerah">Daerah</option>
                                                 <option value="kampus">Kampus</option>
                                                 <option value="nasional">Nasional</option>
                                                 <option value="internasional">Internasional</option>
@@ -213,7 +214,7 @@
                                                     class="text-danger">*</span></label>
                                             <select class="form-select" id="tahun" name="tahun">
                                                 <option value="">Pilih Tahun</option>
-                                                @for ($year = date('Y'); $year <= date('Y') + 5; $year++)
+                                                @for ($year = date('Y') - 10; $year <= date('Y') + 5; $year++)
                                                     <option value="{{ $year }}">{{ $year }}</option>
                                                 @endfor
                                             </select>

@@ -52,9 +52,9 @@ class PrestasiController extends Controller
                 'nama_mahasiswa' => 'required|string|max:255',
                 'id_prodi' => 'required|string|max:50',
                 'judul_prestasi' => 'required|string|max:255',
-                'tingkat' => 'required|in:kampus,nasional,internasional',
+                'tingkat' => 'required|in:regional,kampus,nasional,internasional',
                 'tahun' => 'required|integer|min:1900|max:2100',
-                'deskripsi' => 'required|string',
+                'deskripsi' => 'nullable|string',
                 'gambar' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048'
             ]);
 

@@ -503,6 +503,7 @@
                             if (data === 'kampus') return '<span class="badge bg-primary">Kampus</span>';
                             if (data === 'nasional') return '<span class="badge bg-success">Nasional</span>';
                             if (data === 'internasional') return '<span class="badge bg-warning">Internasional</span>';
+                            if (data === 'regional') return '<span class="badge bg-danger">Regional</span>';
                             return '<span class="badge bg-light text-dark">-</span>';
                         }
                     },
@@ -592,11 +593,6 @@
                     $('#tahun_error').text('Tahun harus dipilih');
                     hasError = true;
                     errorMessage += '• Tahun\n';
-                }
-                if (!deskripsi) {
-                    $('#deskripsi_error').text('Deskripsi harus diisi');
-                    hasError = true;
-                    errorMessage += '• Deskripsi\n';
                 }
 
                 if (hasError) {

@@ -388,7 +388,7 @@
                                 <div class="form-group mb-3">
                                     <label for="tahun_modal" class="form-label">Tahun <span
                                             class="text-danger">*</span></label>
-                                    <select class="form-select" id="tahun" name="tahun">
+                                    <select class="form-select" id="tahun_modal" name="tahun">
                                         <option value="">Pilih Tahun</option>
                                         @for ($year = date('Y') - 10; $year <= date('Y') + 5; $year++)
                                             <option value="{{ $year }}">{{ $year }}</option>

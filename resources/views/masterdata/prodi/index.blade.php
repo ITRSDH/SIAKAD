@@ -1,5 +1,5 @@
 @extends('layouts.index')
-@section('title', 'Program Studi')
+@section('title', $pageTitle ?? 'Program Studi')
 @push('styles-custom')
     <style>
         .loader-overlay {
@@ -56,7 +56,7 @@
 @section('content')
     <div class="page-inner">
         <div class="page-header">
-            <h3 class="fw-bold mb-3">Program Studi</h3>
+            <h3 class="fw-bold mb-3">{{ $pageHeading ?? ($pageTitle ?? 'Program Studi') }}</h3>
             <ul class="breadcrumbs mb-3">
                 <li class="nav-home">
                     <a href="{{ url('/') }}">
@@ -67,13 +67,13 @@
                     <i class="icon-arrow-right"></i>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ route('prodi.index') }}">Program Studi</a>
+                    <a href="{{ request()->routeIs('aktor-akademik.*') ? route('aktor-akademik.kaprodi') : route('prodi.index') }}">{{ $pageTitle ?? 'Program Studi' }}</a>
                 </li>
                 <li class="separator">
                     <i class="icon-arrow-right"></i>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ route('prodi.index') }}">List Program Studi</a>
+                    <a href="{{ request()->routeIs('aktor-akademik.*') ? route('aktor-akademik.kaprodi') : route('prodi.index') }}">{{ $pageCrumbLabel ?? 'List Program Studi' }}</a>
                 </li>
             </ul>
         </div>
@@ -94,6 +94,10 @@
                     </div>
                     <div class="collapse show" id="collapseProdiForm">
                         <div class="card-body">
+                            @if (!empty($pageDescription))
+                                <div class="alert alert-info">{{ $pageDescription }}</div>
+                            @endif
+
                             <form id="prodiForm" name="prodiForm" class="form-horizontal">
                                 @csrf
                                 <input type="hidden" name="id" id="prodi_id">

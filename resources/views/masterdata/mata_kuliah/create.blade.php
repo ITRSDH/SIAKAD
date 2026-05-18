@@ -437,7 +437,7 @@
             function calculateTotalSKS() {
                 const tatapMuka = parseInt($('#sks_tatap_muka').val()) || 0;
                 const praktikum = parseInt($('#sks_praktikum').val()) || 0;
-                const praktikLapangan = parseInt($('#sks_praktik_lapangan').val()) || 0;
+                const praktikLapangan = parseInt($('#sks_praktek_lapangan').val()) || 0;
                 const simulasi = parseInt($('#sks_simulasi').val()) || 0;
 
                 const total = tatapMuka + praktikum + praktikLapangan + simulasi;
@@ -446,7 +446,7 @@
             }
 
             // Event listener untuk setiap input SKS detail
-            $('#sks_tatap_muka, #sks_praktikum, #sks_praktik_lapangan, #sks_simulasi').on('input', function() {
+            $('#sks_tatap_muka, #sks_praktikum, #sks_praktek_lapangan, #sks_simulasi').on('input', function() {
                 calculateTotalSKS();
             });
 

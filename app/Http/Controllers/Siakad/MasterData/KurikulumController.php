@@ -127,12 +127,21 @@ class KurikulumController extends Controller
             }
 
             $dropdown = $dropdownService->get('prodi,semester');
+            $konversiResponse = Http::withToken($this->apiToken)
+                ->get($this->apiUrl . 'konversi-mata-kuliah', [
+                    'id_kurikulum_tujuan' => $id,
+                ]);
+
+            $konversiMataKuliah = $konversiResponse->successful()
+                ? $konversiResponse->json('data', [])
+                : [];
 
             return view('masterdata.kurikulum.detail', [
                 'kurikulum' => $kurikulum,
                 'matakuliah' => $matakuliah,
                 'mataKuliahDiKurikulum' => $mataKuliahDiKurikulum,
                 'kurikulum_lain' => $kurikulumLain,
+                'konversiMataKuliah' => $konversiMataKuliah,
                 'prodi' => $dropdown['prodi'] ?? [],
                 'semester' => $dropdown['semester'] ?? []
             ]);
@@ -156,17 +165,19 @@ class KurikulumController extends Controller
 
             // Ambil dropdown mata kuliah berdasarkan prodi kurikulum
             $mataKuliahResponse = Http::withToken($this->apiToken)
-                ->get($this->apiUrl . "kurikulum/{$id}/mata-kuliah-list"); // 🔥 Gunakan endpoint baru
+                ->get($this->apiUrl . "kurikulum/{$id}/mata-kuliah-list");
 
-            if ($mataKuliahResponse->successful()) {
-                $matakuliah = $mataKuliahResponse->json('data.matakuliah', []);
-            } else {
-                $matakuliah = [];
-            }
+            $matakuliah = $mataKuliahResponse->successful()
+                ? $mataKuliahResponse->json('data.matakuliah', [])
+                : [];
+
+            // Ambil mata kuliah yang sudah ada di kurikulum (dari data kurikulum yang diambil di atas)
+            $mataKuliahDiKurikulum = $kurikulum['mata_kuliah'] ?? [];
 
             return view('masterdata.kurikulum.edit-kolektif', [
                 'kurikulum' => $kurikulum,
                 'matakuliah' => $matakuliah,
+                'mataKuliahDiKurikulum' => $mataKuliahDiKurikulum, // Tambahkan ini
             ]);
         } catch (\Exception $e) {
             return back()->withErrors($e->getMessage());
@@ -181,6 +192,22 @@ class KurikulumController extends Controller
         try {
             $response = Http::withToken($this->apiToken)
                 ->post($this->apiUrl . "kurikulum/{$id_kurikulum}/tambah-mata-kuliah", $request->all());
+
+            if ($response->successful()) {
+                return redirect()->back()->with('success', 'Mata kuliah berhasil ditambahkan.');
+            }
+
+            return back()->withErrors($response->json('message', 'Gagal menambahkan mata kuliah.'));
+        } catch (\Exception $e) {
+            return back()->withErrors($e->getMessage());
+        }
+    }
+
+    public function tambahMataKuliahManualcheckbox(Request $request, $id_kurikulum)
+    {
+        try {
+            $response = Http::withToken($this->apiToken)
+                ->post($this->apiUrl . "kurikulum/{$id_kurikulum}/tambah-mata-kuliah-checkbox", $request->all());
 
             if ($response->successful()) {
                 return redirect()->back()->with('success', 'Mata kuliah berhasil ditambahkan.');
@@ -300,6 +327,100 @@ class KurikulumController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getMataKuliahByKurikulum($id)
+    {
+        try {
+            $response = Http::withToken($this->apiToken)
+                ->get($this->apiUrl . "kurikulum/{$id}");
+
+            if (!$response->successful()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal mengambil data kurikulum dari API',
+                ], $response->status());
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => $response->json('data.mata_kuliah', []),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function storeKonversiMataKuliah(Request $request)
+    {
+        try {
+            $response = Http::withToken($this->apiToken)
+                ->post($this->apiUrl . 'konversi-mata-kuliah', $request->all());
+
+            if ($response->successful()) {
+                return response()->json($response->json());
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => $response->json('message') ?? 'Gagal menyimpan konversi mata kuliah',
+                'errors' => $response->json('errors') ?? [],
+            ], $response->status());
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function updateKonversiMataKuliah(Request $request, $id)
+    {
+        try {
+            $response = Http::withToken($this->apiToken)
+                ->put($this->apiUrl . "konversi-mata-kuliah/{$id}", $request->all());
+
+            if ($response->successful()) {
+                return response()->json($response->json());
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => $response->json('message') ?? 'Gagal memperbarui konversi mata kuliah',
+                'errors' => $response->json('errors') ?? [],
+            ], $response->status());
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function destroyKonversiMataKuliah($id)
+    {
+        try {
+            $response = Http::withToken($this->apiToken)
+                ->delete($this->apiUrl . "konversi-mata-kuliah/{$id}");
+
+            if ($response->successful()) {
+                return response()->json($response->json());
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => $response->json('message') ?? 'Gagal menghapus konversi mata kuliah',
+                'errors' => $response->json('errors') ?? [],
+            ], $response->status());
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
             ], 500);
         }
     }

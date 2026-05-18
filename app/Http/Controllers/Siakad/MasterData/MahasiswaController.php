@@ -31,11 +31,13 @@ class MahasiswaController extends Controller
             $mahasiswa      = $apiData['mahasiswa'] ?? [];
             $prodi          = $apiData['prodi'] ?? [];
             $dosen          = $apiData['dosen'] ?? [];
+            $kurikulum      = $apiData['kurikulum'] ?? [];
 
             return view('masterdata.mahasiswa.index', compact(
                 'mahasiswa',
                 'prodi',
-                'dosen'
+                'dosen',
+                'kurikulum'
             ));
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
@@ -100,6 +102,51 @@ class MahasiswaController extends Controller
                 'message' => 'Gagal memperbarui data di API',
                 'errors' => $response->json()
             ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function riwayatKurikulum($id)
+    {
+        try {
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl . "mahasiswa/{$id}/riwayat-kurikulum");
+
+            if ($response->successful()) {
+                return response()->json($response->json());
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => $response->json('message') ?? 'Gagal mengambil riwayat kurikulum dari API',
+                'errors' => $response->json('errors') ?? [],
+            ], $response->status());
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function migrateKurikulum(Request $request, $id)
+    {
+        try {
+            $response = Http::withToken($this->apiToken)
+                ->post($this->apiUrl . "mahasiswa/{$id}/migrasi-kurikulum", $request->all());
+
+            if ($response->successful()) {
+                return response()->json($response->json());
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => $response->json('message') ?? 'Gagal memproses migrasi kurikulum di API',
+                'errors' => $response->json('errors') ?? [],
+            ], $response->status());
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

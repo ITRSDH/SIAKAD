@@ -163,7 +163,8 @@
                     <div class="card-body">
                         <div class="table-responsive">
                             <form id="form-tambah-mk-kolektif"
-                                action="{{ route('kurikulum.tambah-mata-kuliah', $kurikulum['id']) }}" method="POST">
+                                action="{{ route('kurikulum.tambah-mata-kuliah-checkbox', $kurikulum['id']) }}"
+                                method="POST">
                                 @csrf
 
                                 <div class="table-responsive">
@@ -194,35 +195,62 @@
                                         </thead>
                                         <tbody>
                                             @forelse($matakuliah as $index => $mk)
+                                                @php
+                                                    // Cek apakah matakuliah sudah ada di kurikulum
+                                                    $mkSudahAda = false;
+                                                    $dataMk = null;
+
+                                                    if (
+                                                        isset($mataKuliahDiKurikulum) &&
+                                                        is_array($mataKuliahDiKurikulum)
+                                                    ) {
+                                                        foreach ($mataKuliahDiKurikulum as $mk_kurikulum) {
+                                                            if ($mk_kurikulum['id'] == $mk['id']) {
+                                                                $mkSudahAda = true;
+                                                                $dataMk = $mk_kurikulum;
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+                                                @endphp
                                                 <tr>
+                                                    {{-- ✅ Checkbox --}}
                                                     <td class="text-center">
-                                                        <input type="checkbox" name="mata_kuliah[{{ $index }}][id_mata_kuliah]"
+                                                        <input type="checkbox" class="check-mk" name="selected_mk[]"
                                                             value="{{ $mk['id'] }}"
-                                                            style="transform: scale(2.0); cursor:pointer;">
+                                                            style="transform: scale(2.0); cursor:pointer;"
+                                                            {{ $mkSudahAda ? 'checked disabled' : '' }}>
                                                     </td>
+
                                                     <td class="text-center">{{ $loop->iteration }}</td>
                                                     <td class="text-center fw-semibold">{{ $mk['kode_mk'] }}</td>
                                                     <td class="text-center">{{ $mk['nama_mk'] }}</td>
                                                     <td class="text-center">{{ $kurikulum['prodi'] ?? '-' }}</td>
+
                                                     <td class="text-center">{{ $mk['sks'] ?? 0 }}</td>
                                                     <td class="text-center">{{ $mk['sks_tatap_muka'] ?? 0 }}</td>
                                                     <td class="text-center">{{ $mk['sks_praktikum'] ?? 0 }}</td>
                                                     <td class="text-center">{{ $mk['sks_praktek_lapangan'] ?? 0 }}</td>
                                                     <td class="text-center">{{ $mk['sks_simulasi'] ?? 0 }}</td>
+
+                                                    {{-- ✅ Semester (pakai ID sebagai key) --}}
                                                     <td class="text-center">
-                                                        <select name="mata_kuliah[{{ $index }}][semester_ke]"
+                                                        <select name="semester_ke[{{ $mk['id'] }}]"
                                                             class="form-select">
                                                             @for ($s = 1; $s <= 8; $s++)
-                                                                <option value="{{ $s }}">{{ $s }}
+                                                                <option value="{{ $s }}"
+                                                                    {{ $mkSudahAda && ($dataMk['pivot']['semester_ke'] ?? null) == $s ? 'selected' : '' }}>
+                                                                    {{ $s }}
                                                                 </option>
                                                             @endfor
                                                         </select>
                                                     </td>
+
+                                                    {{-- ✅ Wajib --}}
                                                     <td class="text-center">
-                                                        <div class="form-check">
-                                                            <input type="checkbox" name="mata_kuliah[{{ $index }}][is_wajib]"
-                                                                value="1" style="transform: scale(2.0); cursor:pointer;">
-                                                        </div>
+                                                        <input type="checkbox" name="is_wajib[{{ $mk['id'] }}]"
+                                                            value="1" style="transform: scale(1.5); cursor:pointer;"
+                                                            {{ $mkSudahAda && ($dataMk['pivot']['is_wajib'] ?? null) == 1 ? 'checked' : '' }}>
                                                     </td>
                                                 </tr>
                                             @empty
@@ -254,9 +282,40 @@
 
 @push('scripts-custom')
     <script>
-        document.getElementById('check-all').addEventListener('change', function () {
-            const checkboxes = document.querySelectorAll('input[type="checkbox"][name^="mata_kuliah["]');
-            checkboxes.forEach(cb => cb.checked = this.checked);
+        // ✅ CHECK ALL
+        document.getElementById('check-all').addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.check-mk');
+
+            checkboxes.forEach(cb => {
+                if (!cb.disabled) {
+                    cb.checked = this.checked;
+                }
+            });
         });
+
+        // ✅ Highlight MK yang sudah ada
+        document.addEventListener('DOMContentLoaded', function() {
+            const rows = document.querySelectorAll('tbody tr');
+
+            rows.forEach(function(row) {
+                const checkbox = row.querySelector('.check-mk');
+
+                if (checkbox && checkbox.checked && checkbox.disabled) {
+                    row.classList.add('table-info');
+                }
+            });
+        });
+
+        // ✅ VALIDASI SUBMIT
+        document.getElementById('form-tambah-mk-kolektif')
+            .addEventListener('submit', function(e) {
+
+                const checked = document.querySelectorAll('.check-mk:checked:not(:disabled)');
+
+                if (checked.length === 0) {
+                    e.preventDefault();
+                    alert('Pilih minimal 1 mata kuliah!');
+                }
+            });
     </script>
 @endpush

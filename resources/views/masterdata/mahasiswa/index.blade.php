@@ -38,6 +38,10 @@
         .modal-xxl {
             max-width: 95% !important;
         }
+
+        .invalid-feedback {
+            display: block;
+        }
     </style>
 @endpush
 
@@ -147,6 +151,14 @@
                             </div>
 
                             <div class="col-md-6 mb-3">
+                                <label>Kurikulum Aktif</label>
+                                <select id="id_kurikulum" class="form-control">
+                                    <option value="">-- Biarkan Sistem Menentukan --</option>
+                                </select>
+                                <small class="text-muted">Opsional. Jika dikosongkan, sistem akan menentukan kurikulum aktif berdasarkan program studi, angkatan, tanggal masuk, atau riwayat kurikulum aktif.</small>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
                                 <label>Jenis Kelamin</label>
                                 <select id="jenis_kelamin" class="form-control" required>
                                     <option value="">-- Pilih --</option>
@@ -175,14 +187,13 @@
                                 <input type="date" id="tanggal_masuk" class="form-control">
                             </div>
 
-
                             <div class="col-md-6 mb-3">
                                 <label>Agama</label>
                                 <select id="agama" class="form-control" required>
                                     <option value="">-- Pilih --</option>
                                     <option value="Islam">Islam</option>
                                     <option value="Kristen">Kristen</option>
-                                    <option value="Katholik">Katholik</option>
+                                    <option value="Katolik">Katolik</option>
                                     <option value="Hindu">Hindu</option>
                                     <option value="Buddha">Buddha</option>
                                     <option value="Konghucu">Konghucu</option>
@@ -203,6 +214,13 @@
                                 <label>Angkatan</label>
                                 <input type="number" id="angkatan" class="form-control" min="1990"
                                     max="{{ date('Y') + 10 }}" required>
+                            </div>
+
+                            <div class="col-12">
+                                <small class="text-muted">
+                                    Jika kurikulum aktif dikosongkan, sistem akan menentukan otomatis berdasarkan prodi,
+                                    angkatan, tanggal masuk, semester masuk, jenis intake, dan semester akademik aktif.
+                                </small>
                             </div>
 
                         </div>
@@ -336,6 +354,78 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="riwayatKurikulumModal" tabindex="-1" aria-labelledby="riwayatKurikulumModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="riwayatKurikulumModalLabel">
+                        <i class="fas fa-timeline me-2"></i>Riwayat Kurikulum Mahasiswa
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="riwayatKurikulumContent">
+                        <p class="text-muted text-center mb-0">Memuat data riwayat kurikulum...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="migrasiKurikulumModal" tabindex="-1" aria-labelledby="migrasiKurikulumModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <form id="migrasiKurikulumForm">
+                    @csrf
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="migrasiKurikulumModalLabel">
+                            <i class="fas fa-right-left me-2"></i>Migrasi Kurikulum Mahasiswa
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="migrasiMahasiswaId">
+                        <div class="alert alert-warning">
+                            Migrasi kurikulum akan menutup kurikulum aktif lama dan membuka riwayat kurikulum baru.
+                            Pastikan aturan konversi mata kuliah sudah disiapkan terlebih dahulu bila diperlukan.
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Mahasiswa</label>
+                            <input type="text" id="migrasiMahasiswaLabel" class="form-control" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Kurikulum Aktif Saat Ini</label>
+                            <input type="text" id="migrasiCurrentKurikulumLabel" class="form-control" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Kurikulum Tujuan</label>
+                            <select id="migrasi_id_kurikulum_tujuan" class="form-control" required>
+                                <option value="">-- Pilih Kurikulum Tujuan --</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tanggal Mulai Berlaku</label>
+                            <input type="date" id="migrasi_tanggal_mulai" class="form-control">
+                        </div>
+                        <div class="mb-0">
+                            <label class="form-label">Catatan Migrasi</label>
+                            <textarea id="migrasi_catatan" class="form-control" rows="3"
+                                placeholder="Contoh: Migrasi kurikulum karena perubahan kurikulum angkatan 2023"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary" id="submitMigrasiBtn">
+                            <i class="fas fa-save me-1"></i>Proses Migrasi
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('scripts-custom')
@@ -349,7 +439,10 @@
             const modal = new bootstrap.Modal('#mahasiswaModal');
             const importModal = new bootstrap.Modal('#importMahasiswaModal');
             const resultModal = new bootstrap.Modal('#importResultModal');
+            const riwayatModal = new bootstrap.Modal('#riwayatKurikulumModal');
+            const migrasiModal = new bootstrap.Modal('#migrasiKurikulumModal');
             const mahasiswa = @json($mahasiswa ?? []);
+            const kurikulumList = @json($kurikulum ?? []);
 
             const table = $('#mahasiswa-table').DataTable({
                 data: mahasiswa,
@@ -387,6 +480,12 @@
                         data: null,
                         render: row => `
                                 <div class="d-flex justify-content-center gap-2">
+                                    <button class="btn btn-info btn-sm history-btn" data-id="${row.id}" title="Riwayat Kurikulum">
+                                        <i class="fas fa-timeline"></i>
+                                    </button>
+                                    <button class="btn btn-secondary btn-sm migrate-btn" data-id="${row.id}" title="Migrasi Kurikulum">
+                                        <i class="fas fa-right-left"></i>
+                                    </button>
                                     <button class="btn btn-warning btn-sm edit-btn" data-id="${row.id}">
                                         <i class="fas fa-edit"></i>
                                     </button>
@@ -407,12 +506,130 @@
             // Tambah
             $('#addMahasiswaBtn').click(() => {
                 $('#mahasiswaForm')[0].reset();
+                clearFormErrors('#mahasiswaForm');
                 $('#mahasiswaId').val('');
                 $('#modalTitle').text('Tambah Mahasiswa');
+                populateKurikulumOptions('', '');
                 // Reset password field untuk tambah data (wajib diisi)
                 $('#password').prop('required', true).attr('placeholder', '');
                 modal.show();
             });
+
+            function formatKurikulumLabel(item) {
+                const tahun = item?.semester_mulai?.tahun_akademik?.tahun_akademik ?? '';
+                const semester = item?.semester_mulai?.nama_semester ?? '';
+                const kode = item?.kode_kurikulum ?? '';
+                const nama = item?.nama_kurikulum ?? 'Kurikulum';
+                const parts = [kode, nama, tahun, semester].filter(Boolean);
+
+                return parts.join(' | ');
+            }
+
+            function getActiveKurikulumId(row = {}) {
+                if (row?.id_kurikulum) {
+                    return row.id_kurikulum;
+                }
+
+                const activeHistory = (row?.riwayat_kurikulum || []).find(item => item?.is_active);
+
+                return activeHistory?.id_kurikulum || '';
+            }
+
+            function populateKurikulumOptions(prodiId, selectedId = '') {
+                const select = $('#id_kurikulum');
+                select.empty().append('<option value="">-- Biarkan Sistem Menentukan --</option>');
+
+                if (!prodiId) {
+                    return;
+                }
+
+                const filtered = kurikulumList.filter(item => item.id_prodi === prodiId);
+
+                filtered.forEach(item => {
+                    select.append(
+                        `<option value="${item.id}">${formatKurikulumLabel(item)}</option>`
+                    );
+                });
+
+                if (selectedId && filtered.some(item => item.id === selectedId)) {
+                    select.val(selectedId);
+                    return;
+                }
+            }
+
+            function clearFormErrors(formSelector) {
+                const form = $(formSelector);
+                form.find('.is-invalid').removeClass('is-invalid');
+                form.find('.invalid-feedback.dynamic-error').remove();
+            }
+
+            function applyFormErrors(fieldMap, errors = {}) {
+                Object.entries(errors).forEach(([field, messages]) => {
+                    const selector = fieldMap[field];
+                    if (!selector) {
+                        return;
+                    }
+
+                    const input = $(selector);
+                    if (!input.length) {
+                        return;
+                    }
+
+                    input.addClass('is-invalid');
+                    input.siblings('.invalid-feedback.dynamic-error').remove();
+                    input.after(
+                        `<div class="invalid-feedback dynamic-error">${Array.isArray(messages) ? messages[0] : messages}</div>`
+                    );
+                });
+            }
+
+            $('#id_prodi').on('change', function() {
+                populateKurikulumOptions($(this).val(), '');
+            });
+
+            function renderRiwayatKurikulum(items = []) {
+                if (!items.length) {
+                    return `
+                        <div class="text-center text-muted py-4">
+                            Belum ada riwayat kurikulum untuk mahasiswa ini.
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Kurikulum</th>
+                                    <th>Periode</th>
+                                    <th>Status</th>
+                                    <th>Catatan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${items.map(item => {
+                                    const kurikulum = item.kurikulum || {};
+                                    const periode = [item.tanggal_mulai || '-', item.tanggal_selesai || 'sekarang'].join(' s.d. ');
+                                    const badge = item.is_active ? 'success' : 'secondary';
+                                    const tahun = kurikulum.semester_mulai?.tahun_akademik?.tahun_akademik || '';
+                                    const semester = kurikulum.semester_mulai?.nama_semester || '';
+                                    const label = [kurikulum.kode_kurikulum, kurikulum.nama_kurikulum, tahun, semester].filter(Boolean).join(' | ');
+
+                                    return `
+                                        <tr>
+                                            <td>${label || '-'}</td>
+                                            <td>${periode}</td>
+                                            <td><span class="badge bg-${badge}">${item.is_active ? 'Aktif' : 'Riwayat'}</span></td>
+                                            <td>${item.catatan || '-'}</td>
+                                        </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            }
 
             // Simpan / Update
             $('#submitMahasiswaBtn').on('click', function(e) {
@@ -422,10 +639,11 @@
                 const url = id ?
                     "{{ route('mahasiswa.update', ':id') }}".replace(':id', id) :
                     "{{ route('mahasiswa.store') }}";
-                const method = id ? 'PUT' : 'POST';
+                const method = 'POST';
 
                 const submitBtn = $(this);
                 const originalHtml = submitBtn.html();
+                clearFormErrors('#mahasiswaForm');
 
                 // Disable button dan tampilkan loading
                 submitBtn.prop('disabled', true).html(
@@ -436,10 +654,14 @@
                     type: method,
                     data: {
                         _token: "{{ csrf_token() }}",
+                        ...(id ? {
+                            _method: 'PUT'
+                        } : {}),
                         nim: $('#nim').val(),
                         nik: $('#nik').val(),
                         nama_mahasiswa: $('#nama_mahasiswa').val(),
                         id_prodi: $('#id_prodi').val(),
+                        id_kurikulum: $('#id_kurikulum').val(),
                         jenis_kelamin: $('#jenis_kelamin').val(),
                         tempat_lahir: $('#tempat_lahir').val(),
                         tanggal_lahir: $('#tanggal_lahir').val(),
@@ -463,8 +685,26 @@
                         location.reload();
                     },
                     error: err => {
-                        console.log(err);
-                        Swal.fire('Gagal', 'Terjadi kesalahan.', 'error');
+                        const response = err.responseJSON || {};
+                        const backendErrors = response.errors?.errors || response.errors || {};
+                        applyFormErrors({
+                            nim: '#nim',
+                            nik: '#nik',
+                            nama_mahasiswa: '#nama_mahasiswa',
+                            id_prodi: '#id_prodi',
+                            id_kurikulum: '#id_kurikulum',
+                            jenis_kelamin: '#jenis_kelamin',
+                            tempat_lahir: '#tempat_lahir',
+                            tanggal_lahir: '#tanggal_lahir',
+                            tanggal_masuk: '#tanggal_masuk',
+                            alamat: '#alamat',
+                            agama: '#agama',
+                            status: '#status',
+                            angkatan: '#angkatan',
+                            email: '#email',
+                            password: '#password'
+                        }, backendErrors);
+                        Swal.fire('Gagal', response.message || 'Terjadi kesalahan saat menyimpan data.', 'error');
                     },
                     complete: () => {
                         // Enable button kembali
@@ -479,6 +719,7 @@
                 const url = "{{ route('mahasiswa.show', ':id') }}".replace(':id', id);
 
                 $.get(url, res => {
+                    clearFormErrors('#mahasiswaForm');
                     const m = res.data ?? res;
                     $('#mahasiswaId').val(m.id);
                     $('#nama_mahasiswa').val(m.nama_mahasiswa);
@@ -486,6 +727,7 @@
                     $('#nim').val(m.nim);
                     $('#nik').val(m.nik);
                     $('#id_prodi').val(m.id_prodi);
+                    populateKurikulumOptions(m.id_prodi, getActiveKurikulumId(m));
                     $('#jenis_kelamin').val(m.jenis_kelamin);
                     $('#tempat_lahir').val(m.tempat_lahir);
                     $('#tanggal_lahir').val(m.tanggal_lahir?.split('T')[0] ?? '');
@@ -503,6 +745,105 @@
                     modal.show();
 
                 }).fail(() => Swal.fire('Gagal', 'Tidak dapat mengambil data', 'error'));
+            });
+
+            $(document).on('click', '.history-btn', function() {
+                const id = $(this).data('id');
+                const url = "{{ route('mahasiswa.riwayat-kurikulum', ':id') }}".replace(':id', id);
+
+                $('#riwayatKurikulumContent').html('<p class="text-muted text-center mb-0">Memuat data riwayat kurikulum...</p>');
+                riwayatModal.show();
+
+                $.get(url, res => {
+                    const payload = res.data || {};
+                    const mahasiswaData = payload.mahasiswa || {};
+                    const riwayat = payload.riwayat_kurikulum || [];
+                    $('#riwayatKurikulumModalLabel').html(
+                        `<i class="fas fa-timeline me-2"></i>Riwayat Kurikulum - ${mahasiswaData.nama_mahasiswa || 'Mahasiswa'}`
+                    );
+                    $('#riwayatKurikulumContent').html(renderRiwayatKurikulum(riwayat));
+                }).fail(xhr => {
+                    $('#riwayatKurikulumContent').html(
+                        `<div class="alert alert-danger mb-0">${xhr.responseJSON?.message || 'Gagal memuat riwayat kurikulum.'}</div>`
+                    );
+                });
+            });
+
+            $(document).on('click', '.migrate-btn', function() {
+                const id = $(this).data('id');
+                const row = mahasiswa.find(item => item.id === id);
+                const prodiId = row?.id_prodi || '';
+                const currentKurikulumId = getActiveKurikulumId(row);
+
+                $('#migrasiKurikulumForm')[0].reset();
+                clearFormErrors('#migrasiKurikulumForm');
+                $('#migrasiMahasiswaId').val(id);
+                $('#migrasiMahasiswaLabel').val(`${row?.nama_mahasiswa || '-'} (${row?.nim || '-'})`);
+                $('#migrasiCurrentKurikulumLabel').val(
+                    formatKurikulumLabel(
+                        kurikulumList.find(item => item.id === currentKurikulumId) || {}
+                    ) || 'Belum terdeteksi'
+                );
+                $('#migrasi_tanggal_mulai').val(new Date().toISOString().split('T')[0]);
+
+                const select = $('#migrasi_id_kurikulum_tujuan');
+                const submitBtn = $('#submitMigrasiBtn');
+                select.empty().append('<option value="">-- Pilih Kurikulum Tujuan --</option>');
+                const kandidatKurikulum = kurikulumList
+                    .filter(item => item.id_prodi === prodiId && item.id !== currentKurikulumId);
+                kandidatKurikulum.forEach(item => {
+                    select.append(`<option value="${item.id}">${formatKurikulumLabel(item)}</option>`);
+                });
+
+                if (!kandidatKurikulum.length) {
+                    select.append('<option value="">Tidak ada kurikulum tujuan yang tersedia</option>');
+                    submitBtn.prop('disabled', true);
+                } else {
+                    submitBtn.prop('disabled', false);
+                }
+
+                migrasiModal.show();
+            });
+
+            $('#migrasiKurikulumForm').on('submit', function(e) {
+                e.preventDefault();
+
+                const id = $('#migrasiMahasiswaId').val();
+                const submitBtn = $('#submitMigrasiBtn');
+                const originalHtml = submitBtn.html();
+                clearFormErrors('#migrasiKurikulumForm');
+
+                submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Memproses...');
+
+                $.ajax({
+                    url: "{{ route('mahasiswa.migrasi-kurikulum', ':id') }}".replace(':id', id),
+                    type: 'POST',
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        id_kurikulum_tujuan: $('#migrasi_id_kurikulum_tujuan').val(),
+                        tanggal_mulai: $('#migrasi_tanggal_mulai').val(),
+                        catatan: $('#migrasi_catatan').val()
+                    },
+                    success: res => {
+                        Swal.fire('Berhasil', res.message || 'Migrasi kurikulum berhasil diproses.', 'success');
+                        migrasiModal.hide();
+                        location.reload();
+                    },
+                    error: xhr => {
+                        const response = xhr.responseJSON || {};
+                        const backendErrors = response.errors?.errors || response.errors || {};
+                        applyFormErrors({
+                            id_kurikulum_tujuan: '#migrasi_id_kurikulum_tujuan',
+                            tanggal_mulai: '#migrasi_tanggal_mulai',
+                            catatan: '#migrasi_catatan'
+                        }, backendErrors);
+                        const message = response.message || 'Migrasi kurikulum gagal diproses.';
+                        Swal.fire('Gagal', message, 'error');
+                    },
+                    complete: () => {
+                        submitBtn.prop('disabled', false).html(originalHtml);
+                    }
+                });
             });
 
             // Hapus

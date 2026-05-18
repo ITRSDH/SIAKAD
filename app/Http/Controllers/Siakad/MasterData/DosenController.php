@@ -23,7 +23,7 @@ class DosenController extends Controller
             $response = Http::withToken($this->apiToken)->get($this->apiUrl . 'dosen');
 
             if (!$response->successful()) {
-                return back()->with('error', 'Gagal mengambil data mahasiswa dari API');
+                return back()->with('error', 'Gagal mengambil data dosen dari API');
             }
 
             $apiData = $response->json()['data'] ?? [];

@@ -111,7 +111,7 @@
             confirmButtonText: 'Ya, hapus',
             cancelButtonText: 'Batal'
         })
-        .then(r => r.isConfirmed && cb());
+            .then(r => r.isConfirmed && cb());
 
     var handleAjax = ({
         url,
@@ -131,7 +131,7 @@
             },
             error: x => {
                 toggleLoader(false);
-                let m = x.responseJSON?.message || 'Terjadi kesalahan';
+                var m = x.responseJSON?.message || 'Terjadi kesalahan';
                 if (x.responseJSON?.errors)
                     m = Object.values(x.responseJSON.errors).flat().join('<br>');
                 Swal.fire('Error', m, 'error');
@@ -144,15 +144,15 @@
     var formSelect = val => `
 <select class="form-control form-kategori">
     <option value="">Pilih</option>
-    ${['KK','KU','P','S'].map(v=>`<option ${val===v?'selected':''}>${v}</option>`).join('')}
+    ${['KK', 'KU', 'P', 'S'].map(v => `<option ${val === v ? 'selected' : ''}>${v}</option>`).join('')}
 </select>`;
 
     var formCPL = (d = {}) => `
-<tr class="row-form" data-type="cpl" data-id="${d.id||''}">
-<td><input class="form-control f-kode" value="${d.kode||''}" placeholder="Kode CPL"></td>
+<tr class="row-form" data-type="cpl" data-id="${d.id || ''}">
+<td><input class="form-control f-kode" value="${d.kode || ''}" placeholder="Kode CPL"></td>
 <td>
-<textarea class="form-control mb-1 f-indo" style="height: 80px" placeholder="Deskripsi Indonesia (Wajib)">${d.deskripsi_cpl_indonesia||''}</textarea>
-<textarea class="form-control f-eng" style="height: 80px" placeholder="Deskripsi Inggris (Opsional)">${d.deskripsi_cpl_english||''}</textarea>
+<textarea class="form-control mb-1 f-indo" style="height: 80px" placeholder="Deskripsi Indonesia (Wajib)">${d.deskripsi_cpl_indonesia || ''}</textarea>
+<textarea class="form-control f-eng" style="height: 80px" placeholder="Deskripsi Inggris (Opsional)">${d.deskripsi_cpl_english || ''}</textarea>
 </td>
 <td>${formSelect(d.kategori)}</td>
 <td class="text-center">
@@ -162,11 +162,11 @@
 </tr>`;
 
     var formIK = (cplId, d = {}) => `
-<tr class="row-form ik-row" data-type="ik" data-parent="${cplId}" data-id="${d.id||''}">
-<td><input class="form-control f-kode" value="${d.kode||''}" placeholder="Kode IK"></td>
+<tr class="row-form ik-row" data-type="ik" data-parent="${cplId}" data-id="${d.id || ''}">
+<td><input class="form-control f-kode" value="${d.kode || ''}" placeholder="Kode IK"></td>
 <td>
-<textarea class="form-control mb-1 f-indo" style="height: 80px" placeholder="Deskripsi Indonesia (Wajib)">${d.deskripsi_cpl_indonesia||''}</textarea>
-<textarea class="form-control f-eng" style="height: 80px" placeholder="Deskripsi Inggris (Opsional)">${d.deskripsi_cpl_english||''}</textarea>
+<textarea class="form-control mb-1 f-indo" style="height: 80px" placeholder="Deskripsi Indonesia (Wajib)">${d.deskripsi_cpl_indonesia || ''}</textarea>
+<textarea class="form-control f-eng" style="height: 80px" placeholder="Deskripsi Inggris (Opsional)">${d.deskripsi_cpl_english || ''}</textarea>
 </td>
 <td>${formSelect(d.kategori)}</td>
 <td class="text-center">
@@ -178,11 +178,11 @@
     /* ================= DATATABLE ================= */
 
     var flatten = data => data.flatMap(c => [{
-            ...mapCPL(c)
-        },
-        ...(c.indikator_kinerja || []).map(i => ({
-            ...mapIK(i, c.id)
-        }))
+        ...mapCPL(c)
+    },
+    ...(c.indikator_kinerja || []).map(i => ({
+        ...mapIK(i, c.id)
+    }))
     ]);
 
     var mapCPL = c => ({
@@ -208,9 +208,9 @@
         kode: (d, t, r) => r.type === 'cpl' ? `<b>${d}</b>` : d,
         des: (d, t, r) =>
             `
-        <div class="text-muted small">${r.deskripsi_cpl_indonesia||''}</div>
-        ${r.deskripsi_cpl_english?`<div class="fst-italic text-muted" style="font-size:11px">${r.deskripsi_cpl_english}</div>`:''}`,
-        kat: (d, t, r) => d ? `<span class="badge ${r.type==='cpl'?'bg-primary':'bg-secondary'}">${d}</span>` : '',
+        <div class="text-muted small">${r.deskripsi_cpl_indonesia || ''}</div>
+        ${r.deskripsi_cpl_english ? `<div class="fst-italic text-muted" style="font-size:11px">${r.deskripsi_cpl_english}</div>` : ''}`,
+        kat: (d, t, r) => d ? `<span class="badge ${r.type === 'cpl' ? 'bg-primary' : 'bg-secondary'}">${d}</span>` : '',
         act: (d, t, r) => r.type === 'cpl' ?
             `<button class="btn-action btn-edit" data-type="cpl" data-id="${r.id}"><i class="fas fa-edit"></i></button>
            <button class="btn-action btn-add-ik" data-id="${r.id}"><i class="fas fa-plus"></i></button>
@@ -219,18 +219,32 @@
     };
 
     function initCPLTable() {
-        if ($.fn.dataTable.isDataTable('#cpl-table'))
-            el('#cpl-table').DataTable().destroy();
+        // Prevent multiple initialization
+        if (window.cplTableInitialized) {
+            return;
+        }
 
-        var init = () => tableCPL = el('#cpl-table').DataTable({
-            ordering: false,
-            ajax: {
-                url: "{{ route('capaian.cpl.data', $id_prodi) }}",
-                dataSrc: r => (currentData = r.data || [], flatten(currentData)),
-                beforeSend: () => toggleLoader(true),
-                complete: () => toggleLoader(false)
-            },
-            columns: [{
+        // Destroy existing table if it exists
+        if ($.fn.dataTable.isDataTable('#cpl-table')) {
+            try {
+                el('#cpl-table').DataTable().destroy();
+                // Clear the table content
+                el('#cpl-table tbody').empty();
+            } catch (e) {
+                // Table might be in an inconsistent state, continue with initialization
+            }
+        }
+
+        var init = () => {
+            tableCPL = el('#cpl-table').DataTable({
+                ordering: false,
+                ajax: {
+                    url: "{{ route('capaian.cpl.data', $id_prodi) }}",
+                    dataSrc: r => (currentData = r.data || [], flatten(currentData)),
+                    beforeSend: () => toggleLoader(true),
+                    complete: () => toggleLoader(false)
+                },
+                columns: [{
                     data: 'kode',
                     render: render.kode,
                     className: 'text-center'
@@ -249,12 +263,16 @@
                     render: render.act,
                     className: 'text-center'
                 }
-            ],
-            createdRow: (r, d) => d.type === 'ik' && $(r).addClass('ik-row'),
-            language: {
-                url: '{{ asset('') }}template/assets/js/plugin/datatables/i18n/id.json'
-            }
-        });
+                ],
+                createdRow: (r, d) => d.type === 'ik' && $(r).addClass('ik-row'),
+                language: {
+                    url: '{{ asset('') }}template/assets/js/plugin/datatables/i18n/id.json'
+                }
+            });
+
+            // Mark as initialized
+            window.cplTableInitialized = true;
+        };
 
         window.ensureDataTables ? ensureDataTables(init) : init();
     }
@@ -277,7 +295,7 @@
     });
 
     // tambah IK
-    $(document).on('click', '.btn-add-ik', function() {
+    $(document).on('click', '.btn-add-ik', function () {
         if (el('.row-form').length) return;
         $(this).closest('tr').after(formIK($(this).data('id')));
     });
@@ -286,43 +304,43 @@
     $(document).on('click', '.btn-cancel', () => tableCPL.ajax.reload(null, false));
 
     // edit
-    $(document).on('click', '.btn-edit', function() {
+    $(document).on('click', '.btn-edit', function () {
         if (el('.row-form').length) return;
 
-        let tr = $(this).closest('tr'),
+        var tr = $(this).closest('tr'),
             data = tableCPL.row(tr).data();
 
         tr.replaceWith(
             data.type === 'cpl' ?
-            formCPL(data) :
-            formIK(data.parentId, data)
+                formCPL(data) :
+                formIK(data.parentId, data)
         );
     });
 
     // save (CPL & IK)
-    $(document).on('click', '.btn-save', function() {
-        let row = $(this).closest('tr'),
+    $(document).on('click', '.btn-save', function () {
+        var row = $(this).closest('tr'),
             type = row.data('type'),
             id = row.data('id'),
             parent = row.data('parent'),
             v = getVal(row);
 
-        if (!required(v.kode, 'Kode wajib')) return;
+        // if (!required(v.kode, 'Kode wajib')) return;
 
-        let isEdit = !!id;
+        var isEdit = !!id;
 
-        let url = type === 'cpl' ?
+        var url = type === 'cpl' ?
             isEdit ?
-            "{{ route('capaian.cpl.update', ['id' => ':id', 'id_prodi' => $id_prodi]) }}"
-            .replace(':id', id) :
-            "{{ route('capaian.cpl.store', $id_prodi) }}" :
+                "{{ route('capaian.cpl.update', ['id' => ':id', 'id_prodi' => $id_prodi]) }}"
+                    .replace(':id', id) :
+                "{{ route('capaian.cpl.store', $id_prodi) }}" :
             isEdit ?
-            "{{ route('capaian.indikator-kinerja.update', ':id') }}"
-            .replace(':id', id) :
-            "{{ route('capaian.indikator-kinerja.store', ':id') }}"
-            .replace(':id', parent);
+                "{{ route('capaian.indikator-kinerja.update', ':id') }}"
+                    .replace(':id', id) :
+                "{{ route('capaian.indikator-kinerja.store', ':id') }}"
+                    .replace(':id', parent);
 
-        let data = {
+        var data = {
             _token: "{{ csrf_token() }}",
             ...(type === 'cpl' ? {
                 kode_cpl: v.kode,
@@ -338,19 +356,19 @@
         };
 
         handleAjax({
-                url,
-                type: isEdit ? 'PUT' : 'POST',
-                data
-            },
+            url,
+            type: isEdit ? 'PUT' : 'POST',
+            data
+        },
             isEdit ? 'Diupdate' : 'Disimpan');
     });
 
     // delete
-    $(document).on('click', '.btn-del', function() {
-        let id = $(this).data('id'),
+    $(document).on('click', '.btn-del', function () {
+        var id = $(this).data('id'),
             type = $(this).data('type');
 
-        let url = type === 'cpl' ?
+        var url = type === 'cpl' ?
             "{{ route('capaian.cpl.destroy', ':id') }}" :
             "{{ route('capaian.indikator-kinerja.destroy', ':id') }}";
 

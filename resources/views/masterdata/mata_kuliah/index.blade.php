@@ -221,6 +221,7 @@
                                         <th width="40%" class="text-center">MATA KULIAH</th>
                                         <th width="10%" class="text-center">SKS</th>
                                         <th width="10%" class="text-center">JENIS MK</th>
+                                        <th width="10%" class="text-center">PRASYARAT</th>
                                         <th width="10%" class="text-center">AKSI</th>
                                     </tr>
                                 </thead>
@@ -292,6 +293,19 @@
                         data: null,
                         className: 'text-center',
                         render: function(data, type, row) {
+                            const count = row.prasyarat_count ?? row.total_prasyarat ?? (Array.isArray(row.prasyarat) ? row.prasyarat.length : 0);
+
+                            if (count > 0) {
+                                return `<span class="badge bg-info text-dark">${count} Prasyarat</span>`;
+                            }
+
+                            return '<span class="badge bg-secondary">Tanpa Prasyarat</span>';
+                        }
+                    },
+                    {
+                        data: null,
+                        className: 'text-center',
+                        render: function(data, type, row) {
 
                             var baseUrl = "{{ route('mata-kuliah.detail', ':id') }}".replace(':id',
                                 row.id);
@@ -311,6 +325,11 @@
                     <li>
                         <a class="dropdown-item" href="${baseUrl}#cpl-cpmk">
                             CPL & CPMK
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="${baseUrl}#prasyarat">
+                            Prasyarat Mata Kuliah
                         </a>
                     </li>
                     <li>

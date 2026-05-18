@@ -192,15 +192,15 @@
         let id_prodi = "{{ $id_prodi }}";
 
         // Global function to ensure DataTables is available
-        window.ensureDataTables = function(callback) {
+        window.ensureDataTables = function (callback) {
             if (typeof $.fn.DataTable !== 'undefined') {
                 callback();
             } else {
                 // console.warn('DataTables not available, loading...');
-                $.getScript('{{ asset('template/assets/js/plugin/datatables/datatables.min.js') }}', function() {
+                $.getScript('{{ asset('template/assets/js/plugin/datatables/datatables.min.js') }}', function () {
                     // console.log('DataTables loaded successfully');
                     callback();
-                }).fail(function() {
+                }).fail(function () {
                     // console.error('Failed to load DataTables');
                 });
             }
@@ -208,22 +208,27 @@
 
         function loadTab(tab) {
 
+            // Reset CPL table initialization flag when switching away from CPL tab
+            if (tab !== 'cpl') {
+                window.cplTableInitialized = false;
+            }
+
             $("#tab-content-area").html(`
-                <div class="d-flex flex-column justify-content-center align-items-center" style="height:200px">
+                                    <div class="d-flex flex-column justify-content-center align-items-center" style="height:200px">
 
-                    <div class="spinner-border text-primary mb-3" style="width:3rem;height:3rem"></div>
+                                        <div class="spinner-border text-primary mb-3" style="width:3rem;height:3rem"></div>
 
-                    <div class="text-muted">Memuat data...</div>
+                                        <div class="text-muted">Memuat data...</div>
 
-                </div>
-                `);
+                                    </div>
+                                    `);
 
-            $.get(`/capaian/${tab}/${id_prodi}?t=` + Date.now(), function(res) {
+            $.get(`/capaian/${tab}/${id_prodi}?t=` + Date.now(), function (res) {
 
                 $("#tab-content-area").html(res);
 
                 // Ensure DataTables is available before initializing
-                setTimeout(function() {
+                setTimeout(function () {
                     if (typeof $.fn.DataTable !== 'undefined') {
                         // console.log('DataTables is available');
                         // Trigger initialization for CPL tab specifically
@@ -235,7 +240,7 @@
                         // Reload DataTables script
                         $.getScript(
                             '{{ asset('template/assets/js/plugin/datatables/datatables.min.js') }}',
-                            function() {
+                            function () {
                                 // console.log('DataTables loaded dynamically');
                                 // Trigger initialization for CPL tab specifically
                                 if (tab === 'cpl' && typeof initCPLTable === 'function') {
@@ -243,7 +248,7 @@
                                 }
                             });
                     }
-                }, 300); // Increased delay to ensure content is fully loaded
+                }, 500); // Increased delay to ensure content is fully loaded
 
             });
 
@@ -253,7 +258,7 @@
         loadTab('pl');
 
         // klik tab
-        $(document).on('click', '.tab-link', function(e) {
+        $(document).on('click', '.tab-link', function (e) {
 
             e.preventDefault();
 

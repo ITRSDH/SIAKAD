@@ -160,7 +160,7 @@
                                 /* ==========================================================
                                     3. Konversi root menu
                                     ========================================================== */
-                                $sections = [
+                                $sections = $permissionSections ?? [
                                     [
                                         'section' => 'Permissions',
                                         'menus' => convertToUICode($menu['menus']),

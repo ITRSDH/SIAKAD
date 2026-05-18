@@ -15,6 +15,10 @@
         .select2-container--default .select2-selection--single .select2-selection__arrow {
             height: 38px;
         }
+
+        .invalid-feedback {
+            display: block;
+        }
     </style>
 @endpush
 
@@ -196,6 +200,11 @@
                                 <i class="fas fa-plus me-1"></i>
                                 TAMBAH MATAKULIAH
                             </button>
+
+                            <button type="button" class="btn btn-info" id="btnTambahKonversi">
+                                <i class="fas fa-right-left me-1"></i>
+                                ATUR KONVERSI MATAKULIAH
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -294,6 +303,61 @@
         <div class="row">
             <div class="col-12">
                 <div class="card shadow-sm">
+                    <div class="card-header">
+                        <h5 class="mb-0">Aturan Konversi Mata Kuliah ke Kurikulum Ini</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped align-middle mb-0" id="konversiTable">
+                                <thead>
+                                    <tr>
+                                        <th>Kurikulum Asal</th>
+                                        <th>Mata Kuliah Asal</th>
+                                        <th>Mata Kuliah Tujuan</th>
+                                        <th>Status</th>
+                                        <th>Min Bobot</th>
+                                        <th>Catatan</th>
+                                        <th style="width: 120px;">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="konversiTableBody">
+                                    @forelse ($konversiMataKuliah as $rule)
+                                        <tr data-rule='@json($rule)'>
+                                            <td>{{ ($rule['kurikulum_asal']['kode_kurikulum'] ?? '') . ' | ' . ($rule['kurikulum_asal']['nama_kurikulum'] ?? '-') }}</td>
+                                            <td>{{ ($rule['mata_kuliah_asal']['kode_mk'] ?? '') . ' - ' . ($rule['mata_kuliah_asal']['nama_mk'] ?? '-') }}</td>
+                                            <td>{{ ($rule['mata_kuliah_tujuan']['kode_mk'] ?? '') . ' - ' . ($rule['mata_kuliah_tujuan']['nama_mk'] ?? '-') }}</td>
+                                            <td><span class="badge bg-{{ ($rule['status_konversi'] ?? '') === 'diakui' ? 'success' : (($rule['status_konversi'] ?? '') === 'wajib_ulang' ? 'warning' : 'secondary') }}">{{ strtoupper($rule['status_konversi'] ?? '-') }}</span></td>
+                                            <td>{{ $rule['min_bobot_nilai'] ?? '-' }}</td>
+                                            <td>{{ $rule['catatan'] ?? '-' }}</td>
+                                            <td>
+                                                <div class="d-flex gap-2">
+                                                    <button type="button" class="btn btn-warning btn-sm edit-konversi-btn">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button type="button" class="btn btn-danger btn-sm delete-konversi-btn" data-id="{{ $rule['id'] }}">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="7" class="text-center text-muted py-4">
+                                                Belum ada aturan konversi mata kuliah untuk kurikulum ini.
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow-sm">
                     <div class="card-body">
                         <div class="table-responsive">
                             <table class="table table-bordered table-hover align-middle mb-0">
@@ -308,11 +372,11 @@
                                         <th rowspan="2" style="width:5%"></th>
                                     </tr>
                                     <tr class="text-center align-middle">
-                                        <th style="width:10%">Mata Kuliah</th>
-                                        <th style="width:10%">Tatap Muka</th>
-                                        <th style="width:10%">Praktikum</th>
-                                        <th style="width:10%">Prakt Lapangan</th>
-                                        <th style="width:10%">Simulasi</th>
+                                        <th>Mata Kuliah</th>
+                                        <th>Tatap Muka</th>
+                                        <th>Praktikum</th>
+                                        <th>Prakt Lapangan</th>
+                                        <th>Simulasi</th>
                                     </tr>
                                 </thead>
 
@@ -323,49 +387,90 @@
                                         $totalPraktikum = 0;
                                         $totalPraktekLapangan = 0;
                                         $totalSimulasi = 0;
+
+                                        // 🔥 GROUP BY SEMESTER
+                                        $grouped = collect($mataKuliahDiKurikulum)
+                                            ->groupBy(function ($item) {
+                                                return $item['pivot']['semester_ke'] ?? 'Tanpa Semester';
+                                            })
+                                            ->sortKeys();
                                     @endphp
 
-                                    @forelse ($mataKuliahDiKurikulum as $mk)
-                                        @php
-                                            $sks = $mk['sks'] ?? 0;
-                                            $tatapMuka = $mk['sks_tatap_muka'] ?? 0;
-                                            $praktikum = $mk['sks_praktikum'] ?? 0;
-                                            $praktekLapangan = $mk['sks_praktek_lapangan'] ?? 0;
-                                            $simulasi = $mk['sks_simulasi'] ?? 0;
+                                    @forelse ($grouped as $semester => $items)
 
-                                            $totalSks += $sks;
-                                            $totalTatapMuka += $tatapMuka;
-                                            $totalPraktikum += $praktikum;
-                                            $totalPraktekLapangan += $praktekLapangan;
-                                            $totalSimulasi += $simulasi;
+                                        @php
+                                            $no = 1; // ✅ RESET PER SEMESTER
                                         @endphp
-                                        <tr>
-                                            <td class="text-center">{{ $loop->iteration }}</td>
-                                            <td class="text-center fw-semibold">{{ $mk['kode_mk'] }}</td>
-                                            <td class="text-center">{{ $mk['nama_mk'] }}</td>
-                                            <td class="text-center">{{ $sks }}</td>
-                                            <td class="text-center">{{ $tatapMuka }}</td>
-                                            <td class="text-center">{{ $praktikum }}</td>
-                                            <td class="text-center">{{ $praktekLapangan }}</td>
-                                            <td class="text-center">{{ $simulasi }}</td>
-                                            <td class="text-center">{{ $mk['pivot']['semester_ke'] ?? '-' }}</td>
-                                            <td class="text-center">
-                                                <i class="fas {{ $mk['pivot']['is_wajib'] ? 'fa-check text-success' : 'fa-times text-danger' }}"
-                                                    title="{{ $mk['pivot']['is_wajib'] ? 'Wajib' : 'Pilihan' }}">
-                                                </i>
-                                            </td>
-                                            <td class="text-center">
-                                                <form
-                                                    action="{{ route('kurikulum.hapus-mata-kuliah', [$kurikulum['id'], $mk['id']]) }}"
-                                                    method="POST" style="display:inline;">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-danger ms-2">
-                                                        <i class="fas fa-times me-1"></i>
-                                                    </button>
-                                                </form>
+
+                                        {{-- 🔵 HEADER SEMESTER --}}
+                                        <tr class="table-secondary">
+                                            <td colspan="11" class="fw-bold text-start">
+                                                Semester {{ $semester }}
                                             </td>
                                         </tr>
+
+                                        @foreach ($items as $mk)
+                                            @php
+                                                $sks = $mk['sks'] ?? 0;
+                                                $tatapMuka = $mk['sks_tatap_muka'] ?? 0;
+                                                $praktikum = $mk['sks_praktikum'] ?? 0;
+                                                $praktekLapangan = $mk['sks_praktek_lapangan'] ?? 0;
+                                                $simulasi = $mk['sks_simulasi'] ?? 0;
+
+                                                $totalSks += $sks;
+                                                $totalTatapMuka += $tatapMuka;
+                                                $totalPraktikum += $praktikum;
+                                                $totalPraktekLapangan += $praktekLapangan;
+                                                $totalSimulasi += $simulasi;
+                                            @endphp
+
+                                            <tr>
+                                                <td class="text-center">{{ $no++ }}</td>
+                                                <td class="text-center fw-semibold">{{ $mk['kode_mk'] }}</td>
+                                                <td>{{ $mk['nama_mk'] }}</td>
+                                                <td class="text-center">{{ $sks }}</td>
+                                                <td class="text-center">{{ $tatapMuka }}</td>
+                                                <td class="text-center">{{ $praktikum }}</td>
+                                                <td class="text-center">{{ $praktekLapangan }}</td>
+                                                <td class="text-center">{{ $simulasi }}</td>
+                                                <td class="text-center">{{ $semester }}</td>
+                                                <td class="text-center">
+                                                    <i class="fas {{ $mk['pivot']['is_wajib'] ? 'fa-check text-success' : 'fa-times text-danger' }}"
+                                                        title="{{ $mk['pivot']['is_wajib'] ? 'Wajib' : 'Pilihan' }}">
+                                                    </i>
+                                                </td>
+                                                <td class="text-center">
+                                                    <form
+                                                        action="{{ route('kurikulum.hapus-mata-kuliah', [$kurikulum['id'], $mk['id']]) }}"
+                                                        method="POST" style="display:inline;">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-danger">
+                                                            <i class="fas fa-times"></i>
+                                                        </button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+
+                                        {{-- 🔥 TOTAL PER SEMESTER --}}
+                                        @php
+                                            $totalSemester = collect($items)->sum('sks');
+                                            $totalTatapMuka = collect($items)->sum('sks_tatap_muka');
+                                            $totalPraktikum = collect($items)->sum('sks_praktikum');
+                                            $totalPraktekLapangan = collect($items)->sum('sks_praktek_lapangan');
+                                            $totalSimulasi = collect($items)->sum('sks_simulasi');
+                                        @endphp
+                                        <tr class="table-light fw-bold">
+                                            <td colspan="3" class="text-end">Total Semester {{ $semester }}</td>
+                                            <td class="text-center">{{ $totalSemester }}</td>
+                                            <td class="text-center">{{ $totalTatapMuka }}</td>
+                                            <td class="text-center">{{ $totalPraktikum }}</td>
+                                            <td class="text-center">{{ $totalPraktekLapangan }}</td>
+                                            <td class="text-center">{{ $totalSimulasi }}</td>
+                                            <td colspan="7"></td>
+                                        </tr>
+
                                     @empty
                                         <tr>
                                             <td colspan="11" class="text-center text-muted py-4">
@@ -375,11 +480,10 @@
                                     @endforelse
                                 </tbody>
 
-                                {{-- Footer Tabel untuk Total --}}
-
-                                <tfoot class="table-light fw-bold">
+                                {{-- 🔥 TOTAL KESELURUHAN --}}
+                                <tfoot class="table-primary fw-bold">
                                     <tr class="text-center align-middle">
-                                        <td colspan="3" class="text-end pe-3">JUMLAH SKS</td>
+                                        <td colspan="3" class="text-end">TOTAL SEMUA SKS</td>
                                         <td>{{ $totalSks }}</td>
                                         <td>{{ $totalTatapMuka }}</td>
                                         <td>{{ $totalPraktikum }}</td>
@@ -396,6 +500,72 @@
         </div>
 
         {{-- ... bagian selanjutnya tidak berubah ... --}}
+    </div>
+
+    <div class="modal fade" id="konversiMatkulModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content">
+                <form id="konversiMatkulForm">
+                    @csrf
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="konversiModalTitle">Tambah Aturan Konversi Mata Kuliah</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="konversi_id">
+                        <input type="hidden" id="id_kurikulum_tujuan" value="{{ $kurikulum['id'] }}">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Kurikulum Asal</label>
+                                <select class="form-control" id="id_kurikulum_asal" required>
+                                    <option value="">-- Pilih Kurikulum Asal --</option>
+                                    @foreach ($kurikulum_lain as $k)
+                                        <option value="{{ $k['id'] }}">{{ ($k['kode_kurikulum'] ?? '') . ' | ' . ($k['nama_kurikulum'] ?? '-') }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Mata Kuliah Asal</label>
+                                <select class="form-control" id="id_mata_kuliah_asal" required>
+                                    <option value="">-- Pilih Mata Kuliah Asal --</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Mata Kuliah Tujuan</label>
+                                <select class="form-control" id="id_mata_kuliah_tujuan" required>
+                                    <option value="">-- Pilih Mata Kuliah Tujuan --</option>
+                                    @foreach ($mataKuliahDiKurikulum as $mk)
+                                        <option value="{{ $mk['id'] }}">{{ ($mk['kode_mk'] ?? '') . ' - ' . ($mk['nama_mk'] ?? '-') }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Status Konversi</label>
+                                <select class="form-control" id="status_konversi" required>
+                                    <option value="diakui">Diakui</option>
+                                    <option value="wajib_ulang">Wajib Ulang</option>
+                                    <option value="pilihan_bebas">Pilihan Bebas</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Minimal Bobot Nilai</label>
+                                <input type="number" class="form-control" id="min_bobot_nilai" min="0" max="4" step="0.01">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Catatan</label>
+                                <textarea class="form-control" id="catatan" rows="2"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary" id="submitKonversiBtn">
+                            <i class="fas fa-save me-1"></i>Simpan Aturan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 @endsection
 
@@ -425,6 +595,10 @@
 
         // Event listener untuk switch
         document.addEventListener('DOMContentLoaded', function() {
+            const konversiModalElement = document.getElementById('konversiMatkulModal');
+            const konversiModal = konversiModalElement ? new bootstrap.Modal(konversiModalElement) : null;
+            const targetCourseOptions = @json($mataKuliahDiKurikulum ?? []);
+
             const switchElement = document.getElementById('is_wajib_switch');
             if (switchElement) {
                 switchElement.addEventListener('change', handleSwitchChange);
@@ -473,7 +647,11 @@
 
                         $.ajax({
                             url: "{{ url('kurikulum') }}/" + id,
-                            type: "DELETE",
+                            type: "POST",
+                            data: {
+                                _token: $('meta[name="csrf-token"]').attr('content'),
+                                _method: 'DELETE'
+                            },
                             beforeSend: function() {
                                 Swal.showLoading();
                             },
@@ -508,6 +686,180 @@
                             }
                         });
                     }
+                });
+            });
+
+            function resetKonversiForm() {
+                $('#konversiMatkulForm')[0].reset();
+                $('#konversi_id').val('');
+                $('#id_mata_kuliah_asal').html('<option value="">-- Pilih Mata Kuliah Asal --</option>');
+                $('#konversiModalTitle').text('Tambah Aturan Konversi Mata Kuliah');
+                clearFormErrors('#konversiMatkulForm');
+            }
+
+            function clearFormErrors(formSelector) {
+                const form = $(formSelector);
+                form.find('.is-invalid').removeClass('is-invalid');
+                form.find('.invalid-feedback.dynamic-error').remove();
+            }
+
+            function applyFormErrors(fieldMap, errors = {}) {
+                Object.entries(errors).forEach(([field, messages]) => {
+                    const selector = fieldMap[field];
+                    if (!selector) {
+                        return;
+                    }
+
+                    const input = $(selector);
+                    if (!input.length) {
+                        return;
+                    }
+
+                    input.addClass('is-invalid');
+                    input.siblings('.invalid-feedback.dynamic-error').remove();
+                    input.after(
+                        `<div class="invalid-feedback dynamic-error">${Array.isArray(messages) ? messages[0] : messages}</div>`
+                    );
+                });
+            }
+
+            function loadMataKuliahAsal(kurikulumId, selectedId = '') {
+                const select = $('#id_mata_kuliah_asal');
+                select.html('<option value="">Memuat mata kuliah...</option>');
+
+                $.get("{{ route('kurikulum.mata-kuliah-json', ':id') }}".replace(':id', kurikulumId), function(res) {
+                    const items = res.data || [];
+                    select.html('<option value="">-- Pilih Mata Kuliah Asal --</option>');
+                    items.forEach(item => {
+                        select.append(`<option value="${item.id}">${item.kode_mk || ''} - ${item.nama_mk || ''}</option>`);
+                    });
+                    if (selectedId) {
+                        select.val(selectedId);
+                    }
+                }).fail(function() {
+                    select.html('<option value="">Gagal memuat mata kuliah asal</option>');
+                });
+            }
+
+            $('#btnTambahKonversi').on('click', function() {
+                resetKonversiForm();
+                konversiModal.show();
+            });
+
+            $('#id_kurikulum_asal').on('change', function() {
+                const id = $(this).val();
+                if (id) {
+                    loadMataKuliahAsal(id);
+                } else {
+                    $('#id_mata_kuliah_asal').html('<option value="">-- Pilih Mata Kuliah Asal --</option>');
+                }
+            });
+
+            $(document).on('click', '.edit-konversi-btn', function() {
+                resetKonversiForm();
+                const row = $(this).closest('tr');
+                const rule = row.data('rule');
+                if (!rule) {
+                    return;
+                }
+
+                $('#konversi_id').val(rule.id);
+                $('#id_kurikulum_asal').val(rule.id_kurikulum_asal);
+                $('#id_mata_kuliah_tujuan').val(rule.id_mata_kuliah_tujuan);
+                $('#status_konversi').val(rule.status_konversi);
+                $('#min_bobot_nilai').val(rule.min_bobot_nilai || '');
+                $('#catatan').val(rule.catatan || '');
+                $('#konversiModalTitle').text('Ubah Aturan Konversi Mata Kuliah');
+                loadMataKuliahAsal(rule.id_kurikulum_asal, rule.id_mata_kuliah_asal);
+                konversiModal.show();
+            });
+
+            $('#konversiMatkulForm').on('submit', function(e) {
+                e.preventDefault();
+
+                const id = $('#konversi_id').val();
+                const url = id
+                    ? "{{ route('kurikulum.konversi-mata-kuliah.update', ':id') }}".replace(':id', id)
+                    : "{{ route('kurikulum.konversi-mata-kuliah.store') }}";
+                const method = 'POST';
+                const submitBtn = $('#submitKonversiBtn');
+                const originalHtml = submitBtn.html();
+                clearFormErrors('#konversiMatkulForm');
+
+                submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Menyimpan...');
+
+                $.ajax({
+                    url,
+                    type: method,
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        ...(id ? {
+                            _method: 'PUT'
+                        } : {}),
+                        id_kurikulum_asal: $('#id_kurikulum_asal').val(),
+                        id_kurikulum_tujuan: $('#id_kurikulum_tujuan').val(),
+                        id_mata_kuliah_asal: $('#id_mata_kuliah_asal').val(),
+                        id_mata_kuliah_tujuan: $('#id_mata_kuliah_tujuan').val(),
+                        status_konversi: $('#status_konversi').val(),
+                        min_bobot_nilai: $('#min_bobot_nilai').val(),
+                        catatan: $('#catatan').val()
+                    },
+                    success: function(res) {
+                        Swal.fire('Berhasil', res.message || 'Aturan konversi berhasil disimpan.', 'success')
+                            .then(() => window.location.reload());
+                    },
+                    error: function(xhr) {
+                        const response = xhr.responseJSON || {};
+                        const backendErrors = response.errors?.errors || response.errors || {};
+                        applyFormErrors({
+                            id_kurikulum_asal: '#id_kurikulum_asal',
+                            id_kurikulum_tujuan: '#id_kurikulum_tujuan',
+                            id_mata_kuliah_asal: '#id_mata_kuliah_asal',
+                            id_mata_kuliah_tujuan: '#id_mata_kuliah_tujuan',
+                            status_konversi: '#status_konversi',
+                            min_bobot_nilai: '#min_bobot_nilai',
+                            catatan: '#catatan'
+                        }, backendErrors);
+                        const message = response.message || 'Gagal menyimpan aturan konversi mata kuliah.';
+                        Swal.fire('Gagal', message, 'error');
+                    },
+                    complete: function() {
+                        submitBtn.prop('disabled', false).html(originalHtml);
+                    }
+                });
+            });
+
+            $(document).on('click', '.delete-konversi-btn', function() {
+                const id = $(this).data('id');
+
+                Swal.fire({
+                    title: 'Hapus aturan konversi ini?',
+                    text: 'Aturan yang dihapus tidak dapat dikembalikan.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya, hapus',
+                    cancelButtonText: 'Batal'
+                }).then(result => {
+                    if (!result.isConfirmed) {
+                        return;
+                    }
+
+                    $.ajax({
+                        url: "{{ route('kurikulum.konversi-mata-kuliah.destroy', ':id') }}".replace(':id', id),
+                        type: 'POST',
+                        data: {
+                            _token: "{{ csrf_token() }}",
+                            _method: 'DELETE'
+                        },
+                        success: function(res) {
+                            Swal.fire('Berhasil', res.message || 'Aturan konversi berhasil dihapus.', 'success')
+                                .then(() => window.location.reload());
+                        },
+                        error: function(xhr) {
+                            const message = xhr.responseJSON?.message || 'Gagal menghapus aturan konversi mata kuliah.';
+                            Swal.fire('Gagal', message, 'error');
+                        }
+                    });
                 });
             });
         });

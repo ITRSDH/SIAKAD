@@ -73,11 +73,11 @@
 
     function initPLTable() {
 
-        if ($.fn.dataTable.isDataTable('#pl-table')) {
-            $('#pl-table').DataTable().destroy();
-        }
+        // if ($.fn.dataTable.isDataTable('#pl-table')) {
+        //     $('#pl-table').DataTable().destroy();
+        // }
 
-        window.ensureDataTables(function() {
+        window.ensureDataTables(function () {
             tablePL = $('#pl-table').DataTable({
 
                 ajax: {
@@ -85,52 +85,52 @@
                     type: "GET",
                     cache: false,
                     dataSrc: 'data',
-                    beforeSend: function() {
+                    beforeSend: function () {
                         showLoader();
                     },
-                    complete: function() {
+                    complete: function () {
                         hideLoader();
                     }
                 },
 
                 columns: [{
-                        data: 'kode_pl',
-                        defaultContent: ''
-                    },
-                    {
-                        data: 'profile_lulusan',
-                        defaultContent: ''
-                    },
+                    data: 'kode_pl',
+                    defaultContent: ''
+                },
+                {
+                    data: 'profile_lulusan',
+                    defaultContent: ''
+                },
 
-                    {
-                        data: null,
-                        defaultContent: '',
-                        render: function(data, type, row) {
+                {
+                    data: null,
+                    defaultContent: '',
+                    render: function (data, type, row) {
 
-                            let indo = row.deskripsi_profile_lulusan_indonesia ?? '';
-                            let eng = row.deskripsi_profile_lulusan_english ?? '';
+                        var indo = row.deskripsi_profile_lulusan_indonesia ?? '';
+                        var eng = row.deskripsi_profile_lulusan_english ?? '';
 
-                            return `
+                        return `
                             <div>
                                 <div>${indo}</div>
                                 <div style="font-style: italic; color:#6c757d;">${eng}</div>
                             </div>
                         `;
-                        }
-                    },
+                    }
+                },
 
-                    {
-                        data: 'profesi_lulusan',
-                        defaultContent: ''
-                    },
+                {
+                    data: 'profesi_lulusan',
+                    defaultContent: ''
+                },
 
-                    {
-                        data: 'id',
-                        orderable: false,
-                        searchable: false,
-                        render: function(data) {
+                {
+                    data: 'id',
+                    orderable: false,
+                    searchable: false,
+                    render: function (data) {
 
-                            return `
+                        return `
                         <div class="d-flex justify-content-center gap-2">
 
                             <button class="btn btn-warning btn-sm btn-edit-pl" data-id="${data}">
@@ -142,8 +142,8 @@
                             </button>
 
                         </div>`;
-                        }
                     }
+                }
                 ],
 
                 language: {
@@ -162,11 +162,11 @@
     // TAMBAH DATA
     // ===============================
 
-    $(document).on('click', '#btn-tambah-pl', function() {
+    $(document).on('click', '#btn-tambah-pl', function () {
 
         if ($('#pl-form-row').length) return;
 
-        let formRow = `
+        var formRow = `
 
 <tr id="pl-form-row">
 
@@ -224,7 +224,7 @@ id="pl-profesi"></textarea>
 
 
     // batal tambah
-    $(document).on('click', '#pl-btn-batal-pl', function() {
+    $(document).on('click', '#pl-btn-batal-pl', function () {
         $('#pl-form-row').remove();
     });
 
@@ -233,9 +233,9 @@ id="pl-profesi"></textarea>
     // SIMPAN
     // ===============================
 
-    $(document).on('click', '#pl-btn-simpan-pl', function() {
+    $(document).on('click', '#pl-btn-simpan-pl', function () {
 
-        let kodePl = $('#pl-kode_pl').val().trim();
+        var kodePl = $('#pl-kode_pl').val().trim();
 
         // Check if Kode PL is empty
         if (!kodePl) {
@@ -244,13 +244,13 @@ id="pl-profesi"></textarea>
         }
 
         // Check for duplicate Kode PL in existing data
-        let existingData = tablePL.data().toArray();
-        let duplicate = existingData.find(item => item.kode_pl === kodePl);
+        // let existingData = tablePL.data().toArray();
+        // let duplicate = existingData.find(item => item.kode_pl === kodePl);
 
-        if (duplicate) {
-            Swal.fire('Error', 'Kode PL sudah digunakan', 'error');
-            return;
-        }
+        // if (duplicate) {
+        //     Swal.fire('Error', 'Kode PL sudah digunakan', 'error');
+        //     return;
+        // }
 
         showLoader();
 
@@ -269,7 +269,7 @@ id="pl-profesi"></textarea>
                 id_prodi: "{{ $id_prodi }}"
             },
 
-            success: function(res) {
+            success: function (res) {
 
                 $('#pl-form-row').remove();
 
@@ -279,11 +279,11 @@ id="pl-profesi"></textarea>
 
             },
 
-            error: function(xhr) {
+            error: function (xhr) {
                 hideLoader();
 
-                let errorMessage = 'Gagal menyimpan data';
-                let errors = xhr.responseJSON?.errors;
+                var errorMessage = 'Gagal menyimpan data';
+                var errors = xhr.responseJSON?.errors;
 
                 if (errors) {
                     // Display specific validation errors
@@ -307,10 +307,10 @@ id="pl-profesi"></textarea>
     // EDIT
     // ===============================
 
-    $(document).on('click', '.btn-edit-pl', function() {
+    $(document).on('click', '.btn-edit-pl', function () {
 
-        let tr = $(this).closest('tr');
-        let data = tablePL.row(tr).data();
+        var tr = $(this).closest('tr');
+        var data = tablePL.row(tr).data();
 
         let formEdit = `
 
@@ -372,7 +372,7 @@ data-id="${data.id}">
 
 
     // batal edit
-    $(document).on('click', '.pl-btn-cancel-pl', function() {
+    $(document).on('click', '.pl-btn-cancel-pl', function () {
         tablePL.ajax.reload(null, false);
     });
 
@@ -381,10 +381,10 @@ data-id="${data.id}">
     // UPDATE
     // ===============================
 
-    $(document).on('click', '.pl-btn-update-pl', function() {
+    $(document).on('click', '.pl-btn-update-pl', function () {
 
-        let id = $(this).data('id');
-        let kodePl = $('#pl-edit_kode_pl').val().trim();
+        var id = $(this).data('id');
+        var kodePl = $('#pl-edit_kode_pl').val().trim();
 
         // Check if Kode PL is empty
         if (!kodePl) {
@@ -393,14 +393,14 @@ data-id="${data.id}">
         }
 
         // Check for duplicate Kode PL in existing data (excluding current record)
-        let existingData = tablePL.data().toArray();
-        var currentData = existingData.find(item => item.id == id);
-        let duplicate = existingData.find(item => item.kode_pl === kodePl && item.id != id);
+        // let existingData = tablePL.data().toArray();
+        // var currentData = existingData.find(item => item.id == id);
+        // let duplicate = existingData.find(item => item.kode_pl === kodePl && item.id != id);
 
-        if (duplicate) {
-            Swal.fire('Error', 'Kode PL sudah digunakan', 'error');
-            return;
-        }
+        // if (duplicate) {
+        //     Swal.fire('Error', 'Kode PL sudah digunakan', 'error');
+        //     return;
+        // }
 
         showLoader();
 
@@ -421,7 +421,7 @@ data-id="${data.id}">
                 profesi_lulusan: $('#pl-edit_profesi').val()
             },
 
-            success: function() {
+            success: function () {
 
                 hideLoader();
 
@@ -431,16 +431,16 @@ data-id="${data.id}">
 
             },
 
-            error: function(xhr) {
+            error: function (xhr) {
 
                 hideLoader();
 
-                let errorMessage = 'Gagal update data';
-                let errors = xhr.responseJSON?.errors;
+                var errorMessage = 'Gagal update data';
+                var errors = xhr.responseJSON?.errors;
 
                 if (errors) {
                     if (typeof errors === 'object') {
-                        let errorMessages = Object.values(errors).flat();
+                        var errorMessages = Object.values(errors).flat();
                         errorMessage = errorMessages.join('<br>');
                     }
                 } else if (xhr.responseJSON?.message) {
@@ -460,10 +460,10 @@ data-id="${data.id}">
     // DELETE
     // ===============================
 
-    $(document).on('click', '.btn-delete-pl', function() {
+    $(document).on('click', '.btn-delete-pl', function () {
 
-        let id = $(this).data('id');
-        let row = $(this).closest('tr');
+        var id = $(this).data('id');
+        var row = $(this).closest('tr');
 
         Swal.fire({
 
@@ -490,7 +490,7 @@ data-id="${data.id}">
                         _token: "{{ csrf_token() }}"
                     },
 
-                    success: function(res) {
+                    success: function (res) {
 
                         hideLoader();
 
@@ -500,7 +500,7 @@ data-id="${data.id}">
 
                     },
 
-                    error: function() {
+                    error: function () {
 
                         hideLoader();
 

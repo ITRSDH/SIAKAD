@@ -18,7 +18,7 @@ class UserController extends Controller
         $this->apiToken = session('access_token');
     }
 
-    public function index()
+    public function index(?string $roleFilter = null, ?string $pageTitle = null, ?string $pageHeading = null, ?string $pageDescription = null)
     {
         try {
             $response = Http::withToken($this->apiToken)->get($this->apiUrl . 'users');
@@ -29,7 +29,33 @@ class UserController extends Controller
                 // Ekstrak data
                 $users = $apiData['users'] ?? [];
                 $roles = $apiData['role'] ?? [];
-                return view('auth.pengguna.setting-user.user.index', compact('users', 'roles'));
+                $requestedRole = request('role', $roleFilter);
+
+                if ($requestedRole) {
+                    $users = array_values(array_filter($users, function ($user) use ($requestedRole) {
+                        $userRoles = $user['roles'] ?? $user['role'] ?? [];
+
+                        foreach ($userRoles as $role) {
+                            $roleName = is_array($role) ? ($role['name'] ?? null) : $role;
+                            if ($roleName === $requestedRole) {
+                                return true;
+                            }
+                        }
+
+                        return false;
+                    }));
+                }
+
+                return view('auth.pengguna.setting-user.user.index', [
+                    'users' => $users,
+                    'roles' => $roles,
+                    'pageTitle' => $pageTitle ?? 'User Management',
+                    'pageHeading' => $pageHeading ?? $pageTitle ?? 'User Management',
+                    'pageDescription' => $pageDescription,
+                    'pageRoute' => request()->routeIs('aktor-akademik.*') ? route('aktor-akademik.baak') : route('users.index'),
+                    'pageListLabel' => $pageTitle ? "List {$pageTitle}" : 'List User Management',
+                    'roleFilter' => $requestedRole,
+                ]);
             }
 
             return back()->with('error', 'Gagal mengambil data dari API');

@@ -1,5 +1,5 @@
 @extends('layouts.index')
-@section('title', 'User Management')
+@section('title', $pageTitle ?? 'User Management')
 
 @push('styles-custom')
     <style>
@@ -40,15 +40,15 @@
 @section('content')
     <div class="page-inner">
         <div class="page-header">
-            <h3 class="fw-bold mb-3">User Management</h3>
+            <h3 class="fw-bold mb-3">{{ $pageHeading ?? ($pageTitle ?? 'User Management') }}</h3>
             <ul class="breadcrumbs mb-3">
                 <li class="nav-home">
                     <a href="{{ url('/') }}"><i class="icon-home"></i></a>
                 </li>
                 <li class="separator"><i class="icon-arrow-right"></i></li>
-                <li class="nav-item"><a href="{{ route('users.index') }}">User Management</a></li>
+                <li class="nav-item"><a href="{{ $pageRoute ?? route('users.index') }}">{{ $pageTitle ?? 'User Management' }}</a></li>
                 <li class="separator"><i class="icon-arrow-right"></i></li>
-                <li class="nav-item"><a href="{{ route('users.index') }}">List User Management</a></li>
+                <li class="nav-item"><a href="{{ $pageRoute ?? route('users.index') }}">{{ $pageListLabel ?? 'List User Management' }}</a></li>
             </ul>
         </div>
 
@@ -57,13 +57,17 @@
                 <div class="card position-relative">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h3 class="card-title mb-0">
-                            <i class="fas fa-users me-2"></i>Data User Management
+                            <i class="fas fa-users me-2"></i>Data {{ $pageTitle ?? 'User Management' }}
                         </h3>
                         <button id="addUserBtn" class="btn btn-primary btn-sm">
                             <i class="fas fa-plus"></i> Tambah Pengguna
                         </button>
                     </div>
                     <div class="card-body">
+                        @if (!empty($pageDescription))
+                            <div class="alert alert-info">{{ $pageDescription }}</div>
+                        @endif
+
                         <div id="tableLoader" class="loader-overlay">
                             <div class="loader-spinner"></div>
                         </div>
@@ -139,7 +143,7 @@
                                 <select id="roles" class="form-select">
                                     <option value="">Pilih Role</option>
                                     @foreach ($roles ?? [] as $r)
-                                        <option value="{{ $r['name'] }}">{{ $r['name'] }}</option>
+                                        <option value="{{ $r['name'] }}" {{ ($roleFilter ?? null) === $r['name'] ? 'selected' : '' }}>{{ $r['name'] }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -224,6 +228,7 @@
                 $('#userForm')[0].reset();
                 $('#userId').val('');
                 $('#modalTitle').text('Tambah Pengguna');
+                $('#roles').val(@json($roleFilter));
                 $('#passwordHint').hide(); // Hide password hint for POST
                 $('#passwordConfirmationHint').hide(); // Hide confirmation hint for POST
                 modal.show();
@@ -295,7 +300,7 @@
                     $('#name').val(u.name);
                     $('#email').val(u.email);
                     $('#status').val(u.status === 'aktif' ? 'aktif' : 'tidak-aktif');
-                    $('#roles').val(u.roles?.[0]?.name ?? '');
+                    $('#roles').val(u.roles?.[0]?.name ?? @json($roleFilter));
                     $('#password').val('');
                     $('#passwordHint').show(); // Show password hint for PUT
                     $('#passwordConfirmationHint').show(); // Show confirmation hint for PUT

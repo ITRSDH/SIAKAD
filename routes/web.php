@@ -1,38 +1,62 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
-use App\Http\Controllers\Website\FaqController;
-// Route Website
-use App\Http\Controllers\Website\BeritaController;
-use App\Http\Controllers\Website\GaleriController;
-use App\Http\Controllers\Website\OrmawaController;
-use App\Http\Controllers\Website\BeasiswaController;
-use App\Http\Controllers\Website\PrestasiController;
-use App\Http\Controllers\Website\PengumumanController;
+use App\Http\Controllers\Siakad\Akademik\MonitoringAkademikController;
+use App\Http\Controllers\Siakad\Administratif\BaakWorkspaceController;
+use App\Http\Controllers\Siakad\Administratif\DosenPengajarWorkspaceController;
+use App\Http\Controllers\Siakad\Administratif\KaprodiWorkspaceController;
+use App\Http\Controllers\Siakad\Administratif\PembimbingAkademikWorkspaceController;
+use App\Http\Controllers\Mahasiswa\KHSController;
 use App\Http\Controllers\Mahasiswa\PembayaranController;
-use App\Http\Controllers\Website\ProfileKampusController;
+// use App\Http\Controllers\Website\ProfileKampusController;
 use App\Http\Controllers\Website\ProfileDosenController;
-use App\Http\Controllers\Website\LandingContentController;
+// use App\Http\Controllers\Website\LandingContentController;
 use App\Http\Controllers\Website\PmbPendaftaranController;
 use App\Http\Controllers\Website\SertifikatAkreditasi;
 
 // Route Siakad
+use App\Http\Controllers\Mahasiswa\TranskripController;
+use App\Http\Controllers\ManagementPengguna\PermissionController;
 use App\Http\Controllers\ManagementPengguna\RoleController;
 use App\Http\Controllers\ManagementPengguna\UserController;
-use App\Http\Controllers\ManagementPengguna\PermissionController;
+use App\Http\Controllers\Siakad\Krs\KRSDosenWaliController;
+use App\Http\Controllers\Siakad\Krs\KRSMahasiswaController;
+use App\Http\Controllers\Siakad\Administratif\WisudaController;
+use App\Http\Controllers\Siakad\AkhirStudi\YudisiumController;
+use App\Http\Controllers\Siakad\AkhirStudi\KelulusanController;
+use App\Http\Controllers\Siakad\AkhirStudi\MonitoringAkhirStudiController;
+use App\Http\Controllers\Siakad\AkhirStudi\TugasAkhirController;
+use App\Http\Controllers\Siakad\MasterData\AktorAkademikController;
+use App\Http\Controllers\Siakad\MasterData\Capaian\CapaianController;
+use App\Http\Controllers\Siakad\MasterData\Capaian\CPLController;
+use App\Http\Controllers\Siakad\MasterData\Capaian\MappingCPLMKController;
+use App\Http\Controllers\Siakad\MasterData\Capaian\MappingPLCPLController;
+use App\Http\Controllers\Siakad\MasterData\Capaian\ProfileLulusanController;
 use App\Http\Controllers\Siakad\MasterData\DosenController;
-use App\Http\Controllers\Siakad\MasterData\ProdiController;
+use App\Http\Controllers\Siakad\MasterData\DosenPengajarKelasController;
+use App\Http\Controllers\Siakad\MasterData\DosenWaliController;
+use App\Http\Controllers\Siakad\MasterData\JadwalController as MasterDataJadwalController;
+use App\Http\Controllers\Siakad\MasterData\KelaskuliahController;
 use App\Http\Controllers\Siakad\MasterData\KurikulumController;
+use App\Http\Controllers\Siakad\MasterData\MahasiswaBaruController;
 use App\Http\Controllers\Siakad\MasterData\MahasiswaController;
 use App\Http\Controllers\Siakad\MasterData\MataKuliahController;
-use App\Http\Controllers\Siakad\MasterData\MahasiswaBaruController;
+use App\Http\Controllers\Siakad\MasterData\PeriodeKRSController;
+use App\Http\Controllers\Siakad\MasterData\ProdiController;
+use App\Http\Controllers\Siakad\MasterData\RuangKuliahController;
 use App\Http\Controllers\Siakad\MasterData\TahunAkademikController;
-use App\Http\Controllers\Siakad\MasterData\Capaian\CapaianController;
-use App\Http\Controllers\Siakad\MasterData\Capaian\ProfileLulusanController;
-use App\Http\Controllers\Siakad\MasterData\Capaian\CPLController;
-use App\Http\Controllers\Siakad\MasterData\Capaian\MappingPLCPLController;
-use App\Http\Controllers\Siakad\MasterData\Capaian\MappingCPLMKController;
+use App\Http\Controllers\Siakad\Penilaian\PenilaianController;
+use App\Http\Controllers\Siakad\Transaksi\PertemuanPresensiController;
+use App\Http\Controllers\Website\BeasiswaController;
+use App\Http\Controllers\Website\BeritaController;
+use App\Http\Controllers\Website\FaqController;
+use App\Http\Controllers\Website\GaleriController;
+use App\Http\Controllers\Website\LandingContentController;
+use App\Http\Controllers\Website\OrmawaController;
+use App\Http\Controllers\Website\PengumumanController;
+use App\Http\Controllers\Website\PrestasiController;
+use App\Http\Controllers\Website\ProfileKampusController;
+use Illuminate\Support\Facades\Route;
 
 Route::middleware(['guest.token'])->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -49,6 +73,11 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::post('/change-password', [AuthController::class, 'changePassword'])->name('profile.change-password');
 
+    Route::get('/workspace/baak', [BaakWorkspaceController::class, 'index'])->name('workspace.baak');
+    Route::get('/workspace/dosen-pengajar', [DosenPengajarWorkspaceController::class, 'index'])->name('workspace.dosen-pengajar');
+    Route::get('/workspace/kaprodi', [KaprodiWorkspaceController::class, 'index'])->name('workspace.kaprodi');
+    Route::get('/workspace/pembimbing-akademik', [PembimbingAkademikWorkspaceController::class, 'index'])->name('workspace.pembimbing-akademik');
+
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
     Route::post('/users', [UserController::class, 'store'])->name('users.store');
     Route::get('/users/{id}', [UserController::class, 'show'])->name('users.show');
@@ -64,6 +93,13 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
     Route::get('/permissions', [PermissionController::class, 'index'])->name('permissions.index');
     Route::post('/permissions/sync', [PermissionController::class, 'sync'])->name('permissions.sync');
     Route::delete('/permissions/{id}', [PermissionController::class, 'destroy'])->name('permissions.destroy');
+
+    Route::prefix('aktor-akademik')->name('aktor-akademik.')->group(function () {
+        Route::get('/', [AktorAkademikController::class, 'index'])->name('index');
+        Route::get('/kaprodi', [AktorAkademikController::class, 'kaprodi'])->name('kaprodi');
+        Route::get('/pembimbing-akademik', [AktorAkademikController::class, 'pembimbingAkademik'])->name('pembimbing-akademik');
+        Route::get('/baak', [AktorAkademikController::class, 'baak'])->name('baak');
+    });
 
     Route::prefix('prodi')->name('prodi.')->group(function () {
         Route::get('/', [ProdiController::class, 'index'])->name('index');
@@ -113,6 +149,26 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
         });
     });
 
+    // Route Ruang Kuliah
+    Route::prefix('ruang-kuliah')->name('ruang-kuliah.')->group(function () {
+        Route::get('/', [RuangKuliahController::class, 'index'])->name('index');
+        Route::get('/create', [RuangKuliahController::class, 'create'])->name('create');
+        Route::post('/', [RuangKuliahController::class, 'store'])->name('store');
+        Route::get('/{id}/edit', [RuangKuliahController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [RuangKuliahController::class, 'update'])->name('update');
+        Route::delete('/{id}', [RuangKuliahController::class, 'destroy'])->name('destroy');
+    });
+
+    // Route Periode KRS
+    Route::prefix('periode-krs')->name('periode-krs.')->group(function () {
+        Route::get('/', [PeriodeKRSController::class, 'index'])->name('index');
+        Route::get('/create', [PeriodeKRSController::class, 'create'])->name('create');
+        Route::post('/', [PeriodeKRSController::class, 'store'])->name('store');
+        Route::get('/{id}/edit', [PeriodeKRSController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [PeriodeKRSController::class, 'update'])->name('update');
+        Route::delete('/{id}', [PeriodeKRSController::class, 'destroy'])->name('destroy');
+    });
+
 
     Route::prefix('tahun-akademik')->name('tahun-akademik.')->group(function () {
         Route::get('/', [TahunAkademikController::class, 'index'])->name('index');
@@ -134,6 +190,8 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
         Route::get('/prodi/{id_prodi}/tambah', [MataKuliahController::class, 'create'])->name('create');
         Route::post('/prodi/{id_prodi}', [MataKuliahController::class, 'store'])->name('store');
         Route::get('/detail/{id}', [MataKuliahController::class, 'detail'])->name('detail');
+        Route::get('/{id}/prasyarat', [MataKuliahController::class, 'prasyarat'])->name('prasyarat');
+        Route::put('/{id}/prasyarat', [MataKuliahController::class, 'updatePrasyarat'])->name('prasyarat.update');
         Route::put('/{id}/prodi/{id_prodi}', [MataKuliahController::class, 'update'])->name('update');
         Route::delete('/{id}', [MataKuliahController::class, 'destroy'])->name('destroy');
 
@@ -149,33 +207,80 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
         Route::get('/add', [KurikulumController::class, 'create'])->name('create');
         Route::post('/', [KurikulumController::class, 'store'])->name('store');
         Route::get('/detail/{id}', [KurikulumController::class, 'detail'])->name('detail');
+        Route::get('/{id}/mata-kuliah-json', [KurikulumController::class, 'getMataKuliahByKurikulum'])->name('mata-kuliah-json');
         Route::get('/edit-kolektif/{id}', [KurikulumController::class, 'editkolektif'])->name('edit-kolektif');
         Route::put('/{id}', [KurikulumController::class, 'update'])->name('update');
         Route::delete('/{id}', [KurikulumController::class, 'destroy'])->name('destroy');
+        Route::post('/konversi-mata-kuliah', [KurikulumController::class, 'storeKonversiMataKuliah'])->name('konversi-mata-kuliah.store');
+        Route::put('/konversi-mata-kuliah/{id}', [KurikulumController::class, 'updateKonversiMataKuliah'])->name('konversi-mata-kuliah.update');
+        Route::delete('/konversi-mata-kuliah/{id}', [KurikulumController::class, 'destroyKonversiMataKuliah'])->name('konversi-mata-kuliah.destroy');
 
         // Tambahkan route tambahan untuk manajemen mata kuliah
         Route::post('/{id}/tambah-mata-kuliah', [KurikulumController::class, 'tambahMataKuliahManual'])->name('tambah-mata-kuliah');
+        Route::post('/{id}/tambah-mata-kuliah-checkbox', [KurikulumController::class, 'tambahMataKuliahManualcheckbox'])->name('tambah-mata-kuliah-checkbox');
         Route::post('/{id_tujuan}/clone-mata-kuliah', [KurikulumController::class, 'cloneMataKuliah'])->name('clone-mata-kuliah');
         Route::put('/{id}/mata-kuliah/{id_mk}', [KurikulumController::class, 'updateMataKuliah'])->name('update-mata-kuliah');
         Route::delete('/{id}/mata-kuliah/{id_mk}', [KurikulumController::class, 'hapusMataKuliah'])->name('hapus-mata-kuliah');
+    });
+
+    Route::prefix('kelas-kuliah')->name('kelas-kuliah.')->group(function () {
+        Route::get('/data', [KelaskuliahController::class, 'getDatakelaskuliah'])->name('dataKelaskuliah');
+        Route::get('/', [KelaskuliahController::class, 'index'])->name('index');
+        Route::get('/add', [KelaskuliahController::class, 'create'])->name('create');
+        Route::post('/', [KelaskuliahController::class, 'store'])->name('store');
+        Route::get('/detail/{id}', [KelaskuliahController::class, 'detail'])->name('detail');
+        Route::put('/{id}', [KelaskuliahController::class, 'update'])->name('update');
+        Route::delete('/{id}', [KelaskuliahController::class, 'destroy'])->name('destroy');
+        Route::get('/{id}/tab/{tab}', [KelaskuliahController::class, 'tab'])->name('tab');
+    });
+
+    Route::prefix('dosen-pengajar-kelas')->name('dosen-pengajar-kelas.')->group(function () {
+        Route::get('/kelas/{id_kelas_kuliah}', [DosenPengajarKelasController::class, 'index'])->name('index');
+        Route::post('/kelas/{id_kelas_kuliah}', [DosenPengajarKelasController::class, 'store'])->name('store');
+        Route::get('/{id}', [DosenPengajarKelasController::class, 'show'])->name('show');
+        Route::put('/{id}', [DosenPengajarKelasController::class, 'update'])->name('update');
+        Route::delete('/{id}', [DosenPengajarKelasController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::prefix('jadwal-kelas')->name('jadwal-kelas.')->group(function () {
+        Route::get('/kelas/{id_kelas_kuliah}', [MasterDataJadwalController::class, 'index'])->name('index');
+        Route::post('/kelas/{id_kelas_kuliah}', [MasterDataJadwalController::class, 'store'])->name('store');
+        Route::get('/{id}', [MasterDataJadwalController::class, 'show'])->name('show');
+        Route::put('/{id}', [MasterDataJadwalController::class, 'update'])->name('update');
+        Route::delete('/{id}', [MasterDataJadwalController::class, 'destroy'])->name('destroy');
     });
 
     // Route Dosen
     Route::prefix('dosen')->name('dosen.')->group(function () {
         Route::get('/', [DosenController::class, 'index'])->name('index');
         Route::post('/', [DosenController::class, 'store'])->name('store');
-        Route::get('/{id}', [DosenController::class, 'show'])->name('show');
-        Route::put('/{id}', [DosenController::class, 'update'])->name('update');
-        Route::delete('/{id}', [DosenController::class, 'destroy'])->name('destroy');
+        Route::get('/{id}', [DosenController::class, 'show'])->whereUuid('id')->name('show');
+        Route::put('/{id}', [DosenController::class, 'update'])->whereUuid('id')->name('update');
+        Route::delete('/{id}', [DosenController::class, 'destroy'])->whereUuid('id')->name('destroy');
+    });
+
+    Route::prefix('dosen-wali')->name('dosen-wali.')->group(function () {
+        Route::get('/data', [DosenWaliController::class, 'getDataDosenWali'])->name('getDataDosenWali');
+        Route::get('/', [DosenWaliController::class, 'index'])->name('index');
+        Route::get('/add', [DosenWaliController::class, 'create'])->name('create');
+        Route::get('/search-mahasiswa', [DosenWaliController::class, 'searchMahasiswa'])->name('search-mahasiswa');
+        Route::post('/assign', [DosenWaliController::class, 'assign'])->name('assign');
+        Route::post('/transfer', [DosenWaliController::class, 'transfer'])->name('transfer');
+        Route::post('/unassign', [DosenWaliController::class, 'unassign'])->name('unassign');
+        Route::post('/remove', [DosenWaliController::class, 'remove'])->name('remove');
+        Route::get('/{id}', [DosenWaliController::class, 'detail'])->name('detail');
+        // Route::delete('/{id}', [DosenWaliController::class, 'destroy'])->name('destroy');
     });
 
     // Route Mahasiswa
     Route::prefix('mahasiswa')->name('mahasiswa.')->group(function () {
         Route::get('/', [MahasiswaController::class, 'index'])->name('index');
         Route::post('/', [MahasiswaController::class, 'store'])->name('store');
-        Route::get('/{id}', [MahasiswaController::class, 'show'])->name('show');
-        Route::put('/{id}', [MahasiswaController::class, 'update'])->name('update');
-        Route::delete('/{id}', [MahasiswaController::class, 'destroy'])->name('destroy');
+        Route::get('/{id}/riwayat-kurikulum', [MahasiswaController::class, 'riwayatKurikulum'])->whereUuid('id')->name('riwayat-kurikulum');
+        Route::post('/{id}/migrasi-kurikulum', [MahasiswaController::class, 'migrateKurikulum'])->whereUuid('id')->name('migrasi-kurikulum');
+        Route::get('/{id}', [MahasiswaController::class, 'show'])->whereUuid('id')->name('show');
+        Route::put('/{id}', [MahasiswaController::class, 'update'])->whereUuid('id')->name('update');
+        Route::delete('/{id}', [MahasiswaController::class, 'destroy'])->whereUuid('id')->name('destroy');
 
         // Import/Export Routes
         Route::post('/import/{id_prodi}', [MahasiswaController::class, 'import'])->name('import');
@@ -187,9 +292,9 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
         Route::get('/', [MahasiswaBaruController::class, 'index'])->name('index');
         Route::post('/', [MahasiswaBaruController::class, 'store'])->name('store');
         Route::post('/sync', [MahasiswaBaruController::class, 'sync'])->name('sync');
-        Route::get('/{id}', [MahasiswaBaruController::class, 'show'])->name('show');
-        Route::put('/{id}', [MahasiswaBaruController::class, 'update'])->name('update');
-        Route::delete('/{id}', [MahasiswaBaruController::class, 'destroy'])->name('destroy');
+        Route::get('/{id}', [MahasiswaBaruController::class, 'show'])->whereUuid('id')->name('show');
+        Route::put('/{id}', [MahasiswaBaruController::class, 'update'])->whereUuid('id')->name('update');
+        Route::delete('/{id}', [MahasiswaBaruController::class, 'destroy'])->whereUuid('id')->name('destroy');
     });
 
     // Route Pengumuman
@@ -280,8 +385,110 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
     Route::put('/profile-kampus/{id?}', [ProfileKampusController::class, 'update'])->name('profile-kampus.update');
     Route::delete('/profile-kampus/{id?}', [ProfileKampusController::class, 'destroy'])->name('profile-kampus.destroy');
 
+
     // Route Pembayaran Mahasiswa
     Route::get('/pembayaran', [PembayaranController::class, 'index'])->name('student.pembayaran.index');
     Route::get('/pembayaran/{tagihanId}/create', [PembayaranController::class, 'create'])->name('student.pembayaran.create');
     Route::post('/pembayaran/{tagihanId}/pay', [PembayaranController::class, 'store'])->name('student.pembayaran.store');
+
+    Route::prefix('mahasiswa/khs')->name('student.khs.')->group(function () {
+        Route::get('/', [KHSController::class, 'index'])->name('index');
+        Route::get('/data', [KHSController::class, 'data'])->name('data');
+        Route::get('/{khsId}/print', [KHSController::class, 'print'])->name('print');
+        Route::get('/{khsId}', [KHSController::class, 'show'])->name('show');
+    });
+
+    Route::prefix('mahasiswa/transkrip')->name('student.transkrip.')->group(function () {
+        Route::get('/', [TranskripController::class, 'index'])->name('index');
+        Route::get('/data', [TranskripController::class, 'data'])->name('data');
+        Route::get('/{transkripId}', [TranskripController::class, 'show'])->name('show');
+    });
+
+
+    Route::get('/dosen-pa/krs', [KRSDosenWaliController::class, 'index'])->name('dosenpa.krs.index');
+    Route::get('/dosen-pa/krs/statistics', [KRSDosenWaliController::class, 'statistics'])->name('dosenpa.krs.statistics');
+    Route::get('/dosen-pa/krs/pending', [KRSDosenWaliController::class, 'pending'])->name('dosenpa.krs.pending');
+    Route::get('/dosen-pa/krs/{id}', [KRSDosenWaliController::class, 'show'])->name('dosenpa.krs.show');
+    Route::post('/dosen-pa/krs/approve', [KRSDosenWaliController::class, 'approve'])->name('dosenpa.krs.approve');
+    Route::post('/dosen-pa/krs/revision', [KRSDosenWaliController::class, 'revision'])->name('dosenpa.krs.revision');
+    Route::post('/dosen-pa/krs/reject', [KRSDosenWaliController::class, 'reject'])->name('dosenpa.krs.reject');
+
+    Route::get('/krs/current', [KRSMahasiswaController::class, 'current'])->name('krs.current');
+    Route::post('/krs/current/init', [KRSMahasiswaController::class, 'initCurrent'])->name('krs.current.init');
+    Route::post('/krs', [KRSMahasiswaController::class, 'store'])->name('krs.store');
+    Route::get('/krs/penawaran', [KRSMahasiswaController::class, 'penawaranMK'])->name('krs.penawaran');
+    Route::get('/krs/repeat-candidates', [KRSMahasiswaController::class, 'repeatCandidates'])->name('krs.repeat-candidates');
+    Route::get('/krs/data', [KRSMahasiswaController::class, 'dataKrs'])->name('krs.data');
+    Route::get('/krs/statistics', [KRSMahasiswaController::class, 'statistics'])->name('krs.statistics');
+    Route::get('/krs/validation-summary', [KRSMahasiswaController::class, 'validationSummary'])->name('krs.validation-summary');
+    Route::post('/krs/add-mata-kuliah', [KRSMahasiswaController::class, 'addMataKuliah'])->name('krs.add-mata-kuliah');
+    Route::post('/krs/submit', [KRSMahasiswaController::class, 'submit'])->name('krs.submit');
+    Route::delete('/krs/{krsId}/remove-mata-kuliah/{kelasKuliahId}', [KRSMahasiswaController::class, 'removeMataKuliah'])->name('krs.remove-mata-kuliah');
+    Route::get('/krs/{id}/print', [KRSMahasiswaController::class, 'print'])->name('krs.print');
+    Route::get('/krs/{id}', [KRSMahasiswaController::class, 'show'])->name('krs.show');
+    Route::get('/krs', [KRSMahasiswaController::class, 'index'])->name('krs.index');
+
+    Route::prefix('dosen/pertemuan-presensi')->name('dosen.pertemuan-presensi.')->group(function () {
+        Route::get('/', [PertemuanPresensiController::class, 'index'])->name('index');
+        Route::get('/kelas-kuliah', [PertemuanPresensiController::class, 'kelasKuliah'])->name('kelas.index');
+        Route::get('/kelas/{kelasKuliahId}/pertemuan', [PertemuanPresensiController::class, 'pertemuanByKelas'])->name('pertemuan.index');
+        Route::post('/kelas/{kelasKuliahId}/pertemuan', [PertemuanPresensiController::class, 'storePertemuan'])->name('pertemuan.store');
+        Route::put('/pertemuan/{id}', [PertemuanPresensiController::class, 'updatePertemuan'])->name('pertemuan.update');
+        Route::get('/pertemuan/{pertemuanId}/presensi', [PertemuanPresensiController::class, 'presensiByPertemuan'])->name('presensi.show');
+        Route::post('/pertemuan/{pertemuanId}/presensi/generate-peserta', [PertemuanPresensiController::class, 'generatePeserta'])->name('presensi.generate');
+        Route::put('/pertemuan/{pertemuanId}/presensi', [PertemuanPresensiController::class, 'updatePresensi'])->name('presensi.update');
+        Route::get('/kelas/{kelasKuliahId}/rekap', [PertemuanPresensiController::class, 'rekapByKelas'])->name('rekap');
+    });
+
+    Route::prefix('dosen/penilaian')->name('dosen.penilaian.')->group(function () {
+        Route::get('/', [PenilaianController::class, 'index'])->name('index');
+        Route::get('/kelas-kuliah', [PenilaianController::class, 'kelasKuliah'])->name('kelas.index');
+        Route::get('/kelas/{kelasKuliahId}/komponen', [PenilaianController::class, 'komponenByKelas'])->name('komponen.index');
+        Route::post('/kelas/{kelasKuliahId}/komponen', [PenilaianController::class, 'storeKomponen'])->name('komponen.store');
+        Route::put('/komponen/{id}', [PenilaianController::class, 'updateKomponen'])->name('komponen.update');
+        Route::delete('/komponen/{id}', [PenilaianController::class, 'destroyKomponen'])->name('komponen.destroy');
+        Route::get('/kelas/{kelasKuliahId}/nilai', [PenilaianController::class, 'nilaiByKelas'])->name('nilai.index');
+        Route::put('/komponen/{komponenId}/nilai', [PenilaianController::class, 'updateNilaiKomponen'])->name('nilai.update');
+        Route::post('/kelas/{kelasKuliahId}/publish-final', [PenilaianController::class, 'publishFinal'])->name('publish-final');
+        Route::post('/kelas/{kelasKuliahId}/reopen', [PenilaianController::class, 'reopen'])->name('reopen');
+        Route::put('/krs-detail/{krsDetailId}/manual-final', [PenilaianController::class, 'manualFinal'])->name('manual-final');
+    });
+
+    Route::prefix('wisuda')->name('wisuda.')->group(function () {
+        Route::get('/periode', [WisudaController::class, 'indexPeriode'])->name('periode.index');
+        Route::get('/periode/{id}', [WisudaController::class, 'showPeriode'])->name('periode.show');
+        Route::post('/periode', [WisudaController::class, 'storePeriode'])->name('periode.store');
+        Route::put('/periode/{id}', [WisudaController::class, 'updatePeriode'])->name('periode.update');
+
+        Route::get('/periode/{periodeId}/peserta', [WisudaController::class, 'peserta'])->name('peserta.index');
+        Route::get('/peserta/{id}', [WisudaController::class, 'showPeserta'])->name('peserta.show');
+        Route::post('/periode/{periodeId}/peserta', [WisudaController::class, 'storePeserta'])->name('peserta.store');
+        Route::put('/peserta/{id}', [WisudaController::class, 'updatePeserta'])->name('peserta.update');
+    });
+
+    Route::prefix('yudisium')->name('yudisium.')->group(function () {
+        Route::get('/', [YudisiumController::class, 'index'])->name('index');
+        Route::get('/{id}', [YudisiumController::class, 'show'])->name('show');
+        Route::get('/preview/mahasiswa', [YudisiumController::class, 'preview'])->name('preview');
+        Route::post('/generate', [YudisiumController::class, 'generate'])->name('generate');
+    });
+
+    Route::get('/akhir-studi/monitoring', [MonitoringAkhirStudiController::class, 'index'])->name('akhir-studi.monitoring');
+    Route::get('/akademik/monitoring', [MonitoringAkademikController::class, 'index'])->name('akademik.monitoring');
+
+    Route::prefix('kelulusan')->name('kelulusan.')->group(function () {
+        Route::get('/', [KelulusanController::class, 'index'])->name('index');
+        Route::get('/{id}', [KelulusanController::class, 'show'])->name('show');
+        Route::post('/generate', [KelulusanController::class, 'generate'])->name('generate');
+    });
+
+    Route::prefix('tugas-akhir')->name('tugas-akhir.')->group(function () {
+        Route::get('/', [TugasAkhirController::class, 'index'])->name('index');
+        Route::get('/{id}', [TugasAkhirController::class, 'show'])->name('show');
+        Route::post('/', [TugasAkhirController::class, 'store'])->name('store');
+        Route::put('/{id}', [TugasAkhirController::class, 'update'])->name('update');
+        Route::put('/{id}/pembimbing', [TugasAkhirController::class, 'syncPembimbing'])->name('sync-pembimbing');
+        Route::post('/{id}/ujian', [TugasAkhirController::class, 'storeUjian'])->name('store-ujian');
+        Route::put('/ujian/{id}', [TugasAkhirController::class, 'updateUjian'])->name('update-ujian');
+    });
 });

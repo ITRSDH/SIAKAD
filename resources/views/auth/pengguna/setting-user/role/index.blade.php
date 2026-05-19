@@ -139,7 +139,7 @@
                                         ];
 
                                         // Permissions langsung
-                                        foreach ($menu['permissions'] as $perm) {
+                                        foreach (($menu['permissions'] ?? []) as $perm) {
                                             $entry['permissions'][] = [
                                                 'label' => permLabel($perm),
                                                 'permission' => $perm,
@@ -147,7 +147,7 @@
                                         }
 
                                         // Recursive children
-                                        foreach ($menu['children'] as $child) {
+                                        foreach (($menu['children'] ?? []) as $child) {
                                             $entry['sub'][] = convertToUICode([$child])[0];
                                         }
 
@@ -160,12 +160,19 @@
                                 /* ==========================================================
                                     3. Konversi root menu
                                     ========================================================== */
-                                $sections = $permissionSections ?? [
+                                $sections = collect($permissionSections ?? [
                                     [
                                         'section' => 'Permissions',
-                                        'menus' => convertToUICode($menu['menus']),
+                                        'menus' => $menu['menus'] ?? [],
                                     ],
-                                ];
+                                ])
+                                    ->map(function ($section) {
+                                        return [
+                                            'section' => $section['section'] ?? 'Permissions',
+                                            'menus' => convertToUICode($section['menus'] ?? []),
+                                        ];
+                                    })
+                                    ->all();
 
                                 /* ==========================================================
                                     4. FUNGSI RECURSIVE UNTUK TAMPILAN (tanpa include)
@@ -177,7 +184,7 @@
                                     foreach ($subs as $sub) {
                                         $subKey = Str::slug($parentKey . '-' . $sub['title']);
 
-                                        $isLeaf = empty($sub['sub']); // children paling akhir
+                                        $isLeaf = empty($sub['sub'] ?? []); // children paling akhir
 
                                         /* =====================================================
                                             1. NODE BUKAN LEAF → tetap pakai collapse + header
@@ -203,7 +210,7 @@
                                             ';
 
                                             // TABEL LEVEL INI
-                                            if (!empty($sub['permissions'])) {
+                                            if (!empty($sub['permissions'] ?? [])) {
                                                 $html .= '
                                                         <div class="table-responsive">
                                                         <table class="table table-sm table-bordered align-middle">
@@ -217,7 +224,7 @@
                                                             <tbody>
                                                     ';
 
-                                                foreach ($sub['permissions'] as $perm) {
+                                                foreach (($sub['permissions'] ?? []) as $perm) {
                                                     $html .=
                                                         '
                                                             <tr>
@@ -242,14 +249,14 @@
 
                                             // RECURSIVE CHILDREN
                                             $html .=
-                                                '<div class="ps-4">' . renderSubmenus($sub['sub'], $subKey) . '</div>';
+                                                '<div class="ps-4">' . renderSubmenus($sub['sub'] ?? [], $subKey) . '</div>';
 
                                             $html .= '</div></div></div>';
                                         } /* =====================================================
                                                 2. LEAF → hanya tampilkan tabel, TANPA HEADER
                                             ====================================================== */ else {
                                             // Jika leaf punya permission
-                                            if (!empty($sub['permissions'])) {
+                                            if (!empty($sub['permissions'] ?? [])) {
                                                 $html .= '
                                                 <div class="table-responsive">
                                                         <table class="table table-sm table-bordered align-middle mt-2">
@@ -263,7 +270,7 @@
                                                             <tbody>
                                                     ';
 
-                                                foreach ($sub['permissions'] as $perm) {
+                                                foreach (($sub['permissions'] ?? []) as $perm) {
                                                     $html .=
                                                         '
                                                             <tr>
@@ -334,7 +341,7 @@
                                                             <div class="card-body p-2">
 
                                                                 {{-- Permissions langsung --}}
-                                                                @foreach ($menuItem['permissions'] as $perm)
+                                                                @foreach (($menuItem['permissions'] ?? []) as $perm)
                                                                     <div class="form-check mb-1">
                                                                         <input type="checkbox"
                                                                             class="form-check-input permission-checkbox"
@@ -349,7 +356,7 @@
                                                                 @endforeach
 
                                                                 {{-- CHILDREN (recursive) --}}
-                                                                {!! renderSubmenus($menuItem['sub'], $menuKey) !!}
+                                                                {!! renderSubmenus($menuItem['sub'] ?? [], $menuKey) !!}
 
                                                             </div>
                                                         </div>

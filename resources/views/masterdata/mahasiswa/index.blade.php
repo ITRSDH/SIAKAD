@@ -361,7 +361,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="riwayatKurikulumModalLabel">
-                        <i class="fas fa-timeline me-2"></i>Riwayat Kurikulum Mahasiswa
+                        <i class="fas fa-history me-2"></i>Riwayat Kurikulum Mahasiswa
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
@@ -382,7 +382,7 @@
                     @csrf
                     <div class="modal-header">
                         <h5 class="modal-title" id="migrasiKurikulumModalLabel">
-                            <i class="fas fa-right-left me-2"></i>Migrasi Kurikulum Mahasiswa
+                            <i class="fas fa-exchange-alt me-2"></i>Migrasi Kurikulum Mahasiswa
                         </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
@@ -481,10 +481,10 @@
                         render: row => `
                                 <div class="d-flex justify-content-center gap-2">
                                     <button class="btn btn-info btn-sm history-btn" data-id="${row.id}" title="Riwayat Kurikulum">
-                                        <i class="fas fa-timeline"></i>
+                                        <i class="fas fa-history"></i>
                                     </button>
                                     <button class="btn btn-secondary btn-sm migrate-btn" data-id="${row.id}" title="Migrasi Kurikulum">
-                                        <i class="fas fa-right-left"></i>
+                                        <i class="fas fa-exchange-alt"></i>
                                     </button>
                                     <button class="btn btn-warning btn-sm edit-btn" data-id="${row.id}">
                                         <i class="fas fa-edit"></i>
@@ -759,7 +759,7 @@
                     const mahasiswaData = payload.mahasiswa || {};
                     const riwayat = payload.riwayat_kurikulum || [];
                     $('#riwayatKurikulumModalLabel').html(
-                        `<i class="fas fa-timeline me-2"></i>Riwayat Kurikulum - ${mahasiswaData.nama_mahasiswa || 'Mahasiswa'}`
+                        `<i class="fas fa-history me-2"></i>Riwayat Kurikulum - ${mahasiswaData.nama_mahasiswa || 'Mahasiswa'}`
                     );
                     $('#riwayatKurikulumContent').html(renderRiwayatKurikulum(riwayat));
                 }).fail(xhr => {

@@ -24,15 +24,25 @@ class KelaskuliahController extends Controller
             // Ambil data kelaskuliah dari API
             $response = Http::withToken($this->apiToken)->get($this->apiUrl . 'kelas-kuliah');
             if (!$response->successful()) {
-                return back()->with('error', 'Gagal mengambil data All Kelas Kuliah dari API');
+                return response()->json([
+                    'data' => [],
+                    'message' => $response->json('message') ?? 'Data kelas kuliah tidak tersedia.',
+                ]);
             }
 
-            $kelaskuliah = $response->json()['data'] ?? [];
+            $kelaskuliah = $response->json('data');
+
+            if (!is_array($kelaskuliah)) {
+                $kelaskuliah = [];
+            }
 
             // Kirim kedua data ke view
             return response()->json(['data' => $kelaskuliah]);
         } catch (\Exception $e) {
-            return back()->with('error', $e->getMessage());
+            return response()->json([
+                'data' => [],
+                'message' => $e->getMessage(),
+            ]);
         }
     }
 

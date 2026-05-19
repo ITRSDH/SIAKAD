@@ -140,7 +140,25 @@
             // Inisialisasi DataTables dengan data dari PHP
             var table = $('#kelas-kuliah-table').DataTable({
                 ajax: {
-                    url: "{{ route('kelas-kuliah.dataKelaskuliah') }}"
+                    url: "{{ route('kelas-kuliah.dataKelaskuliah') }}",
+                    dataSrc: function(json) {
+                        return Array.isArray(json?.data) ? json.data : [];
+                    },
+                    error: function(xhr) {
+                        $('#tableLoader').addClass('hidden');
+
+                        let message = 'Data kelas kuliah belum tersedia.';
+                        if (xhr.responseJSON?.message) {
+                            message = xhr.responseJSON.message;
+                        }
+
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Informasi',
+                            text: message,
+                            confirmButtonText: 'OK'
+                        });
+                    }
                 },
                 columns: [{
                         data: null,
@@ -240,7 +258,9 @@
 
                 ],
                 language: {
-                    url: '{{ asset('') }}template/assets/js/plugin/datatables/i18n/id.json'
+                    url: '{{ asset('') }}template/assets/js/plugin/datatables/i18n/id.json',
+                    emptyTable: 'Belum ada data kelas kuliah.',
+                    zeroRecords: 'Data kelas kuliah tidak ditemukan.'
                 },
                 drawCallback: function(settings) {
                     $('#tableLoader').addClass('hidden');

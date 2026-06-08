@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Siakad\MasterData;
 
 use App\Http\Controllers\Controller;
+use App\Services\DropdownService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
@@ -35,16 +36,12 @@ class PeriodeKRSController extends Controller
         }
     }
 
-    public function create()
+    public function create(DropdownService $dropdownService)
     {
-        $semesterResponse = Http::withToken($this->apiToken)->get($this->apiUrl . 'semester');
-
-        if (!$semesterResponse->successful()) {
-            return back()->with('error', 'Gagal mengambil data semester dari API');
-        }
-
-        $semester = $semesterResponse->json()['data'] ?? [];
-        return view('masterdata.periode_krs.create', compact('semester'));
+        $semester = $dropdownService->get('semester');
+        return view('masterdata.periode_krs.create', [
+            'semester' => $semester['semester'] ?? [],
+        ]);
     }
 
     public function store(Request $request)
@@ -60,17 +57,17 @@ class PeriodeKRSController extends Controller
             $apiResponse = $response->json();
             $errorMessage = 'Gagal menyimpan data ke API';
             $errorDetails = [];
-            
+
             // Ambil pesan error utama
             if (isset($apiResponse['message'])) {
                 $errorMessage = $apiResponse['message'];
             }
-            
+
             // Ambil error field validation
             if (isset($apiResponse['errors']) && is_array($apiResponse['errors'])) {
                 $errorDetails = $apiResponse['errors'];
             }
-            
+
             // Ambil error detail tambahan (jika ada)
             if (isset($apiResponse['error'])) {
                 $errorMessage = $apiResponse['error'];
@@ -80,7 +77,6 @@ class PeriodeKRSController extends Controller
                 ->with('error', $errorMessage)
                 ->withErrors($errorDetails)
                 ->withInput();
-
         } catch (\Exception $e) {
             return back()
                 ->with('error', 'Terjadi kesalahan: ' . $e->getMessage())
@@ -116,21 +112,19 @@ class PeriodeKRSController extends Controller
         }
     }
 
-    public function edit($id)
+    public function edit($id, DropdownService $dropdownService)
     {
         try {
             $response = Http::withToken($this->apiToken)->get($this->apiUrl . "periode-krs/{$id}");
 
             if ($response->successful()) {
                 $periodeKRS = $response->json()['data'] ?? [];
-                $semesterResponse = Http::withToken($this->apiToken)->get($this->apiUrl . 'semester');
 
-                if (!$semesterResponse->successful()) {
-                    return back()->with('error', 'Gagal mengambil data semester dari API');
-                }
-
-                $semester = $semesterResponse->json()['data'] ?? [];
-                return view('masterdata.periode_krs.edit', compact('periodeKRS', 'semester'));
+                $semester = $dropdownService->get('semester');
+                return view('masterdata.periode_krs.edit', [
+                    'periodeKRS' => $periodeKRS,
+                    'semester' => $semester['semester'] ?? [],
+                ]);
             }
 
             return back()->with('error', 'Gagal mengambil data dari API');
@@ -152,17 +146,17 @@ class PeriodeKRSController extends Controller
             $apiResponse = $response->json();
             $errorMessage = 'Gagal memperbarui data di API';
             $errorDetails = [];
-            
+
             // Ambil pesan error utama
             if (isset($apiResponse['message'])) {
                 $errorMessage = $apiResponse['message'];
             }
-            
+
             // Ambil error field validation
             if (isset($apiResponse['errors']) && is_array($apiResponse['errors'])) {
                 $errorDetails = $apiResponse['errors'];
             }
-            
+
             // Ambil error detail tambahan (jika ada)
             if (isset($apiResponse['error'])) {
                 $errorMessage = $apiResponse['error'];
@@ -172,7 +166,6 @@ class PeriodeKRSController extends Controller
                 ->with('error', $errorMessage)
                 ->withErrors($errorDetails)
                 ->withInput();
-
         } catch (\Exception $e) {
             return back()
                 ->with('error', 'Terjadi kesalahan: ' . $e->getMessage())

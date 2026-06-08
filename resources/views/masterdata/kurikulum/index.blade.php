@@ -1,5 +1,5 @@
 @extends('layouts.index')
-@section('title', 'Kurikulum')
+@section('title', 'Struktur Kurikulum')
 @push('styles-custom')
     <style>
         /* Gaya untuk loader */
@@ -59,7 +59,7 @@
 @section('content')
     <div class="page-inner">
         <div class="page-header">
-            <h3 class="fw-bold mb-3">Kurikulum</h3>
+            <h3 class="fw-bold mb-3">Struktur Kurikulum</h3>
             <ul class="breadcrumbs mb-3">
                 <li class="nav-home">
                     <a href="{{ url('/') }}">
@@ -70,13 +70,13 @@
                     <i class="icon-arrow-right"></i>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ route('kurikulum.index') }}">Kurikulum</a>
+                    <a href="{{ route('kurikulum.index') }}">Struktur Kurikulum</a>
                 </li>
                 <li class="separator">
                     <i class="icon-arrow-right"></i>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ route('kurikulum.index') }}">List Kurikulum</a>
+                    <a href="{{ route('kurikulum.index') }}">List Struktur Kurikulum</a>
                 </li>
             </ul>
         </div>
@@ -87,8 +87,11 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="fs-4 fw-semibold d-flex justify-content-between align-items-center">
-                            <h4 class="card-title"> Data Kurikulum</h4>
+                            <h4 class="card-title">Data Struktur Kurikulum</h4>
                             <div class="d-flex gap-2">
+                                <a href="{{ route('kurikulum-induk.index') }}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-sitemap me-1"></i> Tahun Kurikulum
+                                </a>
                                 <a href="{{ route('kurikulum.create') }}" class="btn btn-sm btn-primary">
                                     <i class="fas fa-plus me-1"></i> Tambah
                                 </a>
@@ -106,9 +109,12 @@
                                 <thead class="table-dark opacity-75">
                                     <tr>
                                         <th rowspan="2" width="5%">No</th>
-                                        <th rowspan="2" width="20%">Nama Kurikulum</th>
-                                        <th rowspan="2" width="15%">Program Studi</th>
-                                        <th rowspan="2" width="15%">Mulai Berlaku</th>
+                                        <th rowspan="2" width="12%">Kode Induk</th>
+                                        <th rowspan="2" width="16%">Keterangan Tahun Kurikulum</th>
+                                        <th rowspan="2" width="12%">Jenis</th>
+                                        <th rowspan="2" width="18%">Nama Struktur Kurikulum</th>
+                                        <th rowspan="2" width="14%">Program Studi</th>
+                                        <th rowspan="2" width="12%">Mulai Berlaku</th>
 
                                         <th colspan="3" width="20%">Aturan Jumlah SKS</th>
                                         <th colspan="2" width="15%">Jumlah SKS Matakuliah</th>
@@ -138,7 +144,7 @@
 @endsection
 
 @push('scripts-custom')
-    <script src="{{ asset('') }}template/assets/js/core/jquery-3.7.1.min.js"></script>
+    {{-- <script src="{{ asset('') }}template/assets/js/core/jquery-3.7.1.min.js"></script> --}}
     <!-- Datatables -->
     <script src="{{ asset('') }}template/assets/js/plugin/datatables/datatables.min.js"></script>
     <!-- SweetAlert2 CDN -->
@@ -152,7 +158,7 @@
                 },
                 columnDefs: [{
                     orderable: false,
-                    targets: [4, 5, 6, 7, 8]
+                    targets: [7, 8, 9, 10, 11, 12]
                 }],
                 columns: [{
                         data: null,
@@ -164,7 +170,28 @@
                         searchable: false
                     },
                     {
-                        data: 'nama_kurikulum',
+                        data: 'kurikulum_induk',
+                        className: 'text-center',
+                        render: function(data) {
+                            return data?.kode_kurikulum || '-';
+                        }
+                    },
+                    {
+                        data: 'keterangan_kurikulum_induk',
+                        className: 'text-center',
+                        render: function(data) {
+                            return data || '-';
+                        }
+                    },
+                    {
+                        data: 'kurikulum_induk',
+                        className: 'text-center',
+                        render: function(data) {
+                            return data?.jenis_kurikulum?.kode_jenis || '-';
+                        }
+                    },
+                    {
+                        data: 'nama_struktur_mk',
                         className: 'text-center',
                         render: function(data, type, row) {
                             var detailUrl = "{{ route('kurikulum.detail', ':id') }}".replace(':id',
@@ -241,7 +268,7 @@
                                         <a href="${detailUrl}" class="btn btn-warning btn-sm text-white">
                                             <i class="fas fa-pen"></i>
                                         </a>
-                                        <button class="btn btn-danger btn-sm delete-btn" data-id="${row.id}" data-nama="${row.nama_kurikulum}">
+                                        <button class="btn btn-danger btn-sm delete-btn" data-id="${row.id}" data-nama="${row.nama_struktur_mk || row.nama_kurikulum}">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                 </div>

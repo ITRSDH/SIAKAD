@@ -30,10 +30,10 @@ class AuthController extends Controller
     {
         // Validasi input
         $request->validate([
-            'username' => 'required', // email / nim / nup
+            'username' => 'required', // email / nim / nidn
             'password' => 'required',
         ], [
-            'username.required' => 'Email / NIM / NUP wajib diisi.',
+            'username.required' => 'Email / NIM / NIDN wajib diisi.',
             'password.required' => 'Password wajib diisi.',
         ]);
 

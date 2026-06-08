@@ -7,7 +7,7 @@
             display: flex;
             gap: 0.25rem;
         }
-        
+
         .btn-action {
             padding: 0.25rem 0.5rem;
             font-size: 0.875rem;
@@ -85,7 +85,7 @@
 @endsection
 
 @push('scripts-custom')
-    <script src="{{ asset('') }}template/assets/js/core/jquery-3.7.1.min.js"></script>
+    {{-- <script src="{{ asset('') }}template/assets/js/core/jquery-3.7.1.min.js"></script> --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.6/css/dataTables.dataTables.css" />
     <script src="https://cdn.datatables.net/2.3.6/js/dataTables.js"></script>
@@ -126,7 +126,7 @@
                         data: 'semester',
                         render: function(data) {
                             if (!data) return '<span class="text-muted">-</span>';
-                            return `${data.kode_semester} - ${data.nama_semester}`;
+                            return `${data.tahun_akademik.tahun_akademik} ${data.nama_semester}`;
                         }
                     },
                     {
@@ -166,7 +166,8 @@
                     {
                         data: null,
                         render: function(data, type, row) {
-                            const editUrl = "{{ route('periode-krs.edit', ':id') }}".replace(':id', row.id);
+                            const editUrl = "{{ route('periode-krs.edit', ':id') }}".replace(':id',
+                                row.id);
                             return `
                                 <div class="d-flex justify-content-center gap-1">
                                     <a href="${editUrl}" class="btn btn-sm btn-warning btn-icon" title="Edit">
@@ -189,7 +190,7 @@
                 e.preventDefault();
                 var id = $(this).data('id');
                 var nama = $(this).data('nama');
-                
+
                 Swal.fire({
                     title: 'Apakah Anda yakin?',
                     text: `Data periode "${nama}" akan dihapus permanently!`,
@@ -210,15 +211,21 @@
                             success: function(response) {
                                 if (response.success) {
                                     // Hapus baris dari tabel
-                                    table.row($('button[data-id="' + id + '"]').closest('tr')).remove().draw();
-                                    
-                                    Swal.fire('Berhasil!', 'Data periode KRS berhasil dihapus', 'success');
+                                    table.row($('button[data-id="' + id + '"]').closest(
+                                        'tr')).remove().draw();
+
+                                    Swal.fire('Berhasil!',
+                                        'Data periode KRS berhasil dihapus',
+                                        'success');
                                 } else {
-                                    Swal.fire('Error', 'Gagal menghapus data periode KRS', 'error');
+                                    Swal.fire('Error',
+                                        'Gagal menghapus data periode KRS', 'error');
                                 }
                             },
                             error: function() {
-                                Swal.fire('Error', 'Terjadi kesalahan saat menghapus data', 'error');
+                                Swal.fire('Error',
+                                    'Terjadi kesalahan saat menghapus data', 'error'
+                                );
                             }
                         });
                     }

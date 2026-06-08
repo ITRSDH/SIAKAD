@@ -1,5 +1,5 @@
 @extends('layouts.index')
-@section('title', 'Detail Kurikulum')
+@section('title', 'Detail Struktur Kurikulum')
 
 @push('styles-custom')
     <style>
@@ -22,10 +22,31 @@
     </style>
 @endpush
 
+@php
+    $formatKurikulumIndukLabel = static function (?array $induk): string {
+        if (empty($induk)) {
+            return '-';
+        }
+
+        return collect([
+            $induk['kode_kurikulum'] ?? null,
+            $induk['nama_kurikulum'] ?? null,
+            $induk['jenis_kurikulum']['kode_jenis'] ?? null,
+        ])->filter()->implode(' | ') ?: '-';
+    };
+
+    $formatStrukturKurikulumLabel = static function (array $item) use ($formatKurikulumIndukLabel): string {
+        return collect([
+            $formatKurikulumIndukLabel($item['kurikulum_induk'] ?? null),
+            $item['nama_struktur_mk'] ?? ($item['nama_kurikulum'] ?? null),
+        ])->filter()->implode(' | ') ?: '-';
+    };
+@endphp
+
 @section('content')
     <div class="page-inner">
         <div class="page-header">
-            <h3 class="fw-bold mb-3">Kurikulum Kuliah</h3>
+            <h3 class="fw-bold mb-3">Struktur Kurikulum</h3>
             <ul class="breadcrumbs mb-3">
                 <li class="nav-home">
                     <a href="{{ url('/') }}">
@@ -36,13 +57,13 @@
                     <i class="icon-arrow-right"></i>
                 </li>
                 <li class="nav-item">
-                    <a href="#">Kurikulum</a>
+                    <a href="#">Struktur Kurikulum</a>
                 </li>
                 <li class="separator">
                     <i class="icon-arrow-right"></i>
                 </li>
                 <li class="nav-item">
-                    <a href="#">Detail Kurikulum</a>
+                    <a href="#">Detail Struktur Kurikulum</a>
                 </li>
             </ul>
         </div>
@@ -52,9 +73,15 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="fs-4 fw-semibold d-flex justify-content-between align-items-center">
-                            <h4 class="card-title mb-0">Mengatur Kurikulum per Program Studi</h4>
+                            <h4 class="card-title mb-0">Mengatur Struktur Kurikulum per Program Studi</h4>
 
                             <div class="d-flex gap-2">
+                                <a href="{{ route('kurikulum-induk.index') }}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-sitemap me-1"></i> Tahun Kurikulum
+                                </a>
+                                <a href="{{ route('jenis-kurikulum.index') }}" class="btn btn-sm btn-outline-info">
+                                    <i class="fas fa-layer-group me-1"></i> Jenis Kurikulum
+                                </a>
                                 <a href="{{ route('kurikulum.create') }}" class="btn btn-sm btn-primary">
                                     <i class="fas fa-plus me-1"></i> Tambah
                                 </a>
@@ -64,7 +91,7 @@
                                 </button>
 
                                 <button type="button" class="btn btn-sm btn-danger delete-btn"
-                                    data-id="{{ $kurikulum['id'] }}" data-nama="{{ $kurikulum['nama_kurikulum'] }}">
+                                    data-id="{{ $kurikulum['id'] }}" data-nama="{{ $kurikulum['nama_struktur_mk'] ?? $kurikulum['nama_kurikulum'] }}">
                                     <i class="fas fa-trash me-1"></i> Hapus
                                 </button>
 
@@ -84,6 +111,13 @@
                             </div>
                         @endif
 
+                        @if ($errors->any())
+                            <div class="alert alert-danger alert-dismissible fade show">
+                                {{ $errors->first() }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        @endif
+
                         <form action="{{ route('kurikulum.update', $kurikulum['id'] ?? '') }}" method="POST"
                             id="formubahkurikulum">
                             @csrf
@@ -92,11 +126,11 @@
                             @endif
 
                             <div class="row g-3">
-                                {{-- Nama Kurikulum --}}
+                                {{-- Nama Struktur MK --}}
                                 <div class="col-md-6">
-                                    <label class="form-label fw-semibold">Nama Kurikulum</label>
-                                    <input type="text" name="nama_kurikulum" class="form-control"
-                                        value="{{ old('nama_kurikulum', $kurikulum['nama_kurikulum'] ?? '') }}" required>
+                                    <label class="form-label fw-semibold">Nama Struktur Kurikulum</label>
+                                    <input type="text" name="nama_struktur_mk" class="form-control"
+                                        value="{{ old('nama_struktur_mk', $kurikulum['nama_struktur_mk'] ?? $kurikulum['nama_kurikulum'] ?? '') }}" required>
                                 </div>
 
                                 {{-- SKS Pilihan --}}
@@ -109,8 +143,35 @@
 
                                 {{-- Program Studi --}}
                                 <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Tahun Kurikulum</label>
+                                    <select name="id_kurikulum_induk" id="id_kurikulum_induk" class="form-control select2" required>
+                                        @foreach ($kurikulumInduk as $item)
+                                            <option value="{{ $item['id'] }}"
+                                                data-prodi="{{ $item['id_prodi'] }}"
+                                                data-kode="{{ $item['kode_kurikulum'] ?? '' }}"
+                                                data-tahun="{{ $item['tahun_kurikulum'] ?? '' }}"
+                                                data-keterangan="{{ $item['keterangan'] ?? $item['nama_kurikulum'] ?? '' }}"
+                                                data-mulai-berlaku="{{ $item['mulai_berlaku'] ?? '' }}"
+                                                data-jenis="{{ $item['jenis_kurikulum']['kode_jenis'] ?? '' }}"
+                                                {{ old('id_kurikulum_induk', $kurikulum['id_kurikulum_induk'] ?? '') == $item['id'] ? 'selected' : '' }}>
+                                                {{ $item['kurikulum_induk'] }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <small class="text-muted">Struktur operasional ini harus terhubung ke satu master tahun kurikulum yang jelas.</small>
+                                    <div id="kurikulumIndukSummary" class="small text-muted mt-2">
+                                        @if (!empty($kurikulum['kurikulum_induk']))
+                                            {{ $formatKurikulumIndukLabel($kurikulum['kurikulum_induk']) }}
+                                        @else
+                                            Pilih tahun kurikulum untuk melihat ringkasan jenis, tahun, dan mulai berlakunya.
+                                        @endif
+                                    </div>
+                                </div>
+
+                                {{-- Program Studi --}}
+                                <div class="col-md-6">
                                     <label class="form-label fw-semibold">Program Studi</label>
-                                    <select name="id_prodi" class="form-control select2" required>
+                                    <select name="id_prodi" id="id_prodi" class="form-control select2" required>
                                         @foreach ($prodi as $p)
                                             <option value="{{ $p['id'] }}"
                                                 {{ old('id_prodi', $kurikulum['id_prodi'] ?? '') == $p['id'] ? 'selected' : '' }}>
@@ -162,7 +223,7 @@
                         <div class="d-flex align-items-center gap-2 flex-wrap">
                             <!-- Judul -->
                             <span class="fw-semibold">
-                                Salin data Matakuliah Kurikulum dari :
+                                Salin data Matakuliah Struktur MK dari :
                             </span>
 
                             <form action="{{ route('kurikulum.clone-mata-kuliah', ['id_tujuan' => $kurikulum['id']]) }}"
@@ -173,9 +234,9 @@
                                 <div style="width:220px;">
                                     <select class="form-select select2" id="id_kurikulum_clone" name="id_kurikulum_asal"
                                         required>
-                                        <option value="" selected disabled>– Pilih Kurikulum –</option>
+                                        <option value="" selected disabled>– Pilih Struktur MK –</option>
                                         @foreach ($kurikulum_lain as $k)
-                                            <option value="{{ $k['id'] }}">{{ $k['nama_kurikulum'] }}</option>
+                                            <option value="{{ $k['id'] }}">{{ $formatStrukturKurikulumLabel($k) }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -216,7 +277,7 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title">
-                                Matakuliah untuk Kurikulum
+                                Matakuliah untuk Struktur MK
                             </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
@@ -288,7 +349,7 @@
                                     </button>
                                     <button type="submit" class="btn btn-success">
                                         <i class="fas fa-check me-1"></i>
-                                        Simpan Matakuliah Kurikulum
+                                        Simpan Matakuliah Struktur MK
                                     </button>
                                 </div>
                             </div>
@@ -304,14 +365,14 @@
             <div class="col-12">
                 <div class="card shadow-sm">
                     <div class="card-header">
-                        <h5 class="mb-0">Aturan Konversi Mata Kuliah ke Kurikulum Ini</h5>
+                        <h5 class="mb-0">Aturan Konversi Mata Kuliah ke Struktur MK Ini</h5>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
                             <table class="table table-bordered table-striped align-middle mb-0" id="konversiTable">
                                 <thead>
                                     <tr>
-                                        <th>Kurikulum Asal</th>
+                                        <th>Struktur MK Asal</th>
                                         <th>Mata Kuliah Asal</th>
                                         <th>Mata Kuliah Tujuan</th>
                                         <th>Status</th>
@@ -323,7 +384,7 @@
                                 <tbody id="konversiTableBody">
                                     @forelse ($konversiMataKuliah as $rule)
                                         <tr data-rule='@json($rule)'>
-                                            <td>{{ ($rule['kurikulum_asal']['kode_kurikulum'] ?? '') . ' | ' . ($rule['kurikulum_asal']['nama_kurikulum'] ?? '-') }}</td>
+                                            <td>{{ ($rule['kurikulum_asal']['kode_kurikulum'] ?? '') . ' | ' . ($rule['kurikulum_asal']['nama_struktur_mk'] ?? $rule['kurikulum_asal']['nama_kurikulum'] ?? '-') }}</td>
                                             <td>{{ ($rule['mata_kuliah_asal']['kode_mk'] ?? '') . ' - ' . ($rule['mata_kuliah_asal']['nama_mk'] ?? '-') }}</td>
                                             <td>{{ ($rule['mata_kuliah_tujuan']['kode_mk'] ?? '') . ' - ' . ($rule['mata_kuliah_tujuan']['nama_mk'] ?? '-') }}</td>
                                             <td><span class="badge bg-{{ ($rule['status_konversi'] ?? '') === 'diakui' ? 'success' : (($rule['status_konversi'] ?? '') === 'wajib_ulang' ? 'warning' : 'secondary') }}">{{ strtoupper($rule['status_konversi'] ?? '-') }}</span></td>
@@ -343,7 +404,7 @@
                                     @empty
                                         <tr>
                                             <td colspan="7" class="text-center text-muted py-4">
-                                                Belum ada aturan konversi mata kuliah untuk kurikulum ini.
+                                                Belum ada aturan konversi mata kuliah untuk struktur MK ini.
                                             </td>
                                         </tr>
                                     @endforelse
@@ -508,7 +569,7 @@
                 <form id="konversiMatkulForm">
                     @csrf
                     <div class="modal-header">
-                        <h5 class="modal-title" id="konversiModalTitle">Tambah Aturan Konversi Mata Kuliah</h5>
+                        <h5 class="modal-title" id="konversiModalTitle">Tambah Aturan Konversi Struktur MK</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
@@ -516,11 +577,11 @@
                         <input type="hidden" id="id_kurikulum_tujuan" value="{{ $kurikulum['id'] }}">
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label class="form-label">Kurikulum Asal</label>
+                                <label class="form-label">Struktur MK Asal</label>
                                 <select class="form-control" id="id_kurikulum_asal" required>
-                                    <option value="">-- Pilih Kurikulum Asal --</option>
+                                    <option value="">-- Pilih Struktur MK Asal --</option>
                                     @foreach ($kurikulum_lain as $k)
-                                        <option value="{{ $k['id'] }}">{{ ($k['kode_kurikulum'] ?? '') . ' | ' . ($k['nama_kurikulum'] ?? '-') }}</option>
+                                        <option value="{{ $k['id'] }}">{{ $formatStrukturKurikulumLabel($k) }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -570,7 +631,7 @@
 @endsection
 
 @push('scripts-custom')
-    <script src="{{ asset('template/assets/js/core/jquery-3.7.1.min.js') }}"></script>
+    {{-- <script src="{{ asset('template/assets/js/core/jquery-3.7.1.min.js') }}"></script> --}}
     <!-- SweetAlert2 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
@@ -595,6 +656,46 @@
 
         // Event listener untuk switch
         document.addEventListener('DOMContentLoaded', function() {
+            function filterKurikulumIndukByProdi() {
+                const selectedProdi = $('#id_prodi').val();
+                const indukSelect = $('#id_kurikulum_induk');
+                const currentValue = indukSelect.val();
+
+                indukSelect.find('option').each(function() {
+                    const option = $(this);
+                    const optionProdi = option.data('prodi');
+
+                    if (!option.val()) {
+                        option.prop('hidden', false);
+                        return;
+                    }
+
+                    option.prop('hidden', selectedProdi && optionProdi !== selectedProdi);
+                });
+
+                if (currentValue && indukSelect.find(`option[value="${currentValue}"]`).prop('hidden')) {
+                    indukSelect.val(null).trigger('change');
+                }
+            }
+
+            function renderKurikulumIndukSummary() {
+                const selectedOption = $('#id_kurikulum_induk option:selected');
+                if (!selectedOption.length || !selectedOption.val()) {
+                    $('#kurikulumIndukSummary').text('Pilih tahun kurikulum untuk melihat ringkasan jenis, tahun, dan mulai berlakunya.');
+                    return;
+                }
+
+                const parts = [
+                    selectedOption.data('kode'),
+                    selectedOption.data('tahun') ? `Tahun ${selectedOption.data('tahun')}` : null,
+                    selectedOption.data('jenis') ? `Jenis ${selectedOption.data('jenis')}` : null,
+                    selectedOption.data('mulai-berlaku') ? `Mulai ${selectedOption.data('mulai-berlaku')}` : null,
+                    selectedOption.data('keterangan') ? `Ket: ${selectedOption.data('keterangan')}` : null,
+                ].filter(Boolean);
+
+                $('#kurikulumIndukSummary').text(parts.join(' | ') || 'Ringkasan tahun kurikulum belum tersedia.');
+            }
+
             const konversiModalElement = document.getElementById('konversiMatkulModal');
             const konversiModal = konversiModalElement ? new bootstrap.Modal(konversiModalElement) : null;
             const targetCourseOptions = @json($mataKuliahDiKurikulum ?? []);
@@ -606,6 +707,17 @@
                 // Panggil fungsi sekali untuk inisialisasi awal
                 handleSwitchChange();
             }
+
+            $('#id_prodi').on('change', function() {
+                filterKurikulumIndukByProdi();
+            });
+
+            $('#id_kurikulum_induk').on('change', function() {
+                renderKurikulumIndukSummary();
+            });
+
+            filterKurikulumIndukByProdi();
+            renderKurikulumIndukSummary();
 
             // Inisialisasi select2 untuk modal
             $('#modalTambahMatkul').on('shown.bs.modal', function() {
@@ -693,7 +805,7 @@
                 $('#konversiMatkulForm')[0].reset();
                 $('#konversi_id').val('');
                 $('#id_mata_kuliah_asal').html('<option value="">-- Pilih Mata Kuliah Asal --</option>');
-                $('#konversiModalTitle').text('Tambah Aturan Konversi Mata Kuliah');
+                $('#konversiModalTitle').text('Tambah Aturan Konversi Struktur MK');
                 clearFormErrors('#konversiMatkulForm');
             }
 
@@ -769,7 +881,7 @@
                 $('#status_konversi').val(rule.status_konversi);
                 $('#min_bobot_nilai').val(rule.min_bobot_nilai || '');
                 $('#catatan').val(rule.catatan || '');
-                $('#konversiModalTitle').text('Ubah Aturan Konversi Mata Kuliah');
+                $('#konversiModalTitle').text('Ubah Aturan Konversi Struktur MK');
                 loadMataKuliahAsal(rule.id_kurikulum_asal, rule.id_mata_kuliah_asal);
                 konversiModal.show();
             });

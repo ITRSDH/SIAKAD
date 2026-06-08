@@ -275,7 +275,7 @@
 @endsection
 
 @push('scripts-custom')
-    <script src="{{ asset('') }}template/assets/js/core/jquery-3.7.1.min.js"></script>
+    {{-- <script src="{{ asset('') }}template/assets/js/core/jquery-3.7.1.min.js"></script> --}}
     <!-- SweetAlert2 CDN untuk production -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.6/css/dataTables.dataTables.css" />
@@ -370,7 +370,7 @@
             $(document).on('click', '.edit-btn', function(e) {
                 e.preventDefault();
                 var id = $(this).data('id');
-                
+
                 $.get("/pengumuman/" + id)
                     .done(function(data) {
                         if (data && data.data) {
@@ -379,7 +379,7 @@
                             $('#judul_modal').val(data.data.judul);
                             $('#kategori_modal').val(data.data.kategori);
                             $('#isi_modal').val(data.data.isi);
-                            
+
                             // Format tanggal untuk input date (YYYY-MM-DD)
                             if (data.data.tanggal) {
                                 var tanggalDate = new Date(data.data.tanggal);
@@ -401,7 +401,7 @@
             $(document).on('click', '.delete-btn', function(e) {
                 e.preventDefault();
                 var id = $(this).data('id');
-                
+
                 Swal.fire({
                     title: 'Apakah Anda yakin?',
                     text: 'Data pengumuman akan dihapus permanently!',
@@ -423,7 +423,7 @@
                                 if (response.success) {
                                     // Hapus baris dari tabel
                                     table.row($('button[data-id="' + id + '"]').closest('tr')).remove().draw();
-                                    
+
                                     Swal.fire('Berhasil!', 'Data pengumuman berhasil dihapus', 'success');
                                 } else {
                                     Swal.fire('Error', 'Gagal menghapus data pengumuman', 'error');
@@ -446,7 +446,7 @@
                 $saveBtn.prop('disabled', true).html(
                     '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Menyimpan...'
                 );
-                
+
                 var url = "{{ route('pengumuman.store') }}";
                 var data = {
                     'judul': $('#judul').val(),
@@ -455,7 +455,7 @@
                     'isi': $('#isi').val(),
                     '_token': '{{ csrf_token() }}'
                 };
-                
+
                 $.ajax({
                     url: url,
                     type: 'POST',
@@ -464,10 +464,10 @@
                         if (response.success) {
                             // Tambah data ke tabel
                             table.row.add(response.data).draw();
-                            
+
                             // Reset form
                             $('#pengumumanForm')[0].reset();
-                            
+
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Berhasil!',
@@ -480,7 +480,7 @@
                             if (response.errors) {
                                 // Clear previous errors
                                 $('.error-text').text('');
-                                
+
                                 // Show validation errors
                                 $.each(response.errors, function(key, value) {
                                     var fieldId = key + '_error';
@@ -496,7 +496,7 @@
                         if (response && response.errors) {
                             // Clear previous errors
                             $('.error-text').text('');
-                            
+
                             // Show validation errors
                             $.each(response.errors, function(key, value) {
                                 var fieldId = key + '_error';
@@ -515,7 +515,7 @@
             // Update Form Submit (Modal)
             $('#pengumumanFormModal').on('submit', function(e) {
                 e.preventDefault();
-                
+
                 var id = $('#pengumuman_id_modal').val();
                 var url = '/pengumuman/' + id;
                 var data = {
@@ -538,7 +538,7 @@
                         handleUpdateError(xhr);
                     }
                 });
-                
+
                 function handleUpdateResponse(response) {
                     if (response.success) {
                         Swal.fire({
@@ -548,11 +548,11 @@
                             showConfirmButton: false,
                             timer: 1500
                         });
-                        
+
                         // Update baris di tabel (pakai object agar konsisten dengan DataTables columns)
                         const row = table.row($('button[data-id="' + id + '"]').closest('tr'));
                         row.data(response.data).invalidate().draw(false);
-                        
+
                         $('#modalPengumuman').modal('hide');
                     } else {
                         if (response.errors) {
@@ -566,7 +566,7 @@
                         }
                     }
                 }
-                
+
                 function handleUpdateError(xhr) {
                     var response = xhr.responseJSON;
                     if (response && response.errors) {

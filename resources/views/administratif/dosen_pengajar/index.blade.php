@@ -18,10 +18,6 @@
 
         @include('layouts.partials.flash-messages')
 
-        <div class="alert alert-info">
-            Halaman ini menjadi entrypoint `Dosen Pengajar Kelas` untuk melihat kelas ajar, menjalankan pertemuan, mengelola presensi, dan menuntaskan penilaian kelas.
-        </div>
-
         <div class="row">
             @foreach ($kpis as $item)
                 <div class="col-md-6 col-xl-3">
@@ -129,16 +125,24 @@
                             @forelse ($recentClasses as $item)
                                 <tr>
                                     <td>
-                                        <div class="fw-semibold">{{ $item['mata_kuliah']['nama_mk'] ?? ($item['mata_kuliah']['nama_mata_kuliah'] ?? ($item['nama_mata_kuliah'] ?? '-')) }}</div>
-                                        <div class="text-muted small">{{ $item['mata_kuliah']['kode_mk'] ?? ($item['mata_kuliah']['kode_mata_kuliah'] ?? ($item['kode_mata_kuliah'] ?? '-')) }}</div>
+                                        <div class="fw-semibold">
+                                            {{ $item['mata_kuliah']['nama_mk'] ?? ($item['mata_kuliah']['nama_mata_kuliah'] ?? ($item['nama_mata_kuliah'] ?? '-')) }}
+                                        </div>
+                                        <div class="text-muted small">
+                                            {{ $item['mata_kuliah']['kode_mk'] ?? ($item['mata_kuliah']['kode_mata_kuliah'] ?? ($item['kode_mata_kuliah'] ?? '-')) }}
+                                        </div>
                                     </td>
                                     <td>{{ $item['nama_kelas'] ?? ($item['kelas'] ?? '-') }}</td>
-                                    <td>{{ is_array($item['semester'] ?? null) ? ($item['semester']['nama_semester'] ?? '-') : ($item['semester'] ?? '-') }}</td>
-                                    <td class="text-center">{{ $item['peserta_terdaftar'] ?? ($item['jumlah_peserta'] ?? ($item['peserta_count'] ?? 0)) }}</td>
+                                    <td>{{ is_array($item['semester'] ?? null) ? $item['semester']['nama_semester'] ?? '-' : $item['semester'] ?? '-' }}
+                                    </td>
+                                    <td class="text-center">
+                                        {{ $item['peserta_terdaftar'] ?? ($item['jumlah_peserta'] ?? ($item['peserta_count'] ?? 0)) }}
+                                    </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="text-center text-muted">Belum ada kelas ajar yang terdeteksi.</td>
+                                    <td colspan="4" class="text-center text-muted">Belum ada kelas ajar yang terdeteksi.
+                                    </td>
                                 </tr>
                             @endforelse
                         </tbody>

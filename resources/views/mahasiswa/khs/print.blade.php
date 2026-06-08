@@ -1,9 +1,9 @@
 @php
-    $mahasiswa = $mahasiswaDetail ?: ($khs['mahasiswa'] ?? []);
+    $mahasiswa = $mahasiswaDetail ?: $khs['mahasiswa'] ?? [];
     $prodi = $mahasiswa['prodi'] ?? [];
     $kaprodi = $prodi['kaprodi'] ?? null;
     $semester = $khs['semester'] ?? [];
-    $tahunAkademik = $semester['tahun_akademik'] ?? $semester['tahunAkademik'] ?? [];
+    $tahunAkademik = $semester['tahun_akademik'] ?? ($semester['tahunAkademik'] ?? []);
     $details = $khs['details'] ?? [];
 
     $angkaKeRomawi = [
@@ -34,9 +34,38 @@
         $jabatanKaprodi .= ' ' . $prodi['nama_prodi'];
     }
 
-    $semesterKe = $mahasiswa['semester_ke'] ?? $khs['semester_ke'] ?? null;
+    $semesterKe = $mahasiswa['semester_ke'] ?? ($khs['semester_ke'] ?? null);
     if (!$semesterKe && !empty($semester['semester_ke'])) {
         $semesterKe = $semester['semester_ke'];
+    }
+
+    if (!$semesterKe) {
+        $angkatan = isset($mahasiswa['angkatan']) ? (int) $mahasiswa['angkatan'] : null;
+        $tahunAkademikValue = (string) ($tahunAkademik['tahun_akademik'] ?? '');
+        $semesterOrder = null;
+
+        if (!empty($semester['nama_semester'])) {
+            $normalizedSemesterName = strtolower((string) $semester['nama_semester']);
+            if (str_contains($normalizedSemesterName, 'ganjil')) {
+                $semesterOrder = 1;
+            } elseif (str_contains($normalizedSemesterName, 'genap')) {
+                $semesterOrder = 2;
+            }
+        }
+
+        if ($semesterOrder === null && !empty($semester['kode_semester'])) {
+            $normalizedSemesterCode = strtolower((string) $semester['kode_semester']);
+            if (str_contains($normalizedSemesterCode, 'ganjil') || str_ends_with($normalizedSemesterCode, '1')) {
+                $semesterOrder = 1;
+            } elseif (str_contains($normalizedSemesterCode, 'genap') || str_ends_with($normalizedSemesterCode, '2')) {
+                $semesterOrder = 2;
+            }
+        }
+
+        if ($angkatan && preg_match('/^(\d{4})/', $tahunAkademikValue, $matches) && $semesterOrder !== null) {
+            $tahunMulaiAkademik = (int) $matches[1];
+            $semesterKe = max(1, (($tahunMulaiAkademik - $angkatan) * 2) + $semesterOrder);
+        }
     }
 
     if (!$semesterKe && !empty($semester['nama_semester'])) {
@@ -53,18 +82,25 @@
         $semesterKe = $semesterMap[strtolower((string) $semester['nama_semester'])] ?? null;
     }
 
-    $semesterKeLabel = $semesterKe && isset($angkaKeRomawi[(int) $semesterKe]) ? $angkaKeRomawi[(int) $semesterKe] : '-';
+    $semesterKeLabel =
+        $semesterKe && isset($angkaKeRomawi[(int) $semesterKe]) ? $angkaKeRomawi[(int) $semesterKe] : '-';
     $ips = number_format((float) ($khs['ips'] ?? 0), 2);
     $ipk = number_format((float) ($khs['ipk'] ?? 0), 2);
     $totalSksDiambil = (int) ($khs['total_sks_diambil'] ?? 0);
     $totalSksLulus = (int) ($khs['total_sks_lulus'] ?? 0);
+    $statusKhsLabel = !empty($khs['is_final']) ? 'Final' : 'Draft';
+    $keteranganAkademik = $khs['keterangan'] ?? '-';
+    $autoPrint = $autoPrint ?? true;
+    $downloadMode = $downloadMode ?? false;
+    $jumlahbobotnilai = collect($details)->sum(fn($detail) => (float) ($detail['bobot_nilai'] ?? 0));
 @endphp
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cetak KHS</title>
+    <title>{{ $downloadMode ? 'Unduh KHS' : 'Cetak KHS' }}</title>
     <style>
         @page {
             size: A4 portrait;
@@ -101,6 +137,17 @@
             text-decoration: none;
             font-size: 12px;
             cursor: pointer;
+        }
+
+        .toolbar-note {
+            max-width: 900px;
+            margin: 10px auto 0;
+            padding: 12px 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            background: #eff6ff;
+            color: #1e3a8a;
+            font-size: 12px;
         }
 
         .sheet {
@@ -203,7 +250,7 @@
         .summary-table td {
             border: 1px solid #1f2937;
             padding: 7px 6px;
-            vertical-align: top;
+            vertical-align: middle;
         }
 
         .courses-table th {
@@ -277,7 +324,8 @@
                 background: #ffffff;
             }
 
-            .toolbar {
+            .toolbar,
+            .toolbar-note {
                 display: none;
             }
 
@@ -291,11 +339,21 @@
         }
     </style>
 </head>
+
 <body>
     <div class="toolbar">
         <a href="{{ route('student.khs.index') }}">Kembali</a>
-        <button type="button" onclick="window.print()">Cetak / Simpan PDF</button>
+        <a href="{{ route('student.khs.print', $khs['id'] ?? '') }}" target="_blank">Mode Cetak</a>
+        <button type="button"
+            onclick="window.print()">{{ $downloadMode ? 'Simpan sebagai PDF' : 'Cetak / Simpan PDF' }}</button>
     </div>
+
+    @if ($downloadMode)
+        <div class="toolbar-note">
+            Gunakan dialog browser yang muncul untuk memilih tujuan <strong>Save as PDF</strong> atau printer virtual
+            PDF agar KHS dapat diunduh sebagai file.
+        </div>
+    @endif
 
     <div class="sheet">
         <div class="header">
@@ -309,8 +367,8 @@
         </div>
 
         <div class="doc-title">
-            <h3>KHS MAHASISWA</h3>
-            <p>{{ $semesterLabel ?: 'Semester -' }}</p>
+            <h3>KARTU HASIL STUDI (KHS)</h3>
+            <p>Program Studi {{ $prodi['nama_prodi'] ?? '-' }}</p>
         </div>
 
         <table class="meta-table">
@@ -329,61 +387,63 @@
             <tr>
                 <td>Tahun Akademik</td>
                 <td>: {{ $tahunAkademikDisplay ?: '-' }}</td>
-                <td>Status KHS</td>
-                <td>: Final</td>
-            </tr>
-            <tr>
                 <td>Semester Ke</td>
                 <td>: {{ $semesterKeLabel }}</td>
-                <td></td>
-                <td></td>
             </tr>
         </table>
 
         <table class="courses-table">
             <thead>
                 <tr>
-                    <th style="width: 5%;">No</th>
-                    <th style="width: 13%;">Kode MK</th>
-                    <th>Mata Kuliah</th>
-                    <th style="width: 9%;">SKS</th>
-                    <th style="width: 12%;">Nilai Angka</th>
-                    <th style="width: 12%;">Nilai Huruf</th>
-                    <th style="width: 12%;">Bobot Nilai</th>
+                    <th rowspan="2" style="width: 5%; text-align: center; vertical-align: middle;">No</th>
+                    <th rowspan="2" style="text-align: center; vertical-align: middle;">Mata Kuliah</th>
+                    <th rowspan="2" style="width: 13%; text-align: center; vertical-align: middle;">Kode MK</th>
+                    <th rowspan="2" style="width: 9%; text-align: center; vertical-align: middle;">Jumlah Kredit</th>
+                    <th colspan="2" style="text-align: center; vertical-align: middle;">Nilai</th>
+                    <th rowspan="2" style="width: 12%; text-align: center; vertical-align: middle;">Bobot Nilai</th>
+                </tr>
+                <tr>
+                    <th style="text-align: center; vertical-align: middle;">Lambang</th>
+                    <th style="text-align: center; vertical-align: middle;">Mutu</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse ($details as $index => $detail)
                     <tr>
-                        <td class="text-center">{{ $index + 1 }}</td>
-                        <td class="text-center">{{ $detail['kode_mk'] ?? '-' }}</td>
-                        <td>{{ $detail['nama_mk'] ?? $detail['nama_mata_kuliah'] ?? '-' }}</td>
-                        <td class="text-center">{{ $detail['sks'] ?? 0 }}</td>
-                        <td class="text-center">{{ $detail['nilai_akhir'] ?? '-' }}</td>
-                        <td class="text-center">{{ $detail['nilai_huruf'] ?? '-' }}</td>
-                        <td class="text-center">{{ $detail['bobot_nilai'] ?? '-' }}</td>
+                        <td style="text-align: center;">{{ $index + 1 }}</td>
+                        <td>{{ $detail['nama_mk'] ?? '-' }}</td>
+                        <td style="text-align: center;">{{ $detail['kode_mk'] ?? '-' }}</td>
+                        <td style="text-align: center;">{{ $detail['sks'] ?? 0 }}</td>
+                        <td style="text-align: center;">{{ $detail['nilai_huruf'] ?? '-' }}</td>
+                        <td style="text-align: center;">{{ $detail['mutu'] ?? '-' }}</td>
+                        <td style="text-align: center;">{{ $detail['bobot_nilai'] ?? '-' }}</td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="text-center">Belum ada detail mata kuliah pada KHS ini.</td>
+                        <td colspan="7" style="text-align: center;">Belum ada detail mata kuliah pada KHS ini.</td>
                     </tr>
                 @endforelse
             </tbody>
-        </table>
 
-        <table class="summary-table">
-            <tr>
-                <td>Total SKS Diambil</td>
-                <td>: {{ $totalSksDiambil }}</td>
-                <td>IPS</td>
-                <td>: {{ $ips }}</td>
-            </tr>
-            <tr>
-                <td>Total SKS Lulus</td>
-                <td>: {{ $totalSksLulus }}</td>
-                <td>IPK</td>
-                <td>: {{ $ipk }}</td>
-            </tr>
+            <tfoot>
+                <tr>
+                    <td colspan="3" style="font-weight: bold; padding-left: 8px;">Jumlah</td>
+                    <td style="text-align: center; font-weight: bold;">{{ $totalSksDiambil }}</td>
+                    <td></td>
+                    <td></td>
+                    <td style="text-align: center; font-weight: bold;">{{ $jumlahbobotnilai }}</td>
+                </tr>
+                <tr>
+                    <td colspan="3" style="font-weight: bold; padding-left: 8px;">Indeks Prestasi Semester</td>
+                    <td></td>
+                    <td colspan="3" style="text-align: center; font-weight: bold;">{{ $ips }}</td>
+                </tr>
+                <tr>
+                    <td colspan="3" style="font-weight: bold; padding-left: 8px;">Indeks Prestasi Kumulatif</td>
+                    <td></td>
+                    <td colspan="3" style="text-align: center; font-weight: bold;">{{ $ipk }}</td>
+                </tr>
+            </tfoot>
         </table>
 
         <table class="signature-table" style="width: 100%; margin-top: 36px; border: none;">
@@ -392,7 +452,8 @@
                 <td style="width: 50%; text-align: center; vertical-align: top; padding: 0 20px;">
                     <div class="signature-top">
                         <div class="signature-date">{{ $tanggalCetak }}</div>
-                        <div class="signature-role signature-role-underline">{{ $jabatanKaprodi }}<br>Sekolah Tinggi Ilmu Kesehatan Dian Husada</div>
+                        <div class="signature-role signature-role-underline">{{ $jabatanKaprodi }}<br>Sekolah Tinggi
+                            Ilmu Kesehatan Dian Husada</div>
                     </div>
                     <div class="signature-space"></div>
                     <div class="signature-name">{{ $kaprodi['nama_dosen'] ?? '-' }}</div>
@@ -402,10 +463,13 @@
         </table>
     </div>
 
-    <script>
-        window.addEventListener('load', () => {
-            window.setTimeout(() => window.print(), 300);
-        });
-    </script>
+    @if ($autoPrint)
+        <script>
+            window.addEventListener('load', () => {
+                window.setTimeout(() => window.print(), 300);
+            });
+        </script>
+    @endif
 </body>
+
 </html>

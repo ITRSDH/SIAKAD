@@ -165,8 +165,6 @@
         </div>
         <!-- End Custom template -->
     </div>
-    @stack('scripts-custom')
-
     <script src="{{ asset('') }}template/assets/js/core/jquery-3.7.1.min.js"></script>
     <script src="{{ asset('') }}template/assets/js/core/popper.min.js"></script>
     <script src="{{ asset('') }}template/assets/js/core/bootstrap.min.js"></script>
@@ -189,6 +187,8 @@
 
     <!-- Bootstrap Notify -->
     <script src="{{ asset('') }}template/assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js"></script>
+
+    @stack('scripts-custom')
 
     <!-- jQuery Vector Maps -->
     {{-- <script src="{{ asset('') }}template/assets/js/plugin/jsvectormap/jsvectormap.min.js"></script> --}}

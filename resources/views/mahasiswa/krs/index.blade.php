@@ -381,7 +381,7 @@
 @endsection
 
 @push('scripts-custom')
-    <script src="{{ asset('') }}template/assets/js/core/jquery-3.7.1.min.js"></script>
+    {{-- <script src="{{ asset('') }}template/assets/js/core/jquery-3.7.1.min.js"></script> --}}
 
     <script>
         // ================================
@@ -681,7 +681,23 @@
                 const historySemester = formatSemester(history?.semester);
                 const historyLabel = `${historySemester} | ${history?.nilai_huruf || '-'} (${history?.bobot_nilai ?? '-'})`;
 
-                (item?.kelas_tersedia || []).forEach(kelas => {
+                const kelasTersedia = Array.isArray(item?.kelas_tersedia) ? item.kelas_tersedia : [];
+                if (!kelasTersedia.length) {
+                    rows.push({
+                        id: null,
+                        kode_mk: item.kode_mk,
+                        mata_kuliah: item.nama_mk,
+                        nama_kelas: '-',
+                        sks: item.sks,
+                        riwayat: historyLabel,
+                        jadwal: [],
+                        is_available: false,
+                        availability_reason: item.availability_reason || 'Belum ada kelas aktif untuk mata kuliah ini pada semester berjalan.',
+                    });
+                    return;
+                }
+
+                kelasTersedia.forEach(kelas => {
                     rows.push({
                         id: kelas.id_kelas_kuliah,
                         kode_mk: item.kode_mk,

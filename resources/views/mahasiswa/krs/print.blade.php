@@ -2,9 +2,9 @@
     $mahasiswa = $krs['mahasiswa'] ?? [];
     $prodi = $mahasiswa['prodi'] ?? [];
     $kaprodi = $prodi['kaprodi'] ?? null;
-    $dosenWali = $mahasiswa['dosen_wali'] ?? $mahasiswa['dosenWali'] ?? null;
+    $dosenWali = $mahasiswa['dosen_wali'] ?? ($mahasiswa['dosenWali'] ?? null);
     $semester = $krs['semester'] ?? [];
-    $tahunAkademik = $semester['tahun_akademik'] ?? $semester['tahunAkademik'] ?? [];
+    $tahunAkademik = $semester['tahun_akademik'] ?? ($semester['tahunAkademik'] ?? []);
     $details = $krs['details'] ?? [];
     $semesterKe = $krs['semester_ke'] ?? null;
     $angkaKeHuruf = [
@@ -33,7 +33,11 @@
         ? 'Mojokerto, ' . \Carbon\Carbon::parse($krs['tanggal_approval'])->locale('id')->translatedFormat('j F Y')
         : $tanggalCetak;
     $jabatanKaprodi = 'Ketua Program Studi';
-    $semesterKeLabel = $semesterKe && isset($angkaKeHuruf[(int) $semesterKe]) ? $angkaKeHuruf[(int) $semesterKe] : ($semesterKe ?: '-');
+    $semesterKeLabel =
+        $semesterKe && isset($angkaKeHuruf[(int) $semesterKe])
+            ? $angkaKeHuruf[(int) $semesterKe]
+            : ($semesterKe ?:
+            '-');
 
     if (!empty($prodi['nama_prodi'])) {
         $jabatanKaprodi .= ' ' . $prodi['nama_prodi'];
@@ -41,6 +45,7 @@
 @endphp
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -252,9 +257,9 @@
                 padding: 0;
             }
         }
-
-            </style>
+    </style>
 </head>
+
 <body>
     <div class="toolbar">
         <a href="{{ route('krs.index') }}">Kembali</a>
@@ -319,9 +324,9 @@
             <tbody>
                 @forelse ($details as $index => $detail)
                     @php
-                        $kelas = $detail['kelas_kuliah'] ?? $detail['kelasKuliah'] ?? [];
-                        $kurikulumMataKuliah = $kelas['kurikulum_mata_kuliah'] ?? $kelas['kurikulumMataKuliah'] ?? [];
-                        $mataKuliah = $kurikulumMataKuliah['mata_kuliah'] ?? $kurikulumMataKuliah['mataKuliah'] ?? [];
+                        $kelas = $detail['kelas_kuliah'] ?? ($detail['kelasKuliah'] ?? []);
+                        $kurikulumMataKuliah = $kelas['kurikulum_mata_kuliah'] ?? ($kelas['kurikulumMataKuliah'] ?? []);
+                        $mataKuliah = $kurikulumMataKuliah['mata_kuliah'] ?? ($kurikulumMataKuliah['mataKuliah'] ?? []);
                         $statusDetail = match (strtolower((string) ($detail['status'] ?? ''))) {
                             'terdaftar' => 'Terima',
                             'lulus' => 'Lulus',
@@ -358,17 +363,18 @@
             <tr>
                 <td style="width: 50%; text-align: center; vertical-align: top; padding: 0 20px;">
                     <div class="signature-top">
-                        <div class="signature-date">{{ $tanggalApproval }}</div>
-                        <div class="signature-role signature-role-underline">{{ $jabatanKaprodi }}<br>Sekolah Tinggi Ilmu Kesehatan Dian Husada</div>
+                        <div class="signature-date"></div>
+                        <div class="signature-role signature-role-underline">Dosen Penasehat Akademik</div>
                     </div>
                     <div class="signature-space"></div>
-                    <div class="signature-name">{{ $kaprodi['nama_dosen'] ?? '-' }}</div>
-                    <div>NIDN. {{ $kaprodi['nidn'] ?? '-' }}</div>
+                    <div class="signature-name">
+                        {{ $dosenWali['nama_dosen'] ?? ($krs['approved_by_detail']['nama_dosen'] ?? '-') }}</div>
+                    <div>NIDN. {{ $dosenWali['nidn'] ?? ($krs['approved_by_detail']['nidn'] ?? '-') }}</div>
                 </td>
                 <td style="width: 50%; text-align: center; vertical-align: top; padding: 0 20px;">
                     <div class="signature-top">
-                        <div class="signature-role signature-role-underline">Mahasiswa</div>
                         <div class="signature-date">{{ $tanggalApproval }}</div>
+                        <div class="signature-role signature-role-underline">Mahasiswa</div>
                     </div>
                     <div class="signature-space"></div>
                     <div class="signature-name">{{ $mahasiswa['nama_mahasiswa'] ?? '-' }}</div>
@@ -381,12 +387,13 @@
             <tr>
                 <td style="text-align: center; vertical-align: top; padding: 0 20px;">
                     <div class="signature-top">
-                        <div class="signature-date"></div>
-                        <div class="signature-role signature-role-underline">Dosen Penasehat Akademik</div>
+                        <div class="signature-date">{{ $tanggalApproval }}</div>
+                        <div class="signature-role signature-role-underline">{{ $jabatanKaprodi }}<br>Sekolah Tinggi
+                            Ilmu Kesehatan Dian Husada</div>
                     </div>
                     <div class="signature-space"></div>
-                    <div class="signature-name">{{ $dosenWali['nama_dosen'] ?? ($krs['approved_by_detail']['nama_dosen'] ?? '-') }}</div>
-                    <div>NIDN. {{ $dosenWali['nidn'] ?? ($krs['approved_by_detail']['nidn'] ?? '-') }}</div>
+                    <div class="signature-name">{{ $kaprodi['nama_dosen'] ?? '-' }}</div>
+                    <div>NIDN. {{ $kaprodi['nidn'] ?? '-' }}</div>
                 </td>
             </tr>
         </table>
@@ -398,4 +405,5 @@
         });
     </script>
 </body>
+
 </html>

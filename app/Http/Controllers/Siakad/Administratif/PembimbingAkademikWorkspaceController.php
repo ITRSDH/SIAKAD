@@ -50,14 +50,14 @@ class PembimbingAkademikWorkspaceController extends Controller
                     'title' => 'Disetujui',
                     'value' => number_format((int) ($statistics['approved_this_semester'] ?? 0)),
                     'description' => 'KRS yang sudah Anda setujui pada semester aktif.',
-                    'icon' => 'fas fa-circle-check',
+                    'icon' => 'fa fa-check-square',
                     'theme' => 'success',
                 ],
                 [
                     'title' => 'Revisi',
                     'value' => number_format((int) ($statistics['revised_this_semester'] ?? 0)),
                     'description' => 'KRS yang Anda kembalikan untuk diperbaiki mahasiswa.',
-                    'icon' => 'fas fa-pen-to-square',
+                    'icon' => 'fas fa-edit',
                     'theme' => 'info',
                 ],
             ];

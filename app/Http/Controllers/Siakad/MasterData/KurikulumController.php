@@ -45,11 +45,12 @@ class KurikulumController extends Controller
     {
         try {
 
-            $dropdown = $dropdownService->get('prodi,semester');
+            $dropdown = $dropdownService->get('prodi,semester,kurikulum_induk');
 
             return view('masterdata.kurikulum.create', [
                 'prodi' => $dropdown['prodi'] ?? [],
-                'semester' => $dropdown['semester'] ?? []
+                'semester' => $dropdown['semester'] ?? [],
+                'kurikulumInduk' => $dropdown['kurikulum_induk'] ?? [],
             ]);
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
@@ -126,7 +127,7 @@ class KurikulumController extends Controller
                 $kurikulumLain = [];
             }
 
-            $dropdown = $dropdownService->get('prodi,semester');
+            $dropdown = $dropdownService->get('prodi,semester,kurikulum_induk');
             $konversiResponse = Http::withToken($this->apiToken)
                 ->get($this->apiUrl . 'konversi-mata-kuliah', [
                     'id_kurikulum_tujuan' => $id,
@@ -143,7 +144,8 @@ class KurikulumController extends Controller
                 'kurikulum_lain' => $kurikulumLain,
                 'konversiMataKuliah' => $konversiMataKuliah,
                 'prodi' => $dropdown['prodi'] ?? [],
-                'semester' => $dropdown['semester'] ?? []
+                'semester' => $dropdown['semester'] ?? [],
+                'kurikulumInduk' => $dropdown['kurikulum_induk'] ?? [],
             ]);
         } catch (\Exception $e) {
             return back()->withErrors($e->getMessage());
@@ -291,21 +293,14 @@ class KurikulumController extends Controller
             $response = Http::withToken($this->apiToken)->put($this->apiUrl . "kurikulum/{$id}", $request->all());
 
             if ($response->successful()) {
-                return $response->successful()
-                    ? redirect()->route('kurikulum.index')->with('success', 'Data berhasil diupdate')
-                    : back()->withErrors($response->json('message'));
+                return redirect()->route('kurikulum.index')->with('success', 'Data berhasil diupdate');
             }
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal mengupdate data ke API',
-                'errors' => $response->json()
-            ], 422);
+            return back()->withErrors(
+                $response->json('message') ?? 'Gagal mengupdate data'
+            )->withInput();
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage()
-            ], 500);
+            return back()->withErrors($e->getMessage())->withInput();
         }
     }
 

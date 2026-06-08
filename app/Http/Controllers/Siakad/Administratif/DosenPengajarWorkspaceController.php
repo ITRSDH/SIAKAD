@@ -29,8 +29,8 @@ class DosenPengajarWorkspaceController extends Controller
 
             $kelasItems = $this->extractItems($kelasResponse->json('data', []), ['kelas_kuliah', 'data']);
             $kelasCount = count($kelasItems);
-            $totalPeserta = array_sum(array_map(fn ($item) => (int) ($item['peserta_terdaftar'] ?? $item['jumlah_peserta'] ?? $item['peserta_count'] ?? 0), $kelasItems));
-            $totalSks = array_sum(array_map(fn ($item) => (int) ($item['mata_kuliah']['sks'] ?? $item['mata_kuliah']['jumlah_sks'] ?? $item['sks'] ?? 0), $kelasItems));
+            $totalPeserta = array_sum(array_map(fn($item) => (int) ($item['peserta_terdaftar'] ?? $item['jumlah_peserta'] ?? $item['peserta_count'] ?? 0), $kelasItems));
+            $totalSks = array_sum(array_map(fn($item) => (int) ($item['mata_kuliah']['sks'] ?? $item['mata_kuliah']['jumlah_sks'] ?? $item['sks'] ?? 0), $kelasItems));
 
             $kpis = [
                 [
@@ -58,7 +58,7 @@ class DosenPengajarWorkspaceController extends Controller
                     'title' => 'Siklus Kerja',
                     'value' => '3',
                     'description' => 'Fokus kerja utama: pertemuan, presensi, dan penilaian.',
-                    'icon' => 'fas fa-diagram-project',
+                    'icon' => 'fas fa-chart-pie',
                     'theme' => 'info',
                 ],
             ];

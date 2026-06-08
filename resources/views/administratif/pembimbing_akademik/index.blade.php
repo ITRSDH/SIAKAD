@@ -10,17 +10,14 @@
                     <a href="{{ url('/') }}"><i class="icon-home"></i></a>
                 </li>
                 <li class="separator"><i class="icon-arrow-right"></i></li>
-                <li class="nav-item"><a href="{{ route('workspace.pembimbing-akademik') }}">Workspace Pembimbing Akademik</a></li>
+                <li class="nav-item"><a href="{{ route('workspace.pembimbing-akademik') }}">Workspace Pembimbing Akademik</a>
+                </li>
                 <li class="separator"><i class="icon-arrow-right"></i></li>
                 <li class="nav-item"><a href="{{ route('workspace.pembimbing-akademik') }}">Bimbingan KRS</a></li>
             </ul>
         </div>
 
         @include('layouts.partials.flash-messages')
-
-        <div class="alert alert-info">
-            Halaman ini menjadi pusat kerja pembimbing akademik untuk membaca mahasiswa bimbingan, memantau pengajuan KRS, dan masuk ke proses approval.
-        </div>
 
         <div class="row">
             @foreach ($kpis as $item)
@@ -92,7 +89,8 @@
                                     @forelse ($recentPending as $item)
                                         <tr>
                                             <td>
-                                                <div class="fw-semibold">{{ $item['mahasiswa']['nama_mahasiswa'] ?? '-' }}</div>
+                                                <div class="fw-semibold">{{ $item['mahasiswa']['nama_mahasiswa'] ?? '-' }}
+                                                </div>
                                                 <div class="text-muted small">{{ $item['mahasiswa']['nim'] ?? '-' }}</div>
                                             </td>
                                             <td>{{ $item['semester']['nama_semester'] ?? '-' }}</td>
@@ -119,9 +117,11 @@
                         <div class="list-group">
                             @forelse ($recentBimbingan as $item)
                                 <div class="list-group-item">
-                                    <div class="fw-semibold">{{ $item['nama_mahasiswa'] ?? '-' }}</div>
-                                    <div class="text-muted small">{{ $item['nim'] ?? '-' }}</div>
-                                    <div class="text-muted small">{{ $item['prodi']['nama_prodi'] ?? ($item['prodi'] ?? '-') }}</div>
+                                    <div class="fw-semibold p-2">{{ $item['nama_mahasiswa'] ?? '-' }}</div>
+                                    <div class="text-muted small p-2">
+                                        {{ $item['nim'] ?? '-' }} -
+                                        ({{ $item['prodi']['jenjang_pendidikan'] ?? ($item['prodi'] ?? '-') }})
+                                        {{ $item['prodi']['nama_prodi'] ?? ($item['prodi'] ?? '-') }}</div>
                                 </div>
                             @empty
                                 <div class="alert alert-warning mb-0">
@@ -148,19 +148,25 @@
                                 <tbody>
                                     <tr>
                                         <td>Total Mahasiswa Wali</td>
-                                        <td class="text-center">{{ number_format((int) ($statistics['total_mahasiswa_wali'] ?? count($mahasiswaBimbingan))) }}</td>
+                                        <td class="text-center">
+                                            {{ number_format((int) ($statistics['total_mahasiswa_wali'] ?? count($mahasiswaBimbingan))) }}
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td>Pending Approval</td>
-                                        <td class="text-center">{{ number_format((int) ($statistics['pending_approval'] ?? count($pendingKrs))) }}</td>
+                                        <td class="text-center">
+                                            {{ number_format((int) ($statistics['pending_approval'] ?? count($pendingKrs))) }}
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td>Approved Semester Ini</td>
-                                        <td class="text-center">{{ number_format((int) ($statistics['approved_this_semester'] ?? 0)) }}</td>
+                                        <td class="text-center">
+                                            {{ number_format((int) ($statistics['approved_this_semester'] ?? 0)) }}</td>
                                     </tr>
                                     <tr>
                                         <td>Revisi Semester Ini</td>
-                                        <td class="text-center">{{ number_format((int) ($statistics['revised_this_semester'] ?? 0)) }}</td>
+                                        <td class="text-center">
+                                            {{ number_format((int) ($statistics['revised_this_semester'] ?? 0)) }}</td>
                                     </tr>
                                 </tbody>
                             </table>

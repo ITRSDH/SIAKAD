@@ -1,5 +1,5 @@
 @extends('layouts.index')
-@section('title', 'Edit Kolektif Kurikulum')
+@section('title', 'Edit Kolektif Struktur Kurikulum')
 
 @push('styles-custom')
     <style>
@@ -21,7 +21,7 @@
 @section('content')
     <div class="page-inner">
         <div class="page-header">
-            <h3 class="fw-bold mb-3">Kurikulum Kuliah</h3>
+            <h3 class="fw-bold mb-3">Struktur Kurikulum</h3>
             <ul class="breadcrumbs mb-3">
                 <li class="nav-home">
                     <a href="{{ url('/') }}">
@@ -32,13 +32,13 @@
                     <i class="icon-arrow-right"></i>
                 </li>
                 <li class="nav-item">
-                    <a href="#">Kurikulum</a>
+                    <a href="#">Struktur Kurikulum</a>
                 </li>
                 <li class="separator">
                     <i class="icon-arrow-right"></i>
                 </li>
                 <li class="nav-item">
-                    <a href="#">Detail Kurikulum</a>
+                    <a href="#">Detail Struktur Kurikulum</a>
                 </li>
             </ul>
         </div>
@@ -48,7 +48,7 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="fs-4 fw-semibold d-flex justify-content-between align-items-center">
-                            <h4 class="card-title mb-0">Matakuliah Untuk Kurikulum {{ $kurikulum['nama_kurikulum'] }}</h4>
+                            <h4 class="card-title mb-0">Matakuliah Untuk Struktur MK {{ $kurikulum['nama_struktur_mk'] ?? $kurikulum['nama_kurikulum'] }}</h4>
 
                             <div class="d-flex gap-2">
                                 <button type="submit" form="form-tambah-mk-kolektif" class="btn btn-primary">
@@ -77,10 +77,10 @@
                                     <div class="border rounded p-3 h-100">
                                         <div class="row align-items-center">
                                             <div class="col-6 fw-semibold fs-5">
-                                                Nama Kurikulum
+                                                Nama Struktur MK
                                             </div>
                                             <div class="col-6 fs-5 fw-semibold">
-                                                : {{ $kurikulum['nama_kurikulum'] ?? '-' }}
+                                                : {{ $kurikulum['nama_struktur_mk'] ?? $kurikulum['nama_kurikulum'] ?? '-' }}
                                             </div>
                                         </div>
                                     </div>

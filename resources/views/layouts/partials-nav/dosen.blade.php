@@ -29,7 +29,7 @@
 
     <li class="nav-item {{ request()->routeIs('workspace.pembimbing-akademik') ? 'active' : '' }}">
         <a href="{{ route('workspace.pembimbing-akademik') }}" class="collapsed" aria-expanded="false">
-            <i class="fas fa-users-viewfinder"></i>
+            <i class="fas fa-briefcase"></i>
             <p>Workspace Pembimbing</p>
         </a>
     </li>

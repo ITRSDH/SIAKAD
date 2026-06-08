@@ -79,10 +79,15 @@ class KelaskuliahController extends Controller
             }
 
             $kelaskuliah = $response->json('data');
+            $pesertaKrs = $this->fetchPesertaKrsByKelas($id);
+            $krsCandidates = $this->fetchKrsCandidatesByKelas($id);
 
             $dropdown = $dropdownService->get('prodi,semester,kurikulum_matakuliah');
             return view('masterdata.kelaskuliah.detail', [
                 'kelaskuliah' => $kelaskuliah,
+                'pesertaKrs' => $pesertaKrs,
+                'krsCandidates' => $krsCandidates['rows'],
+                'krsCandidateSummary' => $krsCandidates['summary'],
                 'prodi' => $dropdown['prodi'] ?? [],
                 'semester' => $dropdown['semester'] ?? [],
                 'kurikulum_matakuliah' => $dropdown['kurikulum_matakuliah'] ?? []
@@ -160,6 +165,124 @@ class KelaskuliahController extends Controller
                 'success' => false,
                 'message' => $e->getMessage()
             ], 500);
+        }
+    }
+
+    public function registerKrsMahasiswa(Request $request, string $id)
+    {
+        $validated = $request->validate([
+            'mahasiswa_ids' => 'required|array|min:1',
+            'mahasiswa_ids.*' => 'required|string',
+        ], [
+            'mahasiswa_ids.required' => 'Pilih minimal satu mahasiswa untuk didaftarkan.',
+            'mahasiswa_ids.min' => 'Pilih minimal satu mahasiswa untuk didaftarkan.',
+        ]);
+
+        try {
+            $response = Http::withToken($this->apiToken)
+                ->acceptJson()
+                ->post($this->apiUrl . "kelas-kuliah/{$id}/register-krs", [
+                    'mahasiswa_ids' => $validated['mahasiswa_ids'],
+                ]);
+
+            $payload = $response->json();
+
+            if (!$response->successful() || !($payload['success'] ?? false)) {
+                return back()->withErrors($payload['message'] ?? 'Gagal mendaftarkan mahasiswa ke KRS.');
+            }
+
+            $data = $payload['data'] ?? [];
+            $registered = (int) ($data['registered_count'] ?? 0);
+            $already = (int) ($data['already_registered_count'] ?? 0);
+            $failed = (int) ($data['failed_count'] ?? 0);
+
+            $message = "Pendaftaran selesai. {$registered} mahasiswa berhasil didaftarkan";
+            if ($already > 0) {
+                $message .= ", {$already} sudah terdaftar";
+            }
+            if ($failed > 0) {
+                $message .= ", {$failed} belum bisa diproses";
+            }
+            $message .= '.';
+
+            return redirect()
+                ->route('kelas-kuliah.detail', $id)
+                ->with('success', $message);
+        } catch (\Exception $e) {
+            return back()->withErrors($e->getMessage());
+        }
+    }
+
+    private function fetchPesertaKrsByKelas(string $kelasKuliahId): array
+    {
+        try {
+            $response = Http::withToken($this->apiToken)
+                ->acceptJson()
+                ->get($this->apiUrl . "penilaian/kelas/{$kelasKuliahId}/nilai");
+
+            if (!$response->successful()) {
+                return [];
+            }
+
+            $payload = $response->json('data', []);
+            $items = $payload['mahasiswa'] ?? (is_array($payload) ? $payload : []);
+
+            if (!is_array($items)) {
+                return [];
+            }
+
+            $participants = collect($items)
+                ->map(function ($item) {
+                    $mahasiswa = $item['mahasiswa'] ?? $item;
+                    $presensi = $item['presensi_summary'] ?? [];
+                    $finalScore = $item['nilai_akhir_existing'] ?? $item;
+
+                    return [
+                        'id' => $mahasiswa['id'] ?? $item['id_mahasiswa'] ?? null,
+                        'nim' => $mahasiswa['nim'] ?? '-',
+                        'nama_mahasiswa' => $mahasiswa['nama_mahasiswa'] ?? '-',
+                        'angkatan' => $mahasiswa['angkatan'] ?? '-',
+                        'status_krs' => $item['status_kelayakan'] ?? $item['status_penilaian'] ?? $item['status'] ?? 'terdaftar',
+                        'persentase_presensi' => $presensi['persentase_presensi'] ?? $item['persentase_presensi'] ?? $item['presensi_persen'] ?? null,
+                        'nilai_akhir' => $finalScore['nilai_akhir'] ?? $item['nilai_akhir'] ?? null,
+                        'nilai_huruf' => $finalScore['nilai_huruf'] ?? $item['nilai_huruf'] ?? null,
+                    ];
+                })
+                ->filter(fn ($item) => filled($item['id']) || filled($item['nim']) || filled($item['nama_mahasiswa']))
+                ->unique(fn ($item) => (string) ($item['id'] ?? $item['nim'] ?? $item['nama_mahasiswa']))
+                ->sortBy('nama_mahasiswa', SORT_NATURAL | SORT_FLAG_CASE)
+                ->values()
+                ->all();
+
+            return $participants;
+        } catch (\Throwable $exception) {
+            return [];
+        }
+    }
+
+    private function fetchKrsCandidatesByKelas(string $kelasKuliahId): array
+    {
+        try {
+            $response = Http::withToken($this->apiToken)
+                ->acceptJson()
+                ->get($this->apiUrl . "kelas-kuliah/{$kelasKuliahId}/krs-candidates");
+
+            if (!$response->successful()) {
+                return [
+                    'rows' => [],
+                    'summary' => [],
+                ];
+            }
+
+            return [
+                'rows' => $response->json('data', []),
+                'summary' => $response->json('meta.summary', []),
+            ];
+        } catch (\Throwable $exception) {
+            return [
+                'rows' => [],
+                'summary' => [],
+            ];
         }
     }
 }

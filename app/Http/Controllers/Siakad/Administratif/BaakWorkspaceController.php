@@ -24,6 +24,7 @@ class BaakWorkspaceController extends Controller
                 'periodeKrs' => Http::withToken($this->apiToken)->get($this->apiUrl . 'periode-krs'),
                 'kelasKuliah' => Http::withToken($this->apiToken)->get($this->apiUrl . 'kelas-kuliah'),
                 'khs' => Http::withToken($this->apiToken)->get($this->apiUrl . 'khs'),
+                'khsImportHistory' => Http::withToken($this->apiToken)->get($this->apiUrl . 'khs/import/history'),
                 'transkrip' => Http::withToken($this->apiToken)->get($this->apiUrl . 'transkrip'),
                 'yudisium' => Http::withToken($this->apiToken)->get($this->apiUrl . 'yudisium'),
                 'kelulusan' => Http::withToken($this->apiToken)->get($this->apiUrl . 'kelulusan'),
@@ -49,6 +50,7 @@ class BaakWorkspaceController extends Controller
 
             $kelasItems = $this->normalizeList($responses['kelasKuliah']->json('data', []));
             $khsItems = $this->normalizeList($responses['khs']->json('data', []));
+            $khsImportHistoryItems = $this->normalizeList($responses['khsImportHistory']->json('data', []));
             $transkripItems = $this->normalizeList($responses['transkrip']->json('data', []));
             $yudisiumItems = $this->normalizeList($responses['yudisium']->json('data', []));
             $kelulusanItems = $this->normalizeList($responses['kelulusan']->json('data', []));
@@ -113,6 +115,7 @@ class BaakWorkspaceController extends Controller
                         ['label' => 'Kelas Kuliah', 'route' => route('kelas-kuliah.index')],
                         ['label' => 'Ruang Kuliah', 'route' => route('ruang-kuliah.index')],
                         ['label' => 'Monitoring Akademik', 'route' => route('akademik.monitoring')],
+                        ['label' => 'Administrasi Studi Mahasiswa', 'route' => route('akademik.administrasi-studi.index')],
                     ],
                 ],
                 [
@@ -139,6 +142,9 @@ class BaakWorkspaceController extends Controller
 
             $statusSummary = [
                 'khs' => count($khsItems),
+                'khs_import' => count($khsImportHistoryItems),
+                'khs_import_failed' => collect($khsImportHistoryItems)->where('status', 'failed')->count(),
+                'khs_draft' => collect($khsItems)->filter(fn($item) => empty($item['is_final']))->count(),
                 'transkrip' => count($transkripItems),
                 'yudisium' => count($yudisiumItems),
                 'kelulusan' => count($kelulusanItems),

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Siakad\MasterData;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 
 class MahasiswaController extends Controller
@@ -222,6 +223,8 @@ class MahasiswaController extends Controller
 
             // Prepare file for upload
             $response = Http::withToken($this->apiToken)
+                ->connectTimeout(30)
+                ->timeout(300)
                 ->attach('file', fopen($file->getPathname(), 'r'), $file->getClientOriginalName())
                 ->post($this->apiUrl . "mahasiswa/import/prodi/{$id_prodi}");
 
@@ -240,6 +243,11 @@ class MahasiswaController extends Controller
                 'message' => $response->json('message') ?? 'Gagal import data',
                 'errors' => $response->json('errors') ?? []
             ], 422);
+        } catch (ConnectionException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Permintaan import melebihi batas waktu tunggu. Proses import di server mungkin masih berjalan. Silakan cek data mahasiswa yang sudah masuk sebelum mengulangi import.'
+            ], 504);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

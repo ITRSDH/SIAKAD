@@ -437,7 +437,7 @@
 @endsection
 
 @push('scripts-custom')
-    <script src="{{ asset('') }}template/assets/js/core/jquery-3.7.1.min.js"></script>
+    {{-- <script src="{{ asset('') }}template/assets/js/core/jquery-3.7.1.min.js"></script> --}}
     <!-- SweetAlert2 CDN untuk production -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.6/css/dataTables.dataTables.css" />

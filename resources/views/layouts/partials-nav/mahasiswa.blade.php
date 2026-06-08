@@ -27,10 +27,10 @@
         </a>
     </li>
 
-    <li class="nav-item {{ request()->routeIs('student.transkrip.*') ? 'active' : '' }}">
+    {{-- <li class="nav-item {{ request()->routeIs('student.transkrip.*') ? 'active' : '' }}">
         <a href="{{ route('student.transkrip.index') }}" class="collapsed" aria-expanded="false">
             <i class="fas fa-file-alt"></i>
             <p>Transkrip</p>
         </a>
-    </li>
+    </li> --}}
 @endif

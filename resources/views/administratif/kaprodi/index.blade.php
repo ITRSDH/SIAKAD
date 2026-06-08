@@ -18,10 +18,6 @@
 
         @include('layouts.partials.flash-messages')
 
-        <div class="alert alert-info">
-            Halaman ini menjadi pusat kerja `Kaprodi` untuk mengawal mutu prodi, operasional akademik, dan kemajuan akhir studi mahasiswa.
-        </div>
-
         <div class="row">
             @foreach ($kpis as $item)
                 <div class="col-md-6 col-xl-3">

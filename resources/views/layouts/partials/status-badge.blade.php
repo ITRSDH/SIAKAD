@@ -3,6 +3,12 @@
     $label = $label ?? ucfirst(str_replace('_', ' ', $value));
     $toneMap = [
         'draft' => 'secondary',
+        'uploaded' => 'secondary',
+        'previewed' => 'info',
+        'processed' => 'success',
+        'failed' => 'danger',
+        'rolled_back' => 'dark',
+        'final' => 'success',
         'dibuka' => 'success',
         'ditutup' => 'danger',
         'selesai' => 'primary',

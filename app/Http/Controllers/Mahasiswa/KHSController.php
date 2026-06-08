@@ -37,6 +37,16 @@ class KHSController extends Controller
 
     public function print(string $khsId)
     {
+        return $this->renderPrintView($khsId, true);
+    }
+
+    public function download(string $khsId)
+    {
+        return $this->renderPrintView($khsId, true, true);
+    }
+
+    private function renderPrintView(string $khsId, bool $autoPrint = true, bool $downloadMode = false)
+    {
         try {
             $response = $this->apiRequest('get', "khs/{$khsId}");
 
@@ -64,6 +74,8 @@ class KHSController extends Controller
             return view('mahasiswa.khs.print', [
                 'khs' => $khs,
                 'mahasiswaDetail' => $mahasiswaDetail,
+                'autoPrint' => $autoPrint,
+                'downloadMode' => $downloadMode,
             ]);
         } catch (\Exception $e) {
             return $this->redirectBackWithError($e->getMessage());

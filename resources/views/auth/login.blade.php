@@ -148,7 +148,7 @@
                             <div class="mb-4 position-relative">
                                 <i class="ti ti-user fs-6 form-icon"></i>
                                 <input type="text" class="form-control" id="username" name="username"
-                                    value="{{ old('username') }}" required placeholder="Email / NIM / NUP"
+                                    value="{{ old('username') }}" required placeholder="Email / NIM / NIDN"
                                     autocomplete="username">
                             </div>
 

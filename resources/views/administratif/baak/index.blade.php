@@ -18,11 +18,10 @@
 
         @include('layouts.partials.flash-messages')
 
-        <div class="alert alert-info">
-            Halaman ini menjadi cockpit operasional `BAAK` untuk membaca siklus semester, hasil studi, dan akhir studi dalam satu alur kerja.
-        </div>
-
         <div class="d-flex justify-content-end mb-3">
+            <a href="{{ route('akademik.riwayat-studi.index') }}" class="btn btn-primary btn-sm me-2">
+                <i class="fas fa-history me-1"></i> Riwayat Studi Historis
+            </a>
             <a href="{{ route('users.index', ['role' => 'baak']) }}" class="btn btn-outline-primary btn-sm">
                 <i class="fas fa-users-cog me-1"></i> Kelola User BAAK
             </a>
@@ -114,6 +113,18 @@
                                     <tr>
                                         <td>KHS</td>
                                         <td class="text-center">{{ number_format($statusSummary['khs']) }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Batch Import KHS</td>
+                                        <td class="text-center">{{ number_format($statusSummary['khs_import'] ?? 0) }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Batch Import Gagal</td>
+                                        <td class="text-center">{{ number_format($statusSummary['khs_import_failed'] ?? 0) }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>KHS Belum Final</td>
+                                        <td class="text-center">{{ number_format($statusSummary['khs_draft'] ?? 0) }}</td>
                                     </tr>
                                     <tr>
                                         <td>Transkrip</td>

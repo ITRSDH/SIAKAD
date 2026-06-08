@@ -382,7 +382,7 @@
 @endsection
 
 @push('scripts-custom')
-    <script src="{{ asset('') }}template/assets/js/core/jquery-3.7.1.min.js"></script>
+    {{-- <script src="{{ asset('') }}template/assets/js/core/jquery-3.7.1.min.js"></script> --}}
     <!-- SweetAlert2 CDN untuk production -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.6/css/dataTables.dataTables.css" />
@@ -507,7 +507,7 @@
             $(document).on('click', '.edit-btn', function(e) {
                 e.preventDefault();
                 var id = $(this).data('id');
-                
+
                 $.get("/beasiswa/" + id)
                     .done(function(data) {
                         if (data && data.data) {
@@ -516,16 +516,16 @@
                             $('#nama_modal').val(data.data.nama);
                             $('#kategori_modal').val(data.data.kategori);
                             $('#deskripsi_modal').val(data.data.deskripsi);
-                            
+
                             // Format tanggal untuk input date (YYYY-MM-DD)
                             if (data.data.deadline) {
                                 var deadlineDate = new Date(data.data.deadline);
                                 var formattedDate = deadlineDate.toISOString().split('T')[0];
                                 $('#deadline_modal').val(formattedDate);
                             }
-                            
+
                             $('#kuota_modal').val(data.data.kuota);
-                            
+
                             // Show existing image if exists
                             if (data.data.gambar) {
                                 $('#image-preview-modal').attr('src', apiStorageUrl + data.data.gambar);
@@ -533,7 +533,7 @@
                             } else {
                                 $('#preview-container-modal').hide();
                             }
-                            
+
                             $('#modalBeasiswa').modal('show');
                         } else {
                             Swal.fire('Error', 'Gagal mengambil data beasiswa', 'error');
@@ -548,7 +548,7 @@
             $(document).on('click', '.delete-btn', function(e) {
                 e.preventDefault();
                 var id = $(this).data('id');
-                
+
                 Swal.fire({
                     title: 'Apakah Anda yakin?',
                     text: 'Data beasiswa akan dihapus permanently!',
@@ -591,13 +591,13 @@
                 $saveBtn.prop('disabled', true).html(
                     '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Menyimpan...'
                 );
-                
+
                 var formData = new FormData(this);
                 var url = "{{ route('beasiswa.store') }}";
-                
+
                 // Add CSRF token to FormData
                 formData.append('_token', '{{ csrf_token() }}');
-                
+
                 $.ajax({
                     url: url,
                     type: 'POST',
@@ -613,7 +613,7 @@
                                 showConfirmButton: false,
                                 timer: 1500
                             });
-                            
+
                             // Reset form
                             $('#beasiswaForm')[0].reset();
                             $('#preview-container').hide();
@@ -626,7 +626,7 @@
                             if (response.errors) {
                                 // Clear previous errors
                                 $('.error-text').text('');
-                                
+
                                 // Show validation errors
                                 $.each(response.errors, function(key, value) {
                                     var fieldId = key + '_error';
@@ -642,7 +642,7 @@
                         if (response && response.errors) {
                             // Clear previous errors
                             $('.error-text').text('');
-                            
+
                             // Show validation errors
                             $.each(response.errors, function(key, value) {
                                 var fieldId = key + '_error';
@@ -661,19 +661,19 @@
             // Update Form Submit (Modal)
             $('#beasiswaFormModal').on('submit', function(e) {
                 e.preventDefault();
-                
+
                 var formData = new FormData(this);
                 var id = $('#beasiswa_id_modal').val();
                 var url = '/beasiswa/' + id;
-                
+
                 console.log('=== UPDATE DEBUG ===');
                 console.log('ID:', id);
                 console.log('URL:', url);
                 console.log('Has file:', $('#gambar_modal')[0].files.length > 0);
-                
+
                 // Add CSRF token to FormData
                 formData.append('_token', '{{ csrf_token() }}');
-                
+
                 // For PUT method with file, we need to use POST with _method parameter
                 if ($('#gambar_modal')[0].files.length > 0) {
                     console.log('Using FormData with file');
@@ -706,9 +706,9 @@
                         '_token': '{{ csrf_token() }}',
                         '_method': 'PUT'
                     };
-                    
+
                     console.log('Using data object:', data);
-                    
+
                     $.ajax({
                         url: url,
                         type: 'POST',
@@ -725,7 +725,7 @@
                         }
                     });
                 }
-                
+
                 function handleUpdateResponse(response) {
                     if (response.success) {
                         Swal.fire({
@@ -754,7 +754,7 @@
                         }
                     }
                 }
-                
+
                 function handleUpdateError(xhr) {
                     var response = xhr.responseJSON;
                     if (response && response.errors) {
@@ -780,7 +780,7 @@
             $('#gambar, #gambar_modal').change(function() {
                 var preview = $(this).attr('id') === 'gambar' ? '#image-preview' : '#image-preview-modal';
                 var container = $(this).attr('id') === 'gambar' ? '#preview-container' : '#preview-container-modal';
-                
+
                 if (this.files && this.files[0]) {
                     var reader = new FileReader();
                     reader.onload = function(e) {

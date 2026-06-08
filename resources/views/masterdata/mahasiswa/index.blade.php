@@ -151,11 +151,11 @@
                             </div>
 
                             <div class="col-md-6 mb-3">
-                                <label>Kurikulum Aktif</label>
+                                <label>Struktur Kurikulum Mahasiswa</label>
                                 <select id="id_kurikulum" class="form-control">
                                     <option value="">-- Biarkan Sistem Menentukan --</option>
                                 </select>
-                                <small class="text-muted">Opsional. Jika dikosongkan, sistem akan menentukan kurikulum aktif berdasarkan program studi, angkatan, tanggal masuk, atau riwayat kurikulum aktif.</small>
+                                <small class="text-muted">Opsional. Jika dikosongkan, sistem akan menentukan kurikulum mahasiswa berdasarkan program studi, angkatan, dan tanggal masuk.</small>
                             </div>
 
                             <div class="col-md-6 mb-3">
@@ -218,8 +218,8 @@
 
                             <div class="col-12">
                                 <small class="text-muted">
-                                    Jika kurikulum aktif dikosongkan, sistem akan menentukan otomatis berdasarkan prodi,
-                                    angkatan, tanggal masuk, semester masuk, jenis intake, dan semester akademik aktif.
+                                    Jika kurikulum dikosongkan, sistem akan menentukan otomatis berdasarkan prodi,
+                                    angkatan, tanggal masuk, dan semester mulai kurikulum yang tersedia.
                                 </small>
                             </div>
 
@@ -261,9 +261,8 @@
                                 <li>Download template dengan klik tombol "Download Template"</li>
                                 <li>Isi data sesuai format yang tersedia</li>
                                 <li>File yang diperbolehkan: .xlsx, .xls, .csv (maksimal 10MB)</li>
-                                <li>Pada Saat Menggunakan Fitur ini, Akan Otomatis Membuatkan Akun User Mahasiswa dengan
-                                    Password Default "Tanggal Lahir Mahasiswa" dengan format tanggal-bulan-tahun (contoh:
-                                    01122000)</li>
+                                <li>Pada saat menggunakan fitur ini, sistem akan otomatis membuat akun user mahasiswa
+                                    dengan password default <strong>12345678</strong></li>
                                 <li>Bisa Dihimbau Mahasiswa Untuk Mengganti Password nya setelah pertama kali login</li>
                             </ul>
                         </div>
@@ -361,7 +360,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="riwayatKurikulumModalLabel">
-                        <i class="fas fa-history me-2"></i>Riwayat Kurikulum Mahasiswa
+                        <i class="fas fa-history me-2"></i>Riwayat Struktur Kurikulum Mahasiswa
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
@@ -382,14 +381,14 @@
                     @csrf
                     <div class="modal-header">
                         <h5 class="modal-title" id="migrasiKurikulumModalLabel">
-                            <i class="fas fa-exchange-alt me-2"></i>Migrasi Kurikulum Mahasiswa
+                            <i class="fas fa-exchange-alt me-2"></i>Migrasi Struktur Kurikulum Mahasiswa
                         </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
                         <input type="hidden" id="migrasiMahasiswaId">
                         <div class="alert alert-warning">
-                            Migrasi kurikulum akan menutup kurikulum aktif lama dan membuka riwayat kurikulum baru.
+                            Migrasi kurikulum akan menutup riwayat kurikulum sebelumnya dan membuka riwayat kurikulum baru.
                             Pastikan aturan konversi mata kuliah sudah disiapkan terlebih dahulu bila diperlukan.
                         </div>
                         <div class="mb-3">
@@ -397,14 +396,17 @@
                             <input type="text" id="migrasiMahasiswaLabel" class="form-control" disabled>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Kurikulum Aktif Saat Ini</label>
+                            <label class="form-label">Tahun Kurikulum Saat Ini</label>
+                            <input type="text" id="migrasiCurrentKurikulumIndukLabel" class="form-control mb-2" disabled>
+                            <label class="form-label">Struktur Operasional Saat Ini</label>
                             <input type="text" id="migrasiCurrentKurikulumLabel" class="form-control" disabled>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Kurikulum Tujuan</label>
+                            <label class="form-label">Struktur Operasional Tujuan</label>
                             <select id="migrasi_id_kurikulum_tujuan" class="form-control" required>
-                                <option value="">-- Pilih Kurikulum Tujuan --</option>
+                                <option value="">-- Pilih Struktur Operasional Tujuan --</option>
                             </select>
+                            <small class="text-muted">Master tahun kurikulum mahasiswa akan ikut tersinkron otomatis dari struktur operasional yang dipilih.</small>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Tanggal Mulai Berlaku</label>
@@ -429,7 +431,7 @@
 @endsection
 
 @push('scripts-custom')
-    <script src="{{ asset('template/assets/js/core/jquery-3.7.1.min.js') }}"></script>
+    {{-- <script src="{{ asset('template/assets/js/core/jquery-3.7.1.min.js') }}"></script> --}}
     <script src="{{ asset('template/assets/js/plugin/datatables/datatables.min.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -443,6 +445,8 @@
             const migrasiModal = new bootstrap.Modal('#migrasiKurikulumModal');
             const mahasiswa = @json($mahasiswa ?? []);
             const kurikulumList = @json($kurikulum ?? []);
+            let importRequestInProgress = false;
+            let importNeedsManualCheck = false;
 
             const table = $('#mahasiswa-table').DataTable({
                 data: mahasiswa,
@@ -516,23 +520,32 @@
             });
 
             function formatKurikulumLabel(item) {
-                const tahun = item?.semester_mulai?.tahun_akademik?.tahun_akademik ?? '';
-                const semester = item?.semester_mulai?.nama_semester ?? '';
+                const mulaiBerlaku = item?.mulai_berlaku ?? [
+                    item?.semester_mulai?.tahun_akademik?.tahun_akademik,
+                    item?.semester_mulai?.nama_semester
+                ].filter(Boolean).join(' ');
                 const kode = item?.kode_kurikulum ?? '';
-                const nama = item?.nama_kurikulum ?? 'Kurikulum';
-                const parts = [kode, nama, tahun, semester].filter(Boolean);
+                const nama = item?.nama_struktur_mk ?? item?.nama_kurikulum ?? 'Struktur Operasional';
+                const parts = [kode, nama, mulaiBerlaku ? `Mulai ${mulaiBerlaku}` : null].filter(Boolean);
 
                 return parts.join(' | ');
             }
 
-            function getActiveKurikulumId(row = {}) {
-                if (row?.id_kurikulum) {
-                    return row.id_kurikulum;
-                }
+            function formatKurikulumIndukLabel(row = {}) {
+                const context = row?.kurikulum_context || {};
+                const induk = context?.kurikulum_induk || row?.kurikulumInduk || {};
+                return [
+                    induk?.kode_kurikulum,
+                    induk?.nama_kurikulum,
+                    induk?.jenis_kurikulum?.kode_jenis
+                ].filter(Boolean).join(' | ') || '-';
+            }
 
-                const activeHistory = (row?.riwayat_kurikulum || []).find(item => item?.is_active);
+            function getCurrentOperationalKurikulumId(row = {}) {
+                const historyItems = row?.riwayat_kurikulum || row?.riwayatKurikulum || [];
+                const activeHistory = historyItems.find(item => item?.is_active);
 
-                return activeHistory?.id_kurikulum || '';
+                return row?.id_kurikulum || activeHistory?.id_kurikulum || '';
             }
 
             function populateKurikulumOptions(prodiId, selectedId = '') {
@@ -601,7 +614,7 @@
                         <table class="table table-bordered table-striped align-middle mb-0">
                             <thead>
                                 <tr>
-                                    <th>Kurikulum</th>
+                                    <th>Struktur Kurikulum</th>
                                     <th>Periode</th>
                                     <th>Status</th>
                                     <th>Catatan</th>
@@ -609,16 +622,30 @@
                             </thead>
                             <tbody>
                                 ${items.map(item => {
-                                    const kurikulum = item.kurikulum || {};
+                                    const kurikulumOperasional = item.kurikulum_operasional || item.kurikulum || {};
+                                    const kurikulumInduk = item.kurikulum_induk || {};
                                     const periode = [item.tanggal_mulai || '-', item.tanggal_selesai || 'sekarang'].join(' s.d. ');
                                     const badge = item.is_active ? 'success' : 'secondary';
-                                    const tahun = kurikulum.semester_mulai?.tahun_akademik?.tahun_akademik || '';
-                                    const semester = kurikulum.semester_mulai?.nama_semester || '';
-                                    const label = [kurikulum.kode_kurikulum, kurikulum.nama_kurikulum, tahun, semester].filter(Boolean).join(' | ');
+                                    const tahun = kurikulumOperasional.semester_mulai?.tahun_akademik?.tahun_akademik || '';
+                                    const semester = kurikulumOperasional.semester_mulai?.nama_semester || '';
+                                    const operasionalLabel = [
+                                        kurikulumOperasional.kode_kurikulum,
+                                        kurikulumOperasional.nama_struktur_mk || kurikulumOperasional.nama_kurikulum,
+                                        tahun,
+                                        semester
+                                    ].filter(Boolean).join(' | ');
+                                    const indukLabel = [
+                                        kurikulumInduk.kode_kurikulum,
+                                        kurikulumInduk.nama_kurikulum,
+                                        kurikulumInduk.jenis_kurikulum?.kode_jenis
+                                    ].filter(Boolean).join(' | ') || '-';
 
                                     return `
                                         <tr>
-                                            <td>${label || '-'}</td>
+                                            <td>
+                                                <div><strong>Induk:</strong> ${indukLabel}</div>
+                                                <div><strong>Operasional:</strong> ${operasionalLabel || '-'}</div>
+                                            </td>
                                             <td>${periode}</td>
                                             <td><span class="badge bg-${badge}">${item.is_active ? 'Aktif' : 'Riwayat'}</span></td>
                                             <td>${item.catatan || '-'}</td>
@@ -727,7 +754,7 @@
                     $('#nim').val(m.nim);
                     $('#nik').val(m.nik);
                     $('#id_prodi').val(m.id_prodi);
-                    populateKurikulumOptions(m.id_prodi, getActiveKurikulumId(m));
+                    populateKurikulumOptions(m.id_prodi, getCurrentOperationalKurikulumId(m));
                     $('#jenis_kelamin').val(m.jenis_kelamin);
                     $('#tempat_lahir').val(m.tempat_lahir);
                     $('#tanggal_lahir').val(m.tanggal_lahir?.split('T')[0] ?? '');
@@ -759,7 +786,7 @@
                     const mahasiswaData = payload.mahasiswa || {};
                     const riwayat = payload.riwayat_kurikulum || [];
                     $('#riwayatKurikulumModalLabel').html(
-                        `<i class="fas fa-history me-2"></i>Riwayat Kurikulum - ${mahasiswaData.nama_mahasiswa || 'Mahasiswa'}`
+                        `<i class="fas fa-history me-2"></i>Riwayat Struktur Kurikulum - ${mahasiswaData.nama_mahasiswa || 'Mahasiswa'}`
                     );
                     $('#riwayatKurikulumContent').html(renderRiwayatKurikulum(riwayat));
                 }).fail(xhr => {
@@ -773,12 +800,13 @@
                 const id = $(this).data('id');
                 const row = mahasiswa.find(item => item.id === id);
                 const prodiId = row?.id_prodi || '';
-                const currentKurikulumId = getActiveKurikulumId(row);
+                const currentKurikulumId = getCurrentOperationalKurikulumId(row);
 
                 $('#migrasiKurikulumForm')[0].reset();
                 clearFormErrors('#migrasiKurikulumForm');
                 $('#migrasiMahasiswaId').val(id);
                 $('#migrasiMahasiswaLabel').val(`${row?.nama_mahasiswa || '-'} (${row?.nim || '-'})`);
+                $('#migrasiCurrentKurikulumIndukLabel').val(formatKurikulumIndukLabel(row));
                 $('#migrasiCurrentKurikulumLabel').val(
                     formatKurikulumLabel(
                         kurikulumList.find(item => item.id === currentKurikulumId) || {}
@@ -788,7 +816,7 @@
 
                 const select = $('#migrasi_id_kurikulum_tujuan');
                 const submitBtn = $('#submitMigrasiBtn');
-                select.empty().append('<option value="">-- Pilih Kurikulum Tujuan --</option>');
+                select.empty().append('<option value="">-- Pilih Struktur Operasional Tujuan --</option>');
                 const kandidatKurikulum = kurikulumList
                     .filter(item => item.id_prodi === prodiId && item.id !== currentKurikulumId);
                 kandidatKurikulum.forEach(item => {
@@ -882,6 +910,10 @@
             $('#importMahasiswaBtn').click(() => {
                 $('#importMahasiswaForm')[0].reset();
                 $('#importProdi').val('').trigger('change');
+                importRequestInProgress = false;
+                importNeedsManualCheck = false;
+                $('#submitImportBtn').prop('disabled', false).html(
+                    '<i class="fas fa-upload me-1"></i>Import Data');
                 $('#importPreview').html(`
                                     <p class="text-muted text-center">
                                         <i class="fas fa-info-circle me-2"></i>
@@ -1007,8 +1039,22 @@
             $('#importMahasiswaForm').on('submit', function(e) {
                 e.preventDefault();
 
+                if (importRequestInProgress) {
+                    return;
+                }
+
+                if (importNeedsManualCheck) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Cek Data Terlebih Dahulu',
+                        html: 'Import sebelumnya mengalami timeout. Silakan cek dulu data mahasiswa yang sudah masuk sebelum mengulangi import file yang sama.'
+                    });
+                    return;
+                }
+
                 const formData = new FormData(this);
                 const submitBtn = $('#submitImportBtn');
+                importRequestInProgress = true;
 
                 // Disable button dan tampilkan loading
                 submitBtn.prop('disabled', true).html(
@@ -1054,6 +1100,12 @@
                             }
                         }
 
+                        if (xhr.status === 504) {
+                            importNeedsManualCheck = true;
+                            errorMessage +=
+                                '<br><br><strong>Catatan:</strong> Cek dulu data mahasiswa di tabel. Bisa jadi proses import di server sudah selesai walaupun browser timeout. Tombol import akan ditahan sementara untuk mencegah double import.';
+                        }
+
                         Swal.fire({
                             icon: 'error',
                             title: 'Import Gagal',
@@ -1062,6 +1114,14 @@
                         });
                     },
                     complete: function() {
+                        importRequestInProgress = false;
+
+                        if (importNeedsManualCheck) {
+                            submitBtn.prop('disabled', true).html(
+                                '<i class="fas fa-exclamation-triangle me-1"></i>Cek Data Dulu');
+                            return;
+                        }
+
                         // Enable button kembali
                         submitBtn.prop('disabled', false).html(
                             '<i class="fas fa-upload me-1"></i>Import Data');

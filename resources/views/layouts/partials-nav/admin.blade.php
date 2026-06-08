@@ -1,13 +1,13 @@
 @canAnyApi(
-    'websitekampus.landing.pengumuman.index',
-    'websitekampus.landing.prestasi.index',
-    'websitekampus.landing.beasiswa.index',
-    'websitekampus.landing.berita.index',
-    'websitekampus.landing.galeri.index',
-    'websitekampus.landing.faq.index',
-    'websitekampus.landing.landing-content.index',
-    'websitekampus.landing.ormawa.index',
-    'websitekampus.landing.profile-kampus.index',
+'websitekampus.landing.pengumuman.index',
+'websitekampus.landing.prestasi.index',
+'websitekampus.landing.beasiswa.index',
+'websitekampus.landing.berita.index',
+'websitekampus.landing.galeri.index',
+'websitekampus.landing.faq.index',
+'websitekampus.landing.landing-content.index',
+'websitekampus.landing.ormawa.index',
+'websitekampus.landing.profile-kampus.index',
 )
 <li class="nav-section">
     <span class="sidebar-mini-icon">
@@ -15,61 +15,65 @@
     </span>
     <h4 class="text-section">CMS Kampus</h4>
 </li>
-<li class="nav-item {{ request()->routeIs([
-    'pengumuman.*',
-    'prestasi.*',
-    'beasiswa.*',
-    'berita.*',
-    'galeri.*',
-    'faq.*',
-    'landing-content.*',
-    'ormawa.*',
-    'profile-kampus.*',
-])
-    ? 'active'
-    : '' }}">
-    <a data-bs-toggle="collapse" href="#masterwebsite" class="{{ request()->routeIs([
-    'pengumuman.*',
-    'prestasi.*',
-    'beasiswa.*',
-    'berita.*',
-    'galeri.*',
-    'faq.*',
-    'landing-content.*',
-    'ormawa.*',
-    'profile-kampus.*',
-])
-    ? ''
-    : 'collapsed' }}" aria-expanded="{{ request()->routeIs([
-    'pengumuman.*',
-    'prestasi.*',
-    'beasiswa.*',
-    'berita.*',
-    'galeri.*',
-    'faq.*',
-    'landing-content.*',
-    'ormawa.*',
-    'profile-kampus.*',
-])
-    ? 'true'
-    : 'false' }}">
+<li
+    class="nav-item {{ request()->routeIs([
+        'pengumuman.*',
+        'prestasi.*',
+        'beasiswa.*',
+        'berita.*',
+        'galeri.*',
+        'faq.*',
+        'landing-content.*',
+        'ormawa.*',
+        'profile-kampus.*',
+    ])
+        ? 'active'
+        : '' }}">
+    <a data-bs-toggle="collapse" href="#masterwebsite"
+        class="{{ request()->routeIs([
+            'pengumuman.*',
+            'prestasi.*',
+            'beasiswa.*',
+            'berita.*',
+            'galeri.*',
+            'faq.*',
+            'landing-content.*',
+            'ormawa.*',
+            'profile-kampus.*',
+        ])
+            ? ''
+            : 'collapsed' }}"
+        aria-expanded="{{ request()->routeIs([
+            'pengumuman.*',
+            'prestasi.*',
+            'beasiswa.*',
+            'berita.*',
+            'galeri.*',
+            'faq.*',
+            'landing-content.*',
+            'ormawa.*',
+            'profile-kampus.*',
+        ])
+            ? 'true'
+            : 'false' }}">
         <i class="fas fa-home"></i>
         <p>Website Kampus</p>
         <span class="caret"></span>
     </a>
     <div class="collapse {{ request()->routeIs([
-    'pengumuman.*',
-    'prestasi.*',
-    'beasiswa.*',
-    'berita.*',
-    'galeri.*',
-    'faq.*',
-    'landing-content.*',
-    'ormawa.*',
-    'profile-kampus.*',
-])
-    ? 'show'
-    : '' }}" id="masterwebsite">
+        'pengumuman.*',
+        'prestasi.*',
+        'beasiswa.*',
+        'berita.*',
+        'galeri.*',
+        'faq.*',
+        'landing-content.*',
+        'ormawa.*',
+        'profile-kampus.*',
+    ])
+        ? 'show'
+        : '' }}"
+        id="masterwebsite">
         <ul class="nav nav-collapse">
             @canApi('websitekampus.landing.pengumuman.index')
             <li class="{{ request()->routeIs('pengumuman.*') ? 'active' : '' }}">
@@ -146,7 +150,12 @@
     $dosenRoutes = ['aktor-akademik.*', 'dosen.*', 'dosen-wali.*', 'prodi.*', 'users.*'];
     $mahasiswaRoutes = ['mahasiswa.*', 'mahasiswa.baru.*'];
     $transaksiRoutes = ['kelas-kuliah.*'];
-    $monitoringAkademikRoutes = ['akademik.monitoring'];
+    $monitoringAkademikRoutes = [
+        'akademik.monitoring',
+        'akademik.khs.*',
+        'akademik.riwayat-studi.*',
+        'akademik.administrasi-studi.*',
+    ];
     $capaianRoutes = ['capaian.*'];
     $akhirStudiRoutes = ['tugas-akhir.*', 'yudisium.*', 'kelulusan.*', 'akhir-studi.monitoring'];
     $administratifRoutes = ['wisuda.*'];
@@ -160,16 +169,62 @@
     $isCapaianActive = request()->routeIs($capaianRoutes);
     $isAkhirStudiActive = request()->routeIs($akhirStudiRoutes);
     $isAdministratifActive = request()->routeIs($administratifRoutes);
+    $userRoles = session('user.role', []);
+    $userPermissions = session('user.permission', []);
+    $khsImportPermissions = [
+        'akademik.khs.import.index',
+        'akademik.khs.import.history',
+        'akademik.khs.import.show',
+        'akademik.khs.import.preview',
+        'akademik.khs.import.process',
+        'akademik.khs.import.rollback',
+        'akademik.khs.import.export-errors',
+        'akademik.khs.import.export-results',
+        'akademik.khs.import.template-export',
+        'akademik.khs.show',
+        'akademik.khs.details.update',
+        'akademik.khs.finalize',
+    ];
+    $historicalPermissions = [
+        'akademik.krs-historical.filters',
+        'akademik.krs-historical.eligible-mahasiswa',
+        'akademik.krs-historical.package-classes',
+        'akademik.krs-historical.preview.build',
+        'akademik.krs-historical.execute.build',
+        'akademik.krs-historical.preview.reopen',
+        'akademik.krs-historical.execute.reopen',
+        'akademik.krs-historical.preview.refinalize',
+        'akademik.krs-historical.execute.refinalize',
+        'akademik.krs-historical.preview.reset',
+        'akademik.krs-historical.execute.reset',
+        'akademik.krs-historical.preview.generate-khs',
+        'akademik.krs-historical.execute.generate-khs',
+        'akademik.krs-historical.batches',
+        'akademik.krs-historical.batches.show',
+    ];
+    $studentStudyPermissions = [
+        'akademik.krs-historical.filters',
+        'akademik.krs-historical.batches',
+        'akademik.khs.import.index',
+        'akademik.khs.import.history',
+        'akademik.khs.index',
+    ];
+    $canAccessKhsImport =
+        in_array('admin', $userRoles, true) || count(array_intersect($khsImportPermissions, $userPermissions)) > 0;
+    $canAccessHistorical =
+        in_array('admin', $userRoles, true) || count(array_intersect($historicalPermissions, $userPermissions)) > 0;
+    $canAccessStudentStudy =
+        in_array('admin', $userRoles, true) || count(array_intersect($studentStudyPermissions, $userPermissions)) > 0;
 @endphp
 
 {{-- ================= MASTER DATA ================= --}}
 @canAnyApi(
-    'siakad.master.refrensi.prodi.index',
-    'siakad.master.refrensi.tahun-akademik.index',
-    'siakad.master.refrensi.kurikulum.index',
-    'siakad.master.refrensi.mata-kuliah.index',
-    'siakad.master.refrensi.ruang-kuliah.index',
-    'siakad.master.refrensi.periode-krs.index'
+'siakad.master.refrensi.prodi.index',
+'siakad.master.refrensi.tahun-akademik.index',
+'siakad.master.refrensi.kurikulum.index',
+'siakad.master.refrensi.mata-kuliah.index',
+'siakad.master.refrensi.ruang-kuliah.index',
+'siakad.master.refrensi.periode-krs.index'
 )
 <li class="nav-section">
     <span class="sidebar-mini-icon">
@@ -220,7 +275,13 @@
             @canApi('siakad.master.refrensi.kurikulum.index')
             <li class="{{ request()->routeIs('kurikulum.*') ? 'active' : '' }}">
                 <a href="{{ route('kurikulum.index') }}">
-                    <span class="sub-item">Kurikulum</span>
+                    <span class="sub-item">Struktur Kurikulum</span>
+                </a>
+            </li>
+            <li
+                class="{{ request()->routeIs('kurikulum-induk.*') || request()->routeIs('jenis-kurikulum.*') ? 'active' : '' }}">
+                <a href="{{ route('kurikulum-induk.index') }}">
+                    <span class="sub-item">Tahun Kurikulum</span>
                 </a>
             </li>
             @endcanApi
@@ -246,12 +307,12 @@
 </li>
 @endcanAnyApi
 
-<li class="nav-item {{ $isCapaianActive ? 'active' : '' }}">
+{{-- <li class="nav-item {{ $isCapaianActive ? 'active' : '' }}">
     <a href="{{ route('capaian.indexProdi') }}">
         <i class="fas fa-bullseye"></i>
         <p>Capaian Pembelajaran</p>
     </a>
-</li>
+</li> --}}
 
 <li class="nav-item {{ $isTransaksiActive ? 'active' : '' }}">
     <a href="{{ route('kelas-kuliah.index') }}">
@@ -261,13 +322,32 @@
 </li>
 
 <li class="nav-item {{ $isMonitoringAkademikActive ? 'active' : '' }}">
-    <a href="{{ route('akademik.monitoring') }}">
+    <a data-bs-toggle="collapse" href="#monitoringAkademikMenu"
+        class="{{ $isMonitoringAkademikActive ? '' : 'collapsed' }}">
         <i class="fas fa-chart-line"></i>
         <p>Monitoring Akademik</p>
+        <span class="caret"></span>
     </a>
+
+    <div class="collapse {{ $isMonitoringAkademikActive ? 'show' : '' }}" id="monitoringAkademikMenu">
+        <ul class="nav nav-collapse">
+            <li class="{{ request()->routeIs('akademik.monitoring') ? 'active' : '' }}">
+                <a href="{{ route('akademik.monitoring') }}">
+                    <span class="sub-item">Dashboard Akademik</span>
+                </a>
+            </li>
+            @if ($canAccessStudentStudy)
+                <li class="{{ request()->routeIs('akademik.administrasi-studi.*') ? 'active' : '' }}">
+                    <a href="{{ route('akademik.administrasi-studi.index') }}">
+                        <span class="sub-item">Administrasi Studi Mahasiswa</span>
+                    </a>
+                </li>
+            @endif
+        </ul>
+    </div>
 </li>
 
-<li class="nav-item {{ $isAkhirStudiActive ? 'active' : '' }}">
+{{-- <li class="nav-item {{ $isAkhirStudiActive ? 'active' : '' }}">
     <a data-bs-toggle="collapse" href="#akhirStudiMenu" class="{{ $isAkhirStudiActive ? '' : 'collapsed' }}">
         <i class="fas fa-graduation-cap"></i>
         <p>Akhir Studi</p>
@@ -298,9 +378,9 @@
             </li>
         </ul>
     </div>
-</li>
+</li> --}}
 
-<li class="nav-item {{ $isAdministratifActive ? 'active' : '' }}">
+{{-- <li class="nav-item {{ $isAdministratifActive ? 'active' : '' }}">
     <a data-bs-toggle="collapse" href="#administratifMenu" class="{{ $isAdministratifActive ? '' : 'collapsed' }}">
         <i class="fas fa-clipboard-check"></i>
         <p>Administratif</p>
@@ -327,13 +407,13 @@
             </li>
         </ul>
     </div>
-</li>
+</li> --}}
 
 
 {{-- ================= DOSEN ================= --}}
 @canAnyApi(
-    'siakad.master.refrensi.dosen.index',
-    'siakad.master.refrensi.prodi.index'
+'siakad.master.refrensi.dosen.index',
+'siakad.master.refrensi.prodi.index'
 )
 <li class="nav-item {{ $isDosenActive ? 'active' : '' }}">
     <a data-bs-toggle="collapse" href="#dosenMenu" class="{{ $isDosenActive ? '' : 'collapsed' }}">
@@ -359,7 +439,8 @@
             @endcanApi
 
             @canApi('siakad.master.refrensi.prodi.index')
-            <li class="{{ request()->routeIs('aktor-akademik.kaprodi') || request()->routeIs('prodi.*') ? 'active' : '' }}">
+            <li
+                class="{{ request()->routeIs('aktor-akademik.kaprodi') || request()->routeIs('prodi.*') ? 'active' : '' }}">
                 <a href="{{ route('aktor-akademik.kaprodi') }}">
                     <span class="sub-item">Ketua Program Studi</span>
                 </a>
@@ -367,7 +448,8 @@
             @endcanApi
 
             @canApi('siakad.master.refrensi.dosen.index')
-            <li class="{{ request()->routeIs('aktor-akademik.pembimbing-akademik') || request()->routeIs('dosen-wali.*') ? 'active' : '' }}">
+            <li
+                class="{{ request()->routeIs('aktor-akademik.pembimbing-akademik') || request()->routeIs('dosen-wali.*') ? 'active' : '' }}">
                 <a href="{{ route('aktor-akademik.pembimbing-akademik') }}">
                     <span class="sub-item">Pembimbing Akademik</span>
                 </a>
@@ -389,8 +471,8 @@
 
 {{-- ================= MAHASISWA ================= --}}
 @canAnyApi(
-    'siakad.master.refrensi.mahasiswa.index',
-    'siakad.master.refrensi.mahasiswa-baru.index'
+'siakad.master.refrensi.mahasiswa.index',
+'siakad.master.refrensi.mahasiswa-baru.index'
 )
 <li class="nav-item {{ $isMahasiswaActive ? 'active' : '' }}">
     <a data-bs-toggle="collapse" href="#mahasiswaMenu" class="{{ $isMahasiswaActive ? '' : 'collapsed' }}">
@@ -425,9 +507,9 @@
 @endcanAnyApi
 
 @canAnyApiPengguna(
-    'pengguna.setting.users.index',
-    'pengguna.setting.roles.index',
-    'pengguna.setting.permissions.index'
+'pengguna.setting.users.index',
+'pengguna.setting.roles.index',
+'pengguna.setting.permissions.index'
 )
 
 <li class="nav-section">

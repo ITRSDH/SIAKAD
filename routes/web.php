@@ -2,6 +2,9 @@
 
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Siakad\Akademik\MonitoringAkademikController;
+use App\Http\Controllers\Siakad\Akademik\KhsController as AkademikKhsController;
+use App\Http\Controllers\Siakad\Akademik\KhsImportController as AkademikKhsImportController;
+use App\Http\Controllers\Siakad\Akademik\StudentStudyAdministrationController;
 use App\Http\Controllers\Siakad\Administratif\BaakWorkspaceController;
 use App\Http\Controllers\Siakad\Administratif\DosenPengajarWorkspaceController;
 use App\Http\Controllers\Siakad\Administratif\KaprodiWorkspaceController;
@@ -20,6 +23,7 @@ use App\Http\Controllers\ManagementPengguna\PermissionController;
 use App\Http\Controllers\ManagementPengguna\RoleController;
 use App\Http\Controllers\ManagementPengguna\UserController;
 use App\Http\Controllers\Siakad\Krs\KRSDosenWaliController;
+use App\Http\Controllers\Siakad\Krs\KRSHistoricalController;
 use App\Http\Controllers\Siakad\Krs\KRSMahasiswaController;
 use App\Http\Controllers\Siakad\Administratif\WisudaController;
 use App\Http\Controllers\Siakad\AkhirStudi\YudisiumController;
@@ -38,6 +42,7 @@ use App\Http\Controllers\Siakad\MasterData\DosenWaliController;
 use App\Http\Controllers\Siakad\MasterData\JadwalController as MasterDataJadwalController;
 use App\Http\Controllers\Siakad\MasterData\KelaskuliahController;
 use App\Http\Controllers\Siakad\MasterData\KurikulumController;
+use App\Http\Controllers\Siakad\MasterData\KurikulumIndukController;
 use App\Http\Controllers\Siakad\MasterData\MahasiswaBaruController;
 use App\Http\Controllers\Siakad\MasterData\MahasiswaController;
 use App\Http\Controllers\Siakad\MasterData\MataKuliahController;
@@ -77,6 +82,59 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
     Route::get('/workspace/dosen-pengajar', [DosenPengajarWorkspaceController::class, 'index'])->name('workspace.dosen-pengajar');
     Route::get('/workspace/kaprodi', [KaprodiWorkspaceController::class, 'index'])->name('workspace.kaprodi');
     Route::get('/workspace/pembimbing-akademik', [PembimbingAkademikWorkspaceController::class, 'index'])->name('workspace.pembimbing-akademik');
+
+    Route::prefix('akademik/khs')->name('akademik.khs.')->group(function () {
+        Route::get('/import', [AkademikKhsImportController::class, 'index'])->name('import.index');
+        Route::get('/import/history', [AkademikKhsImportController::class, 'history'])->name('import.history');
+        Route::get('/import/template/export', [AkademikKhsImportController::class, 'exportTemplate'])->name('import.template-export');
+        Route::post('/import/upload', [AkademikKhsImportController::class, 'upload'])->name('import.upload');
+        Route::get('/import/{batch}', [AkademikKhsImportController::class, 'show'])->name('import.show');
+        Route::get('/import/{batch}/preview', [AkademikKhsImportController::class, 'preview'])->name('import.preview');
+        Route::post('/import/{batch}/process', [AkademikKhsImportController::class, 'process'])->name('import.process');
+        Route::post('/import/{batch}/finalize', [AkademikKhsImportController::class, 'finalizeBatch'])->name('import.finalize');
+        Route::post('/import/{batch}/rollback', [AkademikKhsImportController::class, 'rollback'])->name('import.rollback');
+        Route::get('/import/{batch}/export-errors', [AkademikKhsImportController::class, 'exportErrors'])->name('import.export-errors');
+        Route::get('/import/{batch}/export-results', [AkademikKhsImportController::class, 'exportResults'])->name('import.export-results');
+
+        Route::get('/{khsId}', [AkademikKhsController::class, 'show'])->name('show');
+        Route::put('/{khsId}/details/{detailId}', [AkademikKhsController::class, 'updateDetail'])->name('details.update');
+        Route::put('/{khsId}/summary', [AkademikKhsController::class, 'updateSummary'])->name('summary.update');
+        Route::post('/{khsId}/finalize', [AkademikKhsController::class, 'finalize'])->name('finalize');
+    });
+
+    Route::prefix('akademik/riwayat-studi')->name('akademik.riwayat-studi.')->group(function () {
+        Route::get('/', [KRSHistoricalController::class, 'index'])->name('index');
+        Route::get('/eligible-mahasiswa', [KRSHistoricalController::class, 'eligibleMahasiswa'])->name('eligible');
+        Route::get('/historical-classes', [KRSHistoricalController::class, 'historicalClasses'])->name('classes');
+        Route::get('/package-classes', [KRSHistoricalController::class, 'packageClasses'])->name('package-classes');
+        Route::post('/preview', [KRSHistoricalController::class, 'preview'])->name('preview');
+        Route::post('/execute', [KRSHistoricalController::class, 'execute'])->name('execute');
+        Route::get('/batches', [KRSHistoricalController::class, 'batchHistory'])->name('batches');
+        Route::get('/batches/{id}', [KRSHistoricalController::class, 'showBatch'])->name('batches.show');
+    });
+
+    Route::prefix('akademik/administrasi-studi')->name('akademik.administrasi-studi.')->group(function () {
+        Route::get('/', [StudentStudyAdministrationController::class, 'index'])->name('index');
+        Route::get('/summary', [StudentStudyAdministrationController::class, 'summary'])->name('summary');
+        Route::get('/historical/eligible-mahasiswa', [StudentStudyAdministrationController::class, 'eligibleHistoricalStudents'])->name('historical.eligible');
+        Route::get('/historical/package-classes', [StudentStudyAdministrationController::class, 'historicalPackageClasses'])->name('historical.package-classes');
+        Route::get('/historical/repeat-candidates', [StudentStudyAdministrationController::class, 'historicalRepeatCandidates'])->name('historical.repeat-candidates');
+        Route::post('/historical/preview', [StudentStudyAdministrationController::class, 'previewHistorical'])->name('historical.preview');
+        Route::post('/historical/execute', [StudentStudyAdministrationController::class, 'executeHistorical'])->name('historical.execute');
+        Route::get('/ready-khs', [StudentStudyAdministrationController::class, 'readyForKhs'])->name('ready-khs');
+        Route::get('/generate-khs/preview', [StudentStudyAdministrationController::class, 'previewGenerateKhs'])->name('generate-khs.preview');
+        Route::post('/generate-khs/execute', [StudentStudyAdministrationController::class, 'executeGenerateKhs'])->name('generate-khs.execute');
+        Route::get('/import/template/export', [StudentStudyAdministrationController::class, 'exportImportTemplate'])->name('import.template-export');
+        Route::post('/import/upload', [StudentStudyAdministrationController::class, 'uploadImport'])->name('import.upload');
+        Route::get('/import/{batch}/preview', [StudentStudyAdministrationController::class, 'previewImportBatch'])->name('import.preview');
+        Route::post('/import/{batch}/process', [StudentStudyAdministrationController::class, 'processImportBatch'])->name('import.process');
+        Route::post('/import/{batch}/finalize', [StudentStudyAdministrationController::class, 'finalizeImportBatch'])->name('import.finalize');
+        Route::post('/import/{batch}/rollback', [StudentStudyAdministrationController::class, 'rollbackImportBatch'])->name('import.rollback');
+        Route::get('/import/{batch}/export-errors', [StudentStudyAdministrationController::class, 'exportImportErrors'])->name('import.export-errors');
+        Route::get('/import/{batch}/export-results', [StudentStudyAdministrationController::class, 'exportImportResults'])->name('import.export-results');
+        Route::get('/batches', [StudentStudyAdministrationController::class, 'batchHistory'])->name('batches');
+        Route::get('/batches/{source}/{id}', [StudentStudyAdministrationController::class, 'showBatch'])->name('batches.show');
+    });
 
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
     Route::post('/users', [UserController::class, 'store'])->name('users.store');
@@ -223,12 +281,27 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
         Route::delete('/{id}/mata-kuliah/{id_mk}', [KurikulumController::class, 'hapusMataKuliah'])->name('hapus-mata-kuliah');
     });
 
+    Route::prefix('kurikulum-induk')->name('kurikulum-induk.')->group(function () {
+        Route::get('/', [KurikulumIndukController::class, 'index'])->name('index');
+        Route::post('/', [KurikulumIndukController::class, 'store'])->name('store');
+        Route::put('/{id}', [KurikulumIndukController::class, 'update'])->name('update');
+        Route::delete('/{id}', [KurikulumIndukController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::prefix('jenis-kurikulum')->name('jenis-kurikulum.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Siakad\MasterData\JenisKurikulumController::class, 'index'])->name('index');
+        Route::post('/', [\App\Http\Controllers\Siakad\MasterData\JenisKurikulumController::class, 'store'])->name('store');
+        Route::put('/{id}', [\App\Http\Controllers\Siakad\MasterData\JenisKurikulumController::class, 'update'])->name('update');
+        Route::delete('/{id}', [\App\Http\Controllers\Siakad\MasterData\JenisKurikulumController::class, 'destroy'])->name('destroy');
+    });
+
     Route::prefix('kelas-kuliah')->name('kelas-kuliah.')->group(function () {
         Route::get('/data', [KelaskuliahController::class, 'getDatakelaskuliah'])->name('dataKelaskuliah');
         Route::get('/', [KelaskuliahController::class, 'index'])->name('index');
         Route::get('/add', [KelaskuliahController::class, 'create'])->name('create');
         Route::post('/', [KelaskuliahController::class, 'store'])->name('store');
         Route::get('/detail/{id}', [KelaskuliahController::class, 'detail'])->name('detail');
+        Route::post('/detail/{id}/register-krs', [KelaskuliahController::class, 'registerKrsMahasiswa'])->name('register-krs');
         Route::put('/{id}', [KelaskuliahController::class, 'update'])->name('update');
         Route::delete('/{id}', [KelaskuliahController::class, 'destroy'])->name('destroy');
         Route::get('/{id}/tab/{tab}', [KelaskuliahController::class, 'tab'])->name('tab');
@@ -394,6 +467,7 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
     Route::prefix('mahasiswa/khs')->name('student.khs.')->group(function () {
         Route::get('/', [KHSController::class, 'index'])->name('index');
         Route::get('/data', [KHSController::class, 'data'])->name('data');
+        Route::get('/{khsId}/download', [KHSController::class, 'download'])->name('download');
         Route::get('/{khsId}/print', [KHSController::class, 'print'])->name('print');
         Route::get('/{khsId}', [KHSController::class, 'show'])->name('show');
     });

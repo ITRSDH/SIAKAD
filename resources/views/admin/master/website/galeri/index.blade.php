@@ -362,7 +362,7 @@
 @endsection
 
 @push('scripts-custom')
-    <script src="{{ asset('') }}template/assets/js/core/jquery-3.7.1.min.js"></script>
+    {{-- <script src="{{ asset('') }}template/assets/js/core/jquery-3.7.1.min.js"></script> --}}
     <!-- SweetAlert2 CDN untuk production -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.6/css/dataTables.dataTables.css" />
@@ -479,7 +479,7 @@
             $(document).on('click', '.edit-btn', function(e) {
                 e.preventDefault();
                 var id = $(this).data('id');
-                
+
                 $.get("/galeri/" + id)
                     .done(function(data) {
                         if (data && data.data) {
@@ -488,14 +488,14 @@
                             $('#judul_modal').val(data.data.judul);
                             $('#kategori_modal').val(data.data.kategori);
                             $('#deskripsi_modal').val(data.data.deskripsi);
-                            
+
                             // Format tanggal untuk input date (YYYY-MM-DD)
                             if (data.data.tanggal) {
                                 var tanggalDate = new Date(data.data.tanggal);
                                 var formattedDate = tanggalDate.toISOString().split('T')[0];
                                 $('#tanggal_modal').val(formattedDate);
                             }
-                            
+
                             // Show existing image if exists
                             if (data.data.gambar) {
                                 $('#image-preview-modal').attr('src', apiStorageUrl + data.data.gambar);
@@ -503,7 +503,7 @@
                             } else {
                                 $('#preview-container-modal').hide();
                             }
-                            
+
                             $('#modalGaleri').modal('show');
                         } else {
                             Swal.fire('Error', 'Gagal mengambil data galeri', 'error');
@@ -518,7 +518,7 @@
             $(document).on('click', '.delete-btn', function(e) {
                 e.preventDefault();
                 var id = $(this).data('id');
-                
+
                 Swal.fire({
                     title: 'Apakah Anda yakin?',
                     text: 'Data galeri akan dihapus permanently!',
@@ -561,13 +561,13 @@
                 $saveBtn.prop('disabled', true).html(
                     '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Menyimpan...'
                 );
-                
+
                 var formData = new FormData(this);
                 var url = "{{ route('galeri.store') }}";
-                
+
                 // Add CSRF token to FormData
                 formData.append('_token', '{{ csrf_token() }}');
-                
+
                 $.ajax({
                     url: url,
                     type: 'POST',
@@ -583,7 +583,7 @@
                                 showConfirmButton: false,
                                 timer: 1500
                             });
-                            
+
                             // Reset form
                             $('#galeriForm')[0].reset();
                             $('#galeri_id').val('');
@@ -628,14 +628,14 @@
                 $saveBtnModal.prop('disabled', true).html(
                     '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Menyimpan...'
                 );
-                
+
                 var formData = new FormData(this);
                 var id = $('#galeri_id_modal').val();
                 var url = '/galeri/' + id;
-                
+
                 // Add CSRF token to FormData
                 formData.append('_token', '{{ csrf_token() }}');
-                
+
                 // For PUT method with file, we need to use POST with _method parameter
                 if ($('#gambar_modal')[0].files.length > 0) {
                     formData.append('_method', 'PUT');
@@ -665,7 +665,7 @@
                         '_token': '{{ csrf_token() }}',
                         '_method': 'PUT'
                     };
-                    
+
                     $.ajax({
                         url: url,
                         type: 'POST',
@@ -681,7 +681,7 @@
                         }
                     });
                 }
-                
+
                 function handleUpdateResponse(response) {
                     if (response.success) {
                         Swal.fire({
@@ -710,7 +710,7 @@
                         }
                     }
                 }
-                
+
                 function handleUpdateError(xhr) {
                     var response = xhr.responseJSON;
                     if (response && response.errors) {
@@ -736,7 +736,7 @@
             $('#gambar, #gambar_modal').change(function() {
                 var preview = $(this).attr('id') === 'gambar' ? '#image-preview' : '#image-preview-modal';
                 var container = $(this).attr('id') === 'gambar' ? '#preview-container' : '#preview-container-modal';
-                
+
                 if (this.files && this.files[0]) {
                     var reader = new FileReader();
                     reader.onload = function(e) {

@@ -489,7 +489,7 @@
 @endsection
 
 @push('scripts-custom')
-    <script src="{{ asset('') }}template/assets/js/core/jquery-3.7.1.min.js"></script>
+    {{-- <script src="{{ asset('') }}template/assets/js/core/jquery-3.7.1.min.js"></script> --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         $(document).ready(function () {
@@ -551,11 +551,11 @@
                                                                                 <td>${kode}</td>
                                                                                 <td>${nama}</td>
                                                                                 <td>
-                                                                                    <input type="number" 
-                                                                                        class="form-control form-control-sm min-bobot-input" 
-                                                                                        value="2.00" 
-                                                                                        min="0" 
-                                                                                        max="4" 
+                                                                                    <input type="number"
+                                                                                        class="form-control form-control-sm min-bobot-input"
+                                                                                        value="2.00"
+                                                                                        min="0"
+                                                                                        max="4"
                                                                                         step="0.01"
                                                                                         placeholder="2.00">
                                                                                 </td>

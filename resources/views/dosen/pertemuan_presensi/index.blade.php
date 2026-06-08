@@ -267,7 +267,7 @@
 @endsection
 
 @push('scripts-custom')
-    <script src="{{ asset('') }}template/assets/js/core/jquery-3.7.1.min.js"></script>
+    {{-- <script src="{{ asset('') }}template/assets/js/core/jquery-3.7.1.min.js"></script> --}}
     <script>
         const currentDosenName = @json(session('profile.nama_dosen') ?: 'Dosen ini');
         const routes = {

@@ -179,7 +179,7 @@
                                 <i class="fas fa-file-circle-plus me-1"></i> Buat Draft KRS
                             </button>
                             <button class="btn btn-sm btn-primary d-none" id="openModalBtn">
-                                <i class="fas fa-plus me-1"></i> Tambah Mata Kuliah Ulang
+                                <i class="fas fa-plus me-1"></i> Tambah Mata Kuliah Manual
                             </button>
                             <button class="btn btn-sm btn-success d-none" id="submitBtn">
                                 <i class="fas fa-paper-plane me-1"></i> Ajukan KRS
@@ -188,11 +188,8 @@
                     </div>
                     <div class="card-body">
                         <div id="emptyState" class="empty-state d-none">
-                            <h5 class="mb-2">Belum ada draft KRS semester aktif</h5>
-                            <p class="text-muted mb-3">Buat draft KRS terlebih dahulu untuk mulai memilih mata kuliah.</p>
-                            <button class="btn btn-primary" id="createDraftBtnEmpty">
-                                <i class="fas fa-file-circle-plus me-1"></i> Buat Draft KRS
-                            </button>
+                            <h5 class="mb-2" id="emptyStateTitle">Menyiapkan KRS semester aktif</h5>
+                            <p class="text-muted mb-0" id="emptyStateDescription">Sistem sedang memeriksa penawaran mata kuliah untuk semester aktif.</p>
                         </div>
 
                         <div id="krsContent" class="d-none">
@@ -252,7 +249,7 @@
             <div class="modal-dialog modal-dialog-centered modal-xxl">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Kandidat Mata Kuliah Ulang</h5>
+                        <h5 class="modal-title">Penawaran Mata Kuliah Manual</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
@@ -264,8 +261,9 @@
                                         <th>Kode MK</th>
                                         <th>Mata Kuliah</th>
                                         <th>Kelas</th>
+                                        <th>Kategori</th>
+                                        <th>Semester Paket</th>
                                         <th>SKS</th>
-                                        <th>Riwayat Terakhir</th>
                                         <th>Jadwal</th>
                                         <th>Status</th>
                                         <th width="10%">Aksi</th>
@@ -273,7 +271,7 @@
                                 </thead>
                                 <tbody id="availableCoursesBody">
                                     <tr>
-                                        <td colspan="9" class="text-center text-muted">Memuat data...</td>
+                                        <td colspan="10" class="text-center text-muted">Memuat data...</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -382,6 +380,7 @@
 
 @push('scripts-custom')
     {{-- <script src="{{ asset('') }}template/assets/js/core/jquery-3.7.1.min.js"></script> --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
         // ================================
@@ -412,6 +411,7 @@
         let penawaranModalInstance = null;
         let historyModalInstance = null;
         let detailModalInstance = null;
+        let autoDraftAttempted = false;
 
         // ================================
         // HELPER FUNCTIONS
@@ -533,6 +533,20 @@
             return tahunAkademik ? `${tahunAkademik} ${namaSemester}` : namaSemester;
         }
 
+        function formatAcademicYear(semesterAktif) {
+            return semesterAktif?.tahun_akademik?.tahun_akademik || '-';
+        }
+
+        function formatSemesterStudyLabel(semesterAktif, semesterTempuh) {
+            const namaSemester = semesterAktif?.nama_semester || '-';
+
+            if (!semesterTempuh || Number(semesterTempuh) < 1) {
+                return `${namaSemester} | Belum masuk semester studi aktif`;
+            }
+
+            return `${namaSemester} | Semester Tempuh ${semesterTempuh}`;
+        }
+
         /**
          * Format program study display text
          * @param {object} prodi
@@ -579,6 +593,30 @@
             }
 
             if (semesterNumber && semesterKe > 0 && semesterKe < Number(semesterNumber)) {
+                return {
+                    text: 'Ulang',
+                    className: 'bg-warning text-dark'
+                };
+            }
+
+            return {
+                text: 'Tambahan',
+                className: 'bg-secondary'
+            };
+        }
+
+        function getOfferedCourseCategory(item, semesterNumber) {
+            const semesterKe = Number(item?.semester_ke || 0);
+            const currentSemester = Number(semesterNumber || 0);
+
+            if (currentSemester > 0 && semesterKe === currentSemester) {
+                return {
+                    text: 'Paket',
+                    className: 'bg-primary'
+                };
+            }
+
+            if (currentSemester > 0 && semesterKe > 0 && semesterKe < currentSemester) {
                 return {
                     text: 'Ulang',
                     className: 'bg-warning text-dark'
@@ -962,21 +1000,45 @@
             $('#nim').val(mahasiswa?.nim || '');
             $('#prodi').val(formatProdi(prodi) || '');
             $('#angkatan').val(mahasiswa?.angkatan || '');
-            $('#tahun_akademik').val(formatSemester(semesterAktif) || '');
-            $('#semester').val(payload?.semester_saat_ini || '');
+            $('#tahun_akademik').val(formatAcademicYear(semesterAktif));
+            $('#semester').val(formatSemesterStudyLabel(semesterAktif, payload?.semester_saat_ini));
 
             if (!currentKrs) {
                 $('#statusBadge').attr('class', 'badge bg-secondary badge-status').text('Belum Ada KRS');
                 $('#totalSksLabel').text('0');
                 $('#maxSksLabel').text('0');
-                $('#krsMetaInfo').text('Belum ada draft KRS semester aktif.');
+                $('#krsMetaInfo').removeClass('d-none');
+                $('#krsMetaInfo').text(payload?.eligibility_message || 'KRS semester aktif belum tersedia.');
                 $('#emptyState').removeClass('d-none');
                 $('#krsContent').addClass('d-none');
-                $('#createDraftBtn').removeClass('d-none');
-                $('#openModalBtn, #submitBtn, #printBtn').addClass('d-none');
+                $('#createDraftBtn, #createDraftBtnEmpty, #openModalBtn, #submitBtn, #printBtn').addClass('d-none');
                 packageSummary = null;
                 unresolvedPackageItems = [];
-                renderValidationSummary(null);
+
+                if (payload?.can_auto_init && !autoDraftAttempted) {
+                    $('#emptyStateTitle').text('Menyiapkan KRS semester aktif');
+                    $('#emptyStateDescription').text('Sistem sedang membuat draft KRS dan menyiapkan mata kuliah paket otomatis.');
+                } else if (payload?.is_krs_eligible === false) {
+                    $('#emptyStateTitle').text('KRS belum tersedia untuk angkatan ini');
+                    $('#emptyStateDescription').text(payload?.eligibility_message || 'Semester aktif saat ini belum sesuai dengan angkatan mahasiswa.');
+                    $('#validationBox').html(`
+                        <div class="alert alert-warning mb-0">
+                            <div class="fw-semibold mb-1">KRS belum dapat diproses</div>
+                            <div>${escapeHtml(payload?.eligibility_message || 'Periode akademik aktif belum berlaku untuk mahasiswa ini.')}</div>
+                            <hr>
+                            <div class="small text-muted">
+                                Contoh: jika periode aktif masih 2025/2026 Ganjil, maka mahasiswa angkatan 2026 belum masuk semester 1 dan penawaran mata kuliah tidak akan ditampilkan.
+                            </div>
+                        </div>
+                    `);
+                } else {
+                    $('#emptyStateTitle').text('KRS semester aktif belum tersedia');
+                    $('#emptyStateDescription').text(payload?.eligibility_message || 'Draft KRS belum berhasil disiapkan untuk semester aktif.');
+                }
+
+                if (payload?.is_krs_eligible !== false) {
+                    renderValidationSummary(null);
+                }
                 return;
             }
 
@@ -1053,6 +1115,14 @@
                     }
 
                     renderKrsState(response.data);
+
+                    if (!response.data?.krs && response.data?.can_auto_init && !autoDraftAttempted) {
+                        autoDraftAttempted = true;
+                        createDraft({
+                            silent: true,
+                            auto: true
+                        });
+                    }
                 },
                 error: function(xhr) {
                     notify(xhr.responseJSON?.message || 'Gagal memuat KRS semester aktif.', 'danger');
@@ -1063,7 +1133,7 @@
         /**
          * Create new KRS draft
          */
-        function createDraft() {
+        function createDraft(options = {}) {
             $.ajax({
                 url: routes.initCurrent,
                 method: 'POST',
@@ -1072,25 +1142,29 @@
                 },
                 success: function(response) {
                     if (!response.success) {
-                        notify(response.message || 'Gagal membuat draft KRS.', 'danger');
+                        if (!options.silent) {
+                            notify(response.message || 'Gagal membuat draft KRS.', 'danger');
+                        }
                         return;
                     }
 
                     packageSummary = response.data?.package_summary || null;
                     unresolvedPackageItems = response.data?.unresolved_package_items || [];
 
-                    if (packageSummary) {
+                    if (!options.silent && packageSummary) {
                         const generated = packageSummary.generated_count ?? 0;
                         const unresolved = packageSummary.unresolved_count ?? 0;
                         notify(`Draft KRS berhasil dibuat. Paket tergenerate: ${generated} mata kuliah. Kendala paket: ${unresolved}.`, unresolved > 0 ? 'warning' : 'success');
-                    } else {
+                    } else if (!options.silent) {
                         notify(response.message || 'Draft KRS berhasil dibuat.', 'success');
                     }
 
                     loadCurrentKrs();
                 },
                 error: function(xhr) {
-                    notify(xhr.responseJSON?.message || 'Gagal membuat draft KRS.', 'danger');
+                    if (!options.silent || options.auto) {
+                        notify(xhr.responseJSON?.message || 'Gagal membuat draft KRS.', 'danger');
+                    }
                 }
             });
         }
@@ -1104,21 +1178,23 @@
                 return;
             }
 
-            $('#availableCoursesBody').html('<tr><td colspan="9" class="text-center text-muted">Memuat data...</td></tr>');
+            $('#availableCoursesBody').html('<tr><td colspan="10" class="text-center text-muted">Memuat data...</td></tr>');
             getPenawaranModal()?.show();
 
             $.ajax({
-                url: routes.repeatCandidates,
+                url: routes.available,
                 method: 'GET',
                 data: {
-                    id_krs: currentKrs.id
+                    id_krs: currentKrs.id,
+                    id_semester: currentKrs.id_semester || currentKrs?.semester?.id
                 },
                 success: function(response) {
-                    const rowsData = flattenRepeatCandidates(response.data || []);
+                    const rowsData = Array.isArray(response.data) ? response.data : [];
+                    const metaMessage = response.meta?.message;
 
                     if (!response.success || !rowsData.length) {
                         $('#availableCoursesBody').html(
-                            '<tr><td colspan="9" class="text-center text-muted">Tidak ada mata kuliah ulang yang dapat ditawarkan pada semester ini.</td></tr>'
+                            `<tr><td colspan="10" class="text-center text-muted">${escapeHtml(metaMessage || 'Tidak ada penawaran mata kuliah manual yang tersedia pada semester ini.')}</td></tr>`
                         );
                         return;
                     }
@@ -1129,6 +1205,7 @@
                             item.jadwal.map(j => `${j.hari}, ${j.jam_mulai} - ${j.jam_selesai}`).join(
                                 '<br>') :
                             '-';
+                        const category = getOfferedCourseCategory(item, currentSemesterNumber);
 
                         const statusHtml = item.is_available ?
                             '<span class="badge bg-success">Tersedia</span>' :
@@ -1144,8 +1221,9 @@
                                                     <td>${escapeHtml(item.kode_mk)}</td>
                                                     <td>${escapeHtml(item.mata_kuliah)}</td>
                                                     <td>${escapeHtml(item.nama_kelas)}</td>
+                                                    <td><span class="badge ${category.className}">${escapeHtml(category.text)}</span></td>
+                                                    <td>${escapeHtml(item.semester_ke ?? '-')}</td>
                                                     <td>${escapeHtml(item.sks)}</td>
-                                                    <td>${escapeHtml(item.riwayat)}</td>
                                                     <td>${jadwalText}</td>
                                                     <td>${statusHtml}</td>
                                                     <td class="text-center">${addButton}</td>
@@ -1157,9 +1235,9 @@
                 },
                 error: function(xhr) {
                     $('#availableCoursesBody').html(
-                        '<tr><td colspan="9" class="text-center text-danger">Gagal memuat kandidat mata kuliah ulang.</td></tr>'
+                        '<tr><td colspan="10" class="text-center text-danger">Gagal memuat penawaran mata kuliah manual.</td></tr>'
                     );
-                    notify(xhr.responseJSON?.message || 'Gagal memuat kandidat mata kuliah ulang.', 'danger');
+                    notify(xhr.responseJSON?.message || 'Gagal memuat penawaran mata kuliah manual.', 'danger');
                 }
             });
         }
@@ -1285,37 +1363,63 @@
          * @param {string} kelasId
          */
         function removeCourse(krsId, kelasId) {
-            if (!confirm('Hapus mata kuliah ini dari KRS?')) {
-                return;
-            }
-
             const url = routes.removeTemplate
                 .replace('__KRS__', krsId)
                 .replace('__KELAS__', kelasId);
 
-            $.ajax({
-                url: url,
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                success: function(response) {
-                    if (!response.success) {
-                        notify(response.message || 'Gagal menghapus mata kuliah.', 'danger');
-                        return;
-                    }
-
-                    notify(response.message || 'Mata kuliah berhasil dihapus.', 'success');
-                    currentKrs = response.data || currentKrs;
-                    renderKrsState({
-                        semester_aktif: currentKrs.semester,
-                        krs: currentKrs,
-                    });
-                    loadCurrentKrs();
-                },
-                error: function(xhr) {
-                    notify(xhr.responseJSON?.message || 'Gagal menghapus mata kuliah.', 'danger');
+            Swal.fire({
+                title: 'Hapus mata kuliah ini?',
+                text: 'Mata kuliah akan dikeluarkan dari draft KRS aktif.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, hapus',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+            }).then((result) => {
+                if (!result.isConfirmed) {
+                    return;
                 }
+
+                $.ajax({
+                    url: url,
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    beforeSend: function() {
+                        Swal.fire({
+                            title: 'Memproses...',
+                            text: 'Sedang menghapus mata kuliah dari KRS.',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            didOpen: () => Swal.showLoading()
+                        });
+                    },
+                    success: function(response) {
+                        Swal.close();
+
+                        if (!response.success) {
+                            notify(response.message || 'Gagal menghapus mata kuliah.', 'danger');
+                            return;
+                        }
+
+                        notify(response.message || 'Mata kuliah berhasil dihapus.', 'success');
+                        currentKrs = response.data || currentKrs;
+                        renderKrsState({
+                            semester_aktif: currentKrs.semester,
+                            krs: currentKrs,
+                        });
+                        loadCurrentKrs();
+
+                        if ($('#modalPenawaran').hasClass('show')) {
+                            loadAvailableCourses();
+                        }
+                    },
+                    error: function(xhr) {
+                        Swal.close();
+                        notify(xhr.responseJSON?.message || 'Gagal menghapus mata kuliah.', 'danger');
+                    }
+                });
             });
         }
 
@@ -1328,33 +1432,55 @@
                 return;
             }
 
-            if (!confirm('Ajukan KRS ini ke dosen wali?')) {
-                return;
-            }
-
-            $.ajax({
-                url: routes.submit,
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    id_krs: currentKrs.id
-                }),
-                success: function(response) {
-                    if (!response.success) {
-                        notify(response.message || 'Gagal mengajukan KRS.', 'danger');
-                        return;
-                    }
-
-                    notify(response.message || 'KRS berhasil diajukan.', 'success');
-                    loadCurrentKrs();
-                },
-                error: function(xhr) {
-                    const message = xhr.responseJSON?.message || 'Gagal mengajukan KRS.';
-                    notify(message, 'danger');
+            Swal.fire({
+                title: 'Ajukan KRS sekarang?',
+                text: 'KRS akan dikirim ke dosen wali untuk proses persetujuan.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, ajukan',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+            }).then((result) => {
+                if (!result.isConfirmed) {
+                    return;
                 }
+
+                $.ajax({
+                    url: routes.submit,
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        id_krs: currentKrs.id
+                    }),
+                    beforeSend: function() {
+                        Swal.fire({
+                            title: 'Memproses...',
+                            text: 'Sedang mengajukan KRS ke dosen wali.',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            didOpen: () => Swal.showLoading()
+                        });
+                    },
+                    success: function(response) {
+                        Swal.close();
+
+                        if (!response.success) {
+                            notify(response.message || 'Gagal mengajukan KRS.', 'danger');
+                            return;
+                        }
+
+                        notify(response.message || 'KRS berhasil diajukan.', 'success');
+                        loadCurrentKrs();
+                    },
+                    error: function(xhr) {
+                        Swal.close();
+                        const message = xhr.responseJSON?.message || 'Gagal mengajukan KRS.';
+                        notify(message, 'danger');
+                    }
+                });
             });
         }
 

@@ -331,11 +331,11 @@
 
     <div class="collapse {{ $isMonitoringAkademikActive ? 'show' : '' }}" id="monitoringAkademikMenu">
         <ul class="nav nav-collapse">
-            <li class="{{ request()->routeIs('akademik.monitoring') ? 'active' : '' }}">
+            {{-- <li class="{{ request()->routeIs('akademik.monitoring') ? 'active' : '' }}">
                 <a href="{{ route('akademik.monitoring') }}">
                     <span class="sub-item">Dashboard Akademik</span>
                 </a>
-            </li>
+            </li> --}}
             @if ($canAccessStudentStudy)
                 <li class="{{ request()->routeIs('akademik.administrasi-studi.*') ? 'active' : '' }}">
                     <a href="{{ route('akademik.administrasi-studi.index') }}">

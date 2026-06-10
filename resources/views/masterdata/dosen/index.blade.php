@@ -77,6 +77,7 @@
                                         <th>No</th>
                                         <th>Nama Dosen</th>
                                         <th>NIDN</th>
+                                        <th>Email</th>
                                         <th>Prodi</th>
                                         <th style="width: 100px;">Aksi</th>
                                     </tr>
@@ -198,6 +199,30 @@
                                 @enderror
                             </div>
 
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Email User</label>
+                                <input type="email" name="email"
+                                    class="form-control @error('email') is-invalid @enderror"
+                                    placeholder="Opsional">
+                                @error('email')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Password User</label>
+                                <input type="password" name="password"
+                                    class="form-control @error('password') is-invalid @enderror"
+                                    placeholder="Kosongkan jika tidak ingin mengubah password">
+                                <small class="text-muted">
+                                    Saat tambah dosen, jika dikosongkan password default akan dibuat dari tanggal lahir atau
+                                    `password`.
+                                </small>
+                                @error('password')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
 
                         </div> <!-- end row -->
                     </div>
@@ -239,6 +264,10 @@
                     },
                     {
                         data: 'nidn'
+                    },
+                    {
+                        data: null,
+                        render: row => row.user?.email ?? '-'
                     },
                     {
                         data: null,
@@ -328,6 +357,8 @@
                         $('input[name="tanggal_lahir"]').val(d.tanggal_lahir?.split('T')[0] ?? '');
                         $('textarea[name="alamat"]').val(d.alamat);
                         $('input[name="no_hp"]').val(d.no_hp);
+                        $('input[name="email"]').val(d.user?.email ?? '');
+                        $('input[name="password"]').val('');
 
                         $('#modalTambahDosenLabel').text('Edit Data Dosen');
                         modal.show();

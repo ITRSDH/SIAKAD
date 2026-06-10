@@ -349,6 +349,7 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
     Route::prefix('mahasiswa')->name('mahasiswa.')->group(function () {
         Route::get('/', [MahasiswaController::class, 'index'])->name('index');
         Route::post('/', [MahasiswaController::class, 'store'])->name('store');
+        Route::post('/bulk-delete', [MahasiswaController::class, 'bulkDestroy'])->name('bulk-destroy');
         Route::get('/{id}/riwayat-kurikulum', [MahasiswaController::class, 'riwayatKurikulum'])->whereUuid('id')->name('riwayat-kurikulum');
         Route::post('/{id}/migrasi-kurikulum', [MahasiswaController::class, 'migrateKurikulum'])->whereUuid('id')->name('migrasi-kurikulum');
         Route::get('/{id}', [MahasiswaController::class, 'show'])->whereUuid('id')->name('show');

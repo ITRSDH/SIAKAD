@@ -492,24 +492,24 @@
             <div class="card-body p-4">
                 <div class="study-badge">
                     <i class="fas fa-layer-group"></i>
-                    <span>Satu workspace untuk KRS, nilai, dan KHS administratif</span>
+                    <span>Workspace migrasi riwayat studi, KRS, nilai, dan KHS administratif</span>
                 </div>
                 <div class="row g-4 align-items-end mt-1">
                     <div class="col-xl-8">
                         <h1 class="fw-bold mb-3" style="font-size: clamp(1.8rem, 3vw, 2.7rem); line-height: 1.08;">
-                            Kelola administrasi studi mahasiswa tanpa berpindah-pindah modul.
+                            Migrasikan perjalanan akademik mahasiswa lama per semester dalam satu workspace.
                         </h1>
                         <p class="mb-0 text-white-50">
-                            Halaman ini dipakai untuk mengatur KRS bersama-sama, mengelola riwayat studi,
-                            memasukkan nilai, lalu menyiapkan KHS dari data yang sudah selesai diperiksa.
+                            Halaman ini dipakai untuk membangun riwayat studi historis mahasiswa terdahulu,
+                            mengatur KRS per semester, memasukkan nilai, lalu menyiapkan KHS dari data yang sudah selesai diperiksa.
                         </p>
                     </div>
                     <div class="col-xl-4">
                         <div class="study-shell bg-white bg-opacity-10 border-0 p-3">
                             <div class="small text-white-50 mb-2">Langkah yang bisa dilakukan</div>
-                            <div class="small">1. Buat KRS saja</div>
-                            <div class="small">2. Buat KRS, masukkan nilai, lalu buat KHS</div>
-                            <div class="small">3. Masukkan nilai ke KRS yang sudah ada, lalu buat KHS</div>
+                            <div class="small">1. Pilih semester historis dan angkatan mahasiswa</div>
+                            <div class="small">2. Bentuk KRS historis per semester dan isi nilainya</div>
+                            <div class="small">3. Finalkan KHS agar perjalanan akademik mahasiswa terbentuk berurutan</div>
                         </div>
                     </div>
                 </div>
@@ -590,11 +590,11 @@
                             data-bs-toggle="pill" data-bs-target="#tab-konteks" type="button"
                             data-tab-key="konteks">Ringkasan & Konteks</button></li>
                     <li class="nav-item"><button class="nav-link {{ $activeTab === 'krs' ? 'active' : '' }}"
-                            data-bs-toggle="pill" data-bs-target="#tab-krs" type="button" data-tab-key="krs">KRS
-                            Kolektif</button></li>
+                            data-bs-toggle="pill" data-bs-target="#tab-krs" type="button" data-tab-key="krs">Migrasi
+                            KRS Historis</button></li>
                     <li class="nav-item"><button class="nav-link {{ $activeTab === 'riwayat' ? 'active' : '' }}"
                             data-bs-toggle="pill" data-bs-target="#tab-riwayat" type="button"
-                            data-tab-key="riwayat">Riwayat Studi</button></li>
+                            data-tab-key="riwayat">Koreksi & Finalisasi Riwayat</button></li>
                     <li class="nav-item"><button class="nav-link {{ $activeTab === 'import' ? 'active' : '' }}"
                             data-bs-toggle="pill" data-bs-target="#tab-import" type="button"
                             data-tab-key="import">Import Nilai</button></li>
@@ -611,25 +611,33 @@
                         <div class="row g-3">
                             <div class="col-lg-4">
                                 <div class="study-tab-card">
-                                    <div class="fw-semibold mb-2">Mulai dari data yang sudah ada</div>
-                                    <div class="text-muted small">Anda tidak harus selalu mulai dari pembuatan KRS. Halaman
-                                        ini membantu melihat data yang sudah siap dan menentukan langkah berikutnya.</div>
+                                    <div class="fw-semibold mb-2">Mulai dari semester migrasi</div>
+                                    <div class="text-muted small">Tentukan dulu semester akademik yang ingin dibentuk agar
+                                        semua proses historis mengikuti urutan semester mahasiswa.</div>
                                 </div>
                             </div>
                             <div class="col-lg-4">
                                 <div class="study-tab-card">
-                                    <div class="fw-semibold mb-2">Satu filter untuk semua tab</div>
+                                    <div class="fw-semibold mb-2">Satu filter untuk semua proses</div>
                                     <div class="text-muted small">Filter semester, program studi, angkatan, dan semester
                                         ke di bagian atas akan dipakai bersama di seluruh tab workspace ini.</div>
                                 </div>
                             </div>
                             <div class="col-lg-4">
                                 <div class="study-tab-card">
-                                    <div class="fw-semibold mb-2">Ringkasan untuk membantu memilih proses</div>
-                                    <div class="text-muted small">Status mahasiswa membantu Anda menentukan apakah perlu
-                                        lanjut ke KRS Kolektif, Import Nilai, atau Generate KHS.</div>
+                                    <div class="fw-semibold mb-2">Ikuti perjalanan akademik berurutan</div>
+                                    <div class="text-muted small">Bangun semester demi semester: buat KRS historis, isi nilai,
+                                        lalu finalkan KHS sebelum pindah ke semester berikutnya.</div>
                                 </div>
                             </div>
+                        </div>
+                        <div class="study-bridge mt-4">
+                            <div class="fw-semibold mb-2">Alur yang disarankan untuk migrasi mahasiswa lama</div>
+                            <div class="small mb-1">1. Pilih semester historis dan semester tempuh mahasiswa.</div>
+                            <div class="small mb-1">2. Buka tab <strong>Migrasi KRS Historis</strong> untuk membentuk KRS semester tersebut.</div>
+                            <div class="small mb-1">3. Jika nilai sudah ada, isi dari builder atau lewat tab <strong>Import Nilai</strong>.</div>
+                            <div class="small mb-1">4. Buka tab <strong>Koreksi & Finalisasi Riwayat</strong> bila perlu buka ulang, reset, atau generate KHS.</div>
+                            <div class="small">5. Ulangi proses ke semester berikutnya sampai perjalanan akademik mahasiswa lengkap.</div>
                         </div>
                     </div>
                     <div class="tab-pane fade {{ $activeTab === 'krs' ? 'show active' : '' }}" id="tab-krs">
@@ -657,10 +665,10 @@
                                     </div>
                                     <div class="study-bridge">
                                         <div class="fw-semibold mb-2">Setelah selesai</div>
-                                        <div class="small text-muted mb-3">Jika KRS historis sudah terbentuk dan perlu tindakan lanjutan, Anda bisa pindah ke tab riwayat studi.</div>
+                                        <div class="small text-muted mb-3">Jika KRS historis sudah terbentuk dan perlu tindakan lanjutan, Anda bisa pindah ke tab koreksi dan finalisasi riwayat.</div>
                                         <a href="{{ route('akademik.administrasi-studi.index', ['tab' => 'riwayat']) }}"
                                             class="btn btn-outline-secondary btn-sm">
-                                            <i class="fas fa-arrow-right me-1"></i> Ke Tab Riwayat
+                                            <i class="fas fa-arrow-right me-1"></i> Ke Tab Koreksi Riwayat
                                         </a>
                                     </div>
                                 </div>
@@ -849,7 +857,7 @@
                         <div class="row g-4">
                             <div class="col-xl-4">
                                 <div class="study-bridge">
-                                    <div class="fw-semibold mb-2">Koreksi Riwayat Studi</div>
+                                    <div class="fw-semibold mb-2">Koreksi dan Finalisasi Riwayat Studi</div>
                                     <div class="text-muted small mb-3">
                                         Tab ini dipakai untuk membuka ulang data, mengosongkan isi riwayat,
                                         memfinalisasi ulang, atau membuat KHS dari data semester lampau yang sudah ada.
@@ -867,7 +875,7 @@
                                     </a>
                                 </div>
                                 <div class="study-bridge mt-3">
-                                    <div class="fw-semibold mb-2">Langkah di tab ini</div>
+                                    <div class="fw-semibold mb-2">Urutan kerja di tab ini</div>
                                     <div class="small text-muted mb-2">Anda bisa menjalankan koreksi riwayat studi langsung
                                         dari halaman ini:</div>
                                     <div class="small mb-1">1. Lihat pratinjau buka ulang, finalisasi ulang, atau reset
@@ -916,7 +924,7 @@
                                         </div>
                                     </div>
                                     <div class="small text-muted mt-3" id="studyHistoricalMutationSelectionSummary">
-                                        Belum ada mahasiswa yang dipilih. Pilih mahasiswa di tab `KRS Kolektif`, atau muat
+                                        Belum ada mahasiswa yang dipilih. Pilih mahasiswa di tab `KRS Kolektif Historis`, atau muat
                                         ulang data dengan tombol di atas.
                                     </div>
                                     <div class="study-soft-box mt-3 d-none" id="studyHistoricalMutationManualIpkPanel">
@@ -1126,9 +1134,36 @@
 @endsection
 
 @push('scripts-custom')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         function escapeHtml(value) {
             return $('<div>').text(value ?? '').html();
+        }
+
+        function showStudyAlert(message, type = 'info') {
+            const iconMap = {
+                info: 'info',
+                success: 'success',
+                warning: 'warning',
+                danger: 'error',
+                error: 'error',
+            };
+
+            return Swal.fire({
+                icon: iconMap[type] || 'info',
+                text: message || 'Terjadi kesalahan.',
+                confirmButtonText: 'OK',
+            });
+        }
+
+        function showStudyLoading(title = 'Memproses...', text = 'Mohon tunggu sebentar.') {
+            Swal.fire({
+                title,
+                text,
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: () => Swal.showLoading(),
+            });
         }
 
         function renderSummaryCards(cards) {
@@ -1158,7 +1193,7 @@
             }).done(function(response) {
                 renderSummaryCards(response.data?.summary_cards ?? []);
             }).fail(function(xhr) {
-                alert(xhr.responseJSON?.message ?? 'Gagal memuat ringkasan administrasi studi.');
+                showStudyAlert(xhr.responseJSON?.message ?? 'Gagal memuat ringkasan administrasi studi.', 'danger');
             }).always(function() {
                 $button.prop('disabled', false).html(
                     '<i class="fas fa-arrows-rotate me-1"></i> Perbarui Ringkasan');
@@ -1180,6 +1215,7 @@
         let historicalEligiblePage = 1;
         let historicalBuilderPage = 1;
         const historicalPageSize = 10;
+        let selectedHistoricalStudentIds = [];
         let readyKhsRows = [];
 
         function formatGpaValue(value) {
@@ -1233,17 +1269,17 @@
             const context = getHistoricalContext();
 
             if (!context.id_semester) {
-                alert('Pilih semester pada filter konteks terlebih dahulu.');
+                showStudyAlert('Pilih semester pada filter konteks terlebih dahulu.', 'warning');
                 return null;
             }
 
             if (options.requireProdi && !context.id_prodi) {
-                alert('Pilih program studi pada filter konteks terlebih dahulu.');
+                showStudyAlert('Pilih program studi pada filter konteks terlebih dahulu.', 'warning');
                 return null;
             }
 
             if (options.requireSemesterKe && !context.semester_ke) {
-                alert('Pilih semester ke pada filter konteks terlebih dahulu.');
+                showStudyAlert('Pilih semester ke pada filter konteks terlebih dahulu.', 'warning');
                 return null;
             }
 
@@ -1251,14 +1287,70 @@
         }
 
         function getSelectedHistoricalStudentIds() {
-            return $('.study-historical-student-checkbox:checked').map(function() {
-                return $(this).val();
-            }).get();
+            return [...selectedHistoricalStudentIds];
         }
 
         function getSelectedHistoricalStudents() {
             const selectedIds = getSelectedHistoricalStudentIds();
             return historicalEligibleStudents.filter((row) => selectedIds.includes(row.id));
+        }
+
+        function getFilteredHistoricalEligibleStudents(rows = historicalEligibleStudents) {
+            const keyword = ($('#studyHistoricalEligibleSearch').val() || '').toLowerCase().trim();
+
+            return (rows || []).filter((row) => {
+                if (!keyword) {
+                    return true;
+                }
+
+                return `${row.nama_mahasiswa ?? ''} ${row.nim ?? ''}`.toLowerCase().includes(keyword);
+            });
+        }
+
+        function syncHistoricalSelectAllState(filteredRows = null) {
+            const currentFilteredRows = filteredRows ?? getFilteredHistoricalEligibleStudents();
+            const filteredIds = currentFilteredRows.map((row) => row.id);
+            const checkedCount = filteredIds.filter((id) => selectedHistoricalStudentIds.includes(id)).length;
+            const totalCount = filteredIds.length;
+
+            $('#studyHistoricalSelectAll')
+                .prop('checked', totalCount > 0 && checkedCount === totalCount)
+                .prop('indeterminate', checkedCount > 0 && checkedCount < totalCount);
+        }
+
+        function getHistoricalStudentProgress(row) {
+            if (row.existing_historical_krs?.is_locked) {
+                return {
+                    text: 'Riwayat Final',
+                    className: 'bg-success'
+                };
+            }
+
+            if (row.existing_historical_krs) {
+                return {
+                    text: 'KRS Historis Siap',
+                    className: 'bg-primary'
+                };
+            }
+
+            if (row.default_action === 'ready') {
+                return {
+                    text: 'Siap Migrasi',
+                    className: 'bg-info text-dark'
+                };
+            }
+
+            if (row.default_action === 'skipped') {
+                return {
+                    text: 'Perlu Review',
+                    className: 'bg-warning text-dark'
+                };
+            }
+
+            return {
+                text: 'Belum Siap',
+                className: 'bg-danger'
+            };
         }
 
         function syncHistoricalMutationManualIpkPanel() {
@@ -1327,7 +1419,7 @@
             if (!selectedStudents.length) {
                 $('#studyHistoricalSelectionSummary').text('Belum ada mahasiswa yang dipilih.');
                 $('#studyHistoricalMutationSelectionSummary').text(
-                    'Belum ada mahasiswa yang dipilih. Pilih mahasiswa di tab `KRS Kolektif`, atau muat ulang data dengan tombol di atas.'
+                    'Belum ada mahasiswa yang dipilih. Pilih mahasiswa di tab `KRS Kolektif Historis`, atau muat ulang data dengan tombol di atas.'
                 );
                 syncHistoricalMutationManualIpkPanel();
                 return;
@@ -1335,7 +1427,10 @@
 
             const names = selectedStudents.slice(0, 3).map((row) => row.nama_mahasiswa).join(', ');
             const extra = selectedStudents.length > 3 ? ` +${selectedStudents.length - 3} mahasiswa` : '';
-            const summary = `${selectedStudents.length} mahasiswa dipilih: ${names}${extra}`;
+            const filteredRows = getFilteredHistoricalEligibleStudents();
+            const filteredIds = filteredRows.map((row) => row.id);
+            const selectedFilteredCount = filteredIds.filter((id) => selectedHistoricalStudentIds.includes(id)).length;
+            const summary = `${selectedStudents.length} mahasiswa dipilih (${selectedFilteredCount} pada hasil filter saat ini): ${names}${extra}`;
 
             $('#studyHistoricalSelectionSummary').text(summary);
             $('#studyHistoricalMutationSelectionSummary').text(summary);
@@ -1380,13 +1475,7 @@
             }
 
             const keyword = ($('#studyHistoricalEligibleSearch').val() || '').toLowerCase().trim();
-            const filteredRows = rows.filter((row) => {
-                if (!keyword) {
-                    return true;
-                }
-
-                return `${row.nama_mahasiswa ?? ''} ${row.nim ?? ''}`.toLowerCase().includes(keyword);
-            });
+            const filteredRows = getFilteredHistoricalEligibleStudents(rows);
             const totalPages = Math.max(1, Math.ceil(filteredRows.length / historicalPageSize));
             historicalEligiblePage = Math.min(Math.max(1, historicalEligiblePage), totalPages);
             const startIndex = (historicalEligiblePage - 1) * historicalPageSize;
@@ -1415,7 +1504,7 @@
 
                 return `
                     <tr data-search="${escapeHtml(`${row.nama_mahasiswa ?? ''} ${row.nim ?? ''}`.toLowerCase())}">
-                        <td><input type="checkbox" class="study-historical-student-checkbox" value="${escapeHtml(row.id)}"></td>
+                        <td><input type="checkbox" class="study-historical-student-checkbox" value="${escapeHtml(row.id)}" ${selectedHistoricalStudentIds.includes(row.id) ? 'checked' : ''}></td>
                         <td>
                             <div class="fw-semibold">${escapeHtml(row.nama_mahasiswa)}</div>
                             <div class="small text-muted mt-1">
@@ -1424,6 +1513,7 @@
                             </div>
                             <div class="small text-muted">${escapeHtml(row.nim)}${row.prodi?.nama_prodi ? ' • ' + escapeHtml(row.prodi.nama_prodi) : ''}</div>
                             <div class="small text-muted mt-1">${escapeHtml(row.message ?? '')}</div>
+                            <div class="mt-2"><span class="badge ${getHistoricalStudentProgress(row).className}">${escapeHtml(getHistoricalStudentProgress(row).text)}</span></div>
                         </td>
                         <td>${row.semester_target ?? '-'}</td>
                         <td>${existing}</td>
@@ -1433,7 +1523,7 @@
             }).join('');
 
             $('#studyHistoricalEligibleTableBody').html(html);
-            $('#studyHistoricalSelectAll').prop('checked', false);
+            syncHistoricalSelectAllState(filteredRows);
             renderHistoricalSelectionSummary();
         }
 
@@ -1525,7 +1615,7 @@
                 });
             }).fail(function(xhr) {
                 historicalRepeatCandidatesByStudent = {};
-                alert(xhr.responseJSON?.message ?? 'Gagal memuat pilihan ulang mata kuliah gagal.');
+                showStudyAlert(xhr.responseJSON?.message ?? 'Gagal memuat pilihan ulang mata kuliah gagal.', 'danger');
             });
         }
 
@@ -1803,6 +1893,7 @@
                 angkatan: context.angkatan
             }).done(function(response) {
                 historicalEligibleStudents = response.data ?? [];
+                selectedHistoricalStudentIds = [];
                 renderHistoricalEligibleStudents(historicalEligibleStudents);
                 $('#studyHistoricalBuilderCards').html(
                     '<div class="text-muted">Centang mahasiswa yang ingin diproses, lalu klik <strong>Siapkan Form KRS</strong>.</div>'
@@ -1813,8 +1904,9 @@
                     'Belum ada hasil pratinjau tindakan yang ditampilkan.');
             }).fail(function(xhr) {
                 historicalEligibleStudents = [];
+                selectedHistoricalStudentIds = [];
                 renderHistoricalEligibleStudents([]);
-                alert(xhr.responseJSON?.message ?? 'Data mahasiswa semester lampau gagal dimuat.');
+                showStudyAlert(xhr.responseJSON?.message ?? 'Data mahasiswa semester lampau gagal dimuat.', 'danger');
             }).always(function() {
                 $button.prop('disabled', false).html($button.is('#studyRiwayatLoadBtn') ?
                     '<i class="fas fa-users me-1"></i> Tampilkan Mahasiswa Sesuai Filter' :
@@ -1832,7 +1924,7 @@
                 }).fail(function(xhr) {
                     historicalPackageClasses = [];
                     renderHistoricalPackageClasses([]);
-                    alert(xhr.responseJSON?.message ?? 'Daftar kelas semester lampau gagal dimuat.');
+                    showStudyAlert(xhr.responseJSON?.message ?? 'Daftar kelas semester lampau gagal dimuat.', 'danger');
                 });
             } else {
                 historicalPackageClasses = [];
@@ -1851,7 +1943,7 @@
 
             const selectedIds = getSelectedHistoricalStudentIds();
             if (!selectedIds.length) {
-                alert('Pilih minimal satu mahasiswa terlebih dahulu.');
+                showStudyAlert('Pilih minimal satu mahasiswa terlebih dahulu.', 'warning');
                 return;
             }
 
@@ -1872,12 +1964,12 @@
                 try {
                     payload.students_payload = buildHistoricalStudentsPayload();
                 } catch (error) {
-                    alert(error.message);
+                    showStudyAlert(error.message, 'warning');
                     return;
                 }
 
                 if (!payload.students_payload.length) {
-                    alert('Siapkan minimal satu form mata kuliah mahasiswa sebelum melihat pratinjau.');
+                    showStudyAlert('Siapkan minimal satu form mata kuliah mahasiswa sebelum melihat pratinjau.', 'warning');
                     return;
                 }
             } else if (action === 'generate_khs') {
@@ -1892,7 +1984,7 @@
                 })
                 .fail(function(xhr) {
                     $(executeButtonSelector).prop('disabled', true);
-                    alert(xhr.responseJSON?.message ?? 'Pratinjau riwayat studi gagal dijalankan.');
+                    showStudyAlert(xhr.responseJSON?.message ?? 'Pratinjau riwayat studi gagal dijalankan.', 'danger');
                 });
         }
 
@@ -1907,11 +1999,7 @@
 
             const selectedIds = getSelectedHistoricalStudentIds();
             if (!selectedIds.length) {
-                alert('Pilih minimal satu mahasiswa terlebih dahulu.');
-                return;
-            }
-
-            if (!confirm('Apakah Anda ingin menjalankan proses riwayat studi ini sekarang?')) {
+                showStudyAlert('Pilih minimal satu mahasiswa terlebih dahulu.', 'warning');
                 return;
             }
 
@@ -1932,7 +2020,7 @@
                 try {
                     payload.students_payload = buildHistoricalStudentsPayload();
                 } catch (error) {
-                    alert(error.message);
+                    showStudyAlert(error.message, 'warning');
                     return;
                 }
             } else if (action === 'generate_khs') {
@@ -1940,25 +2028,42 @@
             }
 
             const $button = $(executeButtonSelector);
-            $button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i> Memproses...');
+            const originalHtml = '<i class="fas fa-play me-1"></i> Jalankan Proses';
 
-            $.post('{{ route('akademik.administrasi-studi.historical.execute') }}', payload)
-                .done(function(response) {
-                    const rows = response.data?.results ?? [];
-                    renderHistoricalPreviewResults(targetSelector, rows, 'Proses selesai tanpa detail hasil.');
-                    alert(response.message ?? 'Proses riwayat studi selesai dijalankan.');
+            Swal.fire({
+                title: 'Jalankan proses sekarang?',
+                text: 'Pastikan data pratinjau sudah sesuai sebelum proses riwayat studi dijalankan.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, jalankan',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+            }).then((result) => {
+                if (!result.isConfirmed) {
+                    return;
+                }
 
-                    if (response.data?.redirect_url) {
-                        window.open(response.data.redirect_url, '_blank');
-                    }
-                })
-                .fail(function(xhr) {
-                    alert(xhr.responseJSON?.message ?? 'Proses riwayat studi gagal dijalankan.');
-                })
-                .always(function() {
-                    $button.prop('disabled', false).html(action === 'build_historical_krs' ?
-                        '<i class="fas fa-play me-1"></i> Jalankan Proses' :
-                        '<i class="fas fa-play me-1"></i> Jalankan Proses');
+                $button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i> Memproses...');
+                showStudyLoading('Memproses riwayat studi...', 'Sistem sedang menjalankan proses yang dipilih.');
+
+                $.post('{{ route('akademik.administrasi-studi.historical.execute') }}', payload)
+                    .done(function(response) {
+                        Swal.close();
+                        const rows = response.data?.results ?? [];
+                        renderHistoricalPreviewResults(targetSelector, rows, 'Proses selesai tanpa detail hasil.');
+                        showStudyAlert(response.message ?? 'Proses riwayat studi selesai dijalankan.', 'success');
+
+                        if (response.data?.redirect_url) {
+                            window.open(response.data.redirect_url, '_blank');
+                        }
+                    })
+                    .fail(function(xhr) {
+                        Swal.close();
+                        showStudyAlert(xhr.responseJSON?.message ?? 'Proses riwayat studi gagal dijalankan.', 'danger');
+                    })
+                    .always(function() {
+                        $button.prop('disabled', false).html(originalHtml);
+                    });
                 });
         }
 
@@ -1971,15 +2076,34 @@
         });
 
         $('#studyHistoricalSelectAll').on('change', function() {
-            $('.study-historical-student-checkbox').prop('checked', $(this).is(':checked'));
+            const filteredRows = getFilteredHistoricalEligibleStudents();
+            const filteredIds = filteredRows.map((row) => row.id);
+            const shouldCheckAll = $(this).is(':checked');
+
+            if (shouldCheckAll) {
+                selectedHistoricalStudentIds = [...new Set([...selectedHistoricalStudentIds, ...filteredIds])];
+            } else {
+                selectedHistoricalStudentIds = selectedHistoricalStudentIds.filter((id) => !filteredIds.includes(id));
+            }
+
+            $('.study-historical-student-checkbox').prop('checked', shouldCheckAll);
+            syncHistoricalSelectAllState(filteredRows);
             renderHistoricalSelectionSummary();
             resetHistoricalExecuteButtons();
         });
 
         $(document).on('change', '.study-historical-student-checkbox', function() {
-            const total = $('.study-historical-student-checkbox').length;
-            const checked = $('.study-historical-student-checkbox:checked').length;
-            $('#studyHistoricalSelectAll').prop('checked', total > 0 && total === checked);
+            const studentId = $(this).val();
+
+            if ($(this).is(':checked')) {
+                if (!selectedHistoricalStudentIds.includes(studentId)) {
+                    selectedHistoricalStudentIds.push(studentId);
+                }
+            } else {
+                selectedHistoricalStudentIds = selectedHistoricalStudentIds.filter((id) => id !== studentId);
+            }
+
+            syncHistoricalSelectAllState();
             renderHistoricalSelectionSummary();
             resetHistoricalExecuteButtons();
         });
@@ -2102,6 +2226,7 @@
             historicalEligibleStudents = [];
             historicalPackageClasses = [];
             historicalRepeatCandidatesByStudent = {};
+            selectedHistoricalStudentIds = [];
             historicalBuilderActiveStudentId = null;
             historicalEligiblePage = 1;
             historicalBuilderPage = 1;
@@ -2132,8 +2257,9 @@
             if (!$('#studyImportTemplateAngkatan').val() || !$('#studyImportTemplateProdi').val() || !$(
                     '#studyImportTemplateSemester').val() || !$('#studyImportTemplateSemesterKe').val()) {
                 event.preventDefault();
-                alert(
-                    'Lengkapi angkatan, program studi, semester, dan semester ke pada filter di atas sebelum mengunduh template.'
+                showStudyAlert(
+                    'Lengkapi angkatan, program studi, semester, dan semester ke pada filter di atas sebelum mengunduh template.',
+                    'warning'
                 );
             }
         });
@@ -2143,7 +2269,7 @@
 
             if (!$('#studyImportUploadSemester').val()) {
                 event.preventDefault();
-                alert('Pilih semester pada filter di atas sebelum mengunggah file nilai.');
+                showStudyAlert('Pilih semester pada filter di atas sebelum mengunggah file nilai.', 'warning');
             }
         });
 
@@ -2239,7 +2365,7 @@
         $('#loadReadyKhsBtn').on('click', function() {
             const semesterId = $('#studySemesterId').val();
             if (!semesterId) {
-                alert('Pilih semester pada filter di atas sebelum menampilkan mahasiswa yang siap dibuatkan KHS.');
+                showStudyAlert('Pilih semester pada filter di atas sebelum menampilkan mahasiswa yang siap dibuatkan KHS.', 'warning');
                 return;
             }
 
@@ -2253,7 +2379,7 @@
             }).done(function(response) {
                 renderReadyKhsRows(response.data ?? []);
             }).fail(function(xhr) {
-                alert(xhr.responseJSON?.message ?? 'Data mahasiswa yang siap dibuatkan KHS gagal dimuat.');
+                showStudyAlert(xhr.responseJSON?.message ?? 'Data mahasiswa yang siap dibuatkan KHS gagal dimuat.', 'danger');
             }).always(function() {
                 $button.prop('disabled', false).html(
                     '<i class="fas fa-list-check me-1"></i> Muat Mahasiswa Siap');
@@ -2286,28 +2412,41 @@
             const manualIpk = getReadyKhsManualIpk(mahasiswaId);
             const $button = $(this);
 
-            if (!confirm('Apakah Anda ingin membuat KHS untuk mahasiswa ini sekarang?')) {
-                return;
-            }
-
-            $button.prop('disabled', true).text('Memproses...');
-
-            $.post('{{ route('akademik.administrasi-studi.generate-khs.execute') }}', {
-                _token: '{{ csrf_token() }}',
-                id_mahasiswa: mahasiswaId,
-                id_semester: semesterId,
-                ipk: manualIpk
-            }).done(function(response) {
-                const khsId = response.data?.id;
-                alert(response.message ?? 'KHS berhasil dibuat.');
-
-                if (khsId) {
-                    window.open(`{{ url('akademik/khs') }}/${khsId}`, '_blank');
+            Swal.fire({
+                title: 'Generate KHS sekarang?',
+                text: 'Pastikan seluruh nilai semester sudah final sebelum KHS dibuat.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, generate',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+            }).then((result) => {
+                if (!result.isConfirmed) {
+                    return;
                 }
-            }).fail(function(xhr) {
-                alert(xhr.responseJSON?.message ?? 'KHS gagal dibuat.');
-            }).always(function() {
-                $button.prop('disabled', false).text('Generate');
+
+                $button.prop('disabled', true).text('Memproses...');
+                showStudyLoading('Membuat KHS...', 'Sistem sedang menyusun KHS mahasiswa ini.');
+
+                $.post('{{ route('akademik.administrasi-studi.generate-khs.execute') }}', {
+                    _token: '{{ csrf_token() }}',
+                    id_mahasiswa: mahasiswaId,
+                    id_semester: semesterId,
+                    ipk: manualIpk
+                }).done(function(response) {
+                    Swal.close();
+                    const khsId = response.data?.id;
+                    showStudyAlert(response.message ?? 'KHS berhasil dibuat.', 'success');
+
+                    if (khsId) {
+                        window.open(`{{ url('akademik/khs') }}/${khsId}`, '_blank');
+                    }
+                }).fail(function(xhr) {
+                    Swal.close();
+                    showStudyAlert(xhr.responseJSON?.message ?? 'KHS gagal dibuat.', 'danger');
+                }).always(function() {
+                    $button.prop('disabled', false).text('Generate');
+                });
             });
         });
 

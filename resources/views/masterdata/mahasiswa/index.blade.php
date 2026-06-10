@@ -75,11 +75,51 @@
                             <div class="loader-spinner"></div>
                         </div>
 
+                        <div class="row g-3 align-items-end mb-3">
+                            <div class="col-md-4">
+                                <label for="filterProdiMahasiswa" class="form-label">Filter Program Studi</label>
+                                <select id="filterProdiMahasiswa" class="form-control">
+                                    <option value="">Semua Program Studi</option>
+                                    @foreach ($prodi as $p)
+                                        <option value="{{ $p['id'] }}">{{ $p['nama_prodi'] }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="filterAngkatanMahasiswa" class="form-label">Filter Angkatan</label>
+                                <input type="number" id="filterAngkatanMahasiswa" class="form-control"
+                                    placeholder="Contoh: 2024" min="1900" max="{{ date('Y') + 10 }}">
+                            </div>
+                            <div class="col-md-5">
+                                <div class="d-flex flex-wrap gap-2">
+                                    <button type="button" class="btn btn-outline-primary btn-sm" id="selectFilteredMahasiswaBtn">
+                                        <i class="fas fa-check-square me-1"></i>Pilih Hasil Filter
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" id="clearSelectedMahasiswaBtn">
+                                        <i class="fas fa-eraser me-1"></i>Reset Pilihan
+                                    </button>
+                                    <button type="button" class="btn btn-danger btn-sm" id="bulkDeleteMahasiswaBtn" disabled>
+                                        <i class="fas fa-trash me-1"></i>Hapus Terpilih
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-light border d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                            <div id="bulkSelectionInfoMahasiswa" class="mb-0 text-muted">
+                                Belum ada mahasiswa yang dipilih.
+                            </div>
+                            <small class="text-muted">Gunakan filter prodi dan angkatan untuk memudahkan hapus kolektif.</small>
+                        </div>
+
                         <div class="table-responsive">
                             <table id="mahasiswa-table" class="table table-bordered table-striped table-hover"
                                 style="width:100%">
                                 <thead>
                                     <tr>
+                                        <th style="width: 40px;">
+                                            <input type="checkbox" id="selectAllMahasiswaPage">
+                                        </th>
                                         <th>No</th>
                                         <th>Nama</th>
                                         <th>NIM</th>
@@ -443,14 +483,51 @@
             const resultModal = new bootstrap.Modal('#importResultModal');
             const riwayatModal = new bootstrap.Modal('#riwayatKurikulumModal');
             const migrasiModal = new bootstrap.Modal('#migrasiKurikulumModal');
-            const mahasiswa = @json($mahasiswa ?? []);
+            let mahasiswa = @json($mahasiswa ?? []);
             const kurikulumList = @json($kurikulum ?? []);
             let importRequestInProgress = false;
             let importNeedsManualCheck = false;
+            let selectedMahasiswaIds = [];
+
+            function getFilteredMahasiswaData() {
+                const prodiId = $('#filterProdiMahasiswa').val();
+                const angkatan = ($('#filterAngkatanMahasiswa').val() || '').trim();
+
+                return mahasiswa.filter(row => {
+                    const matchProdi = !prodiId || row.id_prodi === prodiId;
+                    const matchAngkatan = !angkatan || String(row.angkatan ?? '') === angkatan;
+                    return matchProdi && matchAngkatan;
+                });
+            }
+
+            function getSelectedMahasiswaCountOnFilter(filteredRows = getFilteredMahasiswaData()) {
+                const filteredIds = filteredRows.map(row => row.id);
+                return filteredIds.filter(id => selectedMahasiswaIds.includes(id)).length;
+            }
+
+            function syncBulkSelectionInfo(filteredRows = getFilteredMahasiswaData()) {
+                const totalSelected = selectedMahasiswaIds.length;
+                const selectedOnFilter = getSelectedMahasiswaCountOnFilter(filteredRows);
+
+                $('#bulkDeleteMahasiswaBtn').prop('disabled', totalSelected === 0);
+                $('#bulkSelectionInfoMahasiswa').text(
+                    totalSelected
+                        ? `${totalSelected} mahasiswa dipilih (${selectedOnFilter} pada hasil filter saat ini).`
+                        : 'Belum ada mahasiswa yang dipilih.'
+                );
+            }
 
             const table = $('#mahasiswa-table').DataTable({
-                data: mahasiswa,
+                data: getFilteredMahasiswaData(),
                 columns: [{
+                        data: null,
+                        orderable: false,
+                        searchable: false,
+                        className: 'text-center align-middle',
+                        render: row =>
+                            `<input type="checkbox" class="mahasiswa-checkbox" value="${row.id}" ${selectedMahasiswaIds.includes(row.id) ? 'checked' : ''}>`
+                    },
+                    {
                         data: null,
                         render: (data, type, row, meta) => meta.row + meta.settings._iDisplayStart + 1
                     },
@@ -502,10 +579,127 @@
                 language: {
                     url: '{{ asset('template/assets/js/plugin/datatables/i18n/id.json ') }}'
                 },
-                drawCallback: () => $('#tableLoader').addClass('hidden')
+                drawCallback: () => {
+                    $('#tableLoader').addClass('hidden');
+                    syncSelectAllCurrentPageState();
+                    syncBulkSelectionInfo();
+                }
             });
 
             setTimeout(() => $('#tableLoader').addClass('hidden'), 500);
+
+            function syncSelectAllCurrentPageState() {
+                const rows = table.rows({
+                    page: 'current'
+                }).data().toArray();
+                const ids = rows.map(row => row.id);
+                const checkedCount = ids.filter(id => selectedMahasiswaIds.includes(id)).length;
+
+                $('#selectAllMahasiswaPage')
+                    .prop('checked', ids.length > 0 && checkedCount === ids.length)
+                    .prop('indeterminate', checkedCount > 0 && checkedCount < ids.length);
+            }
+
+            function refreshMahasiswaTable() {
+                const filteredRows = getFilteredMahasiswaData();
+                table.clear().rows.add(filteredRows).draw();
+                syncBulkSelectionInfo(filteredRows);
+            }
+
+            $('#filterProdiMahasiswa, #filterAngkatanMahasiswa').on('change keyup', function() {
+                refreshMahasiswaTable();
+            });
+
+            $('#selectFilteredMahasiswaBtn').on('click', function() {
+                const filteredIds = getFilteredMahasiswaData().map(row => row.id);
+                selectedMahasiswaIds = [...new Set([...selectedMahasiswaIds, ...filteredIds])];
+                refreshMahasiswaTable();
+            });
+
+            $('#clearSelectedMahasiswaBtn').on('click', function() {
+                selectedMahasiswaIds = [];
+                refreshMahasiswaTable();
+            });
+
+            $('#selectAllMahasiswaPage').on('change', function() {
+                const checked = $(this).is(':checked');
+                const pageRows = table.rows({
+                    page: 'current'
+                }).data().toArray();
+                const pageIds = pageRows.map(row => row.id);
+
+                if (checked) {
+                    selectedMahasiswaIds = [...new Set([...selectedMahasiswaIds, ...pageIds])];
+                } else {
+                    selectedMahasiswaIds = selectedMahasiswaIds.filter(id => !pageIds.includes(id));
+                }
+
+                refreshMahasiswaTable();
+            });
+
+            $(document).on('change', '.mahasiswa-checkbox', function() {
+                const id = $(this).val();
+
+                if ($(this).is(':checked')) {
+                    if (!selectedMahasiswaIds.includes(id)) {
+                        selectedMahasiswaIds.push(id);
+                    }
+                } else {
+                    selectedMahasiswaIds = selectedMahasiswaIds.filter(item => item !== id);
+                }
+
+                syncSelectAllCurrentPageState();
+                syncBulkSelectionInfo();
+            });
+
+            $('#bulkDeleteMahasiswaBtn').on('click', function() {
+                if (!selectedMahasiswaIds.length) {
+                    Swal.fire('Peringatan', 'Pilih minimal satu mahasiswa terlebih dahulu.', 'warning');
+                    return;
+                }
+
+                const selectedRows = mahasiswa.filter(row => selectedMahasiswaIds.includes(row.id));
+                const previewNames = selectedRows.slice(0, 3).map(row => row.nama_mahasiswa).join(', ');
+                const extraLabel = selectedRows.length > 3 ? ` dan ${selectedRows.length - 3} lainnya` : '';
+                const button = $(this);
+
+                Swal.fire({
+                    title: 'Hapus mahasiswa terpilih?',
+                    html: `Total <strong>${selectedRows.length}</strong> mahasiswa akan dihapus.<br><small>${previewNames}${extraLabel}</small>`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya, hapus semua',
+                    cancelButtonText: 'Batal'
+                }).then(result => {
+                    if (!result.isConfirmed) {
+                        return;
+                    }
+
+                    button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Menghapus...');
+
+                    $.ajax({
+                        url: "{{ route('mahasiswa.bulk-destroy') }}",
+                        type: 'POST',
+                        data: {
+                            _token: "{{ csrf_token() }}",
+                            ids: selectedMahasiswaIds
+                        },
+                        success: res => {
+                            const deletedIds = res.data?.deleted_ids ?? selectedMahasiswaIds;
+                            mahasiswa = mahasiswa.filter(row => !deletedIds.includes(row.id));
+                            selectedMahasiswaIds = selectedMahasiswaIds.filter(id => !deletedIds.includes(id));
+                            refreshMahasiswaTable();
+                            Swal.fire('Berhasil', res.message ?? 'Data mahasiswa terpilih berhasil dihapus.', 'success');
+                        },
+                        error: xhr => {
+                            Swal.fire('Gagal', xhr.responseJSON?.message || 'Tidak dapat menghapus data mahasiswa terpilih.', 'error');
+                        },
+                        complete: () => {
+                            button.prop('disabled', selectedMahasiswaIds.length === 0).html('<i class="fas fa-trash me-1"></i>Hapus Terpilih');
+                        }
+                    });
+                });
+            });
 
             // Tambah
             $('#addMahasiswaBtn').click(() => {
@@ -897,7 +1091,9 @@
                             success: res => {
                                 Swal.fire('Berhasil', res.message ?? 'Data dihapus',
                                     'success');
-                                table.rows((i, d) => d.id === id).remove().draw();
+                                mahasiswa = mahasiswa.filter(row => row.id !== id);
+                                selectedMahasiswaIds = selectedMahasiswaIds.filter(item => item !== id);
+                                refreshMahasiswaTable();
                             },
                             error: () => Swal.fire('Gagal', 'Tidak dapat menghapus data.',
                                 'error')

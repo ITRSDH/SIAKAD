@@ -148,7 +148,7 @@
 
     $baakWorkspaceRoutes = ['workspace.baak'];
     $dosenRoutes = ['aktor-akademik.*', 'dosen.*', 'dosen-wali.*', 'prodi.*', 'users.*'];
-    $mahasiswaRoutes = ['mahasiswa.*', 'mahasiswa.baru.*'];
+    $mahasiswaRoutes = ['mahasiswa.*', 'mahasiswa.baru.*', 'akademik.administrasi-studi.*'];
     $transaksiRoutes = ['kelas-kuliah.*'];
     $monitoringAkademikRoutes = [
         'akademik.monitoring',
@@ -500,6 +500,14 @@
                 </a>
             </li>
             @endcanApi
+
+            @if ($canAccessStudentStudy)
+            <li class="{{ request()->routeIs('akademik.administrasi-studi.*') ? 'active' : '' }}">
+                <a href="{{ route('akademik.administrasi-studi.index', ['tab' => 'historical']) }}">
+                    <span class="sub-item">Migrasi Riwayat Studi</span>
+                </a>
+            </li>
+            @endif
 
         </ul>
     </div>

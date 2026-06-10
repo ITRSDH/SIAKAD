@@ -507,7 +507,7 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Bobot Nilai</label>
-                                <input type="number" min="0" max="4" step="0.01" id="editBobotNilai" class="form-control">
+                                <input type="number" min="0" step="0.01" id="editBobotNilai" class="form-control">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Mutu</label>

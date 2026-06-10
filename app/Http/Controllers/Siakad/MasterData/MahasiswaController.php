@@ -178,6 +178,31 @@ class MahasiswaController extends Controller
         }
     }
 
+    public function bulkDestroy(Request $request)
+    {
+        try {
+            $response = Http::withToken($this->apiToken)
+                ->post($this->apiUrl . 'mahasiswa/bulk-delete', [
+                    'ids' => $request->input('ids', []),
+                ]);
+
+            if ($response->successful()) {
+                return response()->json($response->json());
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => $response->json('message') ?? 'Gagal menghapus data mahasiswa secara kolektif di API',
+                'errors' => $response->json('errors') ?? $response->json()
+            ], $response->status());
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
     /**
      * Download template Excel untuk import mahasiswa
      */

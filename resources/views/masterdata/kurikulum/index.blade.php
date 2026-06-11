@@ -268,7 +268,7 @@
                                         <a href="${detailUrl}" class="btn btn-warning btn-sm text-white">
                                             <i class="fas fa-pen"></i>
                                         </a>
-                                        <button class="btn btn-danger btn-sm delete-btn" data-id="${row.id}" data-nama="${row.nama_struktur_mk || row.nama_kurikulum}">
+                                        <button type="button" class="btn btn-danger btn-sm delete-btn" data-id="${row.id}" data-nama="${row.nama_struktur_mk || row.nama_kurikulum}">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                 </div>
@@ -295,7 +295,10 @@
             });
 
             // Event handler untuk tombol delete
-            $(document).on('click', '.delete-btn', function() {
+            $(document).on('click', '.delete-btn', function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+
                 var id = $(this).data('id');
                 var nama = $(this).data('nama');
 

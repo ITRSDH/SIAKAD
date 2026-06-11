@@ -730,7 +730,10 @@
             });
 
             // Handler untuk tombol delete
-            $(document).off('click', '.delete-btn').on('click', '.delete-btn', function() {
+            $(document).off('click', '.delete-btn').on('click', '.delete-btn', function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+
                 const id = $(this).data('id');
                 const nama = $(this).data('nama');
 

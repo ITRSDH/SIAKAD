@@ -631,10 +631,6 @@
 @endsection
 
 @push('scripts-custom')
-    <form id="deleteKurikulumDetailForm" method="POST" class="d-none">
-        @csrf
-        @method('DELETE')
-    </form>
     {{-- <script src="{{ asset('template/assets/js/core/jquery-3.7.1.min.js') }}"></script> --}}
     <!-- SweetAlert2 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -758,9 +754,53 @@
                     reverseButtons: true
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        const form = $('#deleteKurikulumDetailForm');
-                        form.attr('action', "{{ route('kurikulum.destroy', '__ID__') }}".replace('__ID__', id));
-                        form.trigger('submit');
+                        $.ajax({
+                            url: "{{ route('kurikulum.destroy', '__ID__') }}".replace('__ID__', id),
+                            type: 'POST',
+                            dataType: 'json',
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            data: {
+                                _method: 'DELETE'
+                            },
+                            beforeSend: function() {
+                                Swal.fire({
+                                    title: 'Menghapus...',
+                                    text: 'Mohon tunggu sebentar.',
+                                    allowOutsideClick: false,
+                                    allowEscapeKey: false,
+                                    didOpen: () => Swal.showLoading()
+                                });
+                            },
+                            success: function(response) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Berhasil!',
+                                    text: response.message || 'Struktur kurikulum berhasil dihapus.',
+                                    confirmButtonText: 'OK'
+                                }).then(() => {
+                                    window.location.href = "{{ route('kurikulum.index') }}";
+                                });
+                            },
+                            error: function(xhr) {
+                                Swal.close();
+
+                                let errorMessage = 'Terjadi kesalahan saat menghapus struktur kurikulum.';
+                                if (xhr.responseJSON?.message) {
+                                    errorMessage = xhr.responseJSON.message;
+                                }
+
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Gagal!',
+                                    text: errorMessage,
+                                    confirmButtonText: 'OK'
+                                });
+                            }
+                        });
                     }
                 });
             });

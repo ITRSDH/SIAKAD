@@ -46,6 +46,10 @@
             width: 100%;
         }
 
+        .peserta-krs-filter {
+            width: 180px;
+        }
+
         .peserta-krs-table {
             margin-bottom: 0;
         }
@@ -175,6 +179,11 @@
         .peserta-krs-selected-count {
             font-size: 0.85rem;
             color: #475569;
+        }
+
+        .peserta-krs-filter-summary {
+            font-size: 0.85rem;
+            color: #64748b;
         }
 
         @media (max-width: 767.98px) {
@@ -559,8 +568,21 @@
                                                     <span class="peserta-krs-selected-count" id="pesertaKrsSelectedCount">
                                                         0 mahasiswa dipilih
                                                     </span>
+                                                    <span class="peserta-krs-filter-summary" id="pesertaKrsFilterSummary">
+                                                        Menampilkan semua angkatan.
+                                                    </span>
+                                                    <select class="form-select peserta-krs-filter" id="pesertaKrsAngkatanFilter">
+                                                        <option value="">Semua angkatan</option>
+                                                        @foreach (collect($krsCandidates ?? [])->pluck('angkatan')->filter()->unique()->sortDesc()->values() as $angkatanOption)
+                                                            <option value="{{ $angkatanOption }}">{{ $angkatanOption }}</option>
+                                                        @endforeach
+                                                    </select>
                                                     <input type="text" class="form-control peserta-krs-search"
                                                         id="pesertaKrsSearch" placeholder="Cari mahasiswa atau NIM...">
+                                                    <button type="button" class="btn btn-outline-secondary btn-sm"
+                                                        id="pesertaKrsResetFilterBtn">
+                                                        Reset Filter
+                                                    </button>
                                                     <button type="submit" class="btn btn-primary btn-sm"
                                                         id="pesertaKrsSubmitBtn">
                                                         <i class="fas fa-user-plus me-1"></i> Daftarkan ke KRS
@@ -599,7 +621,8 @@
                                                             @endphp
                                                             <tr class="peserta-krs-row peserta-krs-selectable-row peserta-krs-regular-row {{ !($row['can_register'] ?? false) ? 'peserta-krs-row-disabled' : '' }}"
                                                                 data-nim="{{ strtolower((string) ($row['nim'] ?? '')) }}"
-                                                                data-nama="{{ strtolower((string) ($row['nama_mahasiswa'] ?? '')) }}">
+                                                                data-nama="{{ strtolower((string) ($row['nama_mahasiswa'] ?? '')) }}"
+                                                                data-angkatan="{{ $row['angkatan'] ?? '' }}">
                                                                 <td class="text-center">
                                                                     <input type="checkbox"
                                                                         class="peserta-krs-checkbox"
@@ -712,7 +735,8 @@
                                                                     @endphp
                                                                     <tr class="peserta-krs-selectable-row peserta-krs-repeat-row {{ !($row['can_register'] ?? false) ? 'peserta-krs-row-disabled' : '' }}"
                                                                         data-nim="{{ strtolower((string) ($row['nim'] ?? '')) }}"
-                                                                        data-nama="{{ strtolower((string) ($row['nama_mahasiswa'] ?? '')) }}">
+                                                                        data-nama="{{ strtolower((string) ($row['nama_mahasiswa'] ?? '')) }}"
+                                                                        data-angkatan="{{ $row['angkatan'] ?? '' }}">
                                                                         <td class="text-center">
                                                                             <input type="checkbox"
                                                                                 class="peserta-krs-checkbox"
@@ -790,6 +814,9 @@
             });
 
             const $pesertaSearch = $('#pesertaKrsSearch');
+            const $pesertaAngkatanFilter = $('#pesertaKrsAngkatanFilter');
+            const $pesertaResetFilterBtn = $('#pesertaKrsResetFilterBtn');
+            const $pesertaFilterSummary = $('#pesertaKrsFilterSummary');
             const $pesertaRows = $('.peserta-krs-row');
             const $pesertaRepeatRows = $('.peserta-krs-repeat-row');
             const $pesertaSelectableRows = $('.peserta-krs-selectable-row');
@@ -831,6 +858,28 @@
             function updateSelectedCount() {
                 const selectedCount = $pesertaCheckboxes.filter(':checked').length;
                 $pesertaSelectedCount.text(`${selectedCount} mahasiswa dipilih`);
+            }
+
+            function updatePesertaFilterSummary() {
+                const keyword = ($pesertaSearch.val() || '').trim();
+                const angkatan = ($pesertaAngkatanFilter.val() || '').trim();
+
+                if (!keyword && !angkatan) {
+                    $pesertaFilterSummary.text('Menampilkan semua angkatan.');
+                    return;
+                }
+
+                const parts = [];
+
+                if (angkatan) {
+                    parts.push(`Angkatan ${angkatan}`);
+                }
+
+                if (keyword) {
+                    parts.push(`Pencarian "${keyword}"`);
+                }
+
+                $pesertaFilterSummary.text(`Filter aktif: ${parts.join(' | ')}`);
             }
 
             function updateMasterCheckboxState() {
@@ -967,12 +1016,16 @@
                 }
 
                 const keyword = ($pesertaSearch.val() || '').toLowerCase().trim();
+                const angkatan = ($pesertaAngkatanFilter.val() || '').trim();
 
                 $pesertaSelectableRows.each(function() {
                     const $row = $(this);
                     const nim = String($row.data('nim') || '');
                     const nama = String($row.data('nama') || '');
-                    const isMatch = !keyword || nim.includes(keyword) || nama.includes(keyword);
+                    const rowAngkatan = String($row.data('angkatan') || '').trim();
+                    const keywordMatch = !keyword || nim.includes(keyword) || nama.includes(keyword);
+                    const angkatanMatch = !angkatan || rowAngkatan === angkatan;
+                    const isMatch = keywordMatch && angkatanMatch;
 
                     $row.data('matched', isMatch);
                     if ($row.hasClass('peserta-krs-repeat-row')) {
@@ -981,6 +1034,7 @@
                 });
 
                 pesertaCurrentPage = 1;
+                updatePesertaFilterSummary();
                 renderPesertaPagination();
             }
 
@@ -1069,6 +1123,13 @@
             });
 
             $pesertaSearch.on('input', filterPesertaKrs);
+            $pesertaAngkatanFilter.on('change', filterPesertaKrs);
+
+            $pesertaResetFilterBtn.on('click', function() {
+                $pesertaSearch.val('');
+                $pesertaAngkatanFilter.val('');
+                filterPesertaKrs();
+            });
         });
 
         $(document).on('click', '.delete-btn', function() {

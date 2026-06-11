@@ -167,9 +167,9 @@ class MahasiswaController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal menghapus data di API',
-                'errors' => $response->json()
-            ], 404);
+                'message' => $response->json('message') ?? 'Gagal menghapus data di API',
+                'errors' => $response->json('errors') ?? $response->json()
+            ], $response->status());
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

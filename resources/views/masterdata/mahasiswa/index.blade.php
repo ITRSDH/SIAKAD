@@ -1095,8 +1095,14 @@
                                 selectedMahasiswaIds = selectedMahasiswaIds.filter(item => item !== id);
                                 refreshMahasiswaTable();
                             },
-                            error: () => Swal.fire('Gagal', 'Tidak dapat menghapus data.',
-                                'error')
+                            error: xhr => {
+                                const errorMessage =
+                                    xhr.responseJSON?.message ||
+                                    xhr.responseJSON?.errors?.message ||
+                                    'Tidak dapat menghapus data.';
+
+                                Swal.fire('Gagal', errorMessage, 'error');
+                            }
                         });
                     }
                 });

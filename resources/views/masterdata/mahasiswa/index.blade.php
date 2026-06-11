@@ -92,24 +92,29 @@
                             </div>
                             <div class="col-md-5">
                                 <div class="d-flex flex-wrap gap-2">
-                                    <button type="button" class="btn btn-outline-primary btn-sm" id="selectFilteredMahasiswaBtn">
+                                    <button type="button" class="btn btn-outline-primary btn-sm"
+                                        id="selectFilteredMahasiswaBtn">
                                         <i class="fas fa-check-square me-1"></i>Pilih Hasil Filter
                                     </button>
-                                    <button type="button" class="btn btn-outline-secondary btn-sm" id="clearSelectedMahasiswaBtn">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm"
+                                        id="clearSelectedMahasiswaBtn">
                                         <i class="fas fa-eraser me-1"></i>Reset Pilihan
                                     </button>
-                                    <button type="button" class="btn btn-danger btn-sm" id="bulkDeleteMahasiswaBtn" disabled>
+                                    <button type="button" class="btn btn-danger btn-sm" id="bulkDeleteMahasiswaBtn"
+                                        disabled>
                                         <i class="fas fa-trash me-1"></i>Hapus Terpilih
                                     </button>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="alert alert-light border d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <div
+                            class="alert alert-light border d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
                             <div id="bulkSelectionInfoMahasiswa" class="mb-0 text-muted">
                                 Belum ada mahasiswa yang dipilih.
                             </div>
-                            <small class="text-muted">Gunakan filter prodi dan angkatan untuk memudahkan hapus kolektif.</small>
+                            <small class="text-muted">Gunakan filter prodi dan angkatan untuk memudahkan hapus
+                                kolektif.</small>
                         </div>
 
                         <div class="table-responsive">
@@ -195,7 +200,8 @@
                                 <select id="id_kurikulum" class="form-control">
                                     <option value="">-- Biarkan Sistem Menentukan --</option>
                                 </select>
-                                <small class="text-muted">Opsional. Jika dikosongkan, sistem akan menentukan kurikulum mahasiswa berdasarkan program studi, angkatan, dan tanggal masuk.</small>
+                                <small class="text-muted">Opsional. Jika dikosongkan, sistem akan menentukan kurikulum
+                                    mahasiswa berdasarkan program studi, angkatan, dan tanggal masuk.</small>
                             </div>
 
                             <div class="col-md-6 mb-3">
@@ -437,7 +443,8 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Tahun Kurikulum Saat Ini</label>
-                            <input type="text" id="migrasiCurrentKurikulumIndukLabel" class="form-control mb-2" disabled>
+                            <input type="text" id="migrasiCurrentKurikulumIndukLabel" class="form-control mb-2"
+                                disabled>
                             <label class="form-label">Struktur Operasional Saat Ini</label>
                             <input type="text" id="migrasiCurrentKurikulumLabel" class="form-control" disabled>
                         </div>
@@ -446,7 +453,8 @@
                             <select id="migrasi_id_kurikulum_tujuan" class="form-control" required>
                                 <option value="">-- Pilih Struktur Operasional Tujuan --</option>
                             </select>
-                            <small class="text-muted">Master tahun kurikulum mahasiswa akan ikut tersinkron otomatis dari struktur operasional yang dipilih.</small>
+                            <small class="text-muted">Master tahun kurikulum mahasiswa akan ikut tersinkron otomatis dari
+                                struktur operasional yang dipilih.</small>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Tanggal Mulai Berlaku</label>
@@ -511,9 +519,9 @@
 
                 $('#bulkDeleteMahasiswaBtn').prop('disabled', totalSelected === 0);
                 $('#bulkSelectionInfoMahasiswa').text(
-                    totalSelected
-                        ? `${totalSelected} mahasiswa dipilih (${selectedOnFilter} pada hasil filter saat ini).`
-                        : 'Belum ada mahasiswa yang dipilih.'
+                    totalSelected ?
+                    `${totalSelected} mahasiswa dipilih (${selectedOnFilter} pada hasil filter saat ini).` :
+                    'Belum ada mahasiswa yang dipilih.'
                 );
             }
 
@@ -675,7 +683,8 @@
                         return;
                     }
 
-                    button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Menghapus...');
+                    button.prop('disabled', true).html(
+                        '<i class="fas fa-spinner fa-spin me-1"></i>Menghapus...');
 
                     $.ajax({
                         url: "{{ route('mahasiswa.bulk-destroy') }}",
@@ -685,17 +694,26 @@
                             ids: selectedMahasiswaIds
                         },
                         success: res => {
-                            const deletedIds = res.data?.deleted_ids ?? selectedMahasiswaIds;
-                            mahasiswa = mahasiswa.filter(row => !deletedIds.includes(row.id));
-                            selectedMahasiswaIds = selectedMahasiswaIds.filter(id => !deletedIds.includes(id));
+                            const deletedIds = res.data?.deleted_ids ??
+                                selectedMahasiswaIds;
+                            mahasiswa = mahasiswa.filter(row => !deletedIds.includes(row
+                                .id));
+                            selectedMahasiswaIds = selectedMahasiswaIds.filter(id => !
+                                deletedIds.includes(id));
                             refreshMahasiswaTable();
-                            Swal.fire('Berhasil', res.message ?? 'Data mahasiswa terpilih berhasil dihapus.', 'success');
+                            Swal.fire('Berhasil', res.message ??
+                                'Data mahasiswa terpilih berhasil dihapus.',
+                                'success');
                         },
                         error: xhr => {
-                            Swal.fire('Gagal', xhr.responseJSON?.message || 'Tidak dapat menghapus data mahasiswa terpilih.', 'error');
+                            Swal.fire('Gagal', xhr.responseJSON?.message ||
+                                'Tidak dapat menghapus data mahasiswa terpilih.',
+                                'error');
                         },
                         complete: () => {
-                            button.prop('disabled', selectedMahasiswaIds.length === 0).html('<i class="fas fa-trash me-1"></i>Hapus Terpilih');
+                            button.prop('disabled', selectedMahasiswaIds.length === 0)
+                                .html(
+                                    '<i class="fas fa-trash me-1"></i>Hapus Terpilih');
                         }
                     });
                 });
@@ -834,17 +852,28 @@
                                         kurikulumInduk.jenis_kurikulum?.kode_jenis
                                     ].filter(Boolean).join(' | ') || '-';
 
-                                    return `
-                                        <tr>
-                                            <td>
-                                                <div><strong>Induk:</strong> ${indukLabel}</div>
-                                                <div><strong>Operasional:</strong> ${operasionalLabel || '-'}</div>
-                                            </td>
-                                            <td>${periode}</td>
-                                            <td><span class="badge bg-${badge}">${item.is_active ? 'Aktif' : 'Riwayat'}</span></td>
-                                            <td>${item.catatan || '-'}</td>
-                                        </tr>
-                                    `;
+                                    return ` <
+                    tr >
+                    <
+                    td >
+                    <
+                    div > < strong > Induk: < /strong> ${indukLabel}</div >
+                    <
+                    div > < strong > Operasional: < /strong> ${operasionalLabel || '-'}</div >
+                    <
+                    /td> <
+                td > $ {
+                    periode
+                } < /td> <
+                td > < span class = "badge bg-${badge}" > $ {
+                        item.is_active ? 'Aktif' : 'Riwayat'
+                    } < /span></td >
+                    <
+                    td > $ {
+                        item.catatan || '-'
+                    } < /td> < /
+                    tr >
+                    `;
                                 }).join('')}
                             </tbody>
                         </table>
@@ -925,7 +954,8 @@
                             email: '#email',
                             password: '#password'
                         }, backendErrors);
-                        Swal.fire('Gagal', response.message || 'Terjadi kesalahan saat menyimpan data.', 'error');
+                        Swal.fire('Gagal', response.message ||
+                            'Terjadi kesalahan saat menyimpan data.', 'error');
                     },
                     complete: () => {
                         // Enable button kembali
@@ -972,7 +1002,8 @@
                 const id = $(this).data('id');
                 const url = "{{ route('mahasiswa.riwayat-kurikulum', ':id') }}".replace(':id', id);
 
-                $('#riwayatKurikulumContent').html('<p class="text-muted text-center mb-0">Memuat data riwayat kurikulum...</p>');
+                $('#riwayatKurikulumContent').html(
+                    '<p class="text-muted text-center mb-0">Memuat data riwayat kurikulum...</p>');
                 riwayatModal.show();
 
                 $.get(url, res => {
@@ -1014,7 +1045,8 @@
                 const kandidatKurikulum = kurikulumList
                     .filter(item => item.id_prodi === prodiId && item.id !== currentKurikulumId);
                 kandidatKurikulum.forEach(item => {
-                    select.append(`<option value="${item.id}">${formatKurikulumLabel(item)}</option>`);
+                    select.append(
+                        `<option value="${item.id}">${formatKurikulumLabel(item)}</option>`);
                 });
 
                 if (!kandidatKurikulum.length) {
@@ -1035,7 +1067,8 @@
                 const originalHtml = submitBtn.html();
                 clearFormErrors('#migrasiKurikulumForm');
 
-                submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Memproses...');
+                submitBtn.prop('disabled', true).html(
+                    '<i class="fas fa-spinner fa-spin me-1"></i>Memproses...');
 
                 $.ajax({
                     url: "{{ route('mahasiswa.migrasi-kurikulum', ':id') }}".replace(':id', id),
@@ -1047,7 +1080,8 @@
                         catatan: $('#migrasi_catatan').val()
                     },
                     success: res => {
-                        Swal.fire('Berhasil', res.message || 'Migrasi kurikulum berhasil diproses.', 'success');
+                        Swal.fire('Berhasil', res.message ||
+                            'Migrasi kurikulum berhasil diproses.', 'success');
                         migrasiModal.hide();
                         location.reload();
                     },
@@ -1092,7 +1126,8 @@
                                 Swal.fire('Berhasil', res.message ?? 'Data dihapus',
                                     'success');
                                 mahasiswa = mahasiswa.filter(row => row.id !== id);
-                                selectedMahasiswaIds = selectedMahasiswaIds.filter(item => item !== id);
+                                selectedMahasiswaIds = selectedMahasiswaIds.filter(
+                                    item => item !== id);
                                 refreshMahasiswaTable();
                             },
                             error: xhr => {
@@ -1320,7 +1355,8 @@
 
                         if (importNeedsManualCheck) {
                             submitBtn.prop('disabled', true).html(
-                                '<i class="fas fa-exclamation-triangle me-1"></i>Cek Data Dulu');
+                                '<i class="fas fa-exclamation-triangle me-1"></i>Cek Data Dulu'
+                            );
                             return;
                         }
 

@@ -631,6 +631,10 @@
 @endsection
 
 @push('scripts-custom')
+    <form id="deleteKurikulumDetailForm" method="POST" class="d-none">
+        @csrf
+        @method('DELETE')
+    </form>
     {{-- <script src="{{ asset('template/assets/js/core/jquery-3.7.1.min.js') }}"></script> --}}
     <!-- SweetAlert2 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -754,52 +758,9 @@
                     reverseButtons: true
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        $.ajaxSetup({
-                            headers: {
-                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                            }
-                        });
-
-                        $.ajax({
-                            url: "{{ url('kurikulum') }}/" + id,
-                            type: "POST",
-                            data: {
-                                _token: $('meta[name="csrf-token"]').attr('content'),
-                                _method: 'DELETE'
-                            },
-                            beforeSend: function() {
-                                Swal.showLoading();
-                            },
-                            success: function(response) {
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Berhasil!',
-                                    text: response.message ||
-                                        'Data berhasil dihapus',
-                                    confirmButtonText: 'OK'
-                                }).then(() => {
-                                    window.location.href =
-                                        "{{ route('kurikulum.index') }}";
-                                });
-                            },
-                            error: function(xhr) {
-                                let errorMessage = 'Terjadi kesalahan saat menghapus.';
-
-                                if (xhr.responseJSON && xhr.responseJSON.message) {
-                                    errorMessage = xhr.responseJSON.message;
-                                } else if (xhr.status === 404) {
-                                    errorMessage = 'Data tidak ditemukan.';
-                                } else if (xhr.status === 500) {
-                                    errorMessage = 'Kesalahan server internal.';
-                                }
-
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Gagal!',
-                                    text: errorMessage
-                                });
-                            }
-                        });
+                        const form = $('#deleteKurikulumDetailForm');
+                        form.attr('action', "{{ route('kurikulum.destroy', '__ID__') }}".replace('__ID__', id));
+                        form.trigger('submit');
                     }
                 });
             });

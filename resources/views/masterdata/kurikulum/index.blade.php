@@ -144,6 +144,10 @@
 @endsection
 
 @push('scripts-custom')
+    <form id="deleteKurikulumForm" method="POST" class="d-none">
+        @csrf
+        @method('DELETE')
+    </form>
     {{-- <script src="{{ asset('') }}template/assets/js/core/jquery-3.7.1.min.js"></script> --}}
     <!-- Datatables -->
     <script src="{{ asset('') }}template/assets/js/plugin/datatables/datatables.min.js"></script>
@@ -313,45 +317,9 @@
                     cancelButtonText: 'Batal'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        $.ajax({
-                            url: `{{ route('kurikulum.destroy', '__ID__') }}`.replace(
-                                '__ID__', id),
-                            type: 'DELETE',
-                            headers: {
-                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                            },
-                            success: function(response) {
-                                if (response.success) {
-                                    Swal.fire({
-                                        icon: 'success',
-                                        title: 'Berhasil!',
-                                        text: response.message,
-                                        confirmButtonText: 'OK'
-                                    }).then(() => {
-                                        location.reload();
-                                    });
-                                } else {
-                                    Swal.fire({
-                                        icon: 'error',
-                                        title: 'Gagal!',
-                                        text: response.message,
-                                        confirmButtonText: 'OK'
-                                    });
-                                }
-                            },
-                            error: function(xhr) {
-                                let errorMessage = 'Terjadi kesalahan saat menghapus.';
-                                if (xhr.responseJSON && xhr.responseJSON.message) {
-                                    errorMessage = xhr.responseJSON.message;
-                                }
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Gagal!',
-                                    text: errorMessage,
-                                    confirmButtonText: 'OK'
-                                });
-                            }
-                        });
+                        const form = $('#deleteKurikulumForm');
+                        form.attr('action', `{{ route('kurikulum.destroy', '__ID__') }}`.replace('__ID__', id));
+                        form.trigger('submit');
                     }
                 });
             });

@@ -64,7 +64,7 @@
 
         if ($angkatan && preg_match('/^(\d{4})/', $tahunAkademikValue, $matches) && $semesterOrder !== null) {
             $tahunMulaiAkademik = (int) $matches[1];
-            $semesterKe = max(1, (($tahunMulaiAkademik - $angkatan) * 2) + $semesterOrder);
+            $semesterKe = max(1, ($tahunMulaiAkademik - $angkatan) * 2 + $semesterOrder);
         }
     }
 
@@ -457,7 +457,7 @@
                     </div>
                     <div class="signature-space"></div>
                     <div class="signature-name">{{ $kaprodi['nama_dosen'] ?? '-' }}</div>
-                    <div>NIDN. {{ $kaprodi['nidn'] ?? ($kaprodi['npp'] ?? '-') }}</div>
+                    <div>NIDN. {{ $kaprodi['nidn'] ?? '-' }}</div>
                 </td>
             </tr>
         </table>

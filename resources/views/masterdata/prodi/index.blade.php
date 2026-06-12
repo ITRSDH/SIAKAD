@@ -56,20 +56,31 @@
         }
 
         .select2-container .select2-selection--single {
-            height: calc(2.25rem + 2px);
-            padding: 0.375rem 0.75rem;
+            height: calc(2.25rem + 2px) !important;
+            min-height: calc(2.25rem + 2px);
+            padding: 0;
             border: 1px solid #ced4da;
+            border-radius: 0.375rem;
+            display: flex;
+            align-items: center;
         }
 
         .select2-container .select2-selection--single .select2-selection__rendered {
-            line-height: 1.5rem;
-            padding-left: 0;
-            padding-right: 1.5rem;
+            line-height: calc(2.25rem + 2px) !important;
+            padding-left: 0.75rem !important;
+            padding-right: 2rem !important;
+            margin: 0;
+            color: inherit;
         }
 
         .select2-container .select2-selection--single .select2-selection__arrow {
-            height: calc(2.25rem + 2px);
-            right: 0.5rem;
+            height: calc(2.25rem + 2px) !important;
+            right: 0.5rem !important;
+            top: 0 !important;
+        }
+
+        .select2-container--open {
+            z-index: 9999;
         }
     </style>
 @endpush
@@ -403,11 +414,19 @@
             }
 
             function initializeSelect2() {
+                if ($('#akreditasi_modal').hasClass('select2-hidden-accessible')) {
+                    $('#akreditasi_modal').select2('destroy');
+                }
+
                 $('#akreditasi_modal').select2({
                     width: '100%',
                     dropdownParent: $('#modalProdi'),
                     placeholder: 'Pilih Akreditasi...'
                 });
+
+                if ($('#id_kaprodi_modal').hasClass('select2-hidden-accessible')) {
+                    $('#id_kaprodi_modal').select2('destroy');
+                }
 
                 $('#id_kaprodi_modal').select2({
                     width: '100%',

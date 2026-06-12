@@ -67,13 +67,15 @@
                     <i class="icon-arrow-right"></i>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ request()->routeIs('aktor-akademik.*') ? route('aktor-akademik.kaprodi') : route('prodi.index') }}">{{ $pageTitle ?? 'Program Studi' }}</a>
+                    <a
+                        href="{{ request()->routeIs('aktor-akademik.*') ? route('aktor-akademik.kaprodi') : route('prodi.index') }}">{{ $pageTitle ?? 'Program Studi' }}</a>
                 </li>
                 <li class="separator">
                     <i class="icon-arrow-right"></i>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ request()->routeIs('aktor-akademik.*') ? route('aktor-akademik.kaprodi') : route('prodi.index') }}">{{ $pageCrumbLabel ?? 'List Program Studi' }}</a>
+                    <a
+                        href="{{ request()->routeIs('aktor-akademik.*') ? route('aktor-akademik.kaprodi') : route('prodi.index') }}">{{ $pageCrumbLabel ?? 'List Program Studi' }}</a>
                 </li>
             </ul>
         </div>
@@ -292,7 +294,7 @@
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
                                             <label for="akreditasi_modal" class="col-form-label">Akreditasi</label>
-                                            <select class="form-control" id="akreditasi_modal" name="akreditasi">
+                                            <select class="form-control select2" id="akreditasi_modal" name="akreditasi">
                                                 <option value="">Pilih Akreditasi...</option>
                                                 <option value="A">A</option>
                                                 <option value="B">B</option>
@@ -345,7 +347,7 @@
                                 </div>
                                 <div class="form-group mb-3">
                                     <label for="id_kaprodi_modal" class="col-form-label">Pilih Kaprodi</label>
-                                    <select class="form-control" id="id_kaprodi_modal" name="id_kaprodi">
+                                    <select class="form-control select2" id="id_kaprodi_modal" name="id_kaprodi">
                                         <option value="">-- Pilih Dosen --</option>
                                     </select>
                                     <span class="text-danger error-text id_kaprodi_error"></span>
@@ -381,7 +383,7 @@
                 if (dosenList && Array.isArray(dosenList)) {
                     $.each(dosenList, function(index, dosen) {
                         select.append(
-                            `<option value="${dosen.id}">${dosen.nama_dosen} (${dosen.nup})</option>`);
+                            `<option value="${dosen.id}">${dosen.nama_dosen} (${dosen.nidn})</option>`);
                     });
                 }
             }

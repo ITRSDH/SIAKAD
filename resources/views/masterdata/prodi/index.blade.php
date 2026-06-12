@@ -50,6 +50,27 @@
         .error-text {
             font-size: 0.875em;
         }
+
+        .select2-container {
+            width: 100% !important;
+        }
+
+        .select2-container .select2-selection--single {
+            height: calc(2.25rem + 2px);
+            padding: 0.375rem 0.75rem;
+            border: 1px solid #ced4da;
+        }
+
+        .select2-container .select2-selection--single .select2-selection__rendered {
+            line-height: 1.5rem;
+            padding-left: 0;
+            padding-right: 1.5rem;
+        }
+
+        .select2-container .select2-selection--single .select2-selection__arrow {
+            height: calc(2.25rem + 2px);
+            right: 0.5rem;
+        }
     </style>
 @endpush
 
@@ -374,6 +395,37 @@
         $(document).ready(function() {
             // Ambil data dari PHP
             var prodiData = @json($prodi);
+            function formatDosenOption(dosen) {
+                const namaDosen = dosen?.nama_dosen || 'Dosen';
+                const nidn = dosen?.nidn || dosen?.nup || 'NIDN belum tersedia';
+
+                return `${namaDosen} (${nidn})`;
+            }
+
+            function initializeSelect2() {
+                $('#akreditasi_modal').select2({
+                    width: '100%',
+                    dropdownParent: $('#modalProdi'),
+                    placeholder: 'Pilih Akreditasi...'
+                });
+
+                $('#id_kaprodi_modal').select2({
+                    width: '100%',
+                    dropdownParent: $('#modalProdi'),
+                    placeholder: '-- Pilih Dosen --',
+                    allowClear: true,
+                    matcher: function(params, data) {
+                        const keyword = $.trim(params.term || '').toLowerCase();
+
+                        if (keyword === '') {
+                            return data;
+                        }
+
+                        const text = String(data.text || '').toLowerCase();
+                        return text.includes(keyword) ? data : null;
+                    }
+                });
+            }
             var dosenList = @json($dosenList); // 🔥 Ditambahkan
 
             // Isi dropdown kaprodi
@@ -383,9 +435,19 @@
                 if (dosenList && Array.isArray(dosenList)) {
                     $.each(dosenList, function(index, dosen) {
                         select.append(
-                            `<option value="${dosen.id}">${dosen.nama_dosen} (${dosen.nidn})</option>`);
+                            `<option value="${dosen.id}">${formatDosenOption(dosen)}</option>`);
                     });
                 }
+
+                select.trigger('change.select2');
+            }
+
+            initializeSelect2();
+
+            function populateKaprodiTab(prodi) {
+                fillDosenOptions();
+                $('#nama_prodi_kaprodi_modal').val(prodi?.nama_prodi || '');
+                $('#id_kaprodi_modal').val(prodi?.id_kaprodi || '').trigger('change');
             }
 
             // DataTables
@@ -420,7 +482,17 @@
                     {
                         data: 'id_kaprodi',
                         render: function(data, type, row) {
-                            return row.kaprodi ? row.kaprodi.nama_dosen : '-';
+                            if (!row.kaprodi) {
+                                return '-';
+                            }
+
+                            const identifier = row.kaprodi.identifier || row.kaprodi.nidn || row.kaprodi.nup ||
+                                'NIDN/NUP belum tersedia';
+
+                            return `
+                                <div class="fw-semibold">${row.kaprodi.nama_dosen || '-'}</div>
+                                <small class="text-muted">${identifier}</small>
+                            `;
                         }
                     }, // 🔥 Kolom kaprodi
                     {
@@ -528,6 +600,7 @@
                             $('#akreditasi_modal').val(data.data.akreditasi);
                             $('#tahun_berdiri_modal').val(data.data.tahun_berdiri);
                             $('#gelar_lulusan_modal').val(data.data.gelar_lulusan);
+                            populateKaprodiTab(data.data);
                             $('.error-text').text('');
                             $('#modalProdi').modal('show');
                         } else {
@@ -670,12 +743,10 @@
             $(document).on('shown.bs.tab', 'button[data-bs-target="#kaprodi"]', function() {
                 const id = $('#prodi_id_modal').val();
                 if (id) {
-                    fillDosenOptions();
                     $.get("{{ route('prodi.show', '') }}/" + id)
                         .done(function(response) {
                             if (response.success && response.data) {
-                                $('#nama_prodi_kaprodi_modal').val(response.data.nama_prodi);
-                                $('#id_kaprodi_modal').val(response.data.id_kaprodi || '');
+                                populateKaprodiTab(response.data);
                             }
                         });
                 }

@@ -173,6 +173,9 @@
                             <div class="col-md-6 mb-3">
                                 <label>NIM</label>
                                 <input type="text" id="nim" class="form-control" required>
+                                <small class="text-muted d-block mt-1">
+                                    Jika angkatan masih kosong, sistem akan mencoba membaca dari karakter ke-3 dan ke-4 NIM.
+                                </small>
                             </div>
 
                             <div class="col-md-6 mb-3">
@@ -251,6 +254,9 @@
                                 <label>Angkatan</label>
                                 <input type="number" id="angkatan" class="form-control" min="1990"
                                     max="{{ date('Y') + 10 }}" required>
+                                <small class="text-muted d-block mt-1">
+                                    NIM numerik pendek seperti <code>122080</code> akan dianggap <code>0122080</code>.
+                                </small>
                             </div>
 
                             <div class="col-12">
@@ -298,6 +304,7 @@
                                 <li>Download template dengan klik tombol "Download Template"</li>
                                 <li>Isi data sesuai format yang tersedia</li>
                                 <li>File yang diperbolehkan: .xlsx, .xls, .csv (maksimal 10MB)</li>
+                                <li>Jika kolom angkatan kosong, sistem akan mencoba membaca angkatan dari NIM</li>
                                 <li>Pada saat menggunakan fitur ini, sistem akan otomatis membuat akun user mahasiswa
                                     dengan password default <strong>12345678</strong></li>
                                 <li>Bisa Dihimbau Mahasiswa Untuk Mengganti Password nya setelah pertama kali login</li>
@@ -487,6 +494,43 @@
             let importRequestInProgress = false;
             let importNeedsManualCheck = false;
             let selectedMahasiswaIds = [];
+
+            function resolveAngkatanFromNim(nim) {
+                const rawNim = String(nim || '').trim().replace(/\s+/g, '');
+                if (!rawNim) {
+                    return null;
+                }
+
+                const normalizedNim = /^\d+$/.test(rawNim) && rawNim.length < 7 ?
+                    rawNim.padStart(7, '0') :
+                    rawNim;
+
+                if (normalizedNim.length < 4) {
+                    return null;
+                }
+
+                const kodeAngkatan = normalizedNim.substring(2, 4);
+                if (!/^\d{2}$/.test(kodeAngkatan)) {
+                    return null;
+                }
+
+                const angkatan = 2000 + Number(kodeAngkatan);
+                const maxYear = new Date().getFullYear() + 1;
+
+                return angkatan >= 2000 && angkatan <= maxYear ? angkatan : null;
+            }
+
+            function syncAngkatanFromNim($nimInput, $angkatanInput, { force = false } = {}) {
+                const currentAngkatan = String($angkatanInput.val() || '').trim();
+                if (!force && currentAngkatan !== '') {
+                    return;
+                }
+
+                const resolvedAngkatan = resolveAngkatanFromNim($nimInput.val());
+                if (resolvedAngkatan !== null) {
+                    $angkatanInput.val(resolvedAngkatan);
+                }
+            }
 
             function getFilteredMahasiswaData() {
                 const prodiId = $('#filterProdiMahasiswa').val();
@@ -716,6 +760,10 @@
                 // Reset password field untuk tambah data (wajib diisi)
                 $('#password').prop('required', true).attr('placeholder', '');
                 modal.show();
+            });
+
+            $('#nim').on('input blur', function() {
+                syncAngkatanFromNim($('#nim'), $('#angkatan'));
             });
 
             function formatKurikulumLabel(item) {
@@ -971,6 +1019,9 @@
                     $('#agama').val(m.agama);
                     $('#status').val(m.status);
                     $('#angkatan').val(m.angkatan);
+                    if (!m.angkatan) {
+                        syncAngkatanFromNim($('#nim'), $('#angkatan'), { force: true });
+                    }
 
                     // Untuk edit, password tidak wajib diisi
                     $('#password').prop('required', false).attr('placeholder',
@@ -1370,6 +1421,12 @@
             function showImportResult(data) {
                 const resultContent = $('#importResultContent');
 
+                const errors = Array.isArray(data.errors) ? data.errors : [];
+                const angkatanErrors = errors.filter(error =>
+                    /angkatan|format nim|nim .*tidak dapat digunakan untuk menentukan angkatan/i.test(String(error))
+                );
+                const otherErrors = errors.filter(error => !angkatanErrors.includes(error));
+
                 let html = `
                                     <div class="row">
                                         <div class="col-md-4">
@@ -1399,18 +1456,59 @@
                                     </div>
                                 `;
 
-                // Tampilkan error jika ada
-                if (data.errors && data.errors.length > 0) {
+                if (errors.length > 0) {
                     html += `
+                                    <div class="row mt-3">
+                                        <div class="col-md-6">
+                                            <div class="card border-warning">
+                                                <div class="card-body text-center">
+                                                    <h5 class="card-title text-warning mb-1">${angkatanErrors.length}</h5>
+                                                    <p class="card-text mb-0">Error Angkatan / Format NIM</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="card border-secondary">
+                                                <div class="card-body text-center">
+                                                    <h5 class="card-title text-secondary mb-1">${otherErrors.length}</h5>
+                                                    <p class="card-text mb-0">Error Data Lainnya</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                }
+
+                // Tampilkan error jika ada
+                if (errors.length > 0) {
+                    if (angkatanErrors.length > 0) {
+                        html += `
                                         <div class="mt-3">
-                                            <h6><i class="fas fa-exclamation-triangle me-2"></i>Detail Error:</h6>
-                                            <div class="alert alert-warning" style="max-height: 300px; overflow-y: auto;">
+                                            <h6><i class="fas fa-user-graduate me-2 text-warning"></i>Error Angkatan / Format NIM</h6>
+                                            <div class="alert alert-warning" style="max-height: 220px; overflow-y: auto;">
+                                                <div class="small text-muted mb-2">
+                                                    Periksa kembali kolom NIM atau isi kolom angkatan secara manual pada baris yang gagal.
+                                                </div>
                                                 <ul class="mb-0">
-                                                    ${data.errors.map(error => `<li>${error}</li>`).join('')}
+                                                    ${angkatanErrors.map(error => `<li>${error}</li>`).join('')}
                                                 </ul>
                                             </div>
                                         </div>
                                     `;
+                    }
+
+                    if (otherErrors.length > 0) {
+                        html += `
+                                        <div class="mt-3">
+                                            <h6><i class="fas fa-exclamation-triangle me-2"></i>Detail Error Lainnya:</h6>
+                                            <div class="alert alert-warning" style="max-height: 300px; overflow-y: auto;">
+                                                <ul class="mb-0">
+                                                    ${otherErrors.map(error => `<li>${error}</li>`).join('')}
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    `;
+                    }
                 }
 
                 resultContent.html(html);

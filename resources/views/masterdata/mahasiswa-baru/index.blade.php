@@ -142,6 +142,9 @@
                             <div class="col-md-6 mb-3">
                                 <label>NIM</label>
                                 <input type="text" id="nim" class="form-control" required>
+                                <small class="text-muted d-block mt-1">
+                                    Sistem akan mencoba membaca angkatan dari karakter ke-3 dan ke-4 NIM.
+                                </small>
                             </div>
 
                             <div class="col-md-6 mb-3">
@@ -208,6 +211,9 @@
                                 <label>Angkatan</label>
                                 <input type="number" id="angkatan" class="form-control" min="1990"
                                     max="{{ date('Y') + 10 }}" required>
+                                <small class="text-muted d-block mt-1">
+                                    NIM numerik pendek seperti <code>122080</code> akan dianggap <code>0122080</code>.
+                                </small>
                             </div>
 
                         </div>
@@ -234,6 +240,43 @@
             const modal = new bootstrap.Modal('#mahasiswaModal');
             const syncModal = new bootstrap.Modal('#syncModal');
             const mahasiswa = @json($mahasiswa ?? []);
+
+            function resolveAngkatanFromNim(nim) {
+                const rawNim = String(nim || '').trim().replace(/\s+/g, '');
+                if (!rawNim) {
+                    return null;
+                }
+
+                const normalizedNim = /^\d+$/.test(rawNim) && rawNim.length < 7 ?
+                    rawNim.padStart(7, '0') :
+                    rawNim;
+
+                if (normalizedNim.length < 4) {
+                    return null;
+                }
+
+                const kodeAngkatan = normalizedNim.substring(2, 4);
+                if (!/^\d{2}$/.test(kodeAngkatan)) {
+                    return null;
+                }
+
+                const angkatan = 2000 + Number(kodeAngkatan);
+                const maxYear = new Date().getFullYear() + 1;
+
+                return angkatan >= 2000 && angkatan <= maxYear ? angkatan : null;
+            }
+
+            function syncAngkatanFromNim($nimInput, $angkatanInput, { force = false } = {}) {
+                const currentAngkatan = String($angkatanInput.val() || '').trim();
+                if (!force && currentAngkatan !== '') {
+                    return;
+                }
+
+                const resolvedAngkatan = resolveAngkatanFromNim($nimInput.val());
+                if (resolvedAngkatan !== null) {
+                    $angkatanInput.val(resolvedAngkatan);
+                }
+            }
 
             const table = $('#mahasiswa-table').DataTable({
                 data: mahasiswa,
@@ -336,6 +379,10 @@
                 });
             });
 
+            $('#nim').on('input blur', function() {
+                syncAngkatanFromNim($('#nim'), $('#angkatan'));
+            });
+
             // Simpan / Update (hanya untuk edit, karena create diganti sync)
             $('#mahasiswaForm').on('submit', function(e) {
                 e.preventDefault();
@@ -408,6 +455,9 @@
                     $('#no_hp_orang_tua').val(m.no_hp_orang_tua);
                     $('#status').val(m.status);
                     $('#angkatan').val(m.angkatan);
+                    if (!m.angkatan) {
+                        syncAngkatanFromNim($('#nim'), $('#angkatan'), { force: true });
+                    }
 
                     $('#modalTitle').text('Edit Mahasiswa');
                     modal.show();

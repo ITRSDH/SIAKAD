@@ -196,15 +196,6 @@
                             </div>
 
                             <div class="col-md-6 mb-3">
-                                <label>Struktur Kurikulum Mahasiswa</label>
-                                <select id="id_kurikulum" class="form-control">
-                                    <option value="">-- Biarkan Sistem Menentukan --</option>
-                                </select>
-                                <small class="text-muted">Opsional. Jika dikosongkan, sistem akan menentukan kurikulum
-                                    mahasiswa berdasarkan program studi, angkatan, dan tanggal masuk.</small>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
                                 <label>Jenis Kelamin</label>
                                 <select id="jenis_kelamin" class="form-control" required>
                                     <option value="">-- Pilih --</option>
@@ -264,8 +255,8 @@
 
                             <div class="col-12">
                                 <small class="text-muted">
-                                    Jika kurikulum dikosongkan, sistem akan menentukan otomatis berdasarkan prodi,
-                                    angkatan, tanggal masuk, dan semester mulai kurikulum yang tersedia.
+                                    Data mahasiswa dapat disimpan tanpa memilih struktur kurikulum. Pengelolaan kurikulum
+                                    aktif mahasiswa dilakukan melalui riwayat kurikulum dan proses akademik berikutnya.
                                 </small>
                             </div>
 
@@ -433,7 +424,7 @@
                     </div>
                     <div class="modal-body">
                         <input type="hidden" id="migrasiMahasiswaId">
-                        <div class="alert alert-warning">
+                        <div class="alert alert-warning" id="migrasiKurikulumAlertBox">
                             Migrasi kurikulum akan menutup riwayat kurikulum sebelumnya dan membuka riwayat kurikulum baru.
                             Pastikan aturan konversi mata kuliah sudah disiapkan terlebih dahulu bila diperlukan.
                         </div>
@@ -567,21 +558,17 @@
                     },
                     {
                         data: null,
-                        render: row => `
+                        render: row => {
+                            return `
                                 <div class="d-flex justify-content-center gap-2">
-                                    <button class="btn btn-info btn-sm history-btn" data-id="${row.id}" title="Riwayat Kurikulum">
-                                        <i class="fas fa-history"></i>
-                                    </button>
-                                    <button class="btn btn-secondary btn-sm migrate-btn" data-id="${row.id}" title="Migrasi Kurikulum">
-                                        <i class="fas fa-exchange-alt"></i>
-                                    </button>
                                     <button class="btn btn-warning btn-sm edit-btn" data-id="${row.id}">
                                         <i class="fas fa-edit"></i>
                                     </button>
                                     <button class="btn btn-danger btn-sm delete-btn" data-id="${row.id}">
                                         <i class="fas fa-trash"></i>
                                     </button>
-                                </div>`
+                                </div>`;
+                        }
                     }
                 ],
                 language: {
@@ -706,6 +693,7 @@
                                 'success');
                         },
                         error: xhr => {
+                            logError(xhr);
                             Swal.fire('Gagal', xhr.responseJSON?.message ||
                                 'Tidak dapat menghapus data mahasiswa terpilih.',
                                 'error');
@@ -725,7 +713,6 @@
                 clearFormErrors('#mahasiswaForm');
                 $('#mahasiswaId').val('');
                 $('#modalTitle').text('Tambah Mahasiswa');
-                populateKurikulumOptions('', '');
                 // Reset password field untuk tambah data (wajib diisi)
                 $('#password').prop('required', true).attr('placeholder', '');
                 modal.show();
@@ -745,7 +732,9 @@
 
             function formatKurikulumIndukLabel(row = {}) {
                 const context = row?.kurikulum_context || {};
-                const induk = context?.kurikulum_induk || row?.kurikulumInduk || {};
+                const historyItems = row?.riwayat_kurikulum || row?.riwayatKurikulum || [];
+                const activeHistory = historyItems.find(item => item?.is_active) || {};
+                const induk = context?.kurikulum_induk || activeHistory?.kurikulum_induk || row?.kurikulumInduk || {};
                 return [
                     induk?.kode_kurikulum,
                     induk?.nama_kurikulum,
@@ -754,38 +743,50 @@
             }
 
             function getCurrentOperationalKurikulumId(row = {}) {
+                const context = row?.kurikulum_context || {};
                 const historyItems = row?.riwayat_kurikulum || row?.riwayatKurikulum || [];
                 const activeHistory = historyItems.find(item => item?.is_active);
+                const contextOperationalId = context?.id_kurikulum_operasional || context?.id_struktur_operasional;
+                const historyOperationalId = activeHistory?.id_kurikulum || activeHistory?.id_struktur_operasional;
 
-                return row?.id_kurikulum || activeHistory?.id_kurikulum || '';
+                return contextOperationalId || historyOperationalId || row?.id_kurikulum || '';
             }
 
-            function populateKurikulumOptions(prodiId, selectedId = '') {
-                const select = $('#id_kurikulum');
-                select.empty().append('<option value="">-- Biarkan Sistem Menentukan --</option>');
+            function hasActiveKurikulumHistory(row = {}) {
+                const historyItems = row?.riwayat_kurikulum || row?.riwayatKurikulum || [];
+                return historyItems.some(item => item?.is_active) || !!getCurrentOperationalKurikulumId(row);
+            }
 
-                if (!prodiId) {
-                    return;
+            function getCurrentOperationalKurikulumLabel(row = {}) {
+                const context = row?.kurikulum_context || {};
+                const historyItems = row?.riwayat_kurikulum || row?.riwayatKurikulum || [];
+                const activeHistory = historyItems.find(item => item?.is_active) || {};
+                const operasional = context?.struktur_operasional || activeHistory?.kurikulum_operasional || {};
+                const contextLabel = formatKurikulumLabel(operasional);
+
+                if (contextLabel) {
+                    return contextLabel;
                 }
 
-                const filtered = kurikulumList.filter(item => item.id_prodi === prodiId);
-
-                filtered.forEach(item => {
-                    select.append(
-                        `<option value="${item.id}">${formatKurikulumLabel(item)}</option>`
-                    );
-                });
-
-                if (selectedId && filtered.some(item => item.id === selectedId)) {
-                    select.val(selectedId);
-                    return;
-                }
+                const currentKurikulumId = getCurrentOperationalKurikulumId(row);
+                return formatKurikulumLabel(kurikulumList.find(item => item.id === currentKurikulumId) || {}) || 'Belum ditentukan';
             }
 
             function clearFormErrors(formSelector) {
                 const form = $(formSelector);
                 form.find('.is-invalid').removeClass('is-invalid');
                 form.find('.invalid-feedback.dynamic-error').remove();
+            }
+
+            function normalizeDateInputValue(value) {
+                if (!value) {
+                    return '';
+                }
+
+                const stringValue = String(value).trim();
+                const match = stringValue.match(/^(\d{4}-\d{2}-\d{2})/);
+
+                return match ? match[1] : '';
             }
 
             function applyFormErrors(fieldMap, errors = {}) {
@@ -807,10 +808,6 @@
                     );
                 });
             }
-
-            $('#id_prodi').on('change', function() {
-                populateKurikulumOptions($(this).val(), '');
-            });
 
             function renderRiwayatKurikulum(items = []) {
                 if (!items.length) {
@@ -852,28 +849,17 @@
                                         kurikulumInduk.jenis_kurikulum?.kode_jenis
                                     ].filter(Boolean).join(' | ') || '-';
 
-                                    return ` <
-                    tr >
-                    <
-                    td >
-                    <
-                    div > < strong > Induk: < /strong> ${indukLabel}</div >
-                    <
-                    div > < strong > Operasional: < /strong> ${operasionalLabel || '-'}</div >
-                    <
-                    /td> <
-                td > $ {
-                    periode
-                } < /td> <
-                td > < span class = "badge bg-${badge}" > $ {
-                        item.is_active ? 'Aktif' : 'Riwayat'
-                    } < /span></td >
-                    <
-                    td > $ {
-                        item.catatan || '-'
-                    } < /td> < /
-                    tr >
-                    `;
+                                    return `
+                                        <tr>
+                                            <td>
+                                                <div><strong>Induk:</strong> ${indukLabel}</div>
+                                                <div><strong>Operasional:</strong> ${operasionalLabel || '-'}</div>
+                                            </td>
+                                            <td>${periode}</td>
+                                            <td><span class="badge bg-${badge}">${item.is_active ? 'Aktif' : 'Riwayat'}</span></td>
+                                            <td>${item.catatan || '-'}</td>
+                                        </tr>
+                                    `;
                                 }).join('')}
                             </tbody>
                         </table>
@@ -911,7 +897,6 @@
                         nik: $('#nik').val(),
                         nama_mahasiswa: $('#nama_mahasiswa').val(),
                         id_prodi: $('#id_prodi').val(),
-                        id_kurikulum: $('#id_kurikulum').val(),
                         jenis_kelamin: $('#jenis_kelamin').val(),
                         tempat_lahir: $('#tempat_lahir').val(),
                         tanggal_lahir: $('#tanggal_lahir').val(),
@@ -937,12 +922,12 @@
                     error: err => {
                         const response = err.responseJSON || {};
                         const backendErrors = response.errors?.errors || response.errors || {};
+                        const firstError = Object.values(backendErrors).flat?.()[0] || Object.values(backendErrors)[0];
                         applyFormErrors({
                             nim: '#nim',
                             nik: '#nik',
                             nama_mahasiswa: '#nama_mahasiswa',
                             id_prodi: '#id_prodi',
-                            id_kurikulum: '#id_kurikulum',
                             jenis_kelamin: '#jenis_kelamin',
                             tempat_lahir: '#tempat_lahir',
                             tanggal_lahir: '#tanggal_lahir',
@@ -954,7 +939,7 @@
                             email: '#email',
                             password: '#password'
                         }, backendErrors);
-                        Swal.fire('Gagal', response.message ||
+                        Swal.fire('Gagal', firstError || response.message ||
                             'Terjadi kesalahan saat menyimpan data.', 'error');
                     },
                     complete: () => {
@@ -978,11 +963,10 @@
                     $('#nim').val(m.nim);
                     $('#nik').val(m.nik);
                     $('#id_prodi').val(m.id_prodi);
-                    populateKurikulumOptions(m.id_prodi, getCurrentOperationalKurikulumId(m));
                     $('#jenis_kelamin').val(m.jenis_kelamin);
                     $('#tempat_lahir').val(m.tempat_lahir);
-                    $('#tanggal_lahir').val(m.tanggal_lahir?.split('T')[0] ?? '');
-                    $('#tanggal_masuk').val(m.tanggal_masuk?.split('T')[0] ?? '');
+                    $('#tanggal_lahir').val(normalizeDateInputValue(m.tanggal_lahir));
+                    $('#tanggal_masuk').val(normalizeDateInputValue(m.tanggal_masuk));
                     $('#alamat').val(m.alamat);
                     $('#agama').val(m.agama);
                     $('#status').val(m.status);
@@ -1026,16 +1010,31 @@
                 const row = mahasiswa.find(item => item.id === id);
                 const prodiId = row?.id_prodi || '';
                 const currentKurikulumId = getCurrentOperationalKurikulumId(row);
+                const hasRiwayatAktif = hasActiveKurikulumHistory(row);
 
                 $('#migrasiKurikulumForm')[0].reset();
                 clearFormErrors('#migrasiKurikulumForm');
                 $('#migrasiMahasiswaId').val(id);
                 $('#migrasiMahasiswaLabel').val(`${row?.nama_mahasiswa || '-'} (${row?.nim || '-'})`);
-                $('#migrasiCurrentKurikulumIndukLabel').val(formatKurikulumIndukLabel(row));
-                $('#migrasiCurrentKurikulumLabel').val(
-                    formatKurikulumLabel(
-                        kurikulumList.find(item => item.id === currentKurikulumId) || {}
-                    ) || 'Belum terdeteksi'
+                $('#migrasiKurikulumModalLabel').html(
+                    hasRiwayatAktif ?
+                    '<i class="fas fa-exchange-alt me-2"></i>Migrasi Struktur Kurikulum Mahasiswa' :
+                    '<i class="fas fa-diagram-project me-2"></i>Set Struktur Kurikulum Awal Mahasiswa'
+                );
+                $('#migrasiKurikulumAlertBox')
+                    .toggleClass('alert-warning', hasRiwayatAktif)
+                    .toggleClass('alert-info', !hasRiwayatAktif)
+                    .text(
+                        hasRiwayatAktif ?
+                        'Migrasi kurikulum akan menutup riwayat kurikulum sebelumnya dan membuka riwayat kurikulum baru. Pastikan aturan konversi mata kuliah sudah disiapkan terlebih dahulu bila diperlukan.' :
+                        'Mahasiswa ini belum memiliki riwayat kurikulum aktif. Pilih struktur operasional awal untuk membentuk riwayat kurikulum pertamanya.'
+                    );
+                $('#migrasiCurrentKurikulumIndukLabel').val(hasRiwayatAktif ? formatKurikulumIndukLabel(row) : 'Belum ditentukan');
+                $('#migrasiCurrentKurikulumLabel').val(hasRiwayatAktif ? getCurrentOperationalKurikulumLabel(row) : 'Belum ditentukan');
+                $('#submitMigrasiBtn').html(
+                    hasRiwayatAktif ?
+                    '<i class="fas fa-save me-1"></i>Proses Migrasi' :
+                    '<i class="fas fa-save me-1"></i>Simpan Kurikulum Awal'
                 );
                 $('#migrasi_tanggal_mulai').val(new Date().toISOString().split('T')[0]);
 

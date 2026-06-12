@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Siakad\Akademik\MonitoringAkademikController;
+use App\Http\Controllers\Siakad\Akademik\KurikulumMahasiswaController as AkademikKurikulumMahasiswaController;
 use App\Http\Controllers\Siakad\Akademik\KhsController as AkademikKhsController;
 use App\Http\Controllers\Siakad\Akademik\KhsImportController as AkademikKhsImportController;
 use App\Http\Controllers\Siakad\Akademik\StudentStudyAdministrationController;
@@ -134,6 +135,12 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
         Route::get('/import/{batch}/export-results', [StudentStudyAdministrationController::class, 'exportImportResults'])->name('import.export-results');
         Route::get('/batches', [StudentStudyAdministrationController::class, 'batchHistory'])->name('batches');
         Route::get('/batches/{source}/{id}', [StudentStudyAdministrationController::class, 'showBatch'])->name('batches.show');
+    });
+
+    Route::prefix('akademik/kurikulum-mahasiswa')->name('akademik.kurikulum-mahasiswa.')->group(function () {
+        Route::get('/', [AkademikKurikulumMahasiswaController::class, 'index'])->name('index');
+        Route::get('/{id}/riwayat', [AkademikKurikulumMahasiswaController::class, 'riwayatKurikulum'])->whereUuid('id')->name('riwayat');
+        Route::post('/{id}/migrasi', [AkademikKurikulumMahasiswaController::class, 'migrateKurikulum'])->whereUuid('id')->name('migrasi');
     });
 
     Route::get('/users', [UserController::class, 'index'])->name('users.index');

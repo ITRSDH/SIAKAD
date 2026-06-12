@@ -253,6 +253,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
+                        <div class="alert alert-light border mb-3 d-none" id="penawaranInfoBox"></div>
                         <div class="table-responsive">
                             <table class="table table-bordered align-middle">
                                 <thead>
@@ -561,6 +562,38 @@
             return namaProdi ? `(${jenjang}) ${namaProdi}` : jenjang;
         }
 
+        function formatOperationalCurriculumLabel(context) {
+            const operational = context?.struktur_operasional || null;
+            const induk = context?.kurikulum_induk || null;
+
+            if (operational?.nama_struktur_mk) {
+                const indukSuffix = induk?.nama_kurikulum ? ` | Induk: ${induk.nama_kurikulum}` : '';
+                return `${operational.nama_struktur_mk}${indukSuffix}`;
+            }
+
+            if (induk?.nama_kurikulum) {
+                return `${induk.nama_kurikulum} (induk)`;
+            }
+
+            return 'Belum terpetakan';
+        }
+
+        function renderPenawaranInfo(meta = {}) {
+            const context = currentKrs?.kurikulum_context || {};
+            const semesterTempuh = meta?.semester_tempuh ?? currentSemesterNumber ?? '-';
+            const maxSks = meta?.max_sks_allowed ?? currentKrs?.validation_summary?.max_sks_allowed ?? 0;
+            const currentSks = meta?.current_sks ?? currentKrs?.total_sks ?? 0;
+            const infoHtml = `
+                <div class="fw-semibold mb-2">Konteks Penawaran Manual</div>
+                <div class="small mb-1"><strong>Semester tempuh:</strong> ${escapeHtml(semesterTempuh)}</div>
+                <div class="small mb-1"><strong>Struktur kurikulum aktif:</strong> ${escapeHtml(formatOperationalCurriculumLabel(context))}</div>
+                <div class="small mb-1"><strong>SKS saat ini:</strong> ${escapeHtml(currentSks)} / ${escapeHtml(maxSks)}</div>
+                <div class="small text-muted">Jika paket otomatis belum lengkap, mata kuliah tetap bisa ditambahkan manual dari penawaran kelas yang sesuai semester tempuh.</div>
+            `;
+
+            $('#penawaranInfoBox').removeClass('d-none').html(infoHtml);
+        }
+
         function getCourseCategory(detail, semesterNumber) {
             if (detail?.kategori_pengambilan) {
                 const map = {
@@ -667,6 +700,8 @@
 
         function renderPackageInsights(krs, semesterNumber) {
             const summary = packageSummary || buildPackageSummaryFromKrs(krs, semesterNumber);
+            const unresolvedCount = Number(summary?.unresolved_count ?? unresolvedPackageItems.length ?? 0);
+            const hasAutomaticIssues = unresolvedCount > 0;
 
             $('#packageSummaryBox').html(`
                 <div class="fw-semibold mb-2">Ringkasan Paket Semester</div>
@@ -689,6 +724,12 @@
                 <div class="d-flex justify-content-between">
                     <span>SKS ulang di KRS</span>
                     <span>${escapeHtml(summary?.repeat_sks ?? 0)}</span>
+                </div>
+                <hr class="my-2">
+                <div class="small ${hasAutomaticIssues ? 'text-warning' : 'text-success'}">
+                    ${hasAutomaticIssues
+                        ? 'Sebagian paket belum tergenerate otomatis. Anda masih bisa menambahkan mata kuliah manual dari penawaran kelas.'
+                        : 'Paket semester yang dapat digenerate otomatis sudah masuk ke draft KRS.'}
                 </div>
             `);
 
@@ -1033,7 +1074,7 @@
                     `);
                 } else {
                     $('#emptyStateTitle').text('KRS semester aktif belum tersedia');
-                    $('#emptyStateDescription').text(payload?.eligibility_message || 'Draft KRS belum berhasil disiapkan untuk semester aktif.');
+                    $('#emptyStateDescription').text(payload?.eligibility_message || 'Draft KRS belum tersedia untuk semester aktif. Jika semester sudah sesuai, sistem akan mencoba menyiapkannya otomatis.');
                 }
 
                 if (payload?.is_krs_eligible !== false) {
@@ -1154,7 +1195,12 @@
                     if (!options.silent && packageSummary) {
                         const generated = packageSummary.generated_count ?? 0;
                         const unresolved = packageSummary.unresolved_count ?? 0;
-                        notify(`Draft KRS berhasil dibuat. Paket tergenerate: ${generated} mata kuliah. Kendala paket: ${unresolved}.`, unresolved > 0 ? 'warning' : 'success');
+                        notify(
+                            unresolved > 0
+                                ? `Draft KRS berhasil dibuat. Paket otomatis masuk ${generated} mata kuliah, dan ${unresolved} item belum tergenerate. Anda masih bisa menambahkan mata kuliah manual.`
+                                : `Draft KRS berhasil dibuat. Paket otomatis masuk ${generated} mata kuliah.`,
+                            unresolved > 0 ? 'warning' : 'success'
+                        );
                     } else if (!options.silent) {
                         notify(response.message || 'Draft KRS berhasil dibuat.', 'success');
                     }
@@ -1178,6 +1224,7 @@
                 return;
             }
 
+            renderPenawaranInfo();
             $('#availableCoursesBody').html('<tr><td colspan="10" class="text-center text-muted">Memuat data...</td></tr>');
             getPenawaranModal()?.show();
 
@@ -1191,6 +1238,7 @@
                 success: function(response) {
                     const rowsData = Array.isArray(response.data) ? response.data : [];
                     const metaMessage = response.meta?.message;
+                    renderPenawaranInfo(response.meta || {});
 
                     if (!response.success || !rowsData.length) {
                         $('#availableCoursesBody').html(

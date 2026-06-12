@@ -98,11 +98,13 @@ class MahasiswaController extends Controller
                 return response()->json($response->json());
             }
 
+            $payload = $response->json();
+
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal memperbarui data di API',
-                'errors' => $response->json()
-            ], 422);
+                'message' => $payload['message'] ?? 'Gagal memperbarui data di API',
+                'errors' => $payload['errors'] ?? $payload
+            ], $response->status());
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

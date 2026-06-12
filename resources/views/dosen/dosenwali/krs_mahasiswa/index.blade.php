@@ -121,6 +121,7 @@
 
 @push('scripts-custom')
     {{-- <script src="{{ asset('') }}template/assets/js/core/jquery-3.7.1.min.js"></script> --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         const currentDosenName = @json(session('profile.nama_dosen') ?: 'Dosen ini');
         const routes = {
@@ -388,35 +389,79 @@
                 return;
             }
 
-            if (!confirm(`Apakah Anda yakin ingin ${labels[action]} KRS ini?`)) {
-                return;
-            }
+            const actionConfig = {
+                approve: {
+                    title: 'Setujui KRS ini?',
+                    text: 'KRS mahasiswa akan ditandai disetujui.',
+                    icon: 'question',
+                    confirmButtonText: 'Ya, setujui'
+                },
+                revision: {
+                    title: 'Kembalikan untuk revisi?',
+                    text: 'Mahasiswa akan diminta memperbaiki KRS sesuai catatan Anda.',
+                    icon: 'warning',
+                    confirmButtonText: 'Ya, kirim revisi'
+                },
+                reject: {
+                    title: 'Tolak KRS ini?',
+                    text: 'Pengajuan KRS akan ditolak sesuai catatan Anda.',
+                    icon: 'warning',
+                    confirmButtonText: 'Ya, tolak'
+                }
+            };
 
-            $.ajax({
-                url: routeMap[action],
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                data: {
-                    id_krs: selectedKrsId,
-                    catatan: catatan
-                },
-                success: function(response) {
-                    if (!response.success) {
-                        notify(response.message || 'Gagal memproses KRS.', 'danger');
+            Swal.fire({
+                title: actionConfig[action].title,
+                text: actionConfig[action].text,
+                icon: actionConfig[action].icon,
+                showCancelButton: true,
+                confirmButtonText: actionConfig[action].confirmButtonText,
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+            }).then((result) => {
+                if (!result.isConfirmed) {
+                    return;
+                }
+
+                $.ajax({
+                    url: routeMap[action],
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    data: {
+                        id_krs: selectedKrsId,
+                        catatan: catatan
+                    },
+                    beforeSend: function() {
+                        Swal.fire({
+                            title: 'Memproses...',
+                            text: `Sedang ${labels[action]} KRS mahasiswa.`,
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            didOpen: () => Swal.showLoading()
+                        });
+                    },
+                    success: function(response) {
+                        Swal.close();
+
+                        if (!response.success) {
+                            notify(response.message || 'Gagal memproses KRS.', 'danger');
+                            return;
+                        }
+
+                        notify(response.message || 'KRS berhasil diproses.', 'success');
+                        selectedKrsId = null;
+                        $('#detailContainer').html('<div class="text-muted">Pilih salah satu KRS pending untuk melihat detail.</div>');
+                        loadStatistics();
+                        loadPendingList();
+                    },
+                    error: function(xhr) {
+                        Swal.close();
+                        notify(xhr.responseJSON?.message || 'Gagal memproses KRS.', 'danger');
                         return;
                     }
-
-                    notify(response.message || 'KRS berhasil diproses.', 'success');
-                    selectedKrsId = null;
-                    $('#detailContainer').html('<div class="text-muted">Pilih salah satu KRS pending untuk melihat detail.</div>');
-                    loadStatistics();
-                    loadPendingList();
-                },
-                error: function(xhr) {
-                    notify(xhr.responseJSON?.message || 'Gagal memproses KRS.', 'danger');
-                }
+                });
             });
         }
 

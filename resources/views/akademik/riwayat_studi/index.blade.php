@@ -970,7 +970,7 @@
                 const induk = row.kurikulum_context?.kurikulum_induk || {};
                 const struktur = row.kurikulum_context?.struktur_operasional || {};
                 const kurikulumIndukLabel = formatKurikulumIndukLabel(induk);
-                const strukturOperasionalLabel = [struktur.nama_kurikulum, struktur.nama_struktur_mk]
+                const strukturOperasionalLabel = [struktur.nama_struktur_mk, struktur.nama_kurikulum]
                     .filter(Boolean).join(' | ') || '-';
 
                 return `
@@ -1092,7 +1092,7 @@
                     <div class="fw-semibold">${row.mata_kuliah?.kode_mk ?? '-'} - ${row.mata_kuliah?.nama_mk ?? 'Mata Kuliah'}</div>
                     <div class="small text-muted">
                         <div><strong>Induk:</strong> ${formatKurikulumIndukLabel(row.kurikulum_context?.kurikulum_induk)}</div>
-                        <div><strong>Operasional:</strong> ${row.nama_struktur_operasional ?? row.nama_kurikulum ?? 'Struktur Operasional'} | ${row.nama_kelas ?? 'Kelas'} | ${row.mata_kuliah?.sks ?? 0} SKS</div>
+                        <div><strong>Operasional:</strong> ${row.kurikulum_context?.struktur_operasional?.nama_struktur_mk ?? row.nama_struktur_operasional ?? row.nama_kurikulum ?? 'Struktur Operasional'} | ${row.nama_kelas ?? 'Kelas'} | ${row.mata_kuliah?.sks ?? 0} SKS</div>
                     </div>
                     <div class="small text-primary mt-2">Klik untuk menjadikan kelas ini sebagai referensi cepat saat menyusun builder mahasiswa.</div>
                 </div>

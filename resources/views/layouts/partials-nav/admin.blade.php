@@ -155,6 +155,7 @@
         'akademik.khs.*',
         'akademik.riwayat-studi.*',
         'akademik.administrasi-studi.*',
+        'akademik.kurikulum-mahasiswa.*',
     ];
     $capaianRoutes = ['capaian.*'];
     $akhirStudiRoutes = ['tugas-akhir.*', 'yudisium.*', 'kelulusan.*', 'akhir-studi.monitoring'];
@@ -343,6 +344,13 @@
                     </a>
                 </li>
             @endif
+            @canApi('siakad.master.refrensi.mahasiswa.index')
+                <li class="{{ request()->routeIs('akademik.kurikulum-mahasiswa.*') ? 'active' : '' }}">
+                    <a href="{{ route('akademik.kurikulum-mahasiswa.index') }}">
+                        <span class="sub-item">Kurikulum Mahasiswa</span>
+                    </a>
+                </li>
+            @endcanApi
         </ul>
     </div>
 </li>

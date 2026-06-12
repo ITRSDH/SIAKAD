@@ -197,6 +197,40 @@
             var currentSearch = '';
             var isSelectAllActive = false;
             var allSelectedIds = new Set();
+            var currentPageIds = [];
+
+            function buildSearchParams(page = 1, perPage = null) {
+                return {
+                    nama: $('#nama').val().trim(),
+                    angkatan: $('#angkatan').val().trim(),
+                    id_prodi: $('#id_prodi').val(),
+                    page: page,
+                    per_page: perPage || $('#per_page').val()
+                };
+            }
+
+            async function fetchAllMatchingMahasiswaIds() {
+                const firstResponse = await $.ajax({
+                    url: '{{ route('dosen-wali.search-mahasiswa') }}',
+                    method: 'GET',
+                    data: buildSearchParams(1, 100)
+                });
+
+                let ids = (firstResponse.data || []).map(item => item.id);
+                const meta = firstResponse.meta || {};
+                const lastPage = Number(meta.last_page || 1);
+
+                for (let page = 2; page <= lastPage; page++) {
+                    const response = await $.ajax({
+                        url: '{{ route('dosen-wali.search-mahasiswa') }}',
+                        method: 'GET',
+                        data: buildSearchParams(page, 100)
+                    });
+                    ids = ids.concat((response.data || []).map(item => item.id));
+                }
+
+                return [...new Set(ids)];
+            }
 
             // Update selectAll status indicator
             function updateSelectAllStatus() {
@@ -210,10 +244,11 @@
 
             // Search mahasiswa function
             function searchMahasiswa(page = 1) {
-                var nama = $('#nama').val().trim();
-                var angkatan = $('#angkatan').val().trim();
-                var prodiId = $('#id_prodi').val();
-                var perPage = $('#per_page').val();
+                var params = buildSearchParams(page);
+                var nama = params.nama;
+                var angkatan = params.angkatan;
+                var prodiId = params.id_prodi;
+                var perPage = params.per_page;
 
                 // Check if any filter is applied
                 if (!nama && !angkatan && !prodiId) {
@@ -262,16 +297,14 @@
                     success: function (response) {
                         if (response.success && response.data.length > 0) {
                             var html = '';
+                            currentPageIds = response.data.map(item => item.id);
                             response.data.forEach(function (m) {
-                                // assign all IDs from current page
-                                allSelectedIds.add(m.id);
-
                                 html += `
                                         <tr>
                                             <td class="text-center">
                                                 <input class="form-check-input mahasiswa-checkbox"
                                                     type="checkbox" name="mahasiswa_ids[]"
-                                                    value="${m.id}" id="mahasiswa_${m.id}">
+                                                    value="${m.id}" id="mahasiswa_${m.id}" ${allSelectedIds.has(m.id) ? 'checked' : ''}>
                                             </td>
                                             <td>
                                                 <div>${m.nama_mahasiswa || m.nama || ''}</div>
@@ -294,9 +327,14 @@
                                 $('.mahasiswa-checkbox').prop('checked', true);
                             }
 
+                            if (!isSelectAllActive) {
+                                $('#selectAll').prop('checked', currentPageIds.length > 0 && currentPageIds.every(id => allSelectedIds.has(id)));
+                            }
+
                             // Update selectAll status indicator
                             updateSelectAllStatus();
                         } else {
+                            currentPageIds = [];
                             $('#mahasiswa_tbody').html(`
                                     <tr>
                                         <td colspan="4" class="text-center text-muted">
@@ -309,6 +347,7 @@
                         }
                     },
                     error: function (xhr) {
+                        currentPageIds = [];
                         $('#mahasiswa_tbody').html(`
                                 <tr>
                                     <td colspan="4" class="text-center text-danger">
@@ -406,9 +445,9 @@
                         allSelectedIds.add(id);
                     } else {
                         allSelectedIds.delete(id);
-                        // If any checkbox is unchecked, uncheck selectAll
-                        isSelectAllActive = false;
-                        $('#selectAll').prop('checked', false);
+                        if (isSelectAllActive) {
+                            isSelectAllActive = false;
+                        }
                     }
 
                     // Update selectAll state based on current page checkboxes
@@ -437,6 +476,7 @@
                 currentSearch = null;
                 isSelectAllActive = false;
                 allSelectedIds.clear();
+                currentPageIds = [];
                 $('#selectAll').prop('checked', false);
                 updateSelectAllStatus();
                 $('#mahasiswa_tbody').html(`
@@ -482,33 +522,47 @@
             });
 
             // Select all functionality
-            $('#selectAll').on('change', function () {
+            $('#selectAll').on('change', async function () {
                 var isChecked = $(this).prop('checked');
 
                 if (isChecked) {
-                    // Activate selectAll mode
-                    isSelectAllActive = true;
+                    try {
+                        Swal.fire({
+                            title: 'Memuat semua mahasiswa...',
+                            text: 'Sedang menyiapkan pilihan lintas semua halaman.',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            didOpen: () => Swal.showLoading()
+                        });
 
-                    // Check all checkboxes on current page
-                    $('.mahasiswa-checkbox').prop('checked', true);
+                        const allIds = await fetchAllMatchingMahasiswaIds();
+                        Swal.close();
 
-                    // Add all current page IDs to allSelectedIds
-                    $('.mahasiswa-checkbox').each(function () {
-                        allSelectedIds.add($(this).val());
-                    });
+                        isSelectAllActive = true;
+                        allSelectedIds = new Set(allIds);
+                        $('.mahasiswa-checkbox').prop('checked', true);
+                        updateSelectAllStatus();
 
-                    // Update status indicator
-                    updateSelectAllStatus();
-
-                    // Show confirmation message
-                    Swal.fire({
-                        icon: 'info',
-                        title: 'Semua Data Dipilih',
-                        html: `Semua mahasiswa di semua halaman akan dipilih.<br><small>Total: ${allSelectedIds.size} mahasiswa</small><br>Klik lagi untuk batal pilih semua.`,
-                        timer: 3000,
-                        timerProgressBar: true,
-                        showConfirmButton: false
-                    });
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Semua Data Dipilih',
+                            html: `Semua mahasiswa hasil filter di semua halaman akan dipilih.<br><small>Total: ${allSelectedIds.size} mahasiswa</small><br>Klik lagi untuk batal pilih semua.`,
+                            timer: 3000,
+                            timerProgressBar: true,
+                            showConfirmButton: false
+                        });
+                    } catch (error) {
+                        Swal.close();
+                        isSelectAllActive = false;
+                        allSelectedIds.clear();
+                        $('#selectAll').prop('checked', false);
+                        updateSelectAllStatus();
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal',
+                            text: 'Tidak dapat memuat seluruh mahasiswa hasil filter.'
+                        });
+                    }
                 } else {
                     // Deactivate selectAll mode
                     isSelectAllActive = false;
@@ -528,22 +582,15 @@
             $('#form-dosen-wali').on('submit', function (e) {
                 e.preventDefault();
 
-                // If selectAll is active, add all selected IDs to hidden inputs
-                if (isSelectAllActive && allSelectedIds.size > 0) {
-                    // Remove existing mahasiswa_ids inputs
-                    $('input[name="mahasiswa_ids[]"]').remove();
+                $('input[name="mahasiswa_ids[]"]').remove();
 
-                    // Add hidden inputs for all selected IDs
-                    var form = $(this);
-                    allSelectedIds.forEach(function (id) {
-                        form.append('<input type="hidden" name="mahasiswa_ids[]" value="' + id +
-                            '">');
-                    });
-                }
+                var form = $(this);
+                allSelectedIds.forEach(function (id) {
+                    form.append('<input type="hidden" name="mahasiswa_ids[]" value="' + id + '">');
+                });
 
                 // Check if at least one mahasiswa is selected
-                var mahasiswaChecked = isSelectAllActive ? allSelectedIds.size : $(
-                    'input[name="mahasiswa_ids[]"]:checked').length;
+                var mahasiswaChecked = allSelectedIds.size;
 
                 if (mahasiswaChecked === 0) {
                     Swal.fire({

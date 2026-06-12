@@ -293,20 +293,51 @@
                     <div class="card-header">
                         <div class="fs-4 fw-semibold d-flex justify-content-between align-items-center">
                             <h4 class="card-title mb-0">Mahasiswa Bimbingan</h4>
-                            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                                data-bs-target="#addMahasiswaModal">
-                                <i class="fas fa-plus me-1"></i> Tambah Mahasiswa
-                            </button>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-danger btn-sm" id="btnRemoveSelected" disabled>
+                                    <i class="fas fa-trash me-1"></i> Hapus Terpilih
+                                </button>
+                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                                    data-bs-target="#addMahasiswaModal">
+                                    <i class="fas fa-plus me-1"></i> Tambah Mahasiswa
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <div class="card-body">
                         <div id="mahasiswaLoader" class="loader-overlay hidden">
                             <div class="loader-spinner"></div>
                         </div>
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-3">
+                                <label for="filterMahasiswaNama" class="form-label">Filter Nama</label>
+                                <input type="text" id="filterMahasiswaNama" class="form-control"
+                                    placeholder="Cari nama mahasiswa">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="filterMahasiswaNim" class="form-label">Filter NIM</label>
+                                <input type="text" id="filterMahasiswaNim" class="form-control"
+                                    placeholder="Cari NIM">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="filterMahasiswaProdi" class="form-label">Filter Program Studi</label>
+                                <select id="filterMahasiswaProdi" class="form-select">
+                                    <option value="">Semua Program Studi</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="filterMahasiswaAngkatan" class="form-label">Filter Angkatan</label>
+                                <input type="text" id="filterMahasiswaAngkatan" class="form-control"
+                                    placeholder="Contoh: 2023">
+                            </div>
+                        </div>
                         <div class="table-responsive">
-                            <table class="table table-bordered table-striped table-hover">
+                            <table class="table table-bordered table-striped table-hover" id="mahasiswaBimbinganTable">
                                 <thead class="table-light">
                                     <tr>
+                                        <th width="5%" class="text-center">
+                                            <input type="checkbox" id="selectAllBimbinganPage" class="form-check-input">
+                                        </th>
                                         <th width="5%" class="text-center">No</th>
                                         <th width="20%">Nama Mahasiswa</th>
                                         <th width="15%">NIM</th>
@@ -315,34 +346,7 @@
                                         <th width="10%" class="text-center">Aksi</th>
                                     </tr>
                                 </thead>
-                                <tbody id="mahasiswa_tbody">
-                                    @if (isset($dosenWali['mahasiswa']) && count($dosenWali['mahasiswa']) > 0)
-                                        @foreach ($dosenWali['mahasiswa'] as $index => $mahasiswa)
-                                            <tr>
-                                                <td class="text-center">{{ $index + 1 }}</td>
-                                                <td>{{ $mahasiswa['nama_mahasiswa'] ?? '' }}</td>
-                                                <td>{{ $mahasiswa['nim'] ?? '' }}</td>
-                                                <td>{{ $mahasiswa['prodi'] ?? '' }}</td>
-                                                <td>{{ $mahasiswa['angkatan'] ?? '' }}</td>
-                                                <td class="text-center">
-                                                    <button type="button"
-                                                        class="btn btn-danger btn-sm btn-remove-mahasiswa"
-                                                        data-id="{{ $mahasiswa['id'] }}"
-                                                        data-nama="{{ $mahasiswa['nama_mahasiswa'] ?? '' }}">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    @else
-                                        <tr>
-                                            <td colspan="6" class="text-center text-muted">
-                                                <i class="fas fa-inbox fa-2x mb-2"></i>
-                                                <p>Belum ada mahasiswa bimbingan</p>
-                                            </td>
-                                        </tr>
-                                    @endif
-                                </tbody>
+                                <tbody id="mahasiswa_tbody"></tbody>
                             </table>
                         </div>
                     </div>
@@ -471,9 +475,16 @@
 
 @push('scripts-custom')
     {{-- <script src="{{ asset('') }}template/assets/js/core/jquery-3.7.1.min.js"></script> --}}
+    <script src="{{ asset('template/assets/js/plugin/datatables/datatables.min.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         $(document).ready(function() {
+            let selectedMahasiswaIds = new Set();
+            let isSelectAllSearchActive = false;
+            let mahasiswaBimbinganTable = null;
+            let mahasiswaBimbinganData = @json($dosenWali['mahasiswa'] ?? []);
+            let selectedBimbinganIds = new Set();
+
             // Initialize select2
             $('.select2').select2({
                 placeholder: 'Pilih Dosen Wali',
@@ -485,6 +496,138 @@
             const currentDosenId = $('#dosenWaliId').val();
             if (currentDosenId) {
                 $('#id_dosen').val(currentDosenId).trigger('change');
+            }
+
+            function buildSearchMahasiswaParams(page = 1, perPage = 15) {
+                return {
+                    nama: $('#search_nama').val(),
+                    angkatan: $('#search_angkatan').val(),
+                    id_prodi: $('#search_prodi').val(),
+                    page: page,
+                    per_page: perPage
+                };
+            }
+
+            async function fetchAllSearchMahasiswaIds() {
+                const firstResponse = await $.ajax({
+                    url: "{{ route('dosen-wali.search-mahasiswa') }}",
+                    method: 'GET',
+                    data: buildSearchMahasiswaParams(1, 100)
+                });
+
+                let ids = (firstResponse.data || []).map(item => item.id);
+                const meta = firstResponse.meta || {};
+                const lastPage = Number(meta.last_page || 1);
+
+                for (let page = 2; page <= lastPage; page++) {
+                    const response = await $.ajax({
+                        url: "{{ route('dosen-wali.search-mahasiswa') }}",
+                        method: 'GET',
+                        data: buildSearchMahasiswaParams(page, 100)
+                    });
+                    ids = ids.concat((response.data || []).map(item => item.id));
+                }
+
+                return [...new Set(ids)];
+            }
+
+            function syncBimbinganSelectionUI() {
+                $('#btnRemoveSelected').prop('disabled', selectedBimbinganIds.size === 0);
+            }
+
+            function syncSelectAllBimbinganPageState() {
+                if (!mahasiswaBimbinganTable) {
+                    return;
+                }
+
+                const rows = mahasiswaBimbinganTable.rows({ search: 'applied' }).data().toArray();
+                const ids = rows.map(row => row.id);
+                const checkedCount = ids.filter(id => selectedBimbinganIds.has(id)).length;
+
+                $('#selectAllBimbinganPage')
+                    .prop('checked', ids.length > 0 && checkedCount === ids.length)
+                    .prop('indeterminate', checkedCount > 0 && checkedCount < ids.length);
+            }
+
+            function syncBimbinganCheckboxesOnCurrentDraw() {
+                $('.bimbingan-checkbox').each(function() {
+                    const id = $(this).val();
+                    $(this).prop('checked', selectedBimbinganIds.has(id));
+                });
+            }
+
+            function escapeRegExp(value) {
+                return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            }
+
+            function populateMahasiswaProdiFilter(items = []) {
+                const select = $('#filterMahasiswaProdi');
+                const values = [...new Set((items || []).map(item => item.prodi).filter(Boolean))]
+                    .sort((a, b) => String(a).localeCompare(String(b), 'id'));
+
+                const currentValue = select.val();
+                const options = values
+                    .map(value => `<option value="${$('<div>').text(value).html()}">${$('<div>').text(value).html()}</option>`)
+                    .join('');
+
+                select.html('<option value="">Semua Program Studi</option>' + options);
+
+                if (currentValue && values.includes(currentValue)) {
+                    select.val(currentValue);
+                }
+            }
+
+            function initMahasiswaBimbinganTable(items = []) {
+                mahasiswaBimbinganData = items;
+                populateMahasiswaProdiFilter(items);
+
+                if (mahasiswaBimbinganTable) {
+                    mahasiswaBimbinganTable.destroy();
+                }
+
+                $('#mahasiswa_tbody').empty();
+
+                mahasiswaBimbinganTable = $('#mahasiswaBimbinganTable').DataTable({
+                    data: mahasiswaBimbinganData,
+                    columns: [{
+                            data: null,
+                            orderable: false,
+                            searchable: false,
+                            className: 'text-center',
+                            render: row => `<input type="checkbox" class="form-check-input bimbingan-checkbox" value="${row.id}" ${selectedBimbinganIds.has(row.id) ? 'checked' : ''}>`
+                        },
+                        {
+                            data: null,
+                            render: (data, type, row, meta) => meta.row + meta.settings._iDisplayStart + 1
+                        },
+                        { data: 'nama_mahasiswa', defaultContent: '-' },
+                        { data: 'nim', defaultContent: '-' },
+                        { data: 'prodi', defaultContent: '-' },
+                        { data: 'angkatan', defaultContent: '-' },
+                        {
+                            data: null,
+                            orderable: false,
+                            searchable: false,
+                            className: 'text-center',
+                            render: row => `
+                                <button type="button"
+                                    class="btn btn-danger btn-sm btn-remove-mahasiswa"
+                                    data-id="${row.id}"
+                                    data-nama="${row.nama_mahasiswa || ''}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            `
+                        }
+                    ],
+                    language: {
+                        url: '{{ asset('template/assets/js/plugin/datatables/i18n/id.json ') }}'
+                    },
+                    drawCallback: function() {
+                        syncBimbinganCheckboxesOnCurrentDraw();
+                        syncSelectAllBimbinganPageState();
+                        syncBimbinganSelectionUI();
+                    }
+                });
             }
 
             // Function to refresh dosen wali info
@@ -521,7 +664,7 @@
                         $('#total_bimbingan').val(data.total_bimbingan || 0);
 
                         // Update mahasiswa table
-                        updateMahasiswaTable(data.mahasiswa || []);
+                        initMahasiswaBimbinganTable(data.mahasiswa || []);
 
                         $('#dosenLoader').addClass('hidden');
                     },
@@ -534,43 +677,6 @@
                         });
                     }
                 });
-            }
-
-            // Function to update mahasiswa table
-            function updateMahasiswaTable(mahasiswaList) {
-                const tbody = $('#mahasiswa_tbody');
-                tbody.empty();
-
-                if (mahasiswaList.length === 0) {
-                    tbody.append(`
-                        <tr>
-                            <td colspan="6" class="text-center text-muted">
-                                <i class="fas fa-inbox fa-2x mb-2"></i>
-                                <p>Belum ada mahasiswa bimbingan</p>
-                            </td>
-                        </tr>
-                    `);
-                } else {
-                    mahasiswaList.forEach(function(mahasiswa, index) {
-                        tbody.append(`
-                            <tr>
-                                <td class="text-center">${index + 1}</td>
-                                <td>${mahasiswa.nama_mahasiswa || ''}</td>
-                                <td>${mahasiswa.nim || ''}</td>
-                                <td>${mahasiswa.prodi || ''}</td>
-                                <td>${mahasiswa.angkatan || ''}</td>
-                                <td class="text-center">
-                                    <button type="button"
-                                        class="btn btn-danger btn-sm btn-remove-mahasiswa"
-                                        data-id="${mahasiswa.id}"
-                                        data-nama="${mahasiswa.nama_mahasiswa || ''}">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        `);
-                    });
-                }
             }
 
             // Handle update dosen wali
@@ -789,16 +895,148 @@
                 });
             });
 
+            $('#filterMahasiswaNama').on('keyup', function() {
+                mahasiswaBimbinganTable?.column(2).search(this.value).draw();
+            });
+
+            $('#filterMahasiswaNim').on('keyup', function() {
+                mahasiswaBimbinganTable?.column(3).search(this.value).draw();
+            });
+
+            $('#filterMahasiswaProdi').on('change', function() {
+                const value = this.value;
+                mahasiswaBimbinganTable?.column(4).search(value ? '^' + escapeRegExp(value) + '$' : '', true, false).draw();
+            });
+
+            $('#filterMahasiswaAngkatan').on('keyup', function() {
+                mahasiswaBimbinganTable?.column(5).search(this.value).draw();
+            });
+
+            $(document).on('change', '.bimbingan-checkbox', function() {
+                const id = $(this).val();
+
+                if ($(this).is(':checked')) {
+                    selectedBimbinganIds.add(id);
+                } else {
+                    selectedBimbinganIds.delete(id);
+                }
+
+                syncSelectAllBimbinganPageState();
+                syncBimbinganSelectionUI();
+            });
+
+            $('#selectAllBimbinganPage').on('change', function() {
+                if (!mahasiswaBimbinganTable) {
+                    return;
+                }
+
+                const isChecked = $(this).is(':checked');
+                const rows = mahasiswaBimbinganTable.rows({ search: 'applied' }).data().toArray();
+
+                rows.forEach(row => {
+                    if (isChecked) {
+                        selectedBimbinganIds.add(row.id);
+                    } else {
+                        selectedBimbinganIds.delete(row.id);
+                    }
+                });
+
+                $('.bimbingan-checkbox').prop('checked', isChecked);
+                syncSelectAllBimbinganPageState();
+                syncBimbinganSelectionUI();
+            });
+
+            $('#btnRemoveSelected').on('click', function(e) {
+                e.preventDefault();
+
+                const dosenWaliId = $('#dosenWaliId').val();
+                const mahasiswaIds = Array.from(selectedBimbinganIds);
+
+                if (mahasiswaIds.length === 0) {
+                    Swal.fire({
+                        title: 'Informasi!',
+                        text: 'Pilih minimal satu mahasiswa untuk dihapus.',
+                        icon: 'info'
+                    });
+                    return;
+                }
+
+                const btn = $(this);
+
+                Swal.fire({
+                    title: 'Konfirmasi Hapus Terpilih',
+                    html: `Apakah Anda yakin ingin menghapus <strong>${mahasiswaIds.length} mahasiswa</strong> terpilih dari daftar bimbingan?`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Ya, Hapus!',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (!result.isConfirmed) {
+                        return;
+                    }
+
+                    $('#mahasiswaLoader').removeClass('hidden');
+                    btn.prop('disabled', true);
+
+                    $.ajax({
+                        url: "{{ route('dosen-wali.remove') }}",
+                        method: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            id_dosen: dosenWaliId,
+                            id_mahasiswa: mahasiswaIds
+                        },
+                        success: function(response) {
+                            $('#mahasiswaLoader').addClass('hidden');
+                            btn.prop('disabled', false);
+
+                            if (response.success) {
+                                selectedBimbinganIds.clear();
+                                syncBimbinganSelectionUI();
+
+                                Swal.fire({
+                                    title: 'Berhasil!',
+                                    text: 'Mahasiswa terpilih berhasil dihapus dari daftar bimbingan.',
+                                    icon: 'success',
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                }).then(() => {
+                                    refreshDosenWaliInfo();
+                                });
+                            } else {
+                                Swal.fire({
+                                    title: 'Gagal!',
+                                    text: response.message || 'Terjadi kesalahan saat menghapus mahasiswa terpilih.',
+                                    icon: 'error'
+                                });
+                            }
+                        },
+                        error: function(xhr) {
+                            $('#mahasiswaLoader').addClass('hidden');
+                            btn.prop('disabled', false);
+
+                            Swal.fire({
+                                title: 'Error!',
+                                text: xhr.responseJSON?.message || 'Terjadi kesalahan saat menghapus mahasiswa terpilih.',
+                                icon: 'error'
+                            });
+                        }
+                    });
+                });
+            });
+
             // Handle remove all mahasiswa
             $('#btnRemoveAll').on('click', function(e) {
                 e.preventDefault();
 
                 const dosenWaliId = $('#dosenWaliId').val();
-                const mahasiswaRows = $('#mahasiswa_tbody tr');
-                const mahasiswaCount = mahasiswaRows.length;
+                const mahasiswaIds = mahasiswaBimbinganData.map(item => item.id);
+                const mahasiswaCount = mahasiswaIds.length;
 
                 // Check if there are any mahasiswa to remove
-                if (mahasiswaCount === 0 || mahasiswaRows.find('td[colspan]').length > 0) {
+                if (mahasiswaCount === 0) {
                     Swal.fire({
                         title: 'Informasi!',
                         text: 'Tidak ada mahasiswa bimbingan untuk dihapus.',
@@ -806,15 +1044,6 @@
                     });
                     return;
                 }
-
-                // Get all mahasiswa IDs
-                const mahasiswaIds = [];
-                mahasiswaRows.each(function() {
-                    const removeBtn = $(this).find('.btn-remove-mahasiswa');
-                    if (removeBtn.length > 0) {
-                        mahasiswaIds.push(removeBtn.data('id'));
-                    }
-                });
 
                 Swal.fire({
                     title: 'Konfirmasi Hapus Semua',
@@ -853,6 +1082,7 @@
                                         timer: 2000,
                                         showConfirmButton: false
                                     }).then(() => {
+                                        selectedBimbinganIds.clear();
                                         // Refresh data without full reload
                                         // refreshDosenWaliInfo();
                                         window.location.href =
@@ -896,13 +1126,7 @@
 
             // Function to search mahasiswa
             function searchMahasiswa(page = 1) {
-                const searchParams = {
-                    nama: $('#search_nama').val(),
-                    angkatan: $('#search_angkatan').val(),
-                    id_prodi: $('#search_prodi').val(),
-                    page: page,
-                    per_page: 15
-                };
+                const searchParams = buildSearchMahasiswaParams(page, 15);
 
                 // Show loading in search results
                 $('#searchResults').html(`
@@ -1000,7 +1224,8 @@
                                         <input type="checkbox" class="form-check-input mahasiswa-checkbox"
                                                value="${mahasiswa.id}"
                                                data-nama="${namaMahasiswa}"
-                                               data-nim="${nim}">
+                                               data-nim="${nim}"
+                                               ${selectedMahasiswaIds.has(mahasiswa.id) ? 'checked' : ''}>
                                     </div>
                                 </td>
                                 <td>
@@ -1114,18 +1339,67 @@
                 }
 
                 $('#searchResults').html(html);
+                if (isSelectAllSearchActive) {
+                    $('.mahasiswa-checkbox').prop('checked', true);
+                }
                 updateAssignButton();
+                updateSelectAllCheckbox();
             }
 
             // Handle select all checkbox
-            $(document).on('change', '#selectAll', function() {
+            $(document).on('change', '#selectAll', async function() {
                 const isChecked = $(this).is(':checked');
-                $('.mahasiswa-checkbox').prop('checked', isChecked);
+
+                if (isChecked) {
+                    try {
+                        Swal.fire({
+                            title: 'Memuat semua mahasiswa...',
+                            text: 'Sedang menyiapkan pilihan lintas semua halaman.',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            didOpen: () => Swal.showLoading()
+                        });
+
+                        const allIds = await fetchAllSearchMahasiswaIds();
+                        Swal.close();
+
+                        isSelectAllSearchActive = true;
+                        selectedMahasiswaIds = new Set(allIds);
+                        $('.mahasiswa-checkbox').prop('checked', true);
+                    } catch (error) {
+                        Swal.close();
+                        isSelectAllSearchActive = false;
+                        selectedMahasiswaIds.clear();
+                        $('#selectAll').prop('checked', false);
+                        Swal.fire({
+                            title: 'Gagal!',
+                            text: 'Tidak dapat memuat seluruh mahasiswa hasil filter.',
+                            icon: 'error'
+                        });
+                    }
+                } else {
+                    isSelectAllSearchActive = false;
+                    selectedMahasiswaIds.clear();
+                    $('.mahasiswa-checkbox').prop('checked', false);
+                }
+
                 updateAssignButton();
+                updateSelectAllCheckbox();
             });
 
             // Handle individual checkbox changes
             $(document).on('change', '.mahasiswa-checkbox', function() {
+                const id = $(this).val();
+
+                if ($(this).is(':checked')) {
+                    selectedMahasiswaIds.add(id);
+                } else {
+                    selectedMahasiswaIds.delete(id);
+                    if (isSelectAllSearchActive) {
+                        isSelectAllSearchActive = false;
+                    }
+                }
+
                 updateAssignButton();
                 updateSelectAllCheckbox();
             });
@@ -1141,7 +1415,7 @@
 
             // Function to update assign button state
             function updateAssignButton() {
-                const checkedCount = $('.mahasiswa-checkbox:checked').length;
+                const checkedCount = selectedMahasiswaIds.size;
                 $('#btnAssignSelected').prop('disabled', checkedCount === 0);
 
                 if (checkedCount > 0) {
@@ -1158,15 +1432,12 @@
             function updateSelectAllCheckbox() {
                 const totalCheckboxes = $('.mahasiswa-checkbox').length;
                 const checkedCheckboxes = $('.mahasiswa-checkbox:checked').length;
-                $('#selectAll').prop('checked', totalCheckboxes > 0 && totalCheckboxes === checkedCheckboxes);
+                $('#selectAll').prop('checked', totalCheckboxes > 0 && checkedCheckboxes === totalCheckboxes);
             }
 
             // Handle assign selected mahasiswa
             $('#btnAssignSelected').on('click', function() {
-                const selectedMahasiswa = [];
-                $('.mahasiswa-checkbox:checked').each(function() {
-                    selectedMahasiswa.push($(this).val());
-                });
+                const selectedMahasiswa = Array.from(selectedMahasiswaIds);
 
                 if (selectedMahasiswa.length === 0) {
                     Swal.fire({
@@ -1253,9 +1524,7 @@
                 const checkbox = $(`.mahasiswa-checkbox[value="${mahasiswaId}"]`);
 
                 // Toggle checkbox
-                checkbox.prop('checked', !checkbox.prop('checked'));
-                updateAssignButton();
-                updateSelectAllCheckbox();
+                checkbox.prop('checked', !checkbox.prop('checked')).trigger('change');
 
                 // Visual feedback
                 const row = btn.closest('tr');
@@ -1289,6 +1558,8 @@
 
             // Reset modal when hidden
             $('#addMahasiswaModal').on('hidden.bs.modal', function() {
+                selectedMahasiswaIds.clear();
+                isSelectAllSearchActive = false;
                 $('#form-search-mahasiswa')[0].reset();
                 $('#search_prodi').val('').trigger('change');
                 $('#searchResults').html(`
@@ -1303,6 +1574,9 @@
                 $('#btnAssignSelected').prop('disabled', true);
                 $('#selectedCount').addClass('d-none');
             });
+
+            initMahasiswaBimbinganTable(mahasiswaBimbinganData);
+            syncBimbinganSelectionUI();
         });
     </script>
 @endpush

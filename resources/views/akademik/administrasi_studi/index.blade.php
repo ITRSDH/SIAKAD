@@ -1452,7 +1452,7 @@
                             <div class="small text-muted">
                                 <div><strong>Induk:</strong> ${escapeHtml(formatKurikulumIndukLabel(row.kurikulum_context?.kurikulum_induk))}</div>
                             </div>
-                            <div class="small text-muted">${escapeHtml(row.nama_kelas ?? 'Kelas')} • ${escapeHtml(row.nama_struktur_operasional ?? row.nama_kurikulum ?? 'Struktur Operasional')} • Semester ${row.semester_ke ?? '-'}</div>
+                            <div class="small text-muted">${escapeHtml(row.nama_kelas ?? 'Kelas')} • ${escapeHtml(row.kurikulum_context?.struktur_operasional?.nama_struktur_mk ?? row.nama_struktur_operasional ?? row.nama_kurikulum ?? 'Struktur Operasional')} • Semester ${row.semester_ke ?? '-'}</div>
                         </div>
                         <span class="badge bg-light text-dark">${row.mata_kuliah?.sks ?? 0} SKS</span>
                     </div>
@@ -1509,7 +1509,7 @@
                             <div class="fw-semibold">${escapeHtml(row.nama_mahasiswa)}</div>
                             <div class="small text-muted mt-1">
                                 <div><strong>Induk:</strong> ${escapeHtml(formatKurikulumIndukLabel(row.kurikulum_context?.kurikulum_induk))}</div>
-                                <div><strong>Operasional:</strong> ${escapeHtml(row.kurikulum_context?.struktur_operasional?.nama_struktur_mk ?? '-')}</div>
+                                <div><strong>Operasional:</strong> ${escapeHtml(row.kurikulum_context?.struktur_operasional?.nama_struktur_mk ?? row.nama_struktur_operasional ?? row.nama_kurikulum ?? '-')}</div>
                             </div>
                             <div class="small text-muted">${escapeHtml(row.nim)}${row.prodi?.nama_prodi ? ' • ' + escapeHtml(row.prodi.nama_prodi) : ''}</div>
                             <div class="small text-muted mt-1">${escapeHtml(row.message ?? '')}</div>

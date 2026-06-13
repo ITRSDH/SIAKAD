@@ -34,6 +34,28 @@
     $canRollbackImport = ($batch['source'] ?? '') === 'import' && $status === 'processed';
     $historicalFilters = $batch['filters'] ?? [];
     $historicalItems = collect($batch['items'] ?? []);
+    $normalizeRouteParam = function ($value): ?string {
+        if (is_scalar($value) || $value instanceof \Stringable) {
+            $value = trim((string) $value);
+
+            return $value !== '' ? $value : null;
+        }
+
+        if (is_array($value)) {
+            foreach (['id', 'value', 'uuid'] as $key) {
+                if (isset($value[$key]) && (is_scalar($value[$key]) || $value[$key] instanceof \Stringable)) {
+                    $candidate = trim((string) $value[$key]);
+
+                    if ($candidate !== '') {
+                        return $candidate;
+                    }
+                }
+            }
+        }
+
+        return null;
+    };
+    $batchId = $normalizeRouteParam($batch['id'] ?? null);
 @endphp
 
 @push('styles-custom')
@@ -439,30 +461,32 @@
                                         </div>
                                     </div>
                                     <div class="d-flex flex-wrap gap-2">
-                                        <a href="{{ route('akademik.administrasi-studi.import.preview', $batch['id']) }}"
-                                            class="btn btn-primary btn-sm">
-                                            Buka Hasil Pengecekan
-                                        </a>
+                                        @if ($batchId)
+                                            <a href="{{ route('akademik.administrasi-studi.import.preview', $batchId) }}"
+                                                class="btn btn-primary btn-sm">
+                                                Buka Hasil Pengecekan
+                                            </a>
+                                        @endif
                                     </div>
                                 </div>
 
                                 <div class="d-flex flex-wrap gap-2 mt-3">
-                                    @if ($canProcessImport)
-                                        <form method="POST" action="{{ route('akademik.administrasi-studi.import.process', $batch['id']) }}">
+                                    @if ($canProcessImport && $batchId)
+                                        <form method="POST" action="{{ route('akademik.administrasi-studi.import.process', $batchId) }}">
                                             @csrf
                                             <button type="submit" class="btn btn-primary btn-sm" onclick="return confirm('Simpan nilai dari hasil pengecekan ini sekarang?')">
                                                 <i class="fas fa-play me-1"></i> Proses Import
                                             </button>
                                         </form>
                                     @endif
-                                    @if ($canFinalizeImport)
-                                        <a href="{{ route('akademik.khs.import.preview', ['batch' => $batch['id'], 'legacy' => 1]) }}"
+                                    @if ($canFinalizeImport && $batchId)
+                                        <a href="{{ route('akademik.khs.import.preview', ['batch' => $batchId, 'legacy' => 1]) }}"
                                             class="btn btn-success btn-sm">
                                             <i class="fas fa-list-check me-1"></i> Pilih Finalisasi KHS
                                         </a>
                                     @endif
-                                    @if ($canRollbackImport)
-                                        <form method="POST" action="{{ route('akademik.administrasi-studi.import.rollback', $batch['id']) }}">
+                                    @if ($canRollbackImport && $batchId)
+                                        <form method="POST" action="{{ route('akademik.administrasi-studi.import.rollback', $batchId) }}">
                                             @csrf
                                             <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Batalkan hasil proses ini sekarang?')">
                                                 <i class="fas fa-rotate-left me-1"></i> Rollback

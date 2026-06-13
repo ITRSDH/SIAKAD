@@ -23,6 +23,27 @@
         'failed' => 'Gagal Diproses',
         'rolled_back' => 'Sudah Dibatalkan',
     ];
+    $normalizeRouteParam = function ($value): ?string {
+        if (is_scalar($value) || $value instanceof \Stringable) {
+            $value = trim((string) $value);
+
+            return $value !== '' ? $value : null;
+        }
+
+        if (is_array($value)) {
+            foreach (['id', 'value', 'uuid'] as $key) {
+                if (isset($value[$key]) && (is_scalar($value[$key]) || $value[$key] instanceof \Stringable)) {
+                    $candidate = trim((string) $value[$key]);
+
+                    if ($candidate !== '') {
+                        return $candidate;
+                    }
+                }
+            }
+        }
+
+        return null;
+    };
 @endphp
 
 @push('styles-custom')
@@ -219,6 +240,10 @@
                         </thead>
                         <tbody>
                             @forelse ($batches as $batch)
+                                @php
+                                    $batchSource = $normalizeRouteParam($batch['source'] ?? null);
+                                    $batchId = $normalizeRouteParam($batch['id'] ?? null);
+                                @endphp
                                 <tr>
                                     <td>{{ $formatDateTime($batch['executed_at'] ?? null) }}</td>
                                     <td>
@@ -242,10 +267,14 @@
                                         @endif
                                     </td>
                                     <td class="text-nowrap">
-                                        <a href="{{ route('akademik.administrasi-studi.batches.show', ['source' => $batch['source'], 'id' => $batch['id']]) }}"
-                                            class="btn btn-outline-primary btn-sm">
-                                            Lihat Ringkasan
-                                        </a>
+                                        @if ($batchSource && $batchId)
+                                            <a href="{{ route('akademik.administrasi-studi.batches.show', ['source' => $batchSource, 'id' => $batchId]) }}"
+                                                class="btn btn-outline-primary btn-sm">
+                                                Lihat Ringkasan
+                                            </a>
+                                        @else
+                                            <span class="text-muted small">ID proses tidak valid</span>
+                                        @endif
                                     </td>
                                 </tr>
                             @empty

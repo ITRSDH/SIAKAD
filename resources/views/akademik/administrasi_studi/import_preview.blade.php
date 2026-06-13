@@ -19,6 +19,28 @@
         'failed' => 'Gagal Diproses',
         'rolled_back' => 'Sudah Dibatalkan',
     ];
+    $normalizeRouteParam = function ($value): ?string {
+        if (is_scalar($value) || $value instanceof \Stringable) {
+            $value = trim((string) $value);
+
+            return $value !== '' ? $value : null;
+        }
+
+        if (is_array($value)) {
+            foreach (['id', 'value', 'uuid'] as $key) {
+                if (isset($value[$key]) && (is_scalar($value[$key]) || $value[$key] instanceof \Stringable)) {
+                    $candidate = trim((string) $value[$key]);
+
+                    if ($candidate !== '') {
+                        return $candidate;
+                    }
+                }
+            }
+        }
+
+        return null;
+    };
+    $batchId = $normalizeRouteParam($batch['id'] ?? null);
     $formatDateTime = function ($value) {
         if (!$value) {
             return '-';
@@ -135,7 +157,7 @@
                 <li class="separator"><i class="icon-arrow-right"></i></li>
                 <li class="nav-item"><a href="{{ route('akademik.administrasi-studi.index', ['tab' => 'import']) }}">Administrasi Studi Mahasiswa</a></li>
                 <li class="separator"><i class="icon-arrow-right"></i></li>
-                <li class="nav-item"><a href="{{ route('akademik.administrasi-studi.import.preview', $batch['id'] ?? '') }}">Hasil Pengecekan</a></li>
+                <li class="nav-item"><a href="{{ $batchId ? route('akademik.administrasi-studi.import.preview', $batchId) : '#' }}">Hasil Pengecekan</a></li>
             </ul>
         </div>
 
@@ -213,8 +235,8 @@
                         <div class="study-import-row">
                             <div class="fw-semibold mb-2">Langkah berikutnya</div>
                             <div class="d-flex flex-wrap gap-2">
-                                @if ($canProcess)
-                                    <form method="POST" action="{{ route('akademik.administrasi-studi.import.process', $batch['id']) }}">
+                                @if ($canProcess && $batchId)
+                                    <form method="POST" action="{{ route('akademik.administrasi-studi.import.process', $batchId) }}">
                                         @csrf
                                         <button type="submit" class="btn btn-primary" onclick="return confirm('Simpan nilai dari file ini sekarang dan lanjutkan membuat KHS?')">
                                             <i class="fas fa-play me-1"></i> Proses Import
@@ -222,13 +244,13 @@
                                     </form>
                                 @endif
 
-                                @if ($batchStatus === 'processed')
-                                    <a href="{{ route('akademik.khs.import.preview', ['batch' => $batch['id'], 'legacy' => 1]) }}"
+                                @if ($batchStatus === 'processed' && $batchId)
+                                    <a href="{{ route('akademik.khs.import.preview', ['batch' => $batchId, 'legacy' => 1]) }}"
                                         class="btn btn-success">
                                         <i class="fas fa-list-check me-1"></i> Pilih Finalisasi KHS
                                     </a>
 
-                                    <form method="POST" action="{{ route('akademik.administrasi-studi.import.rollback', $batch['id']) }}">
+                                    <form method="POST" action="{{ route('akademik.administrasi-studi.import.rollback', $batchId) }}">
                                         @csrf
                                         <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Batalkan hasil proses ini sekarang?')">
                                             <i class="fas fa-rotate-left me-1"></i> Rollback

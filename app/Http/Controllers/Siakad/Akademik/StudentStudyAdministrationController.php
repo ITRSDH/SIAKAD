@@ -512,19 +512,11 @@ class StudentStudyAdministrationController extends Controller
             return [];
         }
 
-        $items = collect($payload)
+        return collect($payload)
             ->map(fn ($item) => $this->normalizeBatchListItem($item))
             ->filter(fn ($item) => is_array($item))
             ->values()
             ->all();
-
-        if (empty($items) && !empty($payload)) {
-            Log::warning('Administrasi studi batch history tidak memiliki item valid.', [
-                'payload_sample' => array_slice($payload, 0, 3),
-            ]);
-        }
-
-        return $items;
     }
 
     private function normalizeBatchDetailPayload(mixed $payload): array

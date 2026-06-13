@@ -3,10 +3,17 @@
     <div class="sidebar-logo">
         <!-- Logo Header -->
         <div class="logo-header" data-background-color="dark">
-            <a href="index.html" class="logo text-section">
+            <a href="#" class="logo text-section">
                 {{-- <img src="{{ asset('') }}template/assets/img/kaiadmin/logo_light.svg" alt="navbar brand"
                     class="navbar-brand" height="20" /> --}}
-                <span style="color: #ffffff; text-shadow: 0 0 2px white;">STIKES DIAN HUSADA</span>
+                <span style="display: inline-flex; align-items: center; gap: 9px; max-width: 100%;">
+                    <img src="{{ asset('logo.png') }}" alt="Logo STIKES Dian Husada"
+                        style="width: 36px; height: 36px; object-fit: contain; flex-shrink: 0;">
+                    <span
+                        style="color: #ffffff; text-shadow: 0 0 2px white; font-size: 14px; font-weight: 600; line-height: 1.15; white-space: normal;">
+                        STIKES DIAN HUSADA
+                    </span>
+                </span>
             </a>
             <div class="nav-toggle">
                 <button class="btn btn-toggle toggle-sidebar">

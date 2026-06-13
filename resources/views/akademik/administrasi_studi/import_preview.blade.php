@@ -8,8 +8,11 @@
     $semester = $batch['semester'] ?? [];
     $tahun = $semester['tahun_akademik']['tahun_akademik'] ?? ($semester['tahunAkademik']['tahun_akademik'] ?? '');
     $semesterLabel = trim((string) (($semester['nama_semester'] ?? '-') . ' ' . $tahun));
-    $canProcess = ($summary['total_valid'] ?? 0) > 0 && in_array($batchStatus, ['uploaded', 'previewed', 'failed'], true);
-    $processedKhsItems = collect($batch['summary']['processed_khs_items'] ?? [])->values()->all();
+    $canProcess =
+        ($summary['total_valid'] ?? 0) > 0 && in_array($batchStatus, ['uploaded', 'previewed', 'failed'], true);
+    $processedKhsItems = collect($batch['summary']['processed_khs_items'] ?? [])
+        ->values()
+        ->all();
     $processedKhsFinalCount = collect($processedKhsItems)->where('is_final', true)->count();
     $processedKhsDraftCount = max(count($processedKhsItems) - $processedKhsFinalCount, 0);
     $statusLabels = [
@@ -67,29 +70,35 @@
                 linear-gradient(135deg, #0f766e 0%, #1d4ed8 56%, #f59e0b 100%);
             color: #fff;
         }
+
         .study-import-hero .card-body {
             padding: 1.75rem;
         }
+
         .study-import-card {
             border: 1px solid #dbe4f0;
             border-radius: 22px;
             box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
         }
+
         .study-import-card .card-header,
         .study-import-card .card-body {
             padding: 1.35rem 1.5rem;
         }
+
         .study-import-grid {
             display: grid;
             grid-template-columns: repeat(4, minmax(0, 1fr));
             gap: .9rem;
         }
+
         .study-import-stat {
             border: 1px solid #e2e8f0;
             border-radius: 18px;
             background: #fff;
             padding: 1rem;
         }
+
         .study-import-stat .label {
             font-size: .78rem;
             color: #64748b;
@@ -97,49 +106,78 @@
             letter-spacing: .04em;
             margin-bottom: .35rem;
         }
+
         .study-import-stat .value {
             font-size: 1.45rem;
             font-weight: 800;
             line-height: 1;
         }
+
         .study-import-row {
             border: 1px solid #e2e8f0;
             border-radius: 18px;
             background: #fff;
             padding: 1rem;
         }
+
         .study-import-row.error {
             border-color: #fecaca;
             background: #fef2f2;
         }
+
         .study-import-row.warning {
             border-color: #fde68a;
             background: #fffbeb;
         }
+
         .study-import-row.valid {
             border-color: #bbf7d0;
             background: #f0fdf4;
         }
+
+        .study-import-table th,
+        .study-import-table td {
+            vertical-align: middle;
+        }
+
+        .study-import-table thead th {
+            background: #f8fafc;
+            color: #334155;
+            font-size: .82rem;
+            text-transform: uppercase;
+            letter-spacing: .03em;
+        }
+
+        .study-import-table .status-badge {
+            min-width: 92px;
+            display: inline-block;
+            text-align: center;
+        }
+
         .study-step-strip {
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: .9rem;
             margin-top: 1rem;
         }
+
         .study-step-item {
             border-radius: 18px;
             padding: 1rem;
             background: rgba(255, 255, 255, .12);
             border: 1px solid rgba(255, 255, 255, .16);
         }
+
         @media (max-width: 991.98px) {
             .study-import-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
+
             .study-step-strip {
                 grid-template-columns: 1fr;
             }
         }
+
         @media (max-width: 575.98px) {
             .study-import-grid {
                 grid-template-columns: 1fr;
@@ -155,9 +193,13 @@
             <ul class="breadcrumbs mb-3">
                 <li class="nav-home"><a href="{{ url('/') }}"><i class="icon-home"></i></a></li>
                 <li class="separator"><i class="icon-arrow-right"></i></li>
-                <li class="nav-item"><a href="{{ route('akademik.administrasi-studi.index', ['tab' => 'import']) }}">Administrasi Studi Mahasiswa</a></li>
+                <li class="nav-item"><a
+                        href="{{ route('akademik.administrasi-studi.index', ['tab' => 'import']) }}">Administrasi Studi
+                        Mahasiswa</a></li>
                 <li class="separator"><i class="icon-arrow-right"></i></li>
-                <li class="nav-item"><a href="{{ $batchId ? route('akademik.administrasi-studi.import.preview', $batchId) : '#' }}">Hasil Pengecekan</a></li>
+                <li class="nav-item"><a
+                        href="{{ $batchId ? route('akademik.administrasi-studi.import.preview', $batchId) : '#' }}">Hasil
+                        Pengecekan</a></li>
             </ul>
         </div>
 
@@ -174,7 +216,10 @@
                         </p>
                     </div>
                     <div class="col-xl-4 text-xl-end">
-                        @include('layouts.partials.status-badge', ['value' => $batchStatus, 'label' => $statusLabels[$batchStatus] ?? ucfirst(str_replace('_', ' ', $batchStatus))])
+                        @include('layouts.partials.status-badge', [
+                            'value' => $batchStatus,
+                            'label' => $statusLabels[$batchStatus] ?? ucfirst(str_replace('_', ' ', $batchStatus)),
+                        ])
                     </div>
                 </div>
                 <div class="study-step-strip">
@@ -201,7 +246,8 @@
                     <div class="text-muted small">{{ $semesterLabel ?: '-' }}</div>
                 </div>
                 <div class="d-flex flex-wrap gap-2">
-                    <a href="{{ route('akademik.administrasi-studi.index', ['tab' => 'import']) }}" class="btn btn-outline-secondary btn-sm">Kembali ke Import</a>
+                    <a href="{{ route('akademik.administrasi-studi.index', ['tab' => 'import']) }}"
+                        class="btn btn-outline-secondary btn-sm">Kembali ke Import</a>
                 </div>
             </div>
             <div class="card-body">
@@ -226,7 +272,8 @@
 
                 @if (!empty($summary['total_error']) || !empty($summary['total_warning']))
                     <div class="alert alert-light border mt-3 mb-0">
-                        Catatan rinci error dan warning sudah ditampilkan langsung di daftar baris preview di bawah, jadi operator tidak perlu membuka halaman teknis lain.
+                        Catatan rinci error dan warning sudah ditampilkan langsung di daftar baris preview di bawah, jadi
+                        operator tidak perlu membuka halaman teknis lain.
                     </div>
                 @endif
 
@@ -236,12 +283,11 @@
                             <div class="fw-semibold mb-2">Langkah berikutnya</div>
                             <div class="d-flex flex-wrap gap-2">
                                 @if ($canProcess && $batchId)
-                                    <form method="POST" action="{{ route('akademik.administrasi-studi.import.process', $batchId) }}"
-                                        class="study-confirm-form"
-                                        data-confirm-title="Proses import sekarang?"
+                                    <form method="POST"
+                                        action="{{ route('akademik.administrasi-studi.import.process', $batchId) }}"
+                                        class="study-confirm-form" data-confirm-title="Proses import sekarang?"
                                         data-confirm-text="Simpan nilai dari file ini sekarang dan lanjutkan membuat KHS?"
-                                        data-confirm-icon="question"
-                                        data-confirm-button="Ya, proses">
+                                        data-confirm-icon="question" data-confirm-button="Ya, proses">
                                         @csrf
                                         <button type="submit" class="btn btn-primary">
                                             <i class="fas fa-play me-1"></i> Proses Import
@@ -255,11 +301,10 @@
                                         <i class="fas fa-list-check me-1"></i> Pilih Finalisasi KHS
                                     </a>
 
-                                    <form method="POST" action="{{ route('akademik.administrasi-studi.import.rollback', $batchId) }}"
-                                        class="study-confirm-form"
-                                        data-confirm-title="Rollback hasil proses?"
-                                        data-confirm-text="Batalkan hasil proses ini sekarang?"
-                                        data-confirm-icon="warning"
+                                    <form method="POST"
+                                        action="{{ route('akademik.administrasi-studi.import.rollback', $batchId) }}"
+                                        class="study-confirm-form" data-confirm-title="Rollback hasil proses?"
+                                        data-confirm-text="Batalkan hasil proses ini sekarang?" data-confirm-icon="warning"
                                         data-confirm-button="Ya, rollback">
                                         @csrf
                                         <button type="submit" class="btn btn-outline-danger">
@@ -269,17 +314,20 @@
                                 @endif
                             </div>
                             <div class="small text-muted mt-3">
-                                Halaman ini dipakai untuk memastikan hasil prosesnya sudah benar. Jika KHS sudah terbentuk, gunakan tombol finalisasi untuk membuka halaman pilihan finalisasi per mahasiswa.
+                                Halaman ini dipakai untuk memastikan hasil prosesnya sudah benar. Jika KHS sudah terbentuk,
+                                gunakan tombol finalisasi untuk membuka halaman pilihan finalisasi per mahasiswa.
                             </div>
                         </div>
                     </div>
                     <div class="col-lg-5">
                         <div class="study-import-row">
                             <div class="fw-semibold mb-2">Ringkasan hasil proses</div>
-                            <div class="small mb-1">Total KHS hasil proses: <strong>{{ count($processedKhsItems) }}</strong></div>
+                            <div class="small mb-1">Total KHS hasil proses:
+                                <strong>{{ count($processedKhsItems) }}</strong></div>
                             <div class="small mb-1">Belum final: <strong>{{ $processedKhsDraftCount }}</strong></div>
                             <div class="small mb-1">Sudah final: <strong>{{ $processedKhsFinalCount }}</strong></div>
-                            <div class="small text-muted mt-2">Update terakhir: {{ $formatDateTime($batch['processed_at'] ?? $batch['created_at'] ?? null) }}</div>
+                            <div class="small text-muted mt-2">Update terakhir:
+                                {{ $formatDateTime($batch['processed_at'] ?? ($batch['created_at'] ?? null)) }}</div>
                         </div>
                     </div>
                 </div>
@@ -292,12 +340,30 @@
                 <p class="text-muted mb-0">Daftar mata kuliah yang berhasil dibaca dari file nilai.</p>
             </div>
             <div class="card-body">
-                <div class="d-flex flex-wrap gap-2">
-                    @forelse ($subjects as $subject)
-                        <span class="badge bg-light text-dark">{{ $subject['kode_mk'] ?? '-' }}{{ !empty($subject['nama_mk']) ? ' - ' . $subject['nama_mk'] : '' }}</span>
-                    @empty
-                        <div class="text-muted">Belum ada mata kuliah yang terbaca dari file ini.</div>
-                    @endforelse
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped study-import-table" id="subjectReferenceTable">
+                        <thead>
+                            <tr>
+                                <th style="width: 80px;">No</th>
+                                <th style="width: 180px;">Kode MK</th>
+                                <th>Nama Mata Kuliah</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($subjects as $subject)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>{{ $subject['kode_mk'] ?? '-' }}</td>
+                                    <td>{{ $subject['nama_mk'] ?? '-' }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted">Belum ada mata kuliah yang terbaca
+                                        dari file ini.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -308,50 +374,68 @@
                 <p class="text-muted mb-0">Ringkasan setiap baris data setelah file diperiksa oleh sistem.</p>
             </div>
             <div class="card-body">
-                <div class="d-grid gap-3">
-                    @forelse ($rows as $row)
-                        @php
-                            $rowStatus = (string) ($row['status'] ?? 'warning');
-                            $rowClass = match ($rowStatus) {
-                                'valid', 'ready', 'processed' => 'valid',
-                                'error', 'failed' => 'error',
-                                default => 'warning',
-                            };
-                            $subjectLabels = collect($row['subjects'] ?? [])->map(function ($subject) {
-                                return trim((string) (($subject['kode_mk'] ?? '-') . ' - ' . ($subject['nama_mk'] ?? '')));
-                            })->filter()->values()->all();
-                        @endphp
-                        <div class="study-import-row {{ $rowClass }}">
-                            <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
-                                <div>
-                                    <div class="fw-semibold">{{ $row['nama_mahasiswa'] ?? 'Mahasiswa' }}</div>
-                                    <div class="small text-muted">{{ $row['nim'] ?? '-' }}</div>
-                                </div>
-                                <span class="badge {{ $rowClass === 'valid' ? 'bg-success' : ($rowClass === 'error' ? 'bg-danger' : 'bg-warning text-dark') }}">{{ strtoupper($rowStatus) }}</span>
-                            </div>
-                            <div class="small mt-2">
-                                <strong>Baris File:</strong> {{ $row['row_number'] ?? '-' }}
-                            </div>
-                            <div class="small mt-1">
-                                <strong>Mata Kuliah:</strong> {{ !empty($subjectLabels) ? implode(', ', $subjectLabels) : '-' }}
-                            </div>
-                            @if (!empty($row['message']))
-                                <div class="small mt-2">{{ $row['message'] }}</div>
-                            @endif
-                            @if (!empty($row['errors']))
-                                <div class="small mt-2 text-danger">
-                                    {{ collect($row['errors'])->pluck('message')->implode(' | ') }}
-                                </div>
-                            @endif
-                            @if (!empty($row['warnings']))
-                                <div class="small mt-2 text-warning">
-                                    {{ collect($row['warnings'])->pluck('message')->implode(' | ') }}
-                                </div>
-                            @endif
-                        </div>
-                    @empty
-                        <div class="text-muted">Belum ada data preview yang bisa ditampilkan.</div>
-                    @endforelse
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped study-import-table" id="rowPreviewTable">
+                        <thead>
+                            <tr>
+                                <th style="width: 90px;">Baris</th>
+                                <th style="width: 130px;">Status</th>
+                                <th style="width: 160px;">NIM</th>
+                                <th>Mahasiswa</th>
+                                <th>Mata Kuliah</th>
+                                <th>Pesan</th>
+                                <th>Error</th>
+                                <th>Warning</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($rows as $row)
+                                @php
+                                    $rowStatus = (string) ($row['status'] ?? 'warning');
+                                    $rowClass = match ($rowStatus) {
+                                        'valid', 'ready', 'processed' => 'valid',
+                                        'error', 'failed' => 'error',
+                                        default => 'warning',
+                                    };
+                                    $subjectLabels = collect($row['subjects'] ?? [])
+                                        ->map(function ($subject) {
+                                            return trim(
+                                                (string) (($subject['kode_mk'] ?? '-') .
+                                                    ' - ' .
+                                                    ($subject['nama_mk'] ?? '')),
+                                            );
+                                        })
+                                        ->filter()
+                                        ->values()
+                                        ->all();
+                                @endphp
+                                <tr>
+                                    <td>{{ $row['row_number'] ?? '-' }}</td>
+                                    <td>
+                                        <span
+                                            class="badge status-badge {{ $rowClass === 'valid' ? 'bg-success' : ($rowClass === 'error' ? 'bg-danger' : 'bg-warning text-dark') }}">
+                                            {{ strtoupper($rowStatus) }}
+                                        </span>
+                                    </td>
+                                    <td>{{ $row['nim'] ?? '-' }}</td>
+                                    <td>{{ $row['nama'] ?? 'Mahasiswa' }}</td>
+                                    <td>{{ !empty($subjectLabels) ? implode(', ', $subjectLabels) : '-' }}</td>
+                                    <td>{{ $row['message'] ?? '-' }}</td>
+                                    <td class="text-danger">
+                                        {{ !empty($row['errors']) ? collect($row['errors'])->pluck('message')->implode(' | ') : '-' }}
+                                    </td>
+                                    <td class="text-warning">
+                                        {{ !empty($row['warnings']) ? collect($row['warnings'])->pluck('message')->implode(' | ') : '-' }}
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="8" class="text-center text-muted">Belum ada data preview yang bisa
+                                        ditampilkan.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -368,7 +452,8 @@
 
                     Swal.fire({
                         title: form.dataset.confirmTitle || 'Lanjutkan proses?',
-                        text: form.dataset.confirmText || 'Pastikan tindakan ini sudah sesuai.',
+                        text: form.dataset.confirmText ||
+                            'Pastikan tindakan ini sudah sesuai.',
                         icon: form.dataset.confirmIcon || 'question',
                         showCancelButton: true,
                         confirmButtonText: form.dataset.confirmButton || 'Ya, lanjutkan',
@@ -381,6 +466,32 @@
                     });
                 });
             });
+
+            if ($.fn.DataTable) {
+                $('#subjectReferenceTable').DataTable({
+                    pageLength: 10,
+                    lengthMenu: [10, 25, 50, 100],
+                    ordering: true,
+                    order: [
+                        [1, 'asc']
+                    ],
+                    language: {
+                        url: '{{ asset('template/assets/js/plugin/datatables/i18n/id.json ') }}'
+                    }
+                });
+
+                $('#rowPreviewTable').DataTable({
+                    pageLength: 25,
+                    lengthMenu: [10, 25, 50, 100],
+                    ordering: true,
+                    order: [
+                        [0, 'asc']
+                    ],
+                    language: {
+                        url: '{{ asset('template/assets/js/plugin/datatables/i18n/id.json ') }}'
+                    }
+                });
+            }
         });
     </script>
 @endpush

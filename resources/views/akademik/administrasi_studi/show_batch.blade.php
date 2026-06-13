@@ -472,9 +472,14 @@
 
                                 <div class="d-flex flex-wrap gap-2 mt-3">
                                     @if ($canProcessImport && $batchId)
-                                        <form method="POST" action="{{ route('akademik.administrasi-studi.import.process', $batchId) }}">
+                                        <form method="POST" action="{{ route('akademik.administrasi-studi.import.process', $batchId) }}"
+                                            class="study-confirm-form"
+                                            data-confirm-title="Proses import sekarang?"
+                                            data-confirm-text="Simpan nilai dari hasil pengecekan ini sekarang."
+                                            data-confirm-icon="question"
+                                            data-confirm-button="Ya, proses">
                                             @csrf
-                                            <button type="submit" class="btn btn-primary btn-sm" onclick="return confirm('Simpan nilai dari hasil pengecekan ini sekarang?')">
+                                            <button type="submit" class="btn btn-primary btn-sm">
                                                 <i class="fas fa-play me-1"></i> Proses Import
                                             </button>
                                         </form>
@@ -486,9 +491,14 @@
                                         </a>
                                     @endif
                                     @if ($canRollbackImport && $batchId)
-                                        <form method="POST" action="{{ route('akademik.administrasi-studi.import.rollback', $batchId) }}">
+                                        <form method="POST" action="{{ route('akademik.administrasi-studi.import.rollback', $batchId) }}"
+                                            class="study-confirm-form"
+                                            data-confirm-title="Rollback hasil proses?"
+                                            data-confirm-text="Batalkan hasil proses ini sekarang?"
+                                            data-confirm-icon="warning"
+                                            data-confirm-button="Ya, rollback">
                                             @csrf
-                                            <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Batalkan hasil proses ini sekarang?')">
+                                            <button type="submit" class="btn btn-outline-danger btn-sm">
                                                 <i class="fas fa-rotate-left me-1"></i> Rollback
                                             </button>
                                         </form>
@@ -572,3 +582,30 @@
         </div>
     </div>
 @endsection
+
+@push('scripts-custom')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.study-confirm-form').forEach(function(form) {
+                form.addEventListener('submit', function(event) {
+                    event.preventDefault();
+
+                    Swal.fire({
+                        title: form.dataset.confirmTitle || 'Lanjutkan proses?',
+                        text: form.dataset.confirmText || 'Pastikan tindakan ini sudah sesuai.',
+                        icon: form.dataset.confirmIcon || 'question',
+                        showCancelButton: true,
+                        confirmButtonText: form.dataset.confirmButton || 'Ya, lanjutkan',
+                        cancelButtonText: 'Batal',
+                        reverseButtons: true,
+                    }).then(function(result) {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+@endpush

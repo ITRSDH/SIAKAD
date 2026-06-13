@@ -7,6 +7,7 @@ use Illuminate\Http\Client\Response;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class StudentStudyAdministrationController extends Controller
@@ -74,7 +75,7 @@ class StudentStudyAdministrationController extends Controller
             }
 
             return view('akademik.administrasi_studi.batches', [
-                'batches' => $response->json('data', []),
+                'batches' => $this->normalizeBatchHistoryPayload($response->json('data', [])),
             ]);
         } catch (\Exception $e) {
             return redirect()->route('akademik.administrasi-studi.index', ['tab' => 'batch'])->with('error', $e->getMessage());
@@ -91,7 +92,7 @@ class StudentStudyAdministrationController extends Controller
             }
 
             return view('akademik.administrasi_studi.show_batch', [
-                'batch' => $response->json('data', []),
+                'batch' => $this->normalizeBatchDetailPayload($response->json('data', [])),
             ]);
         } catch (\Exception $e) {
             return redirect()->route('akademik.administrasi-studi.batches')->with('error', $e->getMessage());
@@ -499,6 +500,117 @@ class StudentStudyAdministrationController extends Controller
     private function buildApiUrl(string $endpoint): string
     {
         return rtrim($this->apiUrl, '/') . '/' . ltrim($endpoint, '/');
+    }
+
+    private function normalizeBatchHistoryPayload(mixed $payload): array
+    {
+        if (is_array($payload) && isset($payload['data']) && is_array($payload['data'])) {
+            $payload = $payload['data'];
+        }
+
+        if (!is_array($payload)) {
+            return [];
+        }
+
+        $items = collect($payload)
+            ->map(fn ($item) => $this->normalizeBatchListItem($item))
+            ->filter(fn ($item) => is_array($item))
+            ->values()
+            ->all();
+
+        if (empty($items) && !empty($payload)) {
+            Log::warning('Administrasi studi batch history tidak memiliki item valid.', [
+                'payload_sample' => array_slice($payload, 0, 3),
+            ]);
+        }
+
+        return $items;
+    }
+
+    private function normalizeBatchDetailPayload(mixed $payload): array
+    {
+        if (is_array($payload) && isset($payload['data']) && is_array($payload['data'])) {
+            $payload = $payload['data'];
+        }
+
+        if (!is_array($payload)) {
+            return [];
+        }
+
+        $payload['id'] = $this->normalizeScalarRouteParam(
+            $payload['id'] ?? $payload['batch_id'] ?? $payload['id_batch'] ?? ($payload['batch']['id'] ?? null)
+        );
+        $payload['source'] = $this->normalizeBatchSource(
+            $payload['source'] ?? $payload['jenis'] ?? $payload['type'] ?? null
+        );
+
+        return $payload;
+    }
+
+    private function normalizeBatchListItem(mixed $item): ?array
+    {
+        if (!is_array($item)) {
+            return null;
+        }
+
+        $item['id'] = $this->normalizeScalarRouteParam(
+            $item['id'] ?? $item['batch_id'] ?? $item['id_batch'] ?? ($item['batch']['id'] ?? null)
+        );
+        $item['source'] = $this->normalizeBatchSource(
+            $item['source'] ?? $item['jenis'] ?? $item['type'] ?? null
+        );
+        $item['detail_url'] = null;
+
+        if ($item['id'] && $item['source']) {
+            $item['detail_url'] = route('akademik.administrasi-studi.batches.show', [
+                'source' => $item['source'],
+                'id' => $item['id'],
+            ]);
+        } else {
+            Log::warning('Administrasi studi batch item tidak valid untuk dibuatkan detail URL.', [
+                'raw_item' => $item,
+            ]);
+        }
+
+        return $item;
+    }
+
+    private function normalizeBatchSource(mixed $value): ?string
+    {
+        $value = $this->normalizeScalarRouteParam($value);
+
+        if (!$value) {
+            return null;
+        }
+
+        return match (strtolower($value)) {
+            'historical', 'historis', 'riwayat' => 'historical',
+            'import', 'khs_import', 'import_nilai', 'import_nilai_khs' => 'import',
+            default => $value,
+        };
+    }
+
+    private function normalizeScalarRouteParam(mixed $value): ?string
+    {
+        if (is_scalar($value) || $value instanceof \Stringable) {
+            $value = trim((string) $value);
+
+            return $value !== '' ? $value : null;
+        }
+
+        if (is_array($value)) {
+            foreach (['id', 'value', 'uuid'] as $key) {
+                if (isset($value[$key]) && (is_scalar($value[$key]) || $value[$key] instanceof \Stringable)) {
+                    $candidate = trim((string) $value[$key]);
+
+                    if ($candidate !== '') {
+                        return $candidate;
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 
     private function prepareHistoricalPayload(Request $request, string $action, bool $requireSelected): array

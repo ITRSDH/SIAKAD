@@ -41,7 +41,7 @@
         </a>
     </li>
 
-    <li class="nav-item {{ request()->routeIs('dosen.pertemuan-presensi.*') ? 'active' : '' }}">
+    {{-- <li class="nav-item {{ request()->routeIs('dosen.pertemuan-presensi.*') ? 'active' : '' }}">
         <a href="{{ route('dosen.pertemuan-presensi.index') }}" class="collapsed" aria-expanded="false">
             <i class="fas fa-chalkboard-teacher"></i>
             <p>Pertemuan & Presensi</p>
@@ -53,5 +53,5 @@
             <i class="fas fa-calculator"></i>
             <p>Penilaian Kelas</p>
         </a>
-    </li>
+    </li> --}}
 @endif

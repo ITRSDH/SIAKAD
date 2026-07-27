@@ -38,55 +38,64 @@ class SertifikatAkreditasi extends Controller
     public function store(Request $request)
     {
         try {
-            // Validasi input
+    
             $request->validate([
                 'nama' => 'required|string|max:255',
                 'deskripsi' => 'nullable|string',
-                'foto_sertifikat' => 'nullable|mimes:jpeg,png,jpg,webp|max:2048',
+    
+                'fotos' => 'required|array|min:1',
+                'fotos.*' => 'required|mimes:jpeg,png,jpg,jpeg,webp|max:2048',
             ]);
-
-            // Buat data untuk dikirim ke API
-            $data = $request->only(['nama', 'deskripsi']);
-
-            // Jika ada file gambar, siapkan untuk multipart/form-data
-            if ($request->hasFile('foto_sertifikat')) {
-                $response = Http::withToken($this->apiToken)
-                    ->attach('foto_sertifikat', file_get_contents($request->file('foto_sertifikat')), $request->file('foto_sertifikat')->getClientOriginalName())
-                    ->post($this->apiUrl . 'sertifikat-akreditasi', $data);
-            } else {
-                // Jika tidak ada file, kirim sebagai JSON biasa
-                $response = Http::withToken($this->apiToken)->post($this->apiUrl . 'sertifikat-akreditasi', $data);
+    
+            $data = $request->only([
+                'nama',
+                'deskripsi'
+            ]);
+    
+            $http = Http::withToken($this->apiToken);
+    
+            if ($request->hasFile('fotos')) {
+    
+                foreach ($request->file('fotos') as $foto) {
+    
+                    $http = $http->attach(
+                        'fotos[]',
+                        file_get_contents($foto),
+                        $foto->getClientOriginalName()
+                    );
+                }
             }
-
+    
+            $response = $http->post(
+                $this->apiUrl . 'sertifikat-akreditasi',
+                $data
+            );
+    
             if ($response->successful()) {
                 return response()->json($response->json());
             }
-
-            return response()->json(
-                [
-                    'success' => false,
-                    'message' => 'Gagal menyimpan data ke API',
-                    'errors' => $response->json(),
-                ],
-                422,
-            );
+    
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menyimpan data ke API',
+                'errors' => $response->json(),
+            ], 422);
+    
         } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json(
-                [
-                    'success' => false,
-                    'message' => 'Validation error',
-                    'errors' => $e->errors(),
-                ],
-                422,
-            );
+    
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $e->errors(),
+            ], 422);
+    
         } catch (\Exception $e) {
-            return response()->json(
-                [
-                    'success' => false,
-                    'message' => $e->getMessage(),
-                ],
-                500,
-            );
+    
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+    
         }
     }
 
@@ -121,54 +130,71 @@ class SertifikatAkreditasi extends Controller
     public function update(Request $request, $id)
     {
         try {
-            // Validasi input
+    
             $request->validate([
                 'nama' => 'required|string|max:255',
                 'deskripsi' => 'nullable|string',
-                'foto_sertifikat' => 'nullable|mimes:jpeg,png,jpg,webp|max:2048',
+    
+                'fotos' => 'nullable|array|min:1',
+                'fotos.*' => 'required|mimes:jpeg,png,jpg,jpeg,webp|max:2048',
             ]);
-
-            // Buat data untuk dikirim ke API
-            $data = $request->only(['nama', 'deskripsi']);
-
-            // Handle file upload dengan attach jika ada file
-            if ($request->hasFile('foto_sertifikat')) {
-                $response = Http::withToken($this->apiToken)
-                    ->attach('foto_sertifikat', file_get_contents($request->file('foto_sertifikat')), $request->file('foto_sertifikat')->getClientOriginalName())
-                    ->post($this->apiUrl . "sertifikat-akreditasi/{$id}?_method=PUT", $data);
+    
+            $data = $request->only([
+                'nama',
+                'deskripsi'
+            ]);
+    
+            $http = Http::withToken($this->apiToken);
+    
+            if ($request->hasFile('fotos')) {
+    
+                foreach ($request->file('fotos') as $foto) {
+    
+                    $http = $http->attach(
+                        'fotos[]',
+                        file_get_contents($foto),
+                        $foto->getClientOriginalName()
+                    );
+                }
+    
+                $response = $http->post(
+                    $this->apiUrl . "sertifikat-akreditasi/{$id}?_method=PUT",
+                    $data
+                );
+    
             } else {
-                $response = Http::withToken($this->apiToken)->put($this->apiUrl . "sertifikat-akreditasi/{$id}", $data);
+    
+                $response = $http->put(
+                    $this->apiUrl . "sertifikat-akreditasi/{$id}",
+                    $data
+                );
             }
-
+    
             if ($response->successful()) {
                 return response()->json($response->json());
             }
-
-            return response()->json(
-                [
-                    'success' => false,
-                    'message' => 'Gagal memperbarui data di API',
-                    'errors' => $response->json(),
-                ],
-                422,
-            );
+    
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memperbarui data di API',
+                'errors' => $response->json(),
+            ], 422);
+    
         } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json(
-                [
-                    'success' => false,
-                    'message' => 'Validation error',
-                    'errors' => $e->errors(),
-                ],
-                422,
-            );
+    
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $e->errors(),
+            ], 422);
+    
         } catch (\Exception $e) {
-            return response()->json(
-                [
-                    'success' => false,
-                    'message' => $e->getMessage(),
-                ],
-                500,
-            );
+    
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+    
         }
     }
 

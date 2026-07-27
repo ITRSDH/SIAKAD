@@ -169,16 +169,20 @@
                                     <div class="col-md-12">
                                         <div class="form-group mb-3">
                                             <label for="foto_sertifikat" class="form-label">Foto Sertifikat</label>
-                                            <input type="file" class="form-control" id="foto_sertifikat" name="foto_sertifikat"
-                                                accept="image/jpeg, image/jpg, image/png, image/webp">
+                                            <input
+                                                type="file"
+                                                class="form-control"
+                                                id="fotos"
+                                                name="fotos[]"
+                                                multiple
+                                                accept="image/jpeg,image/jpg,image/png,image/webp">
                                             <small class="form-text text-muted">Format yang diizinkan: JPG, JPEG, PNG, WEBP.
                                                 Maksimal 2MB.</small>
-                                            <div class="text-danger error-text" id="foto_sertifikat_error"></div>
-                                            <div id="preview-container" class="image-preview-container mt-2"
-                                                style="display: none;">
-                                                <img id="image-preview" src="" alt="Preview"
-                                                    class="image-preview">
-                                                <p class="text-muted small mb-0">Preview Gambar</p>
+                                            <div class="text-danger error-text" id="fotos_error"></div>
+                                            <div
+                                                id="preview-container"
+                                                class="row mt-3"
+                                                style="display:none;">
                                             </div>
                                         </div>
                                     </div>
@@ -282,15 +286,17 @@
 
                         <div class="form-group mb-3">
                             <label for="foto_sertifikat_modal" class="form-label">Foto Sertifikat</label>
-                            <input type="file" class="form-control" id="foto_sertifikat_modal" name="foto_sertifikat"
+                            <input type="file" class="form-control" id="fotos_modal"
+                                name="fotos[]"
+                                multiple
                                 accept="image/jpeg, image/jpg, image/png, image/webp">
                             <small class="form-text text-muted">Format yang diizinkan: JPG, JPEG, PNG, WEBP. Maksimal
                                 2MB.</small>
-                            <div class="text-danger error-text" id="foto_sertifikat_modal_error"></div>
-                            <div id="preview-container-modal" class="image-preview-container mt-2"
-                                style="display: none;">
-                                <img id="image-preview-modal" src="" alt="Preview" class="image-preview">
-                                <p class="text-muted small mb-0">Preview Gambar</p>
+                            <div id="fotos_modal_error"></div>
+                            <div
+                                id="preview-container-modal"
+                                class="row mt-3"
+                                style="display:none;">
                             </div>
                         </div>
 
@@ -335,49 +341,60 @@
                         searchable: false
                     },
                     {
-                        data: 'foto_sertifikat',
+                        data: 'fotos',
                         render: function(data, type, row) {
-                            if (data) {
-                                let imageUrl = data;
-
+                    
+                            if (data && data.length > 0) {
+                    
+                                let imageUrl = data[0].foto;
+                    
                                 // Handle different URL formats
-                                if (data.startsWith('http://') || data.startsWith('https://')) {
-                                    // Absolute URL - use as is
-                                    imageUrl = data;
-                                } else if (data.startsWith('/')) {
-                                    // Relative URL starting with / - could be from API server
-                                    if (data.startsWith('/storage/')) {
-                                        imageUrl = data; // Local storage
-                                    } else {
-                                        // Assume it's from API server
-                                        imageUrl = apiStorageUrl.replace('/storage/', '') + data;
+                                if (
+                                    imageUrl.startsWith('http://') ||
+                                    imageUrl.startsWith('https://')
+                                ) {
+                    
+                                    // gunakan apa adanya
+                    
+                                } else if (imageUrl.startsWith('/')) {
+                    
+                                    if (!imageUrl.startsWith('/storage/')) {
+                                        imageUrl = apiStorageUrl.replace('/storage/', '') + imageUrl;
                                     }
+                    
                                 } else {
-                                    // Plain filename or relative path
-                                    // Check if it contains folder or similar pattern
-                                    if (data.includes('/')) {
-                                        // Has path separators, likely from API storage
-                                        imageUrl = apiStorageUrl + data;
-                                    } else {
-                                        // Plain filename, try local storage first, fallback to API
-                                        imageUrl = '/storage/' + data;
-                                    }
+                    
+                                    imageUrl = apiStorageUrl + imageUrl;
+                    
                                 }
-
+                    
                                 return `
                                     <div class="text-center">
-                                        <img src="${imageUrl}" alt="Sertifikat ${row.nama || ''}"
-                                             class="table-image"
-                                             onclick="showImageModal('${imageUrl}', '${row.nama || 'Sertifikat'}')"
-                                             title="Klik untuk memperbesar"
-                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                        <img
+                                            src="${imageUrl}"
+                                            alt="${row.nama}"
+                                            class="table-image"
+                                            onclick="showImageModal('${imageUrl}', '${row.nama}')"
+                                            title="Klik untuk memperbesar"
+                                            onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    
                                         <div style="display:none;" class="text-center">
                                             <span class="badge bg-warning">Image Error</span>
                                         </div>
+                    
+                                        <div class="mt-1">
+                                            <small class="text-muted">${data.length} Foto</small>
+                                        </div>
                                     </div>
                                 `;
+                    
                             }
-                            return '<div class="text-center"><span class="badge bg-secondary">No Image</span></div>';
+                    
+                            return `
+                                <div class="text-center">
+                                    <span class="badge bg-secondary">No Image</span>
+                                </div>
+                            `;
                         },
                         orderable: false,
                         searchable: false
@@ -433,7 +450,7 @@
                 $('#sertifikatAkreditasiForm')[0].reset();
                 $('#sertifikat_akreditasi_id').val('');
                 $('.error-text').text(''); // Hapus pesan error
-                $('#preview-container').hide();
+                $('#preview-container').empty().hide();
                 $('#saveBtn').prop('disabled', false).html(
                     '<i class="fas fa-save"></i> Simpan'
                 );
@@ -554,75 +571,99 @@
             // Edit button click
             $(document).on('click', '.edit-btn', function() {
                 const id = $(this).data('id');
-
+            
                 // Reset modal sebelum mengisi data
                 $('#sertifikatAkreditasiFormModal')[0].reset();
                 $('.error-text').text('');
-                $('#preview-container-modal').hide();
-
-                // Ambil data berita spesifik dari API
+            
+                $('#preview-container-modal').empty().hide();
+            
+                // Ambil data sertifikat dari API
                 $.get("{{ route('sertifikat-akreditasi.show', '') }}/" + id)
                     .done(function(data) {
+            
                         if (data && data.data) {
+            
                             $('#sertifikat_akreditasi_id_modal').val(data.data.id);
                             $('#nama_modal').val(data.data.nama);
                             $('#deskripsi_modal').val(data.data.deskripsi);
-
-                            // Handle gambar jika ada
-                            if (data.data.foto_sertifikat) {
-                                let imageUrl = data.data.foto_sertifikat;
-
-                                // Handle different URL formats
-                                if (data.data.foto_sertifikat.startsWith('http://') || data.data.foto_sertifikat
-                                    .startsWith('https://')) {
-                                    // Absolute URL - use as is
-                                    imageUrl = data.data.foto_sertifikat;
-                                } else if (data.data.foto_sertifikat.startsWith('/')) {
-                                    // Relative URL starting with / - could be from API server
-                                    if (data.data.foto_sertifikat.startsWith('/storage/')) {
-                                        imageUrl = data.data.foto_sertifikat; // Local storage
-                                    } else {
-                                        // Assume it's from API server
-                                        imageUrl = apiStorageUrl.replace('/storage/', '') + data.data
-                                            .foto_sertifikat;
+            
+                            // ===========================
+                            // Tampilkan semua foto lama
+                            // ===========================
+                            if (data.data.fotos && data.data.fotos.length > 0) {
+            
+                                data.data.fotos.forEach(function(item) {
+            
+                                    let imageUrl = item.foto;
+            
+                                    // Absolute URL
+                                    if (
+                                        imageUrl.startsWith('http://') ||
+                                        imageUrl.startsWith('https://')
+                                    ) {
+            
+                                        // gunakan apa adanya
+            
                                     }
-                                } else {
-                                    // Plain filename or relative path
-                                    if (data.data.foto_sertifikat.includes('/')) {
-                                        // Has path separators, likely from API storage
-                                        imageUrl = apiStorageUrl + data.data.foto_sertifikat;
-                                    } else {
-                                        // Plain filename, try local storage first
-                                        imageUrl = '/storage/' + data.data.foto_sertifikat;
+                                    // Local storage
+                                    else if (imageUrl.startsWith('/storage/')) {
+            
+                                        // gunakan apa adanya
+            
                                     }
-                                }
-
+                                    // Relative path dari API
+                                    else {
+            
+                                        imageUrl = apiStorageUrl + imageUrl;
+            
+                                    }
+            
+                                    $('#preview-container-modal').append(`
+                                        <div class="col-md-3 mb-3">
+                                            <img
+                                                src="${imageUrl}"
+                                                class="img-fluid rounded border"
+                                                style="height:180px;width:100%;object-fit:cover;">
+                                        </div>
+                                    `);
+            
+                                });
+            
                                 $('#preview-container-modal').show();
-                                $('#image-preview-modal').attr('src', imageUrl);
+            
                             } else {
+            
                                 $('#preview-container-modal').hide();
+            
                             }
-
+            
                             $('#modelHeadingSertifikatAkreditasi').text('Edit Sertifikat Akreditasi');
                             $('#modalSertifikatAkreditasi').modal('show');
+            
                         } else {
+            
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Error!',
                                 text: 'Data tidak ditemukan.',
                                 confirmButtonText: 'OK'
                             });
+            
                         }
+            
                     })
-                    .fail(function(xhr) {
-                        // Ganti alert dengan SweetAlert2
+                    .fail(function() {
+            
                         Swal.fire({
                             icon: 'error',
                             title: 'Error!',
                             text: 'Gagal mengambil data untuk diedit.',
                             confirmButtonText: 'OK'
                         });
+            
                     });
+            
             });
 
             // Submit edit via modal
@@ -687,6 +728,7 @@
                             }
                             // Tutup modal
                             $('#modalSertifikatAkreditasi').modal('hide');
+                            $('#preview-container-modal').empty().hide();
                             // Ganti alert dengan SweetAlert2
                             Swal.fire({
                                 icon: 'success',
@@ -809,36 +851,7 @@
                     }
                 });
             });
-
-            // Preview gambar saat file dipilih
-            $('#foto_sertifikat').on('change', function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        $('#image-preview').attr('src', e.target.result);
-                        $('#preview-container').show();
-                    };
-                    reader.readAsDataURL(file);
-                } else {
-                    $('#preview-container').hide();
-                }
-            });
-
-            // Preview gambar modal saat file dipilih
-            $('#foto_sertifikat_modal').on('change', function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        $('#image-preview-modal').attr('src', e.target.result);
-                        $('#preview-container-modal').show();
-                    };
-                    reader.readAsDataURL(file);
-                } else {
-                    $('#preview-container-modal').hide();
-                }
-            });
+           
 
             // Modal close handlers untuk reset form
             $('#modalSertifikatAkreditasi').on('hidden.bs.modal', function() {
@@ -854,6 +867,42 @@
             $('#modalImageView').attr('src', imageUrl);
             $('#imageModalTitle').text(title);
             $('#modalViewImage').modal('show');
+        }
+        
+        function previewImages(input, container) {
+
+            container.empty();
+        
+            const files = input.files;
+        
+            if (!files.length) {
+                container.hide();
+                return;
+            }
+        
+            container.show();
+        
+            Array.from(files).forEach(file => {
+        
+                const reader = new FileReader();
+        
+                reader.onload = function(e){
+        
+                    container.append(`
+                        <div class="col-md-3 mb-3">
+                            <img
+                                src="${e.target.result}"
+                                class="img-fluid rounded border"
+                                style="height:180px;width:100%;object-fit:cover;">
+                        </div>
+                    `);
+        
+                };
+        
+                reader.readAsDataURL(file);
+        
+            });
+        
         }
 
         // Function untuk debug gambar yang gagal load

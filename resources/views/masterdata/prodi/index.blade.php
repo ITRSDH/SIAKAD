@@ -178,9 +178,9 @@
                                     <div class="col-sm-9">
                                         <select class="form-control" id="akreditasi" name="akreditasi">
                                             <option value="">Pilih Nilai Akreditasi...</option>
-                                            <option value="A">A (Unggul)</option>
-                                            <option value="B">B (Baik)</option>
-                                            <option value="C">C (Cukup)</option>
+                                            <option value="A">(Unggul)</option>
+                                            <option value="B">(Baik Sekali)</option>
+                                            <option value="C">(Terakreditasi Pertama)</option>
                                             <option value="Unggul">Unggul (Khusus)</option>
                                         </select>
                                         <small class="form-text text-muted">Nilai akreditasi jurusan dari BAN-PT.</small>
@@ -328,10 +328,10 @@
                                             <label for="akreditasi_modal" class="col-form-label">Akreditasi</label>
                                             <select class="form-control select2" id="akreditasi_modal" name="akreditasi">
                                                 <option value="">Pilih Akreditasi...</option>
-                                                <option value="A">A</option>
-                                                <option value="B">B</option>
-                                                <option value="C">C</option>
-                                                <option value="Unggul">Unggul</option>
+                                                <option value="A">(Unggul)</option>
+                                                <option value="B">(Baik Sekali)</option>
+                                                <option value="C">(Terakreditasi Pertama)</option>
+                                                <option value="Unggul">Unggul (Khusus)</option>
                                             </select>
                                             <span class="text-danger error-text akreditasi_error"></span>
                                         </div>

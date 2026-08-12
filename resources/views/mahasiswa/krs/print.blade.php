@@ -364,7 +364,7 @@
                 <td style="width: 50%; text-align: center; vertical-align: top; padding: 0 20px;">
                     <div class="signature-top">
                         <div class="signature-date"></div>
-                        <div class="signature-role signature-role-underline">Dosen Penasehat Akademik</div>
+                        <div class="signature-role">Dosen Penasehat Akademik</div>
                     </div>
                     <div class="signature-space"></div>
                     <div class="signature-name">
@@ -374,7 +374,7 @@
                 <td style="width: 50%; text-align: center; vertical-align: top; padding: 0 20px;">
                     <div class="signature-top">
                         <div class="signature-date">{{ $tanggalApproval }}</div>
-                        <div class="signature-role signature-role-underline">Mahasiswa</div>
+                        <div class="signature-role">Mahasiswa</div>
                     </div>
                     <div class="signature-space"></div>
                     <div class="signature-name">{{ $mahasiswa['nama_mahasiswa'] ?? '-' }}</div>
@@ -388,7 +388,7 @@
                 <td style="text-align: center; vertical-align: top; padding: 0 20px;">
                     <div class="signature-top">
                         <div class="signature-date">{{ $tanggalApproval }}</div>
-                        <div class="signature-role signature-role-underline">{{ $jabatanKaprodi }}<br>Sekolah Tinggi
+                        <div class="signature-role">{{ $jabatanKaprodi }}<br>Sekolah Tinggi
                             Ilmu Kesehatan Dian Husada</div>
                     </div>
                     <div class="signature-space"></div>

@@ -387,7 +387,7 @@
             <tr>
                 <td>Tahun Akademik</td>
                 <td>: {{ $tahunAkademikDisplay ?: '-' }}</td>
-                <td>Semester Ke</td>
+                <td>Semester</td>
                 <td>: {{ $semesterKeLabel }}</td>
             </tr>
         </table>

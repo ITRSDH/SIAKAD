@@ -360,7 +360,7 @@
             <img src="{{ asset('logo.png') }}" alt="Logo Kampus">
             <div class="header-text">
                 <h1>Sekolah Tinggi Ilmu Kesehatan Dian Husada</h1>
-                <h2>Formulir Kartu Hasil Studi Mahasiswa</h2>
+                <h2>Kartu Hasil Studi Mahasiswa</h2>
                 <p>Jl. Raya Teras No. 4 Tambakagung Puri Mojokerto Jawa Timur</p>
                 <p>Telp. 0321-327771 | Email admin@dianhusada.ac.id | www.dianhusada.ac.id</p>
             </div>
@@ -368,7 +368,7 @@
 
         <div class="doc-title">
             <h3>KARTU HASIL STUDI (KHS)</h3>
-            <p>Program Studi {{ $prodi['nama_prodi'] ?? '-' }}</p>
+            {{-- <p>Program Studi {{ $prodi['nama_prodi'] ?? '-' }}</p> --}}
         </div>
 
         <table class="meta-table">

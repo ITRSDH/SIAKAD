@@ -452,7 +452,7 @@
                 <td style="width: 50%; text-align: center; vertical-align: top; padding: 0 20px;">
                     <div class="signature-top">
                         <div class="signature-date">{{ $tanggalCetak }}</div>
-                        <div class="signature-role signature-role-underline">{{ $jabatanKaprodi }}<br>Sekolah Tinggi
+                        <div class="signature-role">{{ $jabatanKaprodi }}<br>Sekolah Tinggi
                             Ilmu Kesehatan Dian Husada</div>
                     </div>
                     <div class="signature-space"></div>

@@ -291,7 +291,7 @@
             </tr>
             <tr>
                 <td>Program Studi</td>
-                <td>: {{ $prodi['nama_prodi'] ?? '-' }}</td>
+                <td>: {{ $prodi['jenjang'] ?? '-' }} {{ $prodi['nama_prodi'] ?? '-' }}</td>
                 <td>Angkatan</td>
                 <td>: {{ $mahasiswa['angkatan'] ?? '-' }}</td>
             </tr>

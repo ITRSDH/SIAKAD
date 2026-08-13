@@ -279,7 +279,7 @@
 
         <div class="doc-title">
             <h3>KRS MAHASISWA</h3>
-            <p>{{ $semesterLabel ?: 'Semester -' }}</p>
+            {{-- <p>{{ $semesterLabel ?: 'Semester -' }}</p> --}}
         </div>
 
         <table class="meta-table">
@@ -302,7 +302,7 @@
                 <td>: Disetujui Dosen Wali</td>
             </tr>
             <tr>
-                <td>Semester Ke</td>
+                <td>Semester</td>
                 <td>: {{ $semesterKeLabel }}</td>
                 <td></td>
                 <td></td>

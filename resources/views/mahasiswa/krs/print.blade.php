@@ -271,7 +271,7 @@
             <img src="{{ asset('logo.png') }}" alt="Logo Kampus">
             <div class="header-text">
                 <h1>Sekolah Tinggi Ilmu Kesehatan Dian Husada</h1>
-                <h2>Formulir Kartu Rencana Studi Mahasiswa</h2>
+                <h2>Kartu Rencana Studi Mahasiswa</h2>
                 <p>Jl. Raya Teras No. 4 Tambakagung Puri Mojokerto Jawa Timur</p>
                 <p>Telp. 0321-327771 | Email admin@dianhusada.ac.id | www.dianhusada.ac.id</p>
             </div>

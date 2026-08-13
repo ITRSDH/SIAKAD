@@ -446,7 +446,7 @@
             </tfoot>
         </table>
 
-        <p style="margin-top: 12px; font-size: 12px; color: #475569;">Keterangan Akademik: {{ $keteranganAkademik }}
+        <p style="margin-top: 12px; font-size: 12px;">{{ $keteranganAkademik }}
         </p>
 
         <table class="signature-table" style="width: 100%; margin-top: 36px; border: none;">

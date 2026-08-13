@@ -298,8 +298,8 @@
             <tr>
                 <td>Tahun Akademik</td>
                 <td>: {{ $tahunAkademikDisplay ?: '-' }}</td>
-                <td>Status KRS</td>
-                <td>: Disetujui Dosen Wali</td>
+                {{-- <td>Status KRS</td>
+                <td>: Disetujui Dosen Wali</td> --}}
             </tr>
             <tr>
                 <td>Semester</td>

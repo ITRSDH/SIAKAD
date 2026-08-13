@@ -300,13 +300,15 @@
                 <td>: {{ $tahunAkademikDisplay ?: '-' }}</td>
                 {{-- <td>Status KRS</td>
                 <td>: Disetujui Dosen Wali</td> --}}
+                <td>Semester</td>
+                <td>: {{ $semesterKeLabel }}</td>
             </tr>
-            <tr>
+            {{-- <tr>
                 <td>Semester</td>
                 <td>: {{ $semesterKeLabel }}</td>
                 <td></td>
                 <td></td>
-            </tr>
+            </tr> --}}
         </table>
 
         <table class="courses-table">

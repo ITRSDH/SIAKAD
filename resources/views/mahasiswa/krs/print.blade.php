@@ -7,21 +7,21 @@
     $tahunAkademik = $semester['tahun_akademik'] ?? ($semester['tahunAkademik'] ?? []);
     $details = $krs['details'] ?? [];
     $semesterKe = $krs['semester_ke'] ?? null;
-    $angkaKeHuruf = [
-        1 => 'Satu',
-        2 => 'Dua',
-        3 => 'Tiga',
-        4 => 'Empat',
-        5 => 'Lima',
-        6 => 'Enam',
-        7 => 'Tujuh',
-        8 => 'Delapan',
-        9 => 'Sembilan',
-        10 => 'Sepuluh',
-        11 => 'Sebelas',
-        12 => 'Dua Belas',
-        13 => 'Tiga Belas',
-        14 => 'Empat Belas',
+    $angkaKeRomawi = [
+        1 => 'I',
+        2 => 'II',
+        3 => 'III',
+        4 => 'IV',
+        5 => 'V',
+        6 => 'VI',
+        7 => 'VII',
+        8 => 'VIII',
+        9 => 'IX',
+        10 => 'X',
+        11 => 'XI',
+        12 => 'XII',
+        13 => 'XIII',
+        14 => 'XIV',
     ];
 
     $namaSemester = strtoupper((string) ($semester['nama_semester'] ?? ''));
@@ -34,8 +34,8 @@
         : $tanggalCetak;
     $jabatanKaprodi = 'Ketua Program Studi';
     $semesterKeLabel =
-        $semesterKe && isset($angkaKeHuruf[(int) $semesterKe])
-            ? $angkaKeHuruf[(int) $semesterKe]
+        $semesterKe && isset($angkaKeRomawi[(int) $semesterKe])
+            ? $angkaKeRomawi[(int) $semesterKe]
             : ($semesterKe ?:
             '-');
 

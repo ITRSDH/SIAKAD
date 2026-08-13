@@ -446,6 +446,14 @@
             </tfoot>
         </table>
 
+        <table class="summary-table">
+            <tr>
+                <td>Status KHS</td>
+                <td>: {{ $statusKhsLabel }}</td>
+                <td>Total SKS Lulus</td>
+                <td>: {{ $totalSksLulus }}</td>
+            </tr>
+        </table>
         <p style="margin-top: 12px; font-size: 12px;">{{ $keteranganAkademik }}
         </p>
 

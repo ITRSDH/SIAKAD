@@ -367,7 +367,7 @@
         </div>
 
         <div class="doc-title">
-            <h3>KARTU HASIL STUDI (KHS)</h3>
+            <h3>KARTU HASIL STUDI</h3>
             {{-- <p>Program Studi {{ $prodi['nama_prodi'] ?? '-' }}</p> --}}
         </div>
 
@@ -380,7 +380,7 @@
             </tr>
             <tr>
                 <td>Program Studi</td>
-                <td>: {{ $prodi['nama_prodi'] ?? '-' }}</td>
+                <td>: ({{ $prodi['jenjang_pendidikan'] ?? '-' }}) {{ $prodi['nama_prodi'] ?? '-' }}</td>
                 <td>Angkatan</td>
                 <td>: {{ $mahasiswa['angkatan'] ?? '-' }}</td>
             </tr>

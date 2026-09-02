@@ -331,9 +331,9 @@
                         <div class="small text-white-50 mb-2">Tahap saat ini</div>
                         @include('layouts.partials.status-badge', ['value' => $batchStatus, 'label' => $statusLabels[$batchStatus] ?? ucfirst(str_replace('_', ' ', $batchStatus))])
                         <div class="mt-3">
-                            <a href="{{ route('akademik.administrasi-studi.import.preview', $batch['id'] ?? '') }}"
+                            <a href="{{ route('akademik.administrasi-studi.nilai') }}"
                                 class="btn btn-light btn-sm">
-                                Kembali ke Workspace
+                                Kembali ke Input Nilai
                             </a>
                         </div>
                     </div>
@@ -489,8 +489,8 @@
                     </div>
                     <div class="col-lg-5">
                         <div class="d-flex flex-wrap gap-2 h-100 align-items-center justify-content-lg-end">
-                            <a href="{{ route('akademik.administrasi-studi.import.preview', $batch['id'] ?? '') }}" class="btn btn-outline-secondary">
-                                <i class="fas fa-arrow-left me-1"></i> Kembali ke Workspace
+                            <a href="{{ route('akademik.administrasi-studi.nilai') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-1"></i> Kembali ke Input Nilai
                             </a>
                             <a href="{{ route('akademik.khs.import.history') }}" class="btn btn-outline-secondary">
                                 <i class="fas fa-clock-rotate-left me-1"></i> Lihat Riwayat Bila Perlu

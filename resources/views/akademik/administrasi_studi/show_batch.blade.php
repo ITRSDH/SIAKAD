@@ -209,7 +209,7 @@
                 <li class="separator"><i class="icon-arrow-right"></i></li>
                 <li class="nav-item"><a href="{{ route('workspace.baak') }}">Workspace BAAK</a></li>
                 <li class="separator"><i class="icon-arrow-right"></i></li>
-                <li class="nav-item"><a href="{{ route('akademik.administrasi-studi.index') }}">Administrasi Studi Mahasiswa</a></li>
+                <li class="nav-item"><a href="{{ route('akademik.administrasi-studi.krs') }}">Administrasi Studi Mahasiswa</a></li>
                 <li class="separator"><i class="icon-arrow-right"></i></li>
                 <li class="nav-item"><a href="{{ route('akademik.administrasi-studi.batches') }}">Riwayat Proses</a></li>
             </ul>
@@ -297,7 +297,7 @@
                             <h4 class="card-title mb-1">Ringkasan Hasil</h4>
                             <p class="text-muted mb-0">Bagian ini dipakai untuk melihat hasil proses dan menentukan langkah berikutnya, tanpa harus membaca detail teknis yang tidak penting.</p>
                         </div>
-                        <a href="{{ route('akademik.administrasi-studi.index') }}" class="btn btn-outline-secondary btn-sm">
+                        <a href="{{ route('akademik.administrasi-studi.krs') }}" class="btn btn-outline-secondary btn-sm">
                             Kembali ke Halaman Utama
                         </a>
                     </div>

@@ -397,83 +397,6 @@
             </div>
         </div>
     </div>
-
-    <div class="modal fade" id="riwayatKurikulumModal" tabindex="-1" aria-labelledby="riwayatKurikulumModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-xl">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="riwayatKurikulumModalLabel">
-                        <i class="fas fa-history me-2"></i>Riwayat Struktur Kurikulum Mahasiswa
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div id="riwayatKurikulumContent">
-                        <p class="text-muted text-center mb-0">Memuat data riwayat kurikulum...</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="migrasiKurikulumModal" tabindex="-1" aria-labelledby="migrasiKurikulumModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content">
-                <form id="migrasiKurikulumForm">
-                    @csrf
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="migrasiKurikulumModalLabel">
-                            <i class="fas fa-exchange-alt me-2"></i>Migrasi Struktur Kurikulum Mahasiswa
-                        </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <input type="hidden" id="migrasiMahasiswaId">
-                        <div class="alert alert-warning" id="migrasiKurikulumAlertBox">
-                            Migrasi kurikulum akan menutup riwayat kurikulum sebelumnya dan membuka riwayat kurikulum baru.
-                            Pastikan aturan konversi mata kuliah sudah disiapkan terlebih dahulu bila diperlukan.
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Mahasiswa</label>
-                            <input type="text" id="migrasiMahasiswaLabel" class="form-control" disabled>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Tahun Kurikulum Saat Ini</label>
-                            <input type="text" id="migrasiCurrentKurikulumIndukLabel" class="form-control mb-2"
-                                disabled>
-                            <label class="form-label">Struktur Operasional Saat Ini</label>
-                            <input type="text" id="migrasiCurrentKurikulumLabel" class="form-control" disabled>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Struktur Operasional Tujuan</label>
-                            <select id="migrasi_id_kurikulum_tujuan" class="form-control" required>
-                                <option value="">-- Pilih Struktur Operasional Tujuan --</option>
-                            </select>
-                            <small class="text-muted">Master tahun kurikulum mahasiswa akan ikut tersinkron otomatis dari
-                                struktur operasional yang dipilih.</small>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Tanggal Mulai Berlaku</label>
-                            <input type="date" id="migrasi_tanggal_mulai" class="form-control">
-                        </div>
-                        <div class="mb-0">
-                            <label class="form-label">Catatan Migrasi</label>
-                            <textarea id="migrasi_catatan" class="form-control" rows="3"
-                                placeholder="Contoh: Migrasi kurikulum karena perubahan kurikulum angkatan 2023"></textarea>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary" id="submitMigrasiBtn">
-                            <i class="fas fa-save me-1"></i>Proses Migrasi
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
 @endsection
 
 @push('scripts-custom')
@@ -487,8 +410,6 @@
             const modal = new bootstrap.Modal('#mahasiswaModal');
             const importModal = new bootstrap.Modal('#importMahasiswaModal');
             const resultModal = new bootstrap.Modal('#importResultModal');
-            const riwayatModal = new bootstrap.Modal('#riwayatKurikulumModal');
-            const migrasiModal = new bootstrap.Modal('#migrasiKurikulumModal');
             let mahasiswa = @json($mahasiswa ?? []);
             const kurikulumList = @json($kurikulum ?? []);
             let importRequestInProgress = false;
@@ -766,60 +687,6 @@
                 syncAngkatanFromNim($('#nim'), $('#angkatan'));
             });
 
-            function formatKurikulumLabel(item) {
-                const mulaiBerlaku = item?.mulai_berlaku ?? [
-                    item?.semester_mulai?.tahun_akademik?.tahun_akademik,
-                    item?.semester_mulai?.nama_semester
-                ].filter(Boolean).join(' ');
-                const kode = item?.kode_kurikulum ?? '';
-                const nama = item?.nama_struktur_mk ?? item?.nama_kurikulum ?? 'Struktur Operasional';
-                const parts = [kode, nama, mulaiBerlaku ? `Mulai ${mulaiBerlaku}` : null].filter(Boolean);
-
-                return parts.join(' | ');
-            }
-
-            function formatKurikulumIndukLabel(row = {}) {
-                const context = row?.kurikulum_context || {};
-                const historyItems = row?.riwayat_kurikulum || row?.riwayatKurikulum || [];
-                const activeHistory = historyItems.find(item => item?.is_active) || {};
-                const induk = context?.kurikulum_induk || activeHistory?.kurikulum_induk || row?.kurikulumInduk || {};
-                return [
-                    induk?.kode_kurikulum,
-                    induk?.nama_kurikulum,
-                    induk?.jenis_kurikulum?.kode_jenis
-                ].filter(Boolean).join(' | ') || '-';
-            }
-
-            function getCurrentOperationalKurikulumId(row = {}) {
-                const context = row?.kurikulum_context || {};
-                const historyItems = row?.riwayat_kurikulum || row?.riwayatKurikulum || [];
-                const activeHistory = historyItems.find(item => item?.is_active);
-                const contextOperationalId = context?.id_kurikulum_operasional || context?.id_struktur_operasional;
-                const historyOperationalId = activeHistory?.id_kurikulum || activeHistory?.id_struktur_operasional;
-
-                return contextOperationalId || historyOperationalId || row?.id_kurikulum || '';
-            }
-
-            function hasActiveKurikulumHistory(row = {}) {
-                const historyItems = row?.riwayat_kurikulum || row?.riwayatKurikulum || [];
-                return historyItems.some(item => item?.is_active) || !!getCurrentOperationalKurikulumId(row);
-            }
-
-            function getCurrentOperationalKurikulumLabel(row = {}) {
-                const context = row?.kurikulum_context || {};
-                const historyItems = row?.riwayat_kurikulum || row?.riwayatKurikulum || [];
-                const activeHistory = historyItems.find(item => item?.is_active) || {};
-                const operasional = context?.struktur_operasional || activeHistory?.kurikulum_operasional || {};
-                const contextLabel = formatKurikulumLabel(operasional);
-
-                if (contextLabel) {
-                    return contextLabel;
-                }
-
-                const currentKurikulumId = getCurrentOperationalKurikulumId(row);
-                return formatKurikulumLabel(kurikulumList.find(item => item.id === currentKurikulumId) || {}) || 'Belum ditentukan';
-            }
-
             function clearFormErrors(formSelector) {
                 const form = $(formSelector);
                 form.find('.is-invalid').removeClass('is-invalid');
@@ -855,64 +722,6 @@
                         `<div class="invalid-feedback dynamic-error">${Array.isArray(messages) ? messages[0] : messages}</div>`
                     );
                 });
-            }
-
-            function renderRiwayatKurikulum(items = []) {
-                if (!items.length) {
-                    return `
-                        <div class="text-center text-muted py-4">
-                            Belum ada riwayat kurikulum untuk mahasiswa ini.
-                        </div>
-                    `;
-                }
-
-                return `
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-striped align-middle mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Struktur Kurikulum</th>
-                                    <th>Periode</th>
-                                    <th>Status</th>
-                                    <th>Catatan</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${items.map(item => {
-                                    const kurikulumOperasional = item.kurikulum_operasional || item.kurikulum || {};
-                                    const kurikulumInduk = item.kurikulum_induk || {};
-                                    const periode = [item.tanggal_mulai || '-', item.tanggal_selesai || 'sekarang'].join(' s.d. ');
-                                    const badge = item.is_active ? 'success' : 'secondary';
-                                    const tahun = kurikulumOperasional.semester_mulai?.tahun_akademik?.tahun_akademik || '';
-                                    const semester = kurikulumOperasional.semester_mulai?.nama_semester || '';
-                                    const operasionalLabel = [
-                                        kurikulumOperasional.kode_kurikulum,
-                                        kurikulumOperasional.nama_struktur_mk || kurikulumOperasional.nama_kurikulum,
-                                        tahun,
-                                        semester
-                                    ].filter(Boolean).join(' | ');
-                                    const indukLabel = [
-                                        kurikulumInduk.kode_kurikulum,
-                                        kurikulumInduk.nama_kurikulum,
-                                        kurikulumInduk.jenis_kurikulum?.kode_jenis
-                                    ].filter(Boolean).join(' | ') || '-';
-
-                                    return `
-                                        <tr>
-                                            <td>
-                                                <div><strong>Induk:</strong> ${indukLabel}</div>
-                                                <div><strong>Operasional:</strong> ${operasionalLabel || '-'}</div>
-                                            </td>
-                                            <td>${periode}</td>
-                                            <td><span class="badge bg-${badge}">${item.is_active ? 'Aktif' : 'Riwayat'}</span></td>
-                                            <td>${item.catatan || '-'}</td>
-                                        </tr>
-                                    `;
-                                }).join('')}
-                            </tbody>
-                        </table>
-                    </div>
-                `;
             }
 
             // Simpan / Update
@@ -1031,125 +840,6 @@
                     modal.show();
 
                 }).fail(() => Swal.fire('Gagal', 'Tidak dapat mengambil data', 'error'));
-            });
-
-            $(document).on('click', '.history-btn', function() {
-                const id = $(this).data('id');
-                const url = "{{ route('mahasiswa.riwayat-kurikulum', ':id') }}".replace(':id', id);
-
-                $('#riwayatKurikulumContent').html(
-                    '<p class="text-muted text-center mb-0">Memuat data riwayat kurikulum...</p>');
-                riwayatModal.show();
-
-                $.get(url, res => {
-                    const payload = res.data || {};
-                    const mahasiswaData = payload.mahasiswa || {};
-                    const riwayat = payload.riwayat_kurikulum || [];
-                    $('#riwayatKurikulumModalLabel').html(
-                        `<i class="fas fa-history me-2"></i>Riwayat Struktur Kurikulum - ${mahasiswaData.nama_mahasiswa || 'Mahasiswa'}`
-                    );
-                    $('#riwayatKurikulumContent').html(renderRiwayatKurikulum(riwayat));
-                }).fail(xhr => {
-                    $('#riwayatKurikulumContent').html(
-                        `<div class="alert alert-danger mb-0">${xhr.responseJSON?.message || 'Gagal memuat riwayat kurikulum.'}</div>`
-                    );
-                });
-            });
-
-            $(document).on('click', '.migrate-btn', function() {
-                const id = $(this).data('id');
-                const row = mahasiswa.find(item => item.id === id);
-                const prodiId = row?.id_prodi || '';
-                const currentKurikulumId = getCurrentOperationalKurikulumId(row);
-                const hasRiwayatAktif = hasActiveKurikulumHistory(row);
-
-                $('#migrasiKurikulumForm')[0].reset();
-                clearFormErrors('#migrasiKurikulumForm');
-                $('#migrasiMahasiswaId').val(id);
-                $('#migrasiMahasiswaLabel').val(`${row?.nama_mahasiswa || '-'} (${row?.nim || '-'})`);
-                $('#migrasiKurikulumModalLabel').html(
-                    hasRiwayatAktif ?
-                    '<i class="fas fa-exchange-alt me-2"></i>Migrasi Struktur Kurikulum Mahasiswa' :
-                    '<i class="fas fa-diagram-project me-2"></i>Set Struktur Kurikulum Awal Mahasiswa'
-                );
-                $('#migrasiKurikulumAlertBox')
-                    .toggleClass('alert-warning', hasRiwayatAktif)
-                    .toggleClass('alert-info', !hasRiwayatAktif)
-                    .text(
-                        hasRiwayatAktif ?
-                        'Migrasi kurikulum akan menutup riwayat kurikulum sebelumnya dan membuka riwayat kurikulum baru. Pastikan aturan konversi mata kuliah sudah disiapkan terlebih dahulu bila diperlukan.' :
-                        'Mahasiswa ini belum memiliki riwayat kurikulum aktif. Pilih struktur operasional awal untuk membentuk riwayat kurikulum pertamanya.'
-                    );
-                $('#migrasiCurrentKurikulumIndukLabel').val(hasRiwayatAktif ? formatKurikulumIndukLabel(row) : 'Belum ditentukan');
-                $('#migrasiCurrentKurikulumLabel').val(hasRiwayatAktif ? getCurrentOperationalKurikulumLabel(row) : 'Belum ditentukan');
-                $('#submitMigrasiBtn').html(
-                    hasRiwayatAktif ?
-                    '<i class="fas fa-save me-1"></i>Proses Migrasi' :
-                    '<i class="fas fa-save me-1"></i>Simpan Kurikulum Awal'
-                );
-                $('#migrasi_tanggal_mulai').val(new Date().toISOString().split('T')[0]);
-
-                const select = $('#migrasi_id_kurikulum_tujuan');
-                const submitBtn = $('#submitMigrasiBtn');
-                select.empty().append('<option value="">-- Pilih Struktur Operasional Tujuan --</option>');
-                const kandidatKurikulum = kurikulumList
-                    .filter(item => item.id_prodi === prodiId && item.id !== currentKurikulumId);
-                kandidatKurikulum.forEach(item => {
-                    select.append(
-                        `<option value="${item.id}">${formatKurikulumLabel(item)}</option>`);
-                });
-
-                if (!kandidatKurikulum.length) {
-                    select.append('<option value="">Tidak ada kurikulum tujuan yang tersedia</option>');
-                    submitBtn.prop('disabled', true);
-                } else {
-                    submitBtn.prop('disabled', false);
-                }
-
-                migrasiModal.show();
-            });
-
-            $('#migrasiKurikulumForm').on('submit', function(e) {
-                e.preventDefault();
-
-                const id = $('#migrasiMahasiswaId').val();
-                const submitBtn = $('#submitMigrasiBtn');
-                const originalHtml = submitBtn.html();
-                clearFormErrors('#migrasiKurikulumForm');
-
-                submitBtn.prop('disabled', true).html(
-                    '<i class="fas fa-spinner fa-spin me-1"></i>Memproses...');
-
-                $.ajax({
-                    url: "{{ route('mahasiswa.migrasi-kurikulum', ':id') }}".replace(':id', id),
-                    type: 'POST',
-                    data: {
-                        _token: "{{ csrf_token() }}",
-                        id_kurikulum_tujuan: $('#migrasi_id_kurikulum_tujuan').val(),
-                        tanggal_mulai: $('#migrasi_tanggal_mulai').val(),
-                        catatan: $('#migrasi_catatan').val()
-                    },
-                    success: res => {
-                        Swal.fire('Berhasil', res.message ||
-                            'Migrasi kurikulum berhasil diproses.', 'success');
-                        migrasiModal.hide();
-                        location.reload();
-                    },
-                    error: xhr => {
-                        const response = xhr.responseJSON || {};
-                        const backendErrors = response.errors?.errors || response.errors || {};
-                        applyFormErrors({
-                            id_kurikulum_tujuan: '#migrasi_id_kurikulum_tujuan',
-                            tanggal_mulai: '#migrasi_tanggal_mulai',
-                            catatan: '#migrasi_catatan'
-                        }, backendErrors);
-                        const message = response.message || 'Migrasi kurikulum gagal diproses.';
-                        Swal.fire('Gagal', message, 'error');
-                    },
-                    complete: () => {
-                        submitBtn.prop('disabled', false).html(originalHtml);
-                    }
-                });
             });
 
             // Hapus

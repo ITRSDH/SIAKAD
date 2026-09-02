@@ -23,6 +23,28 @@ class StudentStudyAdministrationController extends Controller
 
     public function index(): View|RedirectResponse
     {
+        // Backward-compat: arahkan tab lama dari workspace satu-halaman ke halaman alur yang baru.
+        $tab = request()->query('tab');
+
+        if (filled($tab)) {
+            $redirectTarget = match ($tab) {
+                'krs' => 'akademik.administrasi-studi.krs',
+                'import' => 'akademik.administrasi-studi.nilai',
+                'khs' => 'akademik.administrasi-studi.khs',
+                'riwayat', 'historical' => 'akademik.administrasi-studi.riwayat',
+                'batch' => null,
+                default => null,
+            };
+
+            if ($redirectTarget) {
+                return redirect()->route($redirectTarget);
+            }
+
+            if ($tab === 'batch') {
+                return redirect()->route('akademik.administrasi-studi.batches');
+            }
+        }
+
         try {
             $filtersResponse = $this->apiRequest('get', 'administrasi-studi/filters');
             $summaryResponse = $this->apiRequest('get', 'administrasi-studi/summary');
@@ -38,8 +60,65 @@ class StudentStudyAdministrationController extends Controller
             return view('akademik.administrasi_studi.index', [
                 'filters' => $filtersResponse->json('data', []),
                 'workspaceSummary' => $summaryResponse->json('data', []),
-                'activeTab' => request()->query('tab', 'konteks'),
             ]);
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * Data konteks bersama (filters + summary) untuk semua halaman alur.
+     */
+    private function resolveWorkspaceData(): array
+    {
+        $filtersResponse = $this->apiRequest('get', 'administrasi-studi/filters');
+        $summaryResponse = $this->apiRequest('get', 'administrasi-studi/summary');
+
+        if (!$filtersResponse->successful()) {
+            throw new \RuntimeException($filtersResponse->json('message') ?? 'Gagal mengambil filter administrasi studi.');
+        }
+
+        if (!$summaryResponse->successful()) {
+            throw new \RuntimeException($summaryResponse->json('message') ?? 'Gagal mengambil ringkasan administrasi studi.');
+        }
+
+        return [
+            'filters' => $filtersResponse->json('data', []),
+            'workspaceSummary' => $summaryResponse->json('data', []),
+        ];
+    }
+
+    public function krsPage(): View|RedirectResponse
+    {
+        try {
+            return view('akademik.administrasi_studi.krs', $this->resolveWorkspaceData());
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    public function nilaiPage(): View|RedirectResponse
+    {
+        try {
+            return view('akademik.administrasi_studi.nilai', $this->resolveWorkspaceData());
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    public function khsPage(): View|RedirectResponse
+    {
+        try {
+            return view('akademik.administrasi_studi.khs', $this->resolveWorkspaceData());
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    public function riwayatPage(): View|RedirectResponse
+    {
+        try {
+            return view('akademik.administrasi_studi.riwayat', $this->resolveWorkspaceData());
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
@@ -78,7 +157,7 @@ class StudentStudyAdministrationController extends Controller
                 'batches' => $this->normalizeBatchHistoryPayload($response->json('data', [])),
             ]);
         } catch (\Exception $e) {
-            return redirect()->route('akademik.administrasi-studi.index', ['tab' => 'batch'])->with('error', $e->getMessage());
+            return redirect()->route('akademik.administrasi-studi.batches')->with('error', $e->getMessage());
         }
     }
 
@@ -219,6 +298,47 @@ class StudentStudyAdministrationController extends Controller
         }
     }
 
+    public function saveManualNilai(Request $request)
+    {
+        try {
+            $payload = [
+                'id_semester' => $request->input('id_semester'),
+                'id_prodi' => $request->input('id_prodi'),
+                'angkatan' => $request->input('angkatan'),
+                'semester_ke' => $request->input('semester_ke'),
+                'rows' => $request->input('rows', []),
+            ];
+
+            $response = $this->apiRequest('post', 'administrasi-studi/nilai-manual/save', $payload);
+
+            return response()->json($response->json(), $response->status());
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function manualNilaiContext(Request $request)
+    {
+        try {
+            $response = $this->apiRequest('get', 'administrasi-studi/nilai-manual/context', [], array_filter([
+                'id_semester' => $request->query('id_semester'),
+                'id_prodi' => $request->query('id_prodi'),
+                'angkatan' => $request->query('angkatan'),
+                'semester_ke' => $request->query('semester_ke'),
+            ], fn($value) => filled($value)));
+
+            return response()->json($response->json(), $response->status());
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
     public function readyForKhs(Request $request)
     {
         try {
@@ -259,6 +379,12 @@ class StudentStudyAdministrationController extends Controller
 
     public function executeGenerateKhs(Request $request)
     {
+        // jQuery $.post() mengirimkan nilai bolean sebagai string "true"/"false",
+        // sementara rule 'boolean' Laravel hanya menerima [true,false,0,1,"0","1"].
+        $request->merge([
+            'is_final' => $this->normalizeBooleanInput($request->input('is_final')),
+        ]);
+
         $validated = $request->validate([
             'id_mahasiswa' => 'required|string',
             'id_semester' => 'required|string',
@@ -276,6 +402,27 @@ class StudentStudyAdministrationController extends Controller
                 'message' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    private function normalizeBooleanInput(mixed $value): mixed
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        if (is_string($value)) {
+            return match (strtolower(trim($value))) {
+                '1', 'true', 'on', 'yes' => true,
+                '0', 'false', 'off', 'no' => false,
+                default => $value,
+            };
+        }
+
+        return (bool) $value;
     }
 
     public function exportImportTemplate(Request $request)
@@ -328,7 +475,7 @@ class StudentStudyAdministrationController extends Controller
 
             if (!$response->successful()) {
                 return redirect()
-                    ->route('akademik.administrasi-studi.index', ['tab' => 'import'])
+                    ->route('akademik.administrasi-studi.nilai')
                     ->withInput()
                     ->with('error', $response->json('message') ?? 'Gagal mengunggah file import nilai.');
             }
@@ -337,7 +484,7 @@ class StudentStudyAdministrationController extends Controller
 
             if (!filled($batchId)) {
                 return redirect()
-                    ->route('akademik.administrasi-studi.index', ['tab' => 'import'])
+                    ->route('akademik.administrasi-studi.nilai')
                     ->withInput()
                     ->with('error', 'Batch import berhasil dibuat, tetapi ID batch tidak ditemukan.');
             }
@@ -347,7 +494,7 @@ class StudentStudyAdministrationController extends Controller
                 ->with('success', $response->json('message') ?? 'File import nilai berhasil diunggah.');
         } catch (\Exception $e) {
             return redirect()
-                ->route('akademik.administrasi-studi.index', ['tab' => 'import'])
+                ->route('akademik.administrasi-studi.nilai')
                 ->withInput()
                 ->with('error', $e->getMessage());
         }

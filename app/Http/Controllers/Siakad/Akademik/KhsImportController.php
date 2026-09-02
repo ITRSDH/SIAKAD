@@ -25,7 +25,7 @@ class KhsImportController extends Controller
     {
         if (!request()->boolean('legacy')) {
             return redirect()
-                ->route('akademik.administrasi-studi.index', ['tab' => 'import'])
+                ->route('akademik.administrasi-studi.nilai')
                 ->with('info', 'Silakan lanjutkan import nilai melalui Administrasi Studi Mahasiswa.');
         }
 
@@ -90,7 +90,7 @@ class KhsImportController extends Controller
     {
         if (!request()->boolean('legacy')) {
             return redirect()
-                ->route('akademik.administrasi-studi.index', ['tab' => 'import'])
+                ->route('akademik.administrasi-studi.nilai')
                 ->with('info', 'Preview import nilai tersedia di Administrasi Studi Mahasiswa.');
         }
 

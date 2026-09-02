@@ -1,66 +1,81 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# SIAKAD Frontend (siakad-ver3)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Frontend **server-rendered Blade** untuk sistem SIAKAD modern. Berbasis **Laravel 11**, menampilkan seluruh proses akademik dengan memanggil backend REST API (`api-siakad-ver3`) lewat HTTP.
 
-## About Laravel
+> Bagian dari workspace **dev-siakad** yang berisi dua aplikasi independen: frontend Blade ini (port **8000**) dan backend API `api-siakad-ver3` (port **8001**). Kedua aplikasi dijalankan bersama namun dikembangkan terpisah.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Ringkasan
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+| Aspek | Nilai |
+|-------|-------|
+| Framework | Laravel 11 (Blade server-rendered, **bukan SPA**) |
+| Database lokal | SQLite (`database/database.sqlite`) — hanya data milik frontend sendiri |
+| Port | 8000 (`php artisan serve`) |
+| Timezone | `Asia/Jakarta` |
+| Akses data akademik | **HTTP ke API** (Guzzle + `internal_api` key), **TIDAK akses DB API langsung** |
+| Base URL API | `config/api.php` `API_BASE_URL` (default `http://localhost:8001/api/v1/`) |
+| Token | Disimpan di **session** (`access_token`, `refresh_token`, `expires_at`); refresh otomatis `AutoRefreshToken` |
+| Aset | Vite (`npm run dev` / `npm run build`) |
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Persyaratan
 
-## Learning Laravel
+- PHP ≥ 8.2, Composer, Node.js + npm
+- SQLite
+- Backend `api-siakad-ver3` berjalan (port 8001) agar data akademik dapat diakses
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Setup
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+```bash
+cp .env.example .env
+composer install
+npm install
+php artisan migrate            # SQLite (data lokal frontend)
+npm run dev                     # atau npm run build untuk produksi
+php artisan serve               # port 8000
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+> **Catatan `.env.example`:** masih memuat `APP_TIMEZONE=UTC` dari boilerplate; sesuaikan ke `Asia/Jakarta` (konsisten dengan `.env` aktual).
 
-## Laravel Sponsors
+## Konfigurasi `.env` (kunci)
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+| Variabel | Keterangan |
+|----------|------------|
+| `APP_TIMEZONE` | `Asia/Jakarta` |
+| `API_BASE_URL` | Base URL API, mis. `http://localhost:8001/api/v1/` |
+| `INTERNAL_API_KEY` / `INTERNAL_API_SECRET` | kredensial integrasi internal ke API (harus sama dengan API) |
+| `SESSION_DRIVER` / `SESSION_LIFETIME` | session (file), umur token/refresh |
+| `API_URL_KEUANGAN` | URL sistem keuangan eksternal (di luar scope, bila digunakan) |
 
-### Premium Partners
+## Alur Autentikasi
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+- Login → API mengembalikan token → disimpan di session.
+- Middleware `require.token` / `refresh.token` / `guest.token` mengatur route.
+- `AutoRefreshToken` me-refresh JWT ~5 menit sebelum expiry; gagal → logout.
 
-## Contributing
+## Struktur Direktori (inti)
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```
+app/Http/Controllers/Siakad/   ← web controllers (mirror modul API)
+app/Services/DropdownService.php, DatatableResponse.php   ← helper bersama
+resources/views/               ← Blade views (server-rendered)
+routes/web.php                 ← route web
+config/api.php                 ← base URL API
+```
 
-## Code of Conduct
+## Menjalankan & Menguji
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+- Serve: `php artisan serve --port=8000`
+- Aset: `npm run dev` (dev) / `npm run build` (produksi)
+- Format: `vendor/bin/pint`
+- Test: `vendor/bin/phpunit`
 
-## Security Vulnerabilities
+## Catatan
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+- Frontend **tidak** mengakses DB API langsung; semua data akademik lewat HTTP ke API (`internal_api`).
+- Token API disimpan di session; refresh otomatis via `AutoRefreshToken`.
+- Timezone `Asia/Jakarta`.
+- Detail arsitektur & konvensi proyek tercantum di `../AGENTS.md`.
 
-## License
+## Lisensi
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Proyek internal — kode sumber mengikuti lisensi yang berlaku di repositori workspace ini.

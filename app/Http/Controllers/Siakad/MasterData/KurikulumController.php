@@ -45,12 +45,12 @@ class KurikulumController extends Controller
     {
         try {
 
-            $dropdown = $dropdownService->get('prodi,semester,kurikulum_induk');
+            $dropdown = $dropdownService->get('prodi,semester,kurikulum');
 
             return view('masterdata.kurikulum.create', [
                 'prodi' => $dropdown['prodi'] ?? [],
                 'semester' => $dropdown['semester'] ?? [],
-                'kurikulumInduk' => $dropdown['kurikulum_induk'] ?? [],
+                'kurikulum' => $dropdown['kurikulum'] ?? [],
             ]);
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
@@ -127,7 +127,7 @@ class KurikulumController extends Controller
                 $kurikulumLain = [];
             }
 
-            $dropdown = $dropdownService->get('prodi,semester,kurikulum_induk');
+            $dropdown = $dropdownService->get('prodi,semester,kurikulum');
             $konversiResponse = Http::withToken($this->apiToken)
                 ->get($this->apiUrl . 'konversi-mata-kuliah', [
                     'id_kurikulum_tujuan' => $id,
@@ -145,7 +145,8 @@ class KurikulumController extends Controller
                 'konversiMataKuliah' => $konversiMataKuliah,
                 'prodi' => $dropdown['prodi'] ?? [],
                 'semester' => $dropdown['semester'] ?? [],
-                'kurikulumInduk' => $dropdown['kurikulum_induk'] ?? [],
+                // JANGAN pakai key 'kurikulum' di sini — sudah dipakai untuk data detail.
+                'kurikulum_dropdown' => $dropdown['kurikulum'] ?? [],
             ]);
         } catch (\Exception $e) {
             return back()->withErrors($e->getMessage());
@@ -192,16 +193,97 @@ class KurikulumController extends Controller
     public function tambahMataKuliahManual(Request $request, $id_kurikulum)
     {
         try {
+
             $response = Http::withToken($this->apiToken)
-                ->post($this->apiUrl . "kurikulum/{$id_kurikulum}/tambah-mata-kuliah", $request->all());
+                ->post(
+                    $this->apiUrl . "kurikulum/{$id_kurikulum}/tambah-mata-kuliah",
+                    $request->all()
+                );
+
+            $result = $response->json();
+
+
+            /*
+        |--------------------------------------------------------------------------
+        | API berhasil
+        |--------------------------------------------------------------------------
+        */
 
             if ($response->successful()) {
-                return redirect()->back()->with('success', 'Mata kuliah berhasil ditambahkan.');
+
+                $data = $result['data'] ?? [];
+
+                return redirect()
+                    ->back()
+
+                    // Pesan utama
+                    ->with(
+                        'success',
+                        $result['message']
+                            ?? 'Mata kuliah berhasil diproses.'
+                    )
+
+                    // Status SKS
+                    ->with(
+                        'sks_status',
+                        $data['status'] ?? []
+                    )
+
+                    // Target SKS
+                    ->with(
+                        'sks_target',
+                        $data['target'] ?? []
+                    )
+
+                    // Total SKS
+                    ->with(
+                        'sks_total',
+                        $data['total'] ?? []
+                    )
+
+                    // Kekurangan SKS
+                    ->with(
+                        'sks_kekurangan',
+                        $data['kekurangan'] ?? []
+                    )
+
+                    // Mata kuliah berhasil
+                    ->with(
+                        'mk_berhasil',
+                        $data['berhasil'] ?? []
+                    )
+
+                    // Mata kuliah ditolak
+                    ->with(
+                        'mk_ditolak',
+                        $data['ditolak'] ?? []
+                    )
+
+                    // Duplikat
+                    ->with(
+                        'mk_duplikat',
+                        $data['duplikat'] ?? []
+                    );
             }
 
-            return back()->withErrors($response->json('message', 'Gagal menambahkan mata kuliah.'));
+
+            /*
+        |--------------------------------------------------------------------------
+        | API gagal
+        |--------------------------------------------------------------------------
+        */
+
+            return redirect()
+                ->back()
+                ->withErrors(
+                    $result['message']
+                        ?? 'Gagal menambahkan mata kuliah.'
+                );
         } catch (\Exception $e) {
-            return back()->withErrors($e->getMessage());
+
+            return redirect()
+                ->back()
+                ->withErrors($e->getMessage());
         }
     }
 

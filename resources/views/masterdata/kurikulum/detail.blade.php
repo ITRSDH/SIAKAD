@@ -23,23 +23,8 @@
 @endpush
 
 @php
-    $formatKurikulumIndukLabel = static function (?array $induk): string {
-        if (empty($induk)) {
-            return '-';
-        }
-
-        return collect([
-            $induk['kode_kurikulum'] ?? null,
-            $induk['nama_kurikulum'] ?? null,
-            $induk['jenis_kurikulum']['kode_jenis'] ?? null,
-        ])->filter()->implode(' | ') ?: '-';
-    };
-
-    $formatStrukturKurikulumLabel = static function (array $item) use ($formatKurikulumIndukLabel): string {
-        return collect([
-            $formatKurikulumIndukLabel($item['kurikulum_induk'] ?? null),
-            $item['nama_struktur_mk'] ?? ($item['nama_kurikulum'] ?? null),
-        ])->filter()->implode(' | ') ?: '-';
+    $formatStrukturKurikulumLabel = static function (array $item): string {
+        return trim((string) ($item['nama_struktur_mk'] ?? ($item['nama_kurikulum'] ?? ''))) ?: '-';
     };
 @endphp
 
@@ -76,12 +61,6 @@
                             <h4 class="card-title mb-0">Mengatur Struktur Kurikulum per Program Studi</h4>
 
                             <div class="d-flex gap-2">
-                                <a href="{{ route('kurikulum-induk.index') }}" class="btn btn-sm btn-info">
-                                    <i class="fas fa-sitemap me-1"></i> Tahun Kurikulum
-                                </a>
-                                <a href="{{ route('jenis-kurikulum.index') }}" class="btn btn-sm btn-outline-info">
-                                    <i class="fas fa-layer-group me-1"></i> Jenis Kurikulum
-                                </a>
                                 <a href="{{ route('kurikulum.create') }}" class="btn btn-sm btn-primary">
                                     <i class="fas fa-plus me-1"></i> Tambah
                                 </a>
@@ -91,7 +70,8 @@
                                 </button>
 
                                 <button type="button" class="btn btn-sm btn-danger delete-btn"
-                                    data-id="{{ $kurikulum['id'] }}" data-nama="{{ $kurikulum['nama_struktur_mk'] ?? $kurikulum['nama_kurikulum'] }}">
+                                    data-id="{{ $kurikulum['id'] }}"
+                                    data-nama="{{ $kurikulum['nama_struktur_mk'] ?? $kurikulum['nama_kurikulum'] }}">
                                     <i class="fas fa-trash me-1"></i> Hapus
                                 </button>
 
@@ -103,6 +83,203 @@
                     </div>
 
                     <div class="card-body">
+                        @php
+                            $progress = $kurikulum['progress_sks'] ?? [];
+
+                            $wajib = $progress['wajib'] ?? [];
+                            $pilihan = $progress['pilihan'] ?? [];
+                        @endphp
+
+                        <div class="row mb-4">
+
+                            {{-- SKS Wajib --}}
+                            <div class="col-md-6">
+
+                                <div class="card shadow-sm border-0">
+
+                                    <div class="card-body">
+
+                                        <div class="d-flex justify-content-between align-items-center">
+
+                                            <div>
+                                                <h6 class="text-muted mb-1">
+                                                    SKS Wajib
+                                                </h6>
+
+                                                <h3 class="mb-0">
+                                                    {{ $wajib['total'] ?? 0 }}
+                                                    /
+                                                    {{ $wajib['target'] ?? 0 }}
+
+                                                    <small class="text-muted">
+                                                        SKS
+                                                    </small>
+                                                </h3>
+                                            </div>
+
+                                            @if (($wajib['status'] ?? '') === 'kurang')
+                                                <span class="badge bg-warning text-dark">
+                                                    Kurang
+                                                </span>
+                                            @elseif(($wajib['status'] ?? '') === 'terpenuhi')
+                                                <span class="badge bg-success">
+                                                    Terpenuhi
+                                                </span>
+                                            @else
+                                                <span class="badge bg-danger">
+                                                    Melebihi
+                                                </span>
+                                            @endif
+
+                                        </div>
+
+
+                                        @if (($wajib['status'] ?? '') === 'kurang')
+                                            <div class="alert alert-warning mt-3 mb-0 py-2">
+
+                                                <i class="fas fa-exclamation-triangle"></i>
+
+                                                Masih kurang
+                                                <strong>
+                                                    {{ $wajib['kekurangan'] ?? 0 }}
+                                                </strong>
+                                                SKS.
+
+                                            </div>
+                                        @elseif(($wajib['status'] ?? '') === 'terpenuhi')
+                                            <div class="alert alert-success mt-3 mb-0 py-2">
+
+                                                <i class="fas fa-check-circle"></i>
+
+                                                Target SKS wajib sudah terpenuhi.
+
+                                            </div>
+                                        @else
+                                            <div class="alert alert-danger mt-3 mb-0 py-2">
+
+                                                <i class="fas fa-times-circle"></i>
+
+                                                Melebihi target sebesar
+                                                <strong>
+                                                    {{ $wajib['kelebihan'] ?? 0 }}
+                                                </strong>
+                                                SKS.
+
+                                            </div>
+                                        @endif
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            {{-- SKS Pilihan --}}
+                            <div class="col-md-6">
+
+                                <div class="card shadow-sm border-0">
+
+                                    <div class="card-body">
+
+                                        <div class="d-flex justify-content-between align-items-center">
+
+                                            <div>
+                                                <h6 class="text-muted mb-1">
+                                                    SKS Pilihan
+                                                </h6>
+
+                                                <h3 class="mb-0">
+                                                    {{ $pilihan['total'] ?? 0 }}
+                                                    /
+                                                    {{ $pilihan['target'] ?? 0 }}
+
+                                                    <small class="text-muted">
+                                                        SKS
+                                                    </small>
+                                                </h3>
+                                            </div>
+
+                                            @if (($pilihan['status'] ?? '') === 'kurang')
+                                                <span class="badge bg-warning text-dark">
+                                                    Kurang
+                                                </span>
+                                            @elseif(($pilihan['status'] ?? '') === 'terpenuhi')
+                                                <span class="badge bg-success">
+                                                    Terpenuhi
+                                                </span>
+                                            @else
+                                                <span class="badge bg-danger">
+                                                    Melebihi
+                                                </span>
+                                            @endif
+
+                                        </div>
+
+
+                                        @if (($pilihan['status'] ?? '') === 'kurang')
+                                            <div class="alert alert-warning mt-3 mb-0 py-2">
+
+                                                <i class="fas fa-exclamation-triangle"></i>
+
+                                                Masih kurang
+                                                <strong>
+                                                    {{ $pilihan['kekurangan'] ?? 0 }}
+                                                </strong>
+                                                SKS.
+
+                                            </div>
+                                        @elseif(($pilihan['status'] ?? '') === 'terpenuhi')
+                                            <div class="alert alert-success mt-3 mb-0 py-2">
+
+                                                <i class="fas fa-check-circle"></i>
+
+                                                Target SKS pilihan sudah terpenuhi.
+
+                                            </div>
+                                        @else
+                                            <div class="alert alert-danger mt-3 mb-0 py-2">
+
+                                                <i class="fas fa-times-circle"></i>
+
+                                                Melebihi target sebesar
+                                                <strong>
+                                                    {{ $pilihan['kelebihan'] ?? 0 }}
+                                                </strong>
+                                                SKS.
+
+                                            </div>
+                                        @endif
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        @if (($progress['status'] ?? '') === 'lengkap')
+                            <div class="alert alert-success">
+
+                                <i class="fas fa-check-circle me-1"></i>
+
+                                <strong>Kurikulum sudah lengkap.</strong>
+
+                                Target SKS wajib dan pilihan sudah terpenuhi.
+
+                            </div>
+                        @else
+                            <div class="alert alert-warning">
+
+                                <i class="fas fa-info-circle me-1"></i>
+
+                                <strong>Kurikulum belum lengkap.</strong>
+
+                                Masih ada target SKS yang belum terpenuhi.
+
+                            </div>
+                        @endif
 
                         @if (session('success'))
                             <div class="alert alert-success alert-dismissible fade show">
@@ -130,7 +307,8 @@
                                 <div class="col-md-6">
                                     <label class="form-label fw-semibold">Nama Struktur Kurikulum</label>
                                     <input type="text" name="nama_struktur_mk" class="form-control"
-                                        value="{{ old('nama_struktur_mk', $kurikulum['nama_struktur_mk'] ?? $kurikulum['nama_kurikulum'] ?? '') }}" required>
+                                        value="{{ old('nama_struktur_mk', $kurikulum['nama_struktur_mk'] ?? ($kurikulum['nama_kurikulum'] ?? '')) }}"
+                                        required>
                                 </div>
 
                                 {{-- SKS Pilihan --}}
@@ -139,33 +317,6 @@
                                     <input type="number" name="jumlah_sks_pilihan" class="form-control"
                                         value="{{ old('jumlah_sks_pilihan', $kurikulum['jumlah_sks_pilihan'] ?? '') }}"
                                         required>
-                                </div>
-
-                                {{-- Program Studi --}}
-                                <div class="col-md-6">
-                                    <label class="form-label fw-semibold">Tahun Kurikulum</label>
-                                    <select name="id_kurikulum_induk" id="id_kurikulum_induk" class="form-control select2" required>
-                                        @foreach ($kurikulumInduk as $item)
-                                            <option value="{{ $item['id'] }}"
-                                                data-prodi="{{ $item['id_prodi'] }}"
-                                                data-kode="{{ $item['kode_kurikulum'] ?? '' }}"
-                                                data-tahun="{{ $item['tahun_kurikulum'] ?? '' }}"
-                                                data-keterangan="{{ $item['keterangan'] ?? $item['nama_kurikulum'] ?? '' }}"
-                                                data-mulai-berlaku="{{ $item['mulai_berlaku'] ?? '' }}"
-                                                data-jenis="{{ $item['jenis_kurikulum']['kode_jenis'] ?? '' }}"
-                                                {{ old('id_kurikulum_induk', $kurikulum['id_kurikulum_induk'] ?? '') == $item['id'] ? 'selected' : '' }}>
-                                                {{ $item['kurikulum_induk'] }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    <small class="text-muted">Struktur operasional ini harus terhubung ke satu master tahun kurikulum yang jelas.</small>
-                                    <div id="kurikulumIndukSummary" class="small text-muted mt-2">
-                                        @if (!empty($kurikulum['kurikulum_induk']))
-                                            {{ $formatKurikulumIndukLabel($kurikulum['kurikulum_induk']) }}
-                                        @else
-                                            Pilih tahun kurikulum untuk melihat ringkasan jenis, tahun, dan mulai berlakunya.
-                                        @endif
-                                    </div>
                                 </div>
 
                                 {{-- Program Studi --}}
@@ -236,7 +387,8 @@
                                         required>
                                         <option value="" selected disabled>– Pilih Struktur MK –</option>
                                         @foreach ($kurikulum_lain as $k)
-                                            <option value="{{ $k['id'] }}">{{ $formatStrukturKurikulumLabel($k) }}</option>
+                                            <option value="{{ $k['id'] }}">{{ $formatStrukturKurikulumLabel($k) }}
+                                            </option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -384,18 +536,26 @@
                                 <tbody id="konversiTableBody">
                                     @forelse ($konversiMataKuliah as $rule)
                                         <tr data-rule='@json($rule)'>
-                                            <td>{{ ($rule['kurikulum_asal']['kode_kurikulum'] ?? '') . ' | ' . ($rule['kurikulum_asal']['nama_struktur_mk'] ?? $rule['kurikulum_asal']['nama_kurikulum'] ?? '-') }}</td>
-                                            <td>{{ ($rule['mata_kuliah_asal']['kode_mk'] ?? '') . ' - ' . ($rule['mata_kuliah_asal']['nama_mk'] ?? '-') }}</td>
-                                            <td>{{ ($rule['mata_kuliah_tujuan']['kode_mk'] ?? '') . ' - ' . ($rule['mata_kuliah_tujuan']['nama_mk'] ?? '-') }}</td>
-                                            <td><span class="badge bg-{{ ($rule['status_konversi'] ?? '') === 'diakui' ? 'success' : (($rule['status_konversi'] ?? '') === 'wajib_ulang' ? 'warning' : 'secondary') }}">{{ strtoupper($rule['status_konversi'] ?? '-') }}</span></td>
+                                            <td>{{ $rule['kurikulum_asal']['nama_struktur_mk'] ?? ($rule['kurikulum_asal']['nama_kurikulum'] ?? '-') }}
+                                            </td>
+                                            <td>{{ ($rule['mata_kuliah_asal']['kode_mk'] ?? '') . ' - ' . ($rule['mata_kuliah_asal']['nama_mk'] ?? '-') }}
+                                            </td>
+                                            <td>{{ ($rule['mata_kuliah_tujuan']['kode_mk'] ?? '') . ' - ' . ($rule['mata_kuliah_tujuan']['nama_mk'] ?? '-') }}
+                                            </td>
+                                            <td><span
+                                                    class="badge bg-{{ ($rule['status_konversi'] ?? '') === 'diakui' ? 'success' : (($rule['status_konversi'] ?? '') === 'wajib_ulang' ? 'warning' : 'secondary') }}">{{ strtoupper($rule['status_konversi'] ?? '-') }}</span>
+                                            </td>
                                             <td>{{ $rule['min_bobot_nilai'] ?? '-' }}</td>
                                             <td>{{ $rule['catatan'] ?? '-' }}</td>
                                             <td>
                                                 <div class="d-flex gap-2">
-                                                    <button type="button" class="btn btn-warning btn-sm edit-konversi-btn">
+                                                    <button type="button"
+                                                        class="btn btn-warning btn-sm edit-konversi-btn">
                                                         <i class="fas fa-edit"></i>
                                                     </button>
-                                                    <button type="button" class="btn btn-danger btn-sm delete-konversi-btn" data-id="{{ $rule['id'] }}">
+                                                    <button type="button"
+                                                        class="btn btn-danger btn-sm delete-konversi-btn"
+                                                        data-id="{{ $rule['id'] }}">
                                                         <i class="fas fa-trash"></i>
                                                     </button>
                                                 </div>
@@ -581,7 +741,8 @@
                                 <select class="form-control" id="id_kurikulum_asal" required>
                                     <option value="">-- Pilih Struktur MK Asal --</option>
                                     @foreach ($kurikulum_lain as $k)
-                                        <option value="{{ $k['id'] }}">{{ $formatStrukturKurikulumLabel($k) }}</option>
+                                        <option value="{{ $k['id'] }}">{{ $formatStrukturKurikulumLabel($k) }}
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -596,7 +757,8 @@
                                 <select class="form-control" id="id_mata_kuliah_tujuan" required>
                                     <option value="">-- Pilih Mata Kuliah Tujuan --</option>
                                     @foreach ($mataKuliahDiKurikulum as $mk)
-                                        <option value="{{ $mk['id'] }}">{{ ($mk['kode_mk'] ?? '') . ' - ' . ($mk['nama_mk'] ?? '-') }}</option>
+                                        <option value="{{ $mk['id'] }}">
+                                            {{ ($mk['kode_mk'] ?? '') . ' - ' . ($mk['nama_mk'] ?? '-') }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -610,7 +772,8 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Minimal Bobot Nilai</label>
-                                <input type="number" class="form-control" id="min_bobot_nilai" min="0" max="4" step="0.01">
+                                <input type="number" class="form-control" id="min_bobot_nilai" min="0"
+                                    max="4" step="0.01">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Catatan</label>
@@ -656,46 +819,6 @@
 
         // Event listener untuk switch
         document.addEventListener('DOMContentLoaded', function() {
-            function filterKurikulumIndukByProdi() {
-                const selectedProdi = $('#id_prodi').val();
-                const indukSelect = $('#id_kurikulum_induk');
-                const currentValue = indukSelect.val();
-
-                indukSelect.find('option').each(function() {
-                    const option = $(this);
-                    const optionProdi = option.data('prodi');
-
-                    if (!option.val()) {
-                        option.prop('hidden', false);
-                        return;
-                    }
-
-                    option.prop('hidden', selectedProdi && optionProdi !== selectedProdi);
-                });
-
-                if (currentValue && indukSelect.find(`option[value="${currentValue}"]`).prop('hidden')) {
-                    indukSelect.val(null).trigger('change');
-                }
-            }
-
-            function renderKurikulumIndukSummary() {
-                const selectedOption = $('#id_kurikulum_induk option:selected');
-                if (!selectedOption.length || !selectedOption.val()) {
-                    $('#kurikulumIndukSummary').text('Pilih tahun kurikulum untuk melihat ringkasan jenis, tahun, dan mulai berlakunya.');
-                    return;
-                }
-
-                const parts = [
-                    selectedOption.data('kode'),
-                    selectedOption.data('tahun') ? `Tahun ${selectedOption.data('tahun')}` : null,
-                    selectedOption.data('jenis') ? `Jenis ${selectedOption.data('jenis')}` : null,
-                    selectedOption.data('mulai-berlaku') ? `Mulai ${selectedOption.data('mulai-berlaku')}` : null,
-                    selectedOption.data('keterangan') ? `Ket: ${selectedOption.data('keterangan')}` : null,
-                ].filter(Boolean);
-
-                $('#kurikulumIndukSummary').text(parts.join(' | ') || 'Ringkasan tahun kurikulum belum tersedia.');
-            }
-
             const konversiModalElement = document.getElementById('konversiMatkulModal');
             const konversiModal = konversiModalElement ? new bootstrap.Modal(konversiModalElement) : null;
             const targetCourseOptions = @json($mataKuliahDiKurikulum ?? []);
@@ -707,17 +830,6 @@
                 // Panggil fungsi sekali untuk inisialisasi awal
                 handleSwitchChange();
             }
-
-            $('#id_prodi').on('change', function() {
-                filterKurikulumIndukByProdi();
-            });
-
-            $('#id_kurikulum_induk').on('change', function() {
-                renderKurikulumIndukSummary();
-            });
-
-            filterKurikulumIndukByProdi();
-            renderKurikulumIndukSummary();
 
             // Inisialisasi select2 untuk modal
             $('#modalTambahMatkul').on('shown.bs.modal', function() {
@@ -755,11 +867,13 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
-                            url: "{{ route('kurikulum.destroy', '__ID__') }}".replace('__ID__', id),
+                            url: "{{ route('kurikulum.destroy', '__ID__') }}".replace(
+                                '__ID__', id),
                             type: 'POST',
                             dataType: 'json',
                             headers: {
-                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr(
+                                    'content'),
                                 'Accept': 'application/json',
                                 'X-Requested-With': 'XMLHttpRequest'
                             },
@@ -779,16 +893,19 @@
                                 Swal.fire({
                                     icon: 'success',
                                     title: 'Berhasil!',
-                                    text: response.message || 'Struktur kurikulum berhasil dihapus.',
+                                    text: response.message ||
+                                        'Struktur kurikulum berhasil dihapus.',
                                     confirmButtonText: 'OK'
                                 }).then(() => {
-                                    window.location.href = "{{ route('kurikulum.index') }}";
+                                    window.location.href =
+                                        "{{ route('kurikulum.index') }}";
                                 });
                             },
                             error: function(xhr) {
                                 Swal.close();
 
-                                let errorMessage = 'Terjadi kesalahan saat menghapus struktur kurikulum.';
+                                let errorMessage =
+                                    'Terjadi kesalahan saat menghapus struktur kurikulum.';
                                 if (xhr.responseJSON?.message) {
                                     errorMessage = xhr.responseJSON.message;
                                 }
@@ -843,11 +960,14 @@
                 const select = $('#id_mata_kuliah_asal');
                 select.html('<option value="">Memuat mata kuliah...</option>');
 
-                $.get("{{ route('kurikulum.mata-kuliah-json', ':id') }}".replace(':id', kurikulumId), function(res) {
+                $.get("{{ route('kurikulum.mata-kuliah-json', ':id') }}".replace(':id', kurikulumId), function(
+                    res) {
                     const items = res.data || [];
                     select.html('<option value="">-- Pilih Mata Kuliah Asal --</option>');
                     items.forEach(item => {
-                        select.append(`<option value="${item.id}">${item.kode_mk || ''} - ${item.nama_mk || ''}</option>`);
+                        select.append(
+                            `<option value="${item.id}">${item.kode_mk || ''} - ${item.nama_mk || ''}</option>`
+                        );
                     });
                     if (selectedId) {
                         select.val(selectedId);
@@ -867,7 +987,8 @@
                 if (id) {
                     loadMataKuliahAsal(id);
                 } else {
-                    $('#id_mata_kuliah_asal').html('<option value="">-- Pilih Mata Kuliah Asal --</option>');
+                    $('#id_mata_kuliah_asal').html(
+                        '<option value="">-- Pilih Mata Kuliah Asal --</option>');
                 }
             });
 
@@ -894,15 +1015,16 @@
                 e.preventDefault();
 
                 const id = $('#konversi_id').val();
-                const url = id
-                    ? "{{ route('kurikulum.konversi-mata-kuliah.update', ':id') }}".replace(':id', id)
-                    : "{{ route('kurikulum.konversi-mata-kuliah.store') }}";
+                const url = id ?
+                    "{{ route('kurikulum.konversi-mata-kuliah.update', ':id') }}".replace(':id', id) :
+                    "{{ route('kurikulum.konversi-mata-kuliah.store') }}";
                 const method = 'POST';
                 const submitBtn = $('#submitKonversiBtn');
                 const originalHtml = submitBtn.html();
                 clearFormErrors('#konversiMatkulForm');
 
-                submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Menyimpan...');
+                submitBtn.prop('disabled', true).html(
+                    '<i class="fas fa-spinner fa-spin me-1"></i>Menyimpan...');
 
                 $.ajax({
                     url,
@@ -921,7 +1043,8 @@
                         catatan: $('#catatan').val()
                     },
                     success: function(res) {
-                        Swal.fire('Berhasil', res.message || 'Aturan konversi berhasil disimpan.', 'success')
+                        Swal.fire('Berhasil', res.message ||
+                                'Aturan konversi berhasil disimpan.', 'success')
                             .then(() => window.location.reload());
                     },
                     error: function(xhr) {
@@ -936,7 +1059,8 @@
                             min_bobot_nilai: '#min_bobot_nilai',
                             catatan: '#catatan'
                         }, backendErrors);
-                        const message = response.message || 'Gagal menyimpan aturan konversi mata kuliah.';
+                        const message = response.message ||
+                            'Gagal menyimpan aturan konversi mata kuliah.';
                         Swal.fire('Gagal', message, 'error');
                     },
                     complete: function() {
@@ -961,18 +1085,21 @@
                     }
 
                     $.ajax({
-                        url: "{{ route('kurikulum.konversi-mata-kuliah.destroy', ':id') }}".replace(':id', id),
+                        url: "{{ route('kurikulum.konversi-mata-kuliah.destroy', ':id') }}"
+                            .replace(':id', id),
                         type: 'POST',
                         data: {
                             _token: "{{ csrf_token() }}",
                             _method: 'DELETE'
                         },
                         success: function(res) {
-                            Swal.fire('Berhasil', res.message || 'Aturan konversi berhasil dihapus.', 'success')
+                            Swal.fire('Berhasil', res.message ||
+                                    'Aturan konversi berhasil dihapus.', 'success')
                                 .then(() => window.location.reload());
                         },
                         error: function(xhr) {
-                            const message = xhr.responseJSON?.message || 'Gagal menghapus aturan konversi mata kuliah.';
+                            const message = xhr.responseJSON?.message ||
+                                'Gagal menghapus aturan konversi mata kuliah.';
                             Swal.fire('Gagal', message, 'error');
                         }
                     });

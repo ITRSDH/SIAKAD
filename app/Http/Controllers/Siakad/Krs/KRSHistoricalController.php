@@ -24,7 +24,7 @@ class KRSHistoricalController extends Controller
     {
         if (!request()->boolean('legacy')) {
             return redirect()
-                ->route('akademik.administrasi-studi.index', ['tab' => 'krs'])
+                ->route('akademik.administrasi-studi.krs')
                 ->with('info', 'Silakan lanjutkan pengelolaan riwayat studi melalui Administrasi Studi Mahasiswa.');
         }
 

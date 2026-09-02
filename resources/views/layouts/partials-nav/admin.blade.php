@@ -181,14 +181,13 @@
 
     $baakWorkspaceRoutes = ['workspace.baak'];
     $dosenRoutes = ['aktor-akademik.*', 'dosen.*', 'dosen-wali.*', 'prodi.*', 'users.*'];
-    $mahasiswaRoutes = ['mahasiswa.*', 'mahasiswa.baru.*', 'akademik.administrasi-studi.*'];
+    $mahasiswaRoutes = ['mahasiswa.*', 'mahasiswa.baru.*'];
     $transaksiRoutes = ['kelas-kuliah.*'];
     $monitoringAkademikRoutes = [
         'akademik.monitoring',
         'akademik.khs.*',
         'akademik.riwayat-studi.*',
         'akademik.administrasi-studi.*',
-        'akademik.kurikulum-mahasiswa.*',
     ];
     $capaianRoutes = ['capaian.*'];
     $akhirStudiRoutes = ['tugas-akhir.*', 'yudisium.*', 'kelulusan.*', 'akhir-studi.monitoring'];
@@ -312,12 +311,6 @@
                     <span class="sub-item">Struktur Kurikulum</span>
                 </a>
             </li>
-            <li
-                class="{{ request()->routeIs('kurikulum-induk.*') || request()->routeIs('jenis-kurikulum.*') ? 'active' : '' }}">
-                <a href="{{ route('kurikulum-induk.index') }}">
-                    <span class="sub-item">Tahun Kurikulum</span>
-                </a>
-            </li>
             @endcanApi
 
             @canApi('siakad.master.refrensi.ruang-kuliah.index')
@@ -376,14 +369,27 @@
                         <span class="sub-item">Administrasi Studi Mahasiswa</span>
                     </a>
                 </li>
-            @endif
-            @canApi('siakad.master.refrensi.mahasiswa.index')
-                <li class="{{ request()->routeIs('akademik.kurikulum-mahasiswa.*') ? 'active' : '' }}">
-                    <a href="{{ route('akademik.kurikulum-mahasiswa.index') }}">
-                        <span class="sub-item">Kurikulum Mahasiswa</span>
+                <li class="{{ request()->routeIs('akademik.administrasi-studi.krs') ? 'active' : '' }}">
+                    <a href="{{ route('akademik.administrasi-studi.krs') }}">
+                        <span class="sub-item">Daftarkan KRS</span>
                     </a>
                 </li>
-            @endcanApi
+                <li class="{{ request()->routeIs('akademik.administrasi-studi.nilai') ? 'active' : '' }}">
+                    <a href="{{ route('akademik.administrasi-studi.nilai') }}">
+                        <span class="sub-item">Input Nilai</span>
+                    </a>
+                </li>
+                <li class="{{ request()->routeIs('akademik.administrasi-studi.khs') ? 'active' : '' }}">
+                    <a href="{{ route('akademik.administrasi-studi.khs') }}">
+                        <span class="sub-item">Generate KHS</span>
+                    </a>
+                </li>
+                <li class="{{ request()->routeIs('akademik.administrasi-studi.riwayat') ? 'active' : '' }}">
+                    <a href="{{ route('akademik.administrasi-studi.riwayat') }}">
+                        <span class="sub-item">Koreksi & Finalisasi</span>
+                    </a>
+                </li>
+            @endif
         </ul>
     </div>
 </li>
@@ -541,14 +547,6 @@
                 </a>
             </li>
             @endcanApi
-
-            @if ($canAccessStudentStudy)
-            <li class="{{ request()->routeIs('akademik.administrasi-studi.*') ? 'active' : '' }}">
-                <a href="{{ route('akademik.administrasi-studi.index', ['tab' => 'historical']) }}">
-                    <span class="sub-item">Migrasi Riwayat Studi</span>
-                </a>
-            </li>
-            @endif
 
         </ul>
     </div>

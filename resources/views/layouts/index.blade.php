@@ -209,9 +209,16 @@
     <!-- Script tambahan -->
     <script>
         $(document).ready(function() {
-            // Aktifkan Select2 untuk elemen dengan class .select2
-            $('.select2').select2({
-                width: '100%'
+            // Aktifkan Select2 untuk elemen dengan class .select2.
+            // Lewati yang sudah terinisialisasi (mis. di dalam modal yang sudah
+            // dikonfigurasi dropdownParent/minimumResultsForSearch) agar
+            // pengaturan tersebut tidak tertimpa.
+            $('.select2').each(function() {
+                if (!$(this).hasClass('select2-hidden-accessible')) {
+                    $(this).select2({
+                        width: '100%'
+                    });
+                }
             });
         });
     </script>

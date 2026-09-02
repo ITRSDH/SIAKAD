@@ -178,11 +178,13 @@
                                     <div class="col-sm-9">
                                         <select class="form-control" id="akreditasi" name="akreditasi">
                                             <option value="">Pilih Nilai Akreditasi...</option>
-                                            <option value="A">(Unggul)</option>
-                                            <option value="B">(Baik Sekali)</option>
-                                            <option value="C">(Terakreditasi Pertama)</option>
-                                            <option value="Unggul">Unggul (Khusus)</option>
+                                            <option value="Unggul">Unggul</option>
+                                            <option value="Baik Sekali">Baik Sekali</option>
+                                            <option value="Terakreditasi Pertama">Terakreditasi Pertama</option>
+                                            <option value="__lainnya__">Lainnya...</option>
                                         </select>
+                                        <input type="text" class="form-control mt-2 d-none" id="akreditasi_lain"
+                                            name="akreditasi_lain" placeholder="Isi nilai akreditasi lain..." disabled>
                                         <small class="form-text text-muted">Nilai akreditasi jurusan dari BAN-PT.</small>
                                         <span id="akreditasi_error" class="text-danger error-text"></span>
                                     </div>
@@ -267,7 +269,7 @@
         </div>
     </div>
 
-    <!-- Modal Edit -->
+    <!-- Modal Edit Data Prodi -->
     <div class="modal fade" id="modalProdi" aria-hidden="true">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
@@ -276,122 +278,119 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <ul class="nav nav-tabs" id="myTab" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="data-tab" data-bs-toggle="tab" data-bs-target="#data"
-                                type="button" role="tab">Data Prodi</button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="kaprodi-tab" data-bs-toggle="tab" data-bs-target="#kaprodi"
-                                type="button" role="tab">Kaprodi</button>
-                        </li>
-                    </ul>
-                    <div class="tab-content mt-3" id="myTabContent">
-                        <!-- Tab Data Prodi -->
-                        <div class="tab-pane fade show active" id="data" role="tabpanel">
-                            <form id="prodiFormModal" name="prodiFormModal" class="form-horizontal">
-                                @csrf
-                                <input type="hidden" name="id" id="prodi_id_modal">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group mb-3">
-                                            <label for="kode_prodi_modal" class="col-form-label">Kode Program
-                                                Studi</label>
-                                            <input type="text" class="form-control" id="kode_prodi_modal"
-                                                name="kode_prodi" required>
-                                            <span class="text-danger error-text kode_prodi_error"></span>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group mb-3">
-                                            <label for="nama_prodi_modal" class="col-form-label">Nama Program
-                                                Studi</label>
-                                            <input type="text" class="form-control" id="nama_prodi_modal"
-                                                name="nama_prodi" required>
-                                            <span class="text-danger error-text nama_prodi_error"></span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group mb-3">
-                                            <label for="jenjang_pendidikan_modal" class="col-form-label">Jenjang
-                                                Pendidikan</label>
-                                            <input type="text" class="form-control" id="jenjang_pendidikan_modal"
-                                                name="jenjang_pendidikan" required>
-                                            <span class="text-danger error-text jenjang_pendidikan_error"></span>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <div class="form-group mb-3">
-                                            <label for="akreditasi_modal" class="col-form-label">Akreditasi</label>
-                                            <select class="form-control select2" id="akreditasi_modal" name="akreditasi">
-                                                <option value="">Pilih Akreditasi...</option>
-                                                <option value="A">(Unggul)</option>
-                                                <option value="B">(Baik Sekali)</option>
-                                                <option value="C">(Terakreditasi Pertama)</option>
-                                                <option value="Unggul">Unggul (Khusus)</option>
-                                            </select>
-                                            <span class="text-danger error-text akreditasi_error"></span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group mb-3">
-                                            <label for="tahun_berdiri_modal" class="col-form-label">Tahun Berdiri</label>
-                                            <input type="number" class="form-control" id="tahun_berdiri_modal"
-                                                name="tahun_berdiri" min="1900" max="{{ date('Y') }}">
-                                            <span class="text-danger error-text tahun_berdiri_error"></span>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group mb-3">
-                                            <label for="gelar_lulusan_modal" class="col-form-label">Gelar Lulusan</label>
-                                            <input type="text" class="form-control" id="gelar_lulusan_modal"
-                                                name="gelar_lulusan">
-                                            <span class="text-danger error-text gelar_lulusan_error"></span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="form-group mb-0">
-                                    <button type="submit" class="btn btn-primary" id="saveBtnModal">
-                                        <i class="fas fa-save"></i> Simpan
-                                    </button>
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                        <i class="fas fa-times"></i> Batal
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-
-                        <!-- Tab Kaprodi -->
-                        <div class="tab-pane fade" id="kaprodi" role="tabpanel">
-                            <form id="kaprodiFormModal" name="kaprodiFormModal" class="form-horizontal">
-                                @csrf
+                    <form id="prodiFormModal" name="prodiFormModal" class="form-horizontal">
+                        @csrf
+                        <input type="hidden" name="id" id="prodi_id_modal">
+                        <div class="row">
+                            <div class="col-md-6">
                                 <div class="form-group mb-3">
-                                    <label for="nama_prodi_kaprodi_modal" class="col-form-label">Nama Program
+                                    <label for="kode_prodi_modal" class="col-form-label">Kode Program
                                         Studi</label>
-                                    <input type="text" class="form-control" id="nama_prodi_kaprodi_modal" readonly>
+                                    <input type="text" class="form-control" id="kode_prodi_modal"
+                                        name="kode_prodi" required>
+                                    <span class="text-danger error-text kode_prodi_error"></span>
                                 </div>
+                            </div>
+                            <div class="col-md-6">
                                 <div class="form-group mb-3">
-                                    <label for="id_kaprodi_modal" class="col-form-label">Pilih Kaprodi</label>
-                                    <select class="form-control select2" id="id_kaprodi_modal" name="id_kaprodi">
-                                        <option value="">-- Pilih Dosen --</option>
-                                    </select>
-                                    <span class="text-danger error-text id_kaprodi_error"></span>
+                                    <label for="nama_prodi_modal" class="col-form-label">Nama Program
+                                        Studi</label>
+                                    <input type="text" class="form-control" id="nama_prodi_modal"
+                                        name="nama_prodi" required>
+                                    <span class="text-danger error-text nama_prodi_error"></span>
                                 </div>
-                                <div class="form-group mb-0">
-                                    <button type="submit" class="btn btn-success" id="saveKaprodiBtn">
-                                        <i class="fas fa-save"></i> Simpan Kaprodi
-                                    </button>
-                                </div>
-                            </form>
+                            </div>
                         </div>
-                    </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="jenjang_pendidikan_modal" class="col-form-label">Jenjang
+                                        Pendidikan</label>
+                                    <input type="text" class="form-control" id="jenjang_pendidikan_modal"
+                                        name="jenjang_pendidikan" required>
+                                    <span class="text-danger error-text jenjang_pendidikan_error"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="akreditasi_modal" class="col-form-label">Akreditasi</label>
+                                    <select class="form-control" id="akreditasi_modal" name="akreditasi">
+                                        <option value="">Pilih Akreditasi...</option>
+                                        <option value="Unggul">Unggul</option>
+                                        <option value="Baik Sekali">Baik Sekali</option>
+                                        <option value="Terakreditasi Pertama">Terakreditasi Pertama</option>
+                                        <option value="__lainnya__">Lainnya...</option>
+                                    </select>
+                                    <input type="text" class="form-control mt-2 d-none" id="akreditasi_modal_lain"
+                                        name="akreditasi_lain" placeholder="Isi nilai akreditasi lain..." disabled>
+                                    <span class="text-danger error-text akreditasi_error"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="tahun_berdiri_modal" class="col-form-label">Tahun Berdiri</label>
+                                    <input type="number" class="form-control" id="tahun_berdiri_modal"
+                                        name="tahun_berdiri" min="1900" max="{{ date('Y') }}">
+                                    <span class="text-danger error-text tahun_berdiri_error"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="gelar_lulusan_modal" class="col-form-label">Gelar Lulusan</label>
+                                    <input type="text" class="form-control" id="gelar_lulusan_modal"
+                                        name="gelar_lulusan">
+                                    <span class="text-danger error-text gelar_lulusan_error"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-0">
+                            <button type="submit" class="btn btn-primary" id="saveBtnModal">
+                                <i class="fas fa-save"></i> Simpan
+                            </button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                <i class="fas fa-times"></i> Batal
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Atur Kaprodi (terpisah) -->
+    <div class="modal fade" id="modalKaprodi" aria-hidden="true">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Atur Kaprodi</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="kaprodiFormModal" name="kaprodiFormModal" class="form-horizontal">
+                        @csrf
+                        <div class="form-group mb-3">
+                            <label for="nama_prodi_kaprodi_modal" class="col-form-label">Nama Program
+                                Studi</label>
+                            <input type="text" class="form-control" id="nama_prodi_kaprodi_modal" readonly>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="id_kaprodi_modal" class="col-form-label">Pilih Kaprodi</label>
+                            <select class="form-control" id="id_kaprodi_modal" name="id_kaprodi">
+                                <option value="">-- Pilih Dosen --</option>
+                            </select>
+                            <span class="text-danger error-text id_kaprodi_error"></span>
+                        </div>
+                        <div class="form-group mb-0">
+                            <button type="submit" class="btn btn-success" id="saveKaprodiBtn">
+                                <i class="fas fa-save"></i> Simpan Kaprodi
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -413,26 +412,19 @@
                 return `${namaDosen} (${nidn})`;
             }
 
-            function initializeSelect2() {
-                if ($('#akreditasi_modal').hasClass('select2-hidden-accessible')) {
-                    $('#akreditasi_modal').select2('destroy');
-                }
-
-                $('#akreditasi_modal').select2({
-                    width: '100%',
-                    dropdownParent: $('#modalProdi'),
-                    placeholder: 'Pilih Akreditasi...'
-                });
-
+            // Inisialisasi select2 kaprodi. Dipanggil saat modal kaprodi dibuka
+            // (setelah opsi diisi) agar tidak dobel & dropdown selalu berisi data.
+            function initKaprodiSelect2() {
                 if ($('#id_kaprodi_modal').hasClass('select2-hidden-accessible')) {
                     $('#id_kaprodi_modal').select2('destroy');
                 }
-
+                $('#id_kaprodi_modal').siblings('.select2-container').remove();
                 $('#id_kaprodi_modal').select2({
                     width: '100%',
-                    dropdownParent: $('#modalProdi'),
+                    dropdownParent: $('#modalKaprodi'),
                     placeholder: '-- Pilih Dosen --',
                     allowClear: true,
+                    minimumResultsForSearch: 1,
                     matcher: function(params, data) {
                         const keyword = $.trim(params.term || '').toLowerCase();
 
@@ -445,9 +437,11 @@
                     }
                 });
             }
+
             var dosenList = @json($dosenList); // 🔥 Ditambahkan
 
-            // Isi dropdown kaprodi
+            // Isi dropdown kaprodi. Opsi ditambahkan lalu select2 di-init ulang
+            // agar daftar opsi selalu termuat dan pencarian berfungsi dengan baik.
             function fillDosenOptions() {
                 const select = $('#id_kaprodi_modal');
                 select.empty().append('<option value="">-- Pilih Dosen --</option>');
@@ -458,10 +452,55 @@
                     });
                 }
 
-                select.trigger('change.select2');
+                initKaprodiSelect2();
             }
 
-            initializeSelect2();
+            // ---- Akreditasi: opsi preset + "Lainnya..." (input teks manual) ----
+
+            // Tampilkan/sembunyikan input teks saat opsi "Lainnya..." dipilih.
+            function setupAkreditasiLain(selectSel, lainSel) {
+                $(selectSel).on('change', function() {
+                    if ($(this).val() === '__lainnya__') {
+                        $(lainSel).removeClass('d-none').prop('disabled', false).trigger('focus');
+                    } else {
+                        $(lainSel).addClass('d-none').val('').prop('disabled', true);
+                    }
+                });
+            }
+
+            // Isi nilai akreditasi saat edit. Nilai yang tidak termasuk preset
+            // diperlakukan sebagai "Lainnya..." dan diisikan ke input teks.
+            function syncAkreditasi(selectSel, lainSel, value) {
+                const presets = ['Unggul', 'Baik Sekali', 'Terakreditasi Pertama'];
+                if (presets.includes(value)) {
+                    $(selectSel).val(value);
+                    $(lainSel).addClass('d-none').val('').prop('disabled', true);
+                } else if (value) {
+                    $(selectSel).val('__lainnya__');
+                    $(lainSel).removeClass('d-none').val(value).prop('disabled', false);
+                } else {
+                    $(selectSel).val('');
+                    $(lainSel).addClass('d-none').val('').prop('disabled', true);
+                }
+            }
+
+            // Sebelum submit: jika opsi "Lainnya..." terpilih, jadikan nilai input
+            // teks sebagai nilai akreditasi yang sesungguhnya.
+            function resolveAkreditasi(selectSel, lainSel) {
+                const $sel = $(selectSel);
+                if ($sel.val() === '__lainnya__') {
+                    const value = $(lainSel).val().trim();
+                    if (!value) {
+                        $(lainSel).trigger('focus');
+                        return null;
+                    }
+                    $sel.val(value);
+                }
+                return $sel.val();
+            }
+
+            setupAkreditasiLain('#akreditasi', '#akreditasi_lain');
+            setupAkreditasiLain('#akreditasi_modal', '#akreditasi_modal_lain');
 
             function populateKaprodiTab(prodi) {
                 fillDosenOptions();
@@ -519,6 +558,9 @@
                         render: function(data) {
                             return `
                                 <div class="d-flex justify-content-center gap-2 flex-wrap">
+                                    <button class="btn btn-info btn-sm kaprodi-btn" data-id="${data.id}" title="Atur Kaprodi">
+                                        <i class="fas fa-user-tie"></i>
+                                    </button>
                                     <button class="btn btn-warning btn-sm edit-btn" data-id="${data.id}">
                                         <i class="fas fa-edit"></i>
                                     </button>
@@ -544,6 +586,8 @@
             $('#resetBtn').click(function() {
                 $('#prodiForm')[0].reset();
                 $('#prodi_id').val('');
+                $('#akreditasi').val('').trigger('change');
+                $('#akreditasi_lain').addClass('d-none').val('').prop('disabled', true);
                 $('.error-text').text('');
                 $('#saveBtn').prop('disabled', false).html('<i class="fas fa-save"></i> Simpan');
             });
@@ -552,6 +596,15 @@
             $('#prodiForm').on('submit', function(e) {
                 e.preventDefault();
                 $('.error-text').text('');
+                if (resolveAkreditasi('#akreditasi', '#akreditasi_lain') === null) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Akreditasi belum lengkap',
+                        text: 'Isi nilai akreditasi lain terlebih dahulu, atau pilih opsi yang tersedia.',
+                        confirmButtonText: 'OK'
+                    });
+                    return;
+                }
                 const formData = $(this).serialize();
                 $('#saveBtn').prop('disabled', true).text('Menyimpan...');
 
@@ -616,10 +669,9 @@
                             $('#kode_prodi_modal').val(data.data.kode_prodi);
                             $('#nama_prodi_modal').val(data.data.nama_prodi);
                             $('#jenjang_pendidikan_modal').val(data.data.jenjang_pendidikan);
-                            $('#akreditasi_modal').val(data.data.akreditasi);
+                            syncAkreditasi('#akreditasi_modal', '#akreditasi_modal_lain', data.data.akreditasi);
                             $('#tahun_berdiri_modal').val(data.data.tahun_berdiri);
                             $('#gelar_lulusan_modal').val(data.data.gelar_lulusan);
-                            populateKaprodiTab(data.data);
                             $('.error-text').text('');
                             $('#modalProdi').modal('show');
                         } else {
@@ -645,6 +697,15 @@
             $('#prodiFormModal').on('submit', function(e) {
                 e.preventDefault();
                 $('.error-text').text('');
+                if (resolveAkreditasi('#akreditasi_modal', '#akreditasi_modal_lain') === null) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Akreditasi belum lengkap',
+                        text: 'Isi nilai akreditasi lain terlebih dahulu, atau pilih opsi yang tersedia.',
+                        confirmButtonText: 'OK'
+                    });
+                    return;
+                }
                 const id = $('#prodi_id_modal').val();
                 const formData = $(this).serialize();
                 $('#saveBtnModal').prop('disabled', true).text('Menyimpan...');
@@ -758,17 +819,31 @@
                 });
             });
 
-            // Load dosen options saat tab kaprodi aktif
-            $(document).on('shown.bs.tab', 'button[data-bs-target="#kaprodi"]', function() {
-                const id = $('#prodi_id_modal').val();
-                if (id) {
-                    $.get("{{ route('prodi.show', '') }}/" + id)
-                        .done(function(response) {
-                            if (response.success && response.data) {
-                                populateKaprodiTab(response.data);
-                            }
+            // Tombol atur kaprodi (buka modal kaprodi terpisah)
+            $(document).on('click', '.kaprodi-btn', function() {
+                const id = $(this).data('id');
+                $.get("{{ route('prodi.show', '') }}/" + id)
+                    .done(function(response) {
+                        if (response.success && response.data) {
+                            $('#prodi_id_modal').val(response.data.id);
+                            populateKaprodiTab(response.data);
+                            $('#modalKaprodi').modal('show');
+                        } else {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Data Tidak Ditemukan',
+                                text: 'Data yang Anda cari tidak ditemukan.',
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    })
+                    .fail(function(xhr) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal!',
+                            text: 'Gagal mengambil data kaprodi.'
                         });
-                }
+                    });
             });
 
             // Simpan kaprodi

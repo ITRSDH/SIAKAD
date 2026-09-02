@@ -925,18 +925,6 @@
             }).get();
         }
 
-        function formatKurikulumIndukLabel(induk) {
-            if (!induk) {
-                return '-';
-            }
-
-            return [
-                induk.kode_kurikulum,
-                induk.nama_kurikulum,
-                induk.jenis_kurikulum?.kode_jenis
-            ].filter(Boolean).join(' | ') || '-';
-        }
-
         function getSelectedPreviewMahasiswaIds() {
             return $('.historical-preview-checkbox:checked').map(function() {
                 return $(this).val();
@@ -967,9 +955,7 @@
                     (row.existing_historical_krs ?
                         'Mahasiswa ini sudah memiliki riwayat pada semester tersebut dan bisa dipilih untuk proses lanjutan.' :
                         'Mahasiswa ini belum memiliki riwayat pada semester tersebut.');
-                const induk = row.kurikulum_context?.kurikulum_induk || {};
                 const struktur = row.kurikulum_context?.struktur_operasional || {};
-                const kurikulumIndukLabel = formatKurikulumIndukLabel(induk);
                 const strukturOperasionalLabel = [struktur.nama_struktur_mk, struktur.nama_kurikulum]
                     .filter(Boolean).join(' | ') || '-';
 
@@ -984,8 +970,7 @@
                                 ${row.available_class_count ? `<span class="historical-mini-badge"><i class="fas fa-book"></i> ${row.available_class_count} kelas tersedia</span>` : ''}
                             </div>
                             <div class="small text-muted mt-2">
-                                <div><strong>Induk:</strong> ${kurikulumIndukLabel}</div>
-                                <div><strong>Operasional:</strong> ${strukturOperasionalLabel}</div>
+                                <div><strong>Struktur:</strong> ${strukturOperasionalLabel}</div>
                             </div>
                         </td>
                         <td>${row.prodi?.nama_prodi ?? '-'}</td>
@@ -1091,8 +1076,7 @@
                 <div class="historical-course-row is-clickable" data-class-id="${row.id}">
                     <div class="fw-semibold">${row.mata_kuliah?.kode_mk ?? '-'} - ${row.mata_kuliah?.nama_mk ?? 'Mata Kuliah'}</div>
                     <div class="small text-muted">
-                        <div><strong>Induk:</strong> ${formatKurikulumIndukLabel(row.kurikulum_context?.kurikulum_induk)}</div>
-                        <div><strong>Operasional:</strong> ${row.kurikulum_context?.struktur_operasional?.nama_struktur_mk ?? row.nama_struktur_operasional ?? row.nama_kurikulum ?? 'Struktur Operasional'} | ${row.nama_kelas ?? 'Kelas'} | ${row.mata_kuliah?.sks ?? 0} SKS</div>
+                        <div><strong>Struktur:</strong> ${row.kurikulum_context?.struktur_operasional?.nama_struktur_mk ?? row.nama_struktur_operasional ?? row.nama_kurikulum ?? 'Struktur Operasional'} | ${row.nama_kelas ?? 'Kelas'} | ${row.mata_kuliah?.sks ?? 0} SKS</div>
                     </div>
                     <div class="small text-primary mt-2">Klik untuk menjadikan kelas ini sebagai referensi cepat saat menyusun builder mahasiswa.</div>
                 </div>

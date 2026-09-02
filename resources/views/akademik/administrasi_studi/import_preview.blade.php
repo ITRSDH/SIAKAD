@@ -88,7 +88,7 @@
 
         .study-import-grid {
             display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: .9rem;
         }
 
@@ -194,8 +194,8 @@
                 <li class="nav-home"><a href="{{ url('/') }}"><i class="icon-home"></i></a></li>
                 <li class="separator"><i class="icon-arrow-right"></i></li>
                 <li class="nav-item"><a
-                        href="{{ route('akademik.administrasi-studi.index', ['tab' => 'import']) }}">Administrasi Studi
-                        Mahasiswa</a></li>
+                        href="{{ route('akademik.administrasi-studi.nilai') }}">Input
+                        Nilai</a></li>
                 <li class="separator"><i class="icon-arrow-right"></i></li>
                 <li class="nav-item"><a
                         href="{{ $batchId ? route('akademik.administrasi-studi.import.preview', $batchId) : '#' }}">Hasil
@@ -246,8 +246,8 @@
                     <div class="text-muted small">{{ $semesterLabel ?: '-' }}</div>
                 </div>
                 <div class="d-flex flex-wrap gap-2">
-                    <a href="{{ route('akademik.administrasi-studi.index', ['tab' => 'import']) }}"
-                        class="btn btn-outline-secondary btn-sm">Kembali ke Import</a>
+                    <a href="{{ route('akademik.administrasi-studi.nilai') }}"
+                        class="btn btn-outline-secondary btn-sm">Kembali ke Input Nilai</a>
                 </div>
             </div>
             <div class="card-body">
@@ -267,6 +267,10 @@
                     <div class="study-import-stat">
                         <div class="label">Warning</div>
                         <div class="value text-warning">{{ $summary['total_warning'] ?? 0 }}</div>
+                    </div>
+                    <div class="study-import-stat">
+                        <div class="label">MK Dilewati (tidak diambil)</div>
+                        <div class="value text-muted">{{ $summary['total_mk_skipped'] ?? 0 }}</div>
                     </div>
                 </div>
 
@@ -391,12 +395,13 @@
                         <tbody>
                             @forelse ($rows as $row)
                                 @php
-                                    $rowStatus = (string) ($row['status'] ?? 'warning');
-                                    $rowClass = match ($rowStatus) {
-                                        'valid', 'ready', 'processed' => 'valid',
-                                        'error', 'failed' => 'error',
-                                        default => 'warning',
-                                    };
+                                    $rowStatus = !empty($row['errors'])
+                                        ? 'error'
+                                        : (!empty($row['warnings'])
+                                            ? 'warning'
+                                            : ((($row['is_valid'] ?? false)) ? 'valid' : 'error'));
+                                    $rowClass = ['valid' => 'valid', 'error' => 'error', 'warning' => 'warning'][$rowStatus] ?? 'warning';
+                                    $rowStatusLabel = ['valid' => 'Valid', 'error' => 'Error', 'warning' => 'Warning'][$rowStatus] ?? 'Warning';
                                     $subjectLabels = collect($row['subjects'] ?? [])
                                         ->map(function ($subject) {
                                             return trim(
@@ -408,18 +413,24 @@
                                         ->filter()
                                         ->values()
                                         ->all();
+                                    $skippedCount = collect($row['subjects'] ?? [])->where('skipped', true)->count();
                                 @endphp
                                 <tr>
                                     <td>{{ $row['row_number'] ?? '-' }}</td>
                                     <td>
                                         <span
                                             class="badge status-badge {{ $rowClass === 'valid' ? 'bg-success' : ($rowClass === 'error' ? 'bg-danger' : 'bg-warning text-dark') }}">
-                                            {{ strtoupper($rowStatus) }}
+                                            {{ $rowStatusLabel }}
                                         </span>
                                     </td>
                                     <td>{{ $row['nim'] ?? '-' }}</td>
                                     <td>{{ $row['nama'] ?? 'Mahasiswa' }}</td>
-                                    <td>{{ !empty($subjectLabels) ? implode(', ', $subjectLabels) : '-' }}</td>
+                                    <td>
+                                        <div>{{ !empty($subjectLabels) ? implode(', ', $subjectLabels) : '-' }}</div>
+                                        @if ($skippedCount > 0)
+                                            <div class="small text-muted mt-1">{{ $skippedCount }} MK tidak diambil (dilewati)</div>
+                                        @endif
+                                    </td>
                                     <td>{{ $row['message'] ?? '-' }}</td>
                                     <td class="text-danger">
                                         {{ !empty($row['errors']) ? collect($row['errors'])->pluck('message')->implode(' | ') : '-' }}

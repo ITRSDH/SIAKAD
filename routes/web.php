@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Siakad\Akademik\MonitoringAkademikController;
-use App\Http\Controllers\Siakad\Akademik\KurikulumMahasiswaController as AkademikKurikulumMahasiswaController;
 use App\Http\Controllers\Siakad\Akademik\KhsController as AkademikKhsController;
 use App\Http\Controllers\Siakad\Akademik\KhsImportController as AkademikKhsImportController;
 use App\Http\Controllers\Siakad\Akademik\StudentStudyAdministrationController;
@@ -43,7 +42,6 @@ use App\Http\Controllers\Siakad\MasterData\DosenWaliController;
 use App\Http\Controllers\Siakad\MasterData\JadwalController as MasterDataJadwalController;
 use App\Http\Controllers\Siakad\MasterData\KelaskuliahController;
 use App\Http\Controllers\Siakad\MasterData\KurikulumController;
-use App\Http\Controllers\Siakad\MasterData\KurikulumIndukController;
 use App\Http\Controllers\Siakad\MasterData\MahasiswaBaruController;
 use App\Http\Controllers\Siakad\MasterData\MahasiswaController;
 use App\Http\Controllers\Siakad\MasterData\MataKuliahController;
@@ -116,6 +114,10 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
 
     Route::prefix('akademik/administrasi-studi')->name('akademik.administrasi-studi.')->group(function () {
         Route::get('/', [StudentStudyAdministrationController::class, 'index'])->name('index');
+        Route::get('/krs', [StudentStudyAdministrationController::class, 'krsPage'])->name('krs');
+        Route::get('/nilai', [StudentStudyAdministrationController::class, 'nilaiPage'])->name('nilai');
+        Route::get('/khs', [StudentStudyAdministrationController::class, 'khsPage'])->name('khs');
+        Route::get('/riwayat', [StudentStudyAdministrationController::class, 'riwayatPage'])->name('riwayat');
         Route::get('/summary', [StudentStudyAdministrationController::class, 'summary'])->name('summary');
         Route::get('/historical/eligible-mahasiswa', [StudentStudyAdministrationController::class, 'eligibleHistoricalStudents'])->name('historical.eligible');
         Route::get('/historical/package-classes', [StudentStudyAdministrationController::class, 'historicalPackageClasses'])->name('historical.package-classes');
@@ -123,6 +125,8 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
         Route::post('/historical/preview', [StudentStudyAdministrationController::class, 'previewHistorical'])->name('historical.preview');
         Route::post('/historical/execute', [StudentStudyAdministrationController::class, 'executeHistorical'])->name('historical.execute');
         Route::get('/ready-khs', [StudentStudyAdministrationController::class, 'readyForKhs'])->name('ready-khs');
+        Route::post('/nilai-manual/save', [StudentStudyAdministrationController::class, 'saveManualNilai'])->name('nilai-manual.save');
+        Route::get('/nilai-manual/context', [StudentStudyAdministrationController::class, 'manualNilaiContext'])->name('nilai-manual.context');
         Route::get('/generate-khs/preview', [StudentStudyAdministrationController::class, 'previewGenerateKhs'])->name('generate-khs.preview');
         Route::post('/generate-khs/execute', [StudentStudyAdministrationController::class, 'executeGenerateKhs'])->name('generate-khs.execute');
         Route::get('/import/template/export', [StudentStudyAdministrationController::class, 'exportImportTemplate'])->name('import.template-export');
@@ -135,12 +139,6 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
         Route::get('/import/{batch}/export-results', [StudentStudyAdministrationController::class, 'exportImportResults'])->name('import.export-results');
         Route::get('/batches', [StudentStudyAdministrationController::class, 'batchHistory'])->name('batches');
         Route::get('/batches/{source}/{id}', [StudentStudyAdministrationController::class, 'showBatch'])->name('batches.show');
-    });
-
-    Route::prefix('akademik/kurikulum-mahasiswa')->name('akademik.kurikulum-mahasiswa.')->group(function () {
-        Route::get('/', [AkademikKurikulumMahasiswaController::class, 'index'])->name('index');
-        Route::get('/{id}/riwayat', [AkademikKurikulumMahasiswaController::class, 'riwayatKurikulum'])->whereUuid('id')->name('riwayat');
-        Route::post('/{id}/migrasi', [AkademikKurikulumMahasiswaController::class, 'migrateKurikulum'])->whereUuid('id')->name('migrasi');
     });
 
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
@@ -288,20 +286,6 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
         Route::delete('/{id}/mata-kuliah/{id_mk}', [KurikulumController::class, 'hapusMataKuliah'])->name('hapus-mata-kuliah');
     });
 
-    Route::prefix('kurikulum-induk')->name('kurikulum-induk.')->group(function () {
-        Route::get('/', [KurikulumIndukController::class, 'index'])->name('index');
-        Route::post('/', [KurikulumIndukController::class, 'store'])->name('store');
-        Route::put('/{id}', [KurikulumIndukController::class, 'update'])->name('update');
-        Route::delete('/{id}', [KurikulumIndukController::class, 'destroy'])->name('destroy');
-    });
-
-    Route::prefix('jenis-kurikulum')->name('jenis-kurikulum.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\Siakad\MasterData\JenisKurikulumController::class, 'index'])->name('index');
-        Route::post('/', [\App\Http\Controllers\Siakad\MasterData\JenisKurikulumController::class, 'store'])->name('store');
-        Route::put('/{id}', [\App\Http\Controllers\Siakad\MasterData\JenisKurikulumController::class, 'update'])->name('update');
-        Route::delete('/{id}', [\App\Http\Controllers\Siakad\MasterData\JenisKurikulumController::class, 'destroy'])->name('destroy');
-    });
-
     Route::prefix('kelas-kuliah')->name('kelas-kuliah.')->group(function () {
         Route::get('/data', [KelaskuliahController::class, 'getDatakelaskuliah'])->name('dataKelaskuliah');
         Route::get('/', [KelaskuliahController::class, 'index'])->name('index');
@@ -357,8 +341,6 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
         Route::get('/', [MahasiswaController::class, 'index'])->name('index');
         Route::post('/', [MahasiswaController::class, 'store'])->name('store');
         Route::post('/bulk-delete', [MahasiswaController::class, 'bulkDestroy'])->name('bulk-destroy');
-        Route::get('/{id}/riwayat-kurikulum', [MahasiswaController::class, 'riwayatKurikulum'])->whereUuid('id')->name('riwayat-kurikulum');
-        Route::post('/{id}/migrasi-kurikulum', [MahasiswaController::class, 'migrateKurikulum'])->whereUuid('id')->name('migrasi-kurikulum');
         Route::get('/{id}', [MahasiswaController::class, 'show'])->whereUuid('id')->name('show');
         Route::put('/{id}', [MahasiswaController::class, 'update'])->whereUuid('id')->name('update');
         Route::delete('/{id}', [MahasiswaController::class, 'destroy'])->whereUuid('id')->name('destroy');

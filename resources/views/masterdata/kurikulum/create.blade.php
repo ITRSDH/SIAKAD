@@ -51,13 +51,6 @@
                             <h4 class="card-title mb-0">Mengatur Struktur Kurikulum per Program Studi</h4>
 
                             <div class="d-flex gap-2">
-                                <a href="{{ route('kurikulum-induk.index') }}" class="btn btn-sm btn-info">
-                                    <i class="fas fa-sitemap me-1"></i> Kelola Tahun Kurikulum
-                                </a>
-                                <a href="{{ route('jenis-kurikulum.index') }}" class="btn btn-sm btn-outline-info">
-                                    <i class="fas fa-layer-group me-1"></i> Jenis Kurikulum
-                                </a>
-
                                 <a href="{{ route('kurikulum.index') }}" class="btn btn-sm btn-secondary">
                                     <i class="fas fa-arrow-left me-1"></i> Kembali
                                 </a>
@@ -115,31 +108,6 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="id_kurikulum_induk" class="form-label">Tahun Kurikulum</label>
-                                        <select class="form-select select2" id="id_kurikulum_induk" name="id_kurikulum_induk" required>
-                                            <option value="" disabled selected>Pilih Tahun Kurikulum</option>
-                                            @foreach ($kurikulumInduk as $item)
-                                                <option value="{{ $item['id'] }}"
-                                                    data-prodi="{{ $item['id_prodi'] }}"
-                                                    data-kode="{{ $item['kode_kurikulum'] ?? '' }}"
-                                                    data-tahun="{{ $item['tahun_kurikulum'] ?? '' }}"
-                                                    data-keterangan="{{ $item['keterangan'] ?? $item['nama_kurikulum'] ?? '' }}"
-                                                    data-mulai-berlaku="{{ $item['mulai_berlaku'] ?? '' }}"
-                                                    data-jenis="{{ $item['jenis_kurikulum']['kode_jenis'] ?? '' }}"
-                                                    {{ old('id_kurikulum_induk') == $item['id'] ? 'selected' : '' }}>
-                                                    {{ $item['kurikulum_induk'] }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        <small class="text-muted">Pilih master tahun kurikulum terlebih dulu. Nama struktur operasional di bawah tetap boleh dibedakan per semester implementasi.</small>
-                                        <div id="kurikulumIndukSummary" class="small text-muted mt-2">Pilih tahun kurikulum untuk melihat ringkasan jenis, tahun, dan mulai berlakunya.</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
                                         <label for="id_semester" class="form-label">Mulai Berlaku</label>
                                         <select class="form-select select2" id="id_semester" name="id_semester" required>
                                             <option value="" disabled selected>Pilih Mulai Berlaku</option>
@@ -186,46 +154,6 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         $(document).ready(function () {
-            function filterKurikulumIndukByProdi() {
-                const selectedProdi = $('#id_prodi').val();
-                const indukSelect = $('#id_kurikulum_induk');
-                const currentValue = indukSelect.val();
-
-                indukSelect.find('option').each(function() {
-                    const option = $(this);
-                    const optionProdi = option.data('prodi');
-
-                    if (!option.val()) {
-                        option.prop('hidden', false);
-                        return;
-                    }
-
-                    option.prop('hidden', selectedProdi && optionProdi !== selectedProdi);
-                });
-
-                if (currentValue && indukSelect.find(`option[value="${currentValue}"]`).prop('hidden')) {
-                    indukSelect.val(null).trigger('change');
-                }
-            }
-
-            function renderKurikulumIndukSummary() {
-                const selectedOption = $('#id_kurikulum_induk option:selected');
-                if (!selectedOption.length || !selectedOption.val()) {
-                    $('#kurikulumIndukSummary').text('Pilih tahun kurikulum untuk melihat ringkasan jenis, tahun, dan mulai berlakunya.');
-                    return;
-                }
-
-                const parts = [
-                    selectedOption.data('kode'),
-                    selectedOption.data('tahun') ? `Tahun ${selectedOption.data('tahun')}` : null,
-                    selectedOption.data('jenis') ? `Jenis ${selectedOption.data('jenis')}` : null,
-                    selectedOption.data('mulai-berlaku') ? `Mulai ${selectedOption.data('mulai-berlaku')}` : null,
-                    selectedOption.data('keterangan') ? `Ket: ${selectedOption.data('keterangan')}` : null,
-                ].filter(Boolean);
-
-                $('#kurikulumIndukSummary').text(parts.join(' | ') || 'Ringkasan tahun kurikulum belum tersedia.');
-            }
-
             // Fungsi untuk menghitung total SKS
             function calculateTotalSKSLulus() {
                 const pilihan = parseInt($('#jumlah_sks_pilihan').val()) || 0;
@@ -241,14 +169,6 @@
                 calculateTotalSKSLulus();
             });
 
-            $('#id_prodi').on('change', function () {
-                filterKurikulumIndukByProdi();
-            });
-
-            $('#id_kurikulum_induk').on('change', function () {
-                renderKurikulumIndukSummary();
-            });
-
             // Validasi tambahan: pastikan SKS tidak negatif
             $('input[id^="jumlah_sks_"]').on('blur', function () {
                 if ($(this).val() < 0) {
@@ -256,9 +176,6 @@
                     calculateTotalSKSLulus();
                 }
             });
-
-            filterKurikulumIndukByProdi();
-            renderKurikulumIndukSummary();
         });
     </script>
 @endpush

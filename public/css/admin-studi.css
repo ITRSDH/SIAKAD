@@ -1,0 +1,483 @@
+/* ===================================================================== */
+/* Admin Studi Mahasiswa — CSS (TASK-SIK-002/003/004/005)                */
+/* ===================================================================== */
+
+/* ---- Landing (index) ---- */
+.study-landing-hero {
+    border: 0;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #0f3d3e 0%, #16697a 60%, #1d7893 100%);
+    color: #fff;
+}
+
+.study-landing-hero p {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.study-landing-step {
+    display: block;
+    border: 1px solid #dbe4f0;
+    border-radius: 18px;
+    background: #fff;
+    padding: 1.1rem 1.25rem;
+    height: 100%;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    color: inherit;
+}
+
+.study-landing-step:hover {
+    border-color: #93c5fd;
+    box-shadow: 0 12px 26px rgba(15, 23, 42, 0.08);
+    text-decoration: none;
+}
+
+.study-landing-step-no {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.9rem;
+    height: 1.9rem;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-weight: 800;
+    font-size: .9rem;
+    margin-bottom: .8rem;
+}
+
+.study-landing-step-icon {
+    font-size: 1.15rem;
+    color: #16697a;
+    margin-bottom: .5rem;
+}
+
+/* ---- Utility shell (dipakai lintas halaman) ---- */
+.study-shell,
+.study-card {
+    border: 1px solid #dbe4f0;
+    border-radius: 18px;
+    box-shadow: 0 10px 26px rgba(15, 23, 42, 0.05);
+}
+
+.study-stat {
+    border-radius: 16px;
+    padding: 1rem;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    height: 100%;
+}
+
+.study-stat-value {
+    font-size: 1.6rem;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.study-action-note {
+    border: 1px dashed #cbd5e1;
+    border-radius: 16px;
+    background: #f8fafc;
+    padding: .85rem 1rem;
+}
+
+.study-soft-box {
+    border: 1px solid #dbe4f0;
+    border-radius: 16px;
+    background: linear-gradient(180deg, #fff 0%, #f8fbff 100%);
+    padding: 1rem;
+}
+
+.study-bridge {
+    border: 1px solid #c7d2fe;
+    background: linear-gradient(180deg, #f8faff 0%, #eef4ff 100%);
+    border-radius: 16px;
+    padding: 1rem;
+}
+
+.study-native-panel {
+    border: 1px solid #dbe4f0;
+    border-radius: 16px;
+    background: #fff;
+    padding: 1rem;
+}
+
+.study-mini-item {
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: .9rem 1rem;
+    background: #fff;
+}
+
+/* ---- Jalur nav (nilai) ---- */
+.study-jalur-nav .nav-link {
+    border: 1px solid #dbe4f0;
+    border-radius: 999px;
+    color: #475569;
+    padding: .5rem 1rem;
+}
+
+.study-jalur-nav .nav-link.active {
+    background: #16697a;
+    border-color: #16697a;
+    color: #fff;
+}
+
+/* ---- Seleksi mahasiswa (riwayat) ---- */
+.study-riwayat-select-list {
+    max-height: 240px;
+    overflow-y: auto;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: .5rem .75rem;
+}
+
+.study-riwayat-select-item:hover {
+    background: #f8fafc;
+}
+
+/* ---- Combine table ---- */
+.study-collective-table thead th {
+    background: #f8fafc;
+    font-size: .82rem;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    color: #475569;
+}
+
+.study-collective-table-wrap {
+    max-height: 560px;
+    overflow: auto;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    scrollbar-width: thin;
+}
+
+/* ---- Baris mahasiswa dengan KHS final (Input Nilai — Manual) ---- */
+.study-final-khs-row {
+    background-color: #f0fdf4 !important;
+}
+
+.study-final-khs-row:hover {
+    background-color: #ecfdf5 !important;
+}
+
+.study-final-khs-row td {
+    color: #166534;
+}
+
+/* ---- Penanda per-sel grid manual: MK tidak diambil & MK ulang ---- */
+.study-not-taken-cell {
+    background-color: #f1f5f9 !important;
+    color: #94a3b8;
+}
+
+.study-not-taken-cell,
+.study-not-taken-cell:hover {
+    cursor: not-allowed;
+}
+
+.study-repeat-cell {
+    background-color: #fffbeb !important;
+}
+
+.study-repeat-cell td,
+.study-repeat-cell {
+    color: #b45309;
+}
+
+.study-filter-strip {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: .9rem;
+}
+
+.study-filter-strip .summary {
+    color: #64748b;
+    font-size: .88rem;
+}
+
+.study-filter-strip .search-input-wrap {
+    position: relative;
+    max-width: 320px;
+    width: 100%;
+}
+
+.study-filter-strip .search-input-wrap .search-input-icon {
+    position: absolute;
+    top: 50%;
+    left: .85rem;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: .85rem;
+    line-height: 1;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.study-filter-strip .search-input-wrap input.form-control,
+.study-filter-strip .search-input-wrap input {
+    padding-left: 2.25rem !important;
+}
+
+.study-pager {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-top: .9rem;
+}
+
+.study-pager .info {
+    color: #64748b;
+    font-size: .88rem;
+}
+
+/* ---- Builder ---- */
+.study-course-row {
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: .75rem;
+    background: #fcfdff;
+}
+
+.study-builder-shell {
+    display: grid;
+    grid-template-columns: minmax(260px, 1fr) minmax(0, 2fr);
+    gap: 1rem;
+    align-items: start;
+}
+
+.study-builder-nav {
+    border: 1px solid #dbe4f0;
+    border-radius: 14px;
+    background: #fff;
+    padding: .85rem;
+    position: sticky;
+    top: 1rem;
+}
+
+.study-builder-nav-list {
+    display: grid;
+    gap: .65rem;
+    max-height: 640px;
+    overflow-y: auto;
+}
+
+.study-builder-nav-item {
+    width: 100%;
+    text-align: left;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #fff;
+    padding: .8rem .9rem;
+}
+
+.study-builder-nav-item.active {
+    border-color: #93c5fd;
+    background: #eff6ff;
+}
+
+.study-builder-nav-item .meta {
+    color: #64748b;
+    font-size: .82rem;
+}
+
+.study-builder-stage {
+    display: grid;
+    gap: 1rem;
+}
+
+.study-builder-card.d-none {
+    display: none !important;
+}
+
+.study-builder-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: .9rem;
+}
+
+.study-builder-toolbar .summary {
+    color: #64748b;
+    font-size: .88rem;
+}
+
+/* ---- Preview items ---- */
+.study-preview-item {
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: .9rem 1rem;
+    background: #fff;
+}
+
+.study-preview-item.ready,
+.study-preview-item.executed {
+    border-color: #bbf7d0;
+    background: #f0fdf4;
+}
+
+.study-preview-item.skipped {
+    border-color: #fde68a;
+    background: #fffbeb;
+}
+
+.study-preview-item.failed {
+    border-color: #fecaca;
+    background: #fef2f2;
+}
+
+/* ---- Select2 tiny alignment ---- */
+.select2-container .select2-selection--single {
+    height: 38px !important;
+    padding: 5px 10px;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 26px;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 38px;
+}
+
+@media (max-width: 991.98px) {
+    .study-builder-shell {
+        grid-template-columns: 1fr;
+    }
+
+    .study-builder-nav {
+        position: static;
+    }
+}
+
+/* ---- Wizard bertahap (Daftarkan KRS) ---- */
+.study-wizard-steps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem;
+}
+
+.study-wizard-step {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .45rem 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 999px;
+    background: #f8fafc;
+    color: #64748b;
+    font-weight: 600;
+    font-size: .85rem;
+}
+
+.study-wizard-step .num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #cbd5e1;
+    color: #fff;
+    font-size: .75rem;
+    font-weight: 700;
+    flex: 0 0 22px;
+}
+
+.study-wizard-step.active {
+    border-color: #4f46e5;
+    background: #eef2ff;
+    color: #4338ca;
+}
+
+.study-wizard-step.active .num {
+    background: #4f46e5;
+}
+
+.study-wizard-step.done {
+    border-color: #22c55e;
+    background: #f0fdf4;
+    color: #15803d;
+}
+
+.study-wizard-step.done .num {
+    background: #22c55e;
+}
+
+.study-wizard-pane {
+    animation: studyWizardFade .25s ease;
+}
+
+@keyframes studyWizardFade {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* ---- Strip alur modern (Daftarkan KRS) ---- */
+.study-flow-strip {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: .75rem 1rem;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, .04);
+}
+
+.study-flow-steps {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem;
+}
+
+.study-flow-label {
+    font-size: .78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: #94a3b8;
+    margin-right: .25rem;
+}
+
+.study-flow-step {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    font-size: .85rem;
+    font-weight: 600;
+    color: #334155;
+}
+
+.study-flow-step .ic {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: #eef2ff;
+    color: #4f46e5;
+    font-size: .78rem;
+    flex: 0 0 28px;
+}
+
+.study-flow-arrow {
+    color: #cbd5e1;
+    font-size: .85rem;
+}
+

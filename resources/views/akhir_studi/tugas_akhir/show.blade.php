@@ -6,17 +6,9 @@
     $mahasiswa = $tugasAkhir['mahasiswa'] ?? [];
     $kurikulum = $tugasAkhir['kurikulum'] ?? [];
     $kurikulumContext = $tugasAkhir['kurikulum_context'] ?? [];
-    $kurikulumInduk = $kurikulumContext['kurikulum_induk'] ?? [];
     $strukturOperasional = $kurikulumContext['struktur_operasional'] ?? [];
     $pembimbing = $tugasAkhir['pembimbing'] ?? [];
     $ujian = $tugasAkhir['ujian'] ?? [];
-    $formatKurikulumIndukLabel = static function (array $induk): string {
-        return collect([
-            $induk['kode_kurikulum'] ?? null,
-            $induk['nama_kurikulum'] ?? null,
-            $induk['jenis_kurikulum']['kode_jenis'] ?? null,
-        ])->filter()->implode(' | ') ?: '-';
-    };
 @endphp
 
 @section('content')
@@ -54,11 +46,7 @@
                                 <small class="text-muted">{{ $mahasiswa['nim'] ?? '-' }}</small>
                             </div>
                             <div class="col-md-6">
-                                <div class="fw-semibold">Tahun Kurikulum</div>
-                                <div>{{ $formatKurikulumIndukLabel($kurikulumInduk) }}</div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="fw-semibold">Struktur Operasional</div>
+                                <div class="fw-semibold">Struktur Kurikulum</div>
                                 <div>{{ $strukturOperasional['nama_struktur_mk'] ?? ($strukturOperasional['nama_kurikulum'] ?? ($kurikulum['nama_struktur_mk'] ?? $kurikulum['nama_kurikulum'] ?? '-')) }}</div>
                             </div>
                             <div class="col-md-6">

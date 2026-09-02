@@ -89,9 +89,6 @@
                         <div class="fs-4 fw-semibold d-flex justify-content-between align-items-center">
                             <h4 class="card-title">Data Struktur Kurikulum</h4>
                             <div class="d-flex gap-2">
-                                <a href="{{ route('kurikulum-induk.index') }}" class="btn btn-sm btn-info">
-                                    <i class="fas fa-sitemap me-1"></i> Tahun Kurikulum
-                                </a>
                                 <a href="{{ route('kurikulum.create') }}" class="btn btn-sm btn-primary">
                                     <i class="fas fa-plus me-1"></i> Tambah
                                 </a>
@@ -109,12 +106,9 @@
                                 <thead class="table-dark opacity-75">
                                     <tr>
                                         <th rowspan="2" width="5%">No</th>
-                                        <th rowspan="2" width="12%">Kode Induk</th>
-                                        <th rowspan="2" width="16%">Keterangan Tahun Kurikulum</th>
-                                        <th rowspan="2" width="12%">Jenis</th>
                                         <th rowspan="2" width="18%">Nama Struktur Kurikulum</th>
-                                        <th rowspan="2" width="14%">Program Studi</th>
-                                        <th rowspan="2" width="12%">Mulai Berlaku</th>
+                                        <th rowspan="2" width="18%">Program Studi</th>
+                                        <th rowspan="2" width="14%">Mulai Berlaku</th>
 
                                         <th colspan="3" width="20%">Aturan Jumlah SKS</th>
                                         <th colspan="2" width="15%">Jumlah SKS Matakuliah</th>
@@ -158,7 +152,7 @@
                 },
                 columnDefs: [{
                     orderable: false,
-                    targets: [7, 8, 9, 10, 11, 12]
+                    targets: [4, 5, 6, 7, 8, 9]
                 }],
                 columns: [{
                         data: null,
@@ -168,27 +162,6 @@
                         },
                         orderable: false,
                         searchable: false
-                    },
-                    {
-                        data: 'kurikulum_induk',
-                        className: 'text-center',
-                        render: function(data) {
-                            return data?.kode_kurikulum || '-';
-                        }
-                    },
-                    {
-                        data: 'keterangan_kurikulum_induk',
-                        className: 'text-center',
-                        render: function(data) {
-                            return data || '-';
-                        }
-                    },
-                    {
-                        data: 'kurikulum_induk',
-                        className: 'text-center',
-                        render: function(data) {
-                            return data?.jenis_kurikulum?.kode_jenis || '-';
-                        }
                     },
                     {
                         data: 'nama_struktur_mk',

@@ -74,6 +74,7 @@
                                         <th>Nama</th>
                                         <th>NIM Sementara</th>
                                         <th>Prodi yang Dipilih</th>
+                                        <th>Status</th>
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
@@ -159,7 +160,7 @@
 
                             <div class="col-md-6 mb-3">
                                 <label>Jenis Kelamin</label>
-                                <select id="jenis_kelamin" class="form-control" required>
+                                <select id="jenis_kelamin" class="form-select" required>
                                     <option value="">-- Pilih --</option>
                                     <option value="L">Laki-laki</option>
                                     <option value="P">Perempuan</option>
@@ -177,28 +178,13 @@
                             </div>
 
                             <div class="col-md-6 mb-3">
-                                <label>No HP</label>
-                                <input type="text" id="no_hp" class="form-control">
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label>Asal Sekolah</label>
-                                <input type="text" id="asal_sekolah" class="form-control">
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label>Nama Orang Tua</label>
-                                <input type="text" id="nama_orang_tua" class="form-control">
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label>No HP Orang Tua</label>
-                                <input type="text" id="no_hp_orang_tua" class="form-control">
+                                <label>Tempat Lahir</label>
+                                <input type="text" id="tempat_lahir" class="form-control">
                             </div>
 
                             <div class="col-md-6 mb-3">
                                 <label>Status</label>
-                                <select id="status" class="form-control" required>
+                                <select id="status" class="form-select" required>
                                     <option value="Aktif">Aktif</option>
                                     <option value="Cuti">Cuti</option>
                                     <option value="DO">Drop Out</option>
@@ -296,6 +282,10 @@
                     },
                     {
                         data: null,
+                        render: row => row.status ?? '-'
+                    },
+                    {
+                        data: null,
                         render: row => `
                 <div class="d-flex justify-content-center gap-2">
                     <button class="btn btn-warning btn-sm edit-btn" data-id="${row.id}">
@@ -326,7 +316,7 @@
                         if (res.success && res.data) {
                             let options = '<option value="">-- Pilih Periode --</option>';
                             res.data.forEach(item => {
-                                options += `<option value="${item.id}">${item.nama_periode}</option>`;
+                                options += `<option value="${item.id}">${item.nama_periode} - ${item.jalur_pendaftaran}</option>`;
                             });
                             $('#id_periode_pendaftaran').html(options);
                         } else {
@@ -407,10 +397,7 @@
                         jenis_kelamin: $('#jenis_kelamin').val(),
                         tanggal_lahir: $('#tanggal_lahir').val(),
                         alamat: $('#alamat').val(),
-                        no_hp: $('#no_hp').val(),
-                        asal_sekolah: $('#asal_sekolah').val(),
-                        nama_orang_tua: $('#nama_orang_tua').val(),
-                        no_hp_orang_tua: $('#no_hp_orang_tua').val(),
+                        tempat_lahir: $('#tempat_lahir').val(),
                         status: $('#status').val(),
                         angkatan: $('#angkatan').val()
                     },
@@ -449,10 +436,7 @@
                     $('#jenis_kelamin').val(m.jenis_kelamin);
                     $('#tanggal_lahir').val(m.tanggal_lahir?.split('T')[0] ?? '');
                     $('#alamat').val(m.alamat);
-                    $('#no_hp').val(m.no_hp);
-                    $('#asal_sekolah').val(m.asal_sekolah);
-                    $('#nama_orang_tua').val(m.nama_orang_tua);
-                    $('#no_hp_orang_tua').val(m.no_hp_orang_tua);
+                    $('#tempat_lahir').val(m.tempat_lahir);
                     $('#status').val(m.status);
                     $('#angkatan').val(m.angkatan);
                     if (!m.angkatan) {

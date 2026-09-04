@@ -168,6 +168,7 @@ class PembayaranController extends Controller
         $formData = [
             'siswa_id' => $data['profile']['id'],
             'jumlah' => $request->jumlah,
+            'catatan' => $request->catatan ?? null,
         ];
 
         // Create HMAC signature for POST with form data

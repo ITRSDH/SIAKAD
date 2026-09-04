@@ -144,6 +144,87 @@
                         </form>
                     </div>
                 </div>
+
+                @php
+                    $transaksiList = collect($tagihan->transaksi ?? []);
+                @endphp
+                @if($transaksiList->isNotEmpty())
+                <div class="card shadow-sm mt-4">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0 fw-bold">
+                            <i class="fas fa-history text-primary me-2"></i>Riwayat Pembayaran Tagihan Ini
+                        </h5>
+                        <span class="badge bg-secondary">{{ $transaksiList->count() }} transaksi</span>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr class="text-nowrap text-center">
+                                        <th>#</th>
+                                        <th>No. Transaksi</th>
+                                        <th>Tanggal</th>
+                                        <th>Jumlah</th>
+                                        <th>Status</th>
+                                        <th>Catatan</th>
+                                        <th>Bukti</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($transaksiList as $idx => $trx)
+                                    @php $trx = (object) $trx; @endphp
+                                    <tr>
+                                        <td class="text-center text-muted small">{{ $idx + 1 }}</td>
+                                        <td class="fw-semibold text-nowrap">{{ $trx->no_transaksi ?? '-' }}</td>
+                                        <td class="text-nowrap small">
+                                            @if(!empty($trx->tanggal_pembayaran))
+                                                {{ \Carbon\Carbon::parse($trx->tanggal_pembayaran)->translatedFormat('d M Y') }}
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+                                        <td class="text-nowrap fw-bold text-end">
+                                            Rp {{ number_format($trx->jumlah ?? 0, 0, ',', '.') }}
+                                        </td>
+                                        <td class="text-center text-nowrap">
+                                            @if(($trx->status ?? '') === 'disetujui')
+                                                <span class="badge bg-success text-white"><i class="fas fa-check-circle me-1"></i> Disetujui</span>
+                                            @elseif(($trx->status ?? '') === 'ditolak')
+                                                <span class="badge bg-danger text-white"><i class="fas fa-times-circle me-1"></i> Ditolak</span>
+                                            @elseif(($trx->status ?? '') === 'menunggu')
+                                                <span class="badge bg-warning text-dark"><i class="fas fa-hourglass-half me-1"></i> Menunggu Verifikasi</span>
+                                            @else
+                                                <span class="badge bg-secondary text-white">{{ ucfirst($trx->status ?? '-') }}</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if(!empty($trx->catatan))
+                                                <div class="small text-break">{{ $trx->catatan }}</div>
+                                            @else
+                                                <span class="text-muted small">-</span>
+                                            @endif
+                                        </td>
+                                        <td class="text-center text-nowrap">
+                                            @if(!empty($trx->bukti_pembayaran))
+                                                @php
+                                                    $apiUrl = config('api.keuangan_url', 'http://localhost:8001');
+                                                    $buktiUrl = rtrim($apiUrl, '/') . '/storage/' . $trx->bukti_pembayaran;
+                                                @endphp
+                                                <a href="{{ $buktiUrl }}" target="_blank" class="btn btn-xs btn-outline-primary py-1 px-2">
+                                                    <i class="fas fa-eye me-1"></i> Lihat
+                                                </a>
+                                            @else
+                                                <span class="text-muted small">-</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                @endif
             </div>
         </div>
     </div>

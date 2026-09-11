@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Http;
 class PembimbingAkademikWorkspaceController extends Controller
 {
     protected string $apiUrl;
+
     protected string $apiToken;
 
     public function __construct()
@@ -19,11 +20,11 @@ class PembimbingAkademikWorkspaceController extends Controller
     public function index()
     {
         try {
-            $statisticsResponse = Http::withToken($this->apiToken)->get($this->apiUrl . 'krs-dosen/statistics');
-            $pendingResponse = Http::withToken($this->apiToken)->get($this->apiUrl . 'krs-dosen/pending');
-            $bimbinganResponse = Http::withToken($this->apiToken)->get($this->apiUrl . 'krs-dosen/mahasiswa-bimbingan');
+            $statisticsResponse = Http::withToken($this->apiToken)->get($this->apiUrl.'krs-dosen/statistics');
+            $pendingResponse = Http::withToken($this->apiToken)->get($this->apiUrl.'krs-dosen/pending');
+            $bimbinganResponse = Http::withToken($this->apiToken)->get($this->apiUrl.'krs-dosen/mahasiswa-bimbingan');
 
-            if (!$statisticsResponse->successful() || !$pendingResponse->successful() || !$bimbinganResponse->successful()) {
+            if (! $statisticsResponse->successful() || ! $pendingResponse->successful() || ! $bimbinganResponse->successful()) {
                 return back()->with('error', 'Gagal mengambil data workspace pembimbing akademik dari API.');
             }
 

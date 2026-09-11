@@ -3,13 +3,14 @@
 namespace App\Http\Controllers\Siakad\MasterData;
 
 use App\Http\Controllers\Controller;
+use App\Services\DropdownService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
-use App\Services\DropdownService;
 
 class KelaskuliahController extends Controller
 {
     protected string $apiUrl;
+
     protected string $apiToken;
 
     public function __construct()
@@ -22,8 +23,8 @@ class KelaskuliahController extends Controller
     {
         try {
             // Ambil data kelaskuliah dari API
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . 'kelas-kuliah');
-            if (!$response->successful()) {
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl.'kelas-kuliah');
+            if (! $response->successful()) {
                 return response()->json([
                     'data' => [],
                     'message' => $response->json('message') ?? 'Data kelas kuliah tidak tersedia.',
@@ -32,7 +33,7 @@ class KelaskuliahController extends Controller
 
             $kelaskuliah = $response->json('data');
 
-            if (!is_array($kelaskuliah)) {
+            if (! is_array($kelaskuliah)) {
                 $kelaskuliah = [];
             }
 
@@ -60,7 +61,7 @@ class KelaskuliahController extends Controller
             return view('masterdata.kelaskuliah.create', [
                 'prodi' => $dropdown['prodi'] ?? [],
                 'semester' => $dropdown['semester'] ?? [],
-                'kurikulum_matakuliah' => $dropdown['kurikulum_matakuliah'] ?? []
+                'kurikulum_matakuliah' => $dropdown['kurikulum_matakuliah'] ?? [],
             ]);
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
@@ -72,9 +73,9 @@ class KelaskuliahController extends Controller
         try {
             // Ambil data kelas-kuliah dari API
             $response = Http::withToken($this->apiToken)
-                ->get($this->apiUrl . "kelas-kuliah/{$id}");
+                ->get($this->apiUrl."kelas-kuliah/{$id}");
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return back()->withErrors('Gagal mengambil data dari API');
             }
 
@@ -83,6 +84,7 @@ class KelaskuliahController extends Controller
             $krsCandidates = $this->fetchKrsCandidatesByKelas($id);
 
             $dropdown = $dropdownService->get('prodi,semester,kurikulum_matakuliah');
+
             return view('masterdata.kelaskuliah.detail', [
                 'kelaskuliah' => $kelaskuliah,
                 'pesertaKrs' => $pesertaKrs,
@@ -90,7 +92,7 @@ class KelaskuliahController extends Controller
                 'krsCandidateSummary' => $krsCandidates['summary'],
                 'prodi' => $dropdown['prodi'] ?? [],
                 'semester' => $dropdown['semester'] ?? [],
-                'kurikulum_matakuliah' => $dropdown['kurikulum_matakuliah'] ?? []
+                'kurikulum_matakuliah' => $dropdown['kurikulum_matakuliah'] ?? [],
             ]);
         } catch (\Exception $e) {
             return back()->withErrors($e->getMessage());
@@ -101,7 +103,7 @@ class KelaskuliahController extends Controller
     {
         try {
             $response = Http::withToken($this->apiToken)
-                ->post($this->apiUrl . 'kelas-kuliah', $request->all());
+                ->post($this->apiUrl.'kelas-kuliah', $request->all());
 
             if ($response->successful()) {
 
@@ -125,7 +127,7 @@ class KelaskuliahController extends Controller
     {
         try {
             $response = Http::withToken($this->apiToken)
-                ->put($this->apiUrl . "kelas-kuliah/{$id}", $request->all());
+                ->put($this->apiUrl."kelas-kuliah/{$id}", $request->all());
 
             if ($response->successful()) {
                 return redirect()
@@ -136,12 +138,12 @@ class KelaskuliahController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal mengupdate data di API',
-                'errors' => $response->json()
+                'errors' => $response->json(),
             ], 404);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -149,7 +151,7 @@ class KelaskuliahController extends Controller
     public function destroy($id)
     {
         try {
-            $response = Http::withToken($this->apiToken)->delete($this->apiUrl . "kelas-kuliah/{$id}");
+            $response = Http::withToken($this->apiToken)->delete($this->apiUrl."kelas-kuliah/{$id}");
 
             if ($response->successful()) {
                 return response()->json($response->json());
@@ -158,12 +160,12 @@ class KelaskuliahController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menghapus data di API',
-                'errors' => $response->json()
+                'errors' => $response->json(),
             ], 404);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -181,13 +183,13 @@ class KelaskuliahController extends Controller
         try {
             $response = Http::withToken($this->apiToken)
                 ->acceptJson()
-                ->post($this->apiUrl . "kelas-kuliah/{$id}/register-krs", [
+                ->post($this->apiUrl."kelas-kuliah/{$id}/register-krs", [
                     'mahasiswa_ids' => $validated['mahasiswa_ids'],
                 ]);
 
             $payload = $response->json();
 
-            if (!$response->successful() || !($payload['success'] ?? false)) {
+            if (! $response->successful() || ! ($payload['success'] ?? false)) {
                 return back()->withErrors($payload['message'] ?? 'Gagal mendaftarkan mahasiswa ke KRS.');
             }
 
@@ -218,16 +220,16 @@ class KelaskuliahController extends Controller
         try {
             $response = Http::withToken($this->apiToken)
                 ->acceptJson()
-                ->get($this->apiUrl . "penilaian/kelas/{$kelasKuliahId}/nilai");
+                ->get($this->apiUrl."penilaian/kelas/{$kelasKuliahId}/nilai");
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return [];
             }
 
             $payload = $response->json('data', []);
             $items = $payload['mahasiswa'] ?? (is_array($payload) ? $payload : []);
 
-            if (!is_array($items)) {
+            if (! is_array($items)) {
                 return [];
             }
 
@@ -265,9 +267,9 @@ class KelaskuliahController extends Controller
         try {
             $response = Http::withToken($this->apiToken)
                 ->acceptJson()
-                ->get($this->apiUrl . "kelas-kuliah/{$kelasKuliahId}/krs-candidates");
+                ->get($this->apiUrl."kelas-kuliah/{$kelasKuliahId}/krs-candidates");
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return [
                     'rows' => [],
                     'summary' => [],

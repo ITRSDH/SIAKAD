@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\Siakad\MasterData;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
 class ProdiController extends Controller
 {
     protected string $apiUrl;
+
     protected string $apiToken;
 
     public function __construct()
@@ -21,8 +22,8 @@ class ProdiController extends Controller
     {
         try {
             // Ambil data prodi dari API
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . 'prodi');
-            if (!$response->successful()) {
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl.'prodi');
+            if (! $response->successful()) {
                 return back()->with('error', 'Gagal mengambil data All Program Studi dari API');
             }
 
@@ -44,7 +45,7 @@ class ProdiController extends Controller
     public function store(Request $request)
     {
         try {
-            $response = Http::withToken($this->apiToken)->post($this->apiUrl . 'prodi', $request->all());
+            $response = Http::withToken($this->apiToken)->post($this->apiUrl.'prodi', $request->all());
 
             if ($response->successful()) {
                 return response()->json($response->json());
@@ -53,12 +54,12 @@ class ProdiController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menyimpan data ke API',
-                'errors' => $response->json()
+                'errors' => $response->json(),
             ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -66,7 +67,7 @@ class ProdiController extends Controller
     public function show($id)
     {
         try {
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . "prodi/{$id}");
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl."prodi/{$id}");
 
             if ($response->successful()) {
                 return response()->json($response->json());
@@ -75,12 +76,12 @@ class ProdiController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal mengambil data dari API',
-                'errors' => $response->json()
+                'errors' => $response->json(),
             ], 404);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -88,7 +89,7 @@ class ProdiController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            $response = Http::withToken($this->apiToken)->put($this->apiUrl . "prodi/{$id}", $request->all());
+            $response = Http::withToken($this->apiToken)->put($this->apiUrl."prodi/{$id}", $request->all());
 
             if ($response->successful()) {
                 return response()->json($response->json());
@@ -97,12 +98,12 @@ class ProdiController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal memperbarui data di API',
-                'errors' => $response->json()
+                'errors' => $response->json(),
             ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -110,7 +111,7 @@ class ProdiController extends Controller
     public function destroy($id)
     {
         try {
-            $response = Http::withToken($this->apiToken)->delete($this->apiUrl . "prodi/{$id}");
+            $response = Http::withToken($this->apiToken)->delete($this->apiUrl."prodi/{$id}");
 
             if ($response->successful()) {
                 return response()->json($response->json());
@@ -119,12 +120,12 @@ class ProdiController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menghapus data di API',
-                'errors' => $response->json()
+                'errors' => $response->json(),
             ], 404);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -133,7 +134,7 @@ class ProdiController extends Controller
     public function updateKaprodi(Request $request, $id)
     {
         try {
-            $response = Http::withToken($this->apiToken)->put($this->apiUrl . "prodi/{$id}/kaprodi", $request->only('id_kaprodi'));
+            $response = Http::withToken($this->apiToken)->put($this->apiUrl."prodi/{$id}/kaprodi", $request->only('id_kaprodi'));
 
             if ($response->successful()) {
                 return response()->json($response->json());
@@ -142,12 +143,12 @@ class ProdiController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal memperbarui kaprodi di API',
-                'errors' => $response->json()
+                'errors' => $response->json(),
             ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }

@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\ManagementPengguna;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Http;
 
 class PermissionController extends Controller
 {
     protected string $apiUrl;
+
     protected string $apiToken;
 
     public function __construct()
@@ -24,7 +24,7 @@ class PermissionController extends Controller
     {
         try {
             $response = Http::withToken($this->apiToken)
-                ->get($this->apiUrl . 'permissions');
+                ->get($this->apiUrl.'permissions');
 
             if ($response->successful()) {
                 // Jika API mengembalikan "data", gunakan itu; jika tidak, langsung gunakan body
@@ -46,10 +46,11 @@ class PermissionController extends Controller
     {
         try {
             $response = Http::withToken($this->apiToken)
-                ->post($this->apiUrl . 'permissions/sync');
+                ->post($this->apiUrl.'permissions/sync');
 
             if ($response->successful()) {
                 $result = $response->json();
+
                 return back()->with('success', "Sinkronisasi berhasil. Tambah: {$result['added']}, Hapus: {$result['removed']}");
             }
 
@@ -66,24 +67,24 @@ class PermissionController extends Controller
     {
         try {
             $response = Http::withToken($this->apiToken)
-                ->delete($this->apiUrl . "permissions/{$id}");
+                ->delete($this->apiUrl."permissions/{$id}");
 
             if ($response->successful()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Permission berhasil dihapus'
+                    'message' => 'Permission berhasil dihapus',
                 ]);
             }
 
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menghapus permission',
-                'errors'  => $response->json()
+                'errors' => $response->json(),
             ], $response->status());
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }

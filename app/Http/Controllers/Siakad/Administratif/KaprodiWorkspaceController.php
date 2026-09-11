@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Http;
 class KaprodiWorkspaceController extends Controller
 {
     protected string $apiUrl;
+
     protected string $apiToken;
 
     public function __construct()
@@ -20,17 +21,17 @@ class KaprodiWorkspaceController extends Controller
     {
         try {
             $responses = [
-                'prodi' => Http::withToken($this->apiToken)->get($this->apiUrl . 'prodi'),
-                'mahasiswa' => Http::withToken($this->apiToken)->get($this->apiUrl . 'mahasiswa'),
-                'kurikulum' => Http::withToken($this->apiToken)->get($this->apiUrl . 'kurikulum'),
-                'kelasKuliah' => Http::withToken($this->apiToken)->get($this->apiUrl . 'kelas-kuliah'),
-                'tugasAkhir' => Http::withToken($this->apiToken)->get($this->apiUrl . 'tugas-akhir'),
-                'yudisium' => Http::withToken($this->apiToken)->get($this->apiUrl . 'yudisium'),
-                'kelulusan' => Http::withToken($this->apiToken)->get($this->apiUrl . 'kelulusan'),
+                'prodi' => Http::withToken($this->apiToken)->get($this->apiUrl.'prodi'),
+                'mahasiswa' => Http::withToken($this->apiToken)->get($this->apiUrl.'mahasiswa'),
+                'kurikulum' => Http::withToken($this->apiToken)->get($this->apiUrl.'kurikulum'),
+                'kelasKuliah' => Http::withToken($this->apiToken)->get($this->apiUrl.'kelas-kuliah'),
+                'tugasAkhir' => Http::withToken($this->apiToken)->get($this->apiUrl.'tugas-akhir'),
+                'yudisium' => Http::withToken($this->apiToken)->get($this->apiUrl.'yudisium'),
+                'kelulusan' => Http::withToken($this->apiToken)->get($this->apiUrl.'kelulusan'),
             ];
 
             foreach ($responses as $response) {
-                if (!$response->successful()) {
+                if (! $response->successful()) {
                     return back()->with('error', 'Gagal mengambil data workspace Kaprodi dari API.');
                 }
             }
@@ -153,6 +154,7 @@ class KaprodiWorkspaceController extends Controller
             }
 
             $kaprodiName = trim((string) ($item['kaprodi']['nama_dosen'] ?? ''));
+
             return $profileName !== '' && $kaprodiName !== '' && strcasecmp($kaprodiName, $profileName) === 0;
         }));
 
@@ -160,7 +162,7 @@ class KaprodiWorkspaceController extends Controller
             return $managed;
         }
 
-        return array_values(array_filter($prodiItems, fn ($item) => !empty($item['id_kaprodi'] ?? null)));
+        return array_values(array_filter($prodiItems, fn ($item) => ! empty($item['id_kaprodi'] ?? null)));
     }
 
     protected function extractItems(array $payload, array $keys): array

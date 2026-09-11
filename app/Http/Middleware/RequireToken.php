@@ -16,7 +16,7 @@ class RequireToken
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!Session::has('access_token') || !Session::has('expires_at')) {
+        if (! Session::has('access_token') || ! Session::has('expires_at')) {
             return redirect()->route('login');
         }
 

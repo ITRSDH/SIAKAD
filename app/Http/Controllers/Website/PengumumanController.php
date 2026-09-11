@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\Website;
 
 use App\Http\Controllers\Controller;
-use App\Services\DataTableResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
 class PengumumanController extends Controller
 {
     protected string $apiUrl;
+
     protected string $apiToken;
 
     public function __construct()
@@ -22,14 +22,14 @@ class PengumumanController extends Controller
     {
         try {
             // Ambil data beasiswa dari API (tanpa paginate)
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . 'pengumuman');
-            
-            if (!$response->successful()) {
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl.'pengumuman');
+
+            if (! $response->successful()) {
                 return back()->with('error', 'Gagal mengambil data pengumuman dari API');
             }
 
             $pengumuman = $response->json()['data'] ?? [];
-            
+
             return view('admin.master.website.pengumuman.index', compact('pengumuman'));
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
@@ -39,7 +39,7 @@ class PengumumanController extends Controller
     public function store(Request $request)
     {
         try {
-            $response = Http::withToken($this->apiToken)->post($this->apiUrl . 'pengumuman', $request->all());
+            $response = Http::withToken($this->apiToken)->post($this->apiUrl.'pengumuman', $request->all());
 
             if ($response->successful()) {
                 return response()->json($response->json());
@@ -67,7 +67,7 @@ class PengumumanController extends Controller
     public function show($id)
     {
         try {
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . "pengumuman/{$id}");
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl."pengumuman/{$id}");
 
             if ($response->successful()) {
                 return response()->json($response->json());
@@ -95,7 +95,7 @@ class PengumumanController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            $response = Http::withToken($this->apiToken)->put($this->apiUrl . "pengumuman/{$id}", $request->all());
+            $response = Http::withToken($this->apiToken)->put($this->apiUrl."pengumuman/{$id}", $request->all());
 
             if ($response->successful()) {
                 return response()->json($response->json());
@@ -123,7 +123,7 @@ class PengumumanController extends Controller
     public function destroy($id)
     {
         try {
-            $response = Http::withToken($this->apiToken)->delete($this->apiUrl . "pengumuman/{$id}");
+            $response = Http::withToken($this->apiToken)->delete($this->apiUrl."pengumuman/{$id}");
 
             if ($response->successful()) {
                 return response()->json($response->json());

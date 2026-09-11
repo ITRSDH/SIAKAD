@@ -19,6 +19,9 @@
         @include('layouts.partials.flash-messages')
 
         <div class="d-flex justify-content-end mb-3">
+            <a href="{{ route('pddikti.setting.index') }}" class="btn btn-outline-info btn-sm me-2">
+                <i class="fas fa-sync-alt me-1"></i> Integrasi Neo Feeder
+            </a>
             <a href="{{ route('akademik.riwayat-studi.index') }}" class="btn btn-primary btn-sm me-2">
                 <i class="fas fa-history me-1"></i> Riwayat Studi Historis
             </a>

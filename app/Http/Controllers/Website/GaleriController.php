@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\Website;
 
 use App\Http\Controllers\Controller;
-use App\Services\DataTableResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
 class GaleriController extends Controller
 {
     protected string $apiUrl;
+
     protected string $apiToken;
 
     public function __construct()
@@ -22,14 +22,14 @@ class GaleriController extends Controller
     {
         try {
             // Ambil data beasiswa dari API (tanpa paginate)
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . 'galeri');
-            
-            if (!$response->successful()) {
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl.'galeri');
+
+            if (! $response->successful()) {
                 return back()->with('error', 'Gagal mengambil data galeri dari API');
             }
 
             $galeri = $response->json()['data'] ?? [];
-            
+
             return view('admin.master.website.galeri.index', compact('galeri'));
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
@@ -55,10 +55,10 @@ class GaleriController extends Controller
             if ($request->hasFile('gambar')) {
                 $response = Http::withToken($this->apiToken)
                     ->attach('gambar', file_get_contents($request->file('gambar')), $request->file('gambar')->getClientOriginalName())
-                    ->post($this->apiUrl . 'galeri', $data);
+                    ->post($this->apiUrl.'galeri', $data);
             } else {
                 // Jika tidak ada file, kirim sebagai JSON biasa
-                $response = Http::withToken($this->apiToken)->post($this->apiUrl . 'galeri', $data);
+                $response = Http::withToken($this->apiToken)->post($this->apiUrl.'galeri', $data);
             }
 
             if ($response->successful()) {
@@ -96,7 +96,7 @@ class GaleriController extends Controller
     public function show($id)
     {
         try {
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . "galeri/{$id}");
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl."galeri/{$id}");
 
             if ($response->successful()) {
                 return response()->json($response->json());
@@ -139,9 +139,9 @@ class GaleriController extends Controller
             if ($request->hasFile('gambar')) {
                 $response = Http::withToken($this->apiToken)
                     ->attach('gambar', file_get_contents($request->file('gambar')), $request->file('gambar')->getClientOriginalName())
-                    ->post($this->apiUrl . "galeri/{$id}?_method=PUT", $data);
+                    ->post($this->apiUrl."galeri/{$id}?_method=PUT", $data);
             } else {
-                $response = Http::withToken($this->apiToken)->put($this->apiUrl . "galeri/{$id}", $data);
+                $response = Http::withToken($this->apiToken)->put($this->apiUrl."galeri/{$id}", $data);
             }
 
             if ($response->successful()) {
@@ -179,7 +179,7 @@ class GaleriController extends Controller
     public function destroy($id)
     {
         try {
-            $response = Http::withToken($this->apiToken)->delete($this->apiUrl . "galeri/{$id}");
+            $response = Http::withToken($this->apiToken)->delete($this->apiUrl."galeri/{$id}");
 
             if ($response->successful()) {
                 return response()->json($response->json());

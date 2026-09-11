@@ -5,11 +5,11 @@ namespace App\Http\Controllers\Website;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
 class OrmawaController extends Controller
 {
     protected string $apiUrl;
+
     protected string $apiToken;
 
     public function __construct()
@@ -22,7 +22,7 @@ class OrmawaController extends Controller
     {
         try {
             // Ambil data ormawa
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . 'ormawa');
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl.'ormawa');
 
             if ($response->successful()) {
                 $ormawa = $response->json()['data'] ?? [];
@@ -54,10 +54,10 @@ class OrmawaController extends Controller
             if ($request->hasFile('gambar')) {
                 $response = Http::withToken($this->apiToken)
                     ->attach('gambar', file_get_contents($request->file('gambar')), $request->file('gambar')->getClientOriginalName())
-                    ->post($this->apiUrl . 'ormawa', $data);
+                    ->post($this->apiUrl.'ormawa', $data);
             } else {
                 // Jika tidak ada file, kirim sebagai JSON biasa
-                $response = Http::withToken($this->apiToken)->post($this->apiUrl . 'ormawa', $data);
+                $response = Http::withToken($this->apiToken)->post($this->apiUrl.'ormawa', $data);
             }
 
             if ($response->successful()) {
@@ -95,7 +95,7 @@ class OrmawaController extends Controller
     public function show($id)
     {
         try {
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . "ormawa/{$id}");
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl."ormawa/{$id}");
 
             if ($response->successful()) {
                 return response()->json($response->json());
@@ -138,9 +138,9 @@ class OrmawaController extends Controller
             if ($request->hasFile('gambar')) {
                 $response = Http::withToken($this->apiToken)
                     ->attach('gambar', file_get_contents($request->file('gambar')), $request->file('gambar')->getClientOriginalName())
-                    ->post($this->apiUrl . "ormawa/{$id}?_method=PUT", $data);
+                    ->post($this->apiUrl."ormawa/{$id}?_method=PUT", $data);
             } else {
-                $response = Http::withToken($this->apiToken)->put($this->apiUrl . "ormawa/{$id}", $data);
+                $response = Http::withToken($this->apiToken)->put($this->apiUrl."ormawa/{$id}", $data);
             }
 
             if ($response->successful()) {
@@ -178,7 +178,7 @@ class OrmawaController extends Controller
     public function destroy($id)
     {
         try {
-            $response = Http::withToken($this->apiToken)->delete($this->apiUrl . "ormawa/{$id}");
+            $response = Http::withToken($this->apiToken)->delete($this->apiUrl."ormawa/{$id}");
 
             if ($response->successful()) {
                 return response()->json($response->json());

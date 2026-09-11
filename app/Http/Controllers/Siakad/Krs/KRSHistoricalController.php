@@ -12,6 +12,7 @@ use Illuminate\View\View;
 class KRSHistoricalController extends Controller
 {
     protected string $apiUrl;
+
     protected string $apiToken;
 
     public function __construct()
@@ -22,7 +23,7 @@ class KRSHistoricalController extends Controller
 
     public function index(): View|RedirectResponse
     {
-        if (!request()->boolean('legacy')) {
+        if (! request()->boolean('legacy')) {
             return redirect()
                 ->route('akademik.administrasi-studi.krs')
                 ->with('info', 'Silakan lanjutkan pengelolaan riwayat studi melalui Administrasi Studi Mahasiswa.');
@@ -32,11 +33,11 @@ class KRSHistoricalController extends Controller
             $filtersResponse = $this->apiRequest('get', 'krs-historical/filters');
             $batchesResponse = $this->apiRequest('get', 'krs-historical/batches', [], ['per_page' => 5]);
 
-            if (!$filtersResponse->successful()) {
+            if (! $filtersResponse->successful()) {
                 throw new \RuntimeException($filtersResponse->json('message') ?? 'Gagal mengambil filter riwayat studi historis.');
             }
 
-            if (!$batchesResponse->successful()) {
+            if (! $batchesResponse->successful()) {
                 throw new \RuntimeException($batchesResponse->json('message') ?? 'Gagal mengambil histori batch riwayat studi historis.');
             }
 
@@ -57,7 +58,7 @@ class KRSHistoricalController extends Controller
                 'id_semester' => $request->query('id_semester'),
                 'id_prodi' => $request->query('id_prodi'),
                 'angkatan' => $request->query('angkatan'),
-            ], fn($value) => filled($value)));
+            ], fn ($value) => filled($value)));
 
             return response()->json($response->json(), $response->status());
         } catch (\Exception $e) {
@@ -106,7 +107,7 @@ class KRSHistoricalController extends Controller
 
     public function batchHistory(): View|RedirectResponse
     {
-        if (!request()->boolean('legacy')) {
+        if (! request()->boolean('legacy')) {
             return redirect()
                 ->route('akademik.administrasi-studi.batches')
                 ->with('info', 'Riwayat batch riwayat studi tersedia di Administrasi Studi Mahasiswa.');
@@ -115,7 +116,7 @@ class KRSHistoricalController extends Controller
         try {
             $response = $this->apiRequest('get', 'krs-historical/batches', [], ['per_page' => 50]);
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 throw new \RuntimeException($response->json('message') ?? 'Gagal mengambil histori batch riwayat studi historis.');
             }
 
@@ -130,7 +131,7 @@ class KRSHistoricalController extends Controller
 
     public function showBatch(string $id): View|RedirectResponse
     {
-        if (!request()->boolean('legacy')) {
+        if (! request()->boolean('legacy')) {
             return redirect()
                 ->route('akademik.administrasi-studi.batches.show', ['source' => 'historical', 'id' => $id])
                 ->with('info', 'Detail batch riwayat studi tersedia di Administrasi Studi Mahasiswa.');
@@ -139,7 +140,7 @@ class KRSHistoricalController extends Controller
         try {
             $response = $this->apiRequest('get', "krs-historical/batches/{$id}");
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 throw new \RuntimeException($response->json('message') ?? 'Gagal mengambil detail batch riwayat studi historis.');
             }
 
@@ -157,7 +158,7 @@ class KRSHistoricalController extends Controller
             $response = $this->apiRequest('get', 'kelas-kuliah', [], array_filter([
                 'id_semester' => $request->query('id_semester'),
                 'id_prodi' => $request->query('id_prodi'),
-            ], fn($value) => filled($value)));
+            ], fn ($value) => filled($value)));
 
             return response()->json($response->json(), $response->status());
         } catch (\Exception $e) {
@@ -175,7 +176,7 @@ class KRSHistoricalController extends Controller
                 'id_semester' => $request->query('id_semester'),
                 'id_prodi' => $request->query('id_prodi'),
                 'semester_ke' => $request->query('semester_ke'),
-            ], fn($value) => filled($value)));
+            ], fn ($value) => filled($value)));
 
             return response()->json($response->json(), $response->status());
         } catch (\Exception $e) {
@@ -205,9 +206,9 @@ class KRSHistoricalController extends Controller
             throw new \InvalidArgumentException('Pilih minimal satu mahasiswa untuk diproses.');
         }
 
-        return array_filter($payload, function ($value, $key) use ($action) {
+        return array_filter($payload, function ($value, $key) {
             if (is_array($value)) {
-                return !empty($value);
+                return ! empty($value);
             }
 
             return $value !== null && $value !== '';
@@ -243,7 +244,7 @@ class KRSHistoricalController extends Controller
         $request = Http::withToken($this->apiToken)
             ->acceptJson();
 
-        $url = rtrim($this->apiUrl, '/') . '/' . ltrim($endpoint, '/');
+        $url = rtrim($this->apiUrl, '/').'/'.ltrim($endpoint, '/');
 
         return match (strtolower($method)) {
             'get' => $request->get($url, $query),
@@ -258,7 +259,7 @@ class KRSHistoricalController extends Controller
             return $payload;
         }
 
-        if (!is_string($payload) || trim($payload) === '') {
+        if (! is_string($payload) || trim($payload) === '') {
             return [];
         }
 

@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers\Siakad\MasterData;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Http;
 use App\Services\DropdownService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class KurikulumController extends Controller
 {
     protected string $apiUrl;
+
     protected string $apiToken;
 
     public function __construct()
@@ -22,8 +23,8 @@ class KurikulumController extends Controller
     {
         try {
             // Ambil data kurikulum dari API
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . 'kurikulum');
-            if (!$response->successful()) {
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl.'kurikulum');
+            if (! $response->successful()) {
                 return back()->with('error', 'Gagal mengambil data All Kurikulum dari API');
             }
 
@@ -57,12 +58,11 @@ class KurikulumController extends Controller
         }
     }
 
-
     public function store(Request $request)
     {
         try {
             $response = Http::withToken($this->apiToken)
-                ->post($this->apiUrl . 'kurikulum', $request->all());
+                ->post($this->apiUrl.'kurikulum', $request->all());
 
             if ($response->successful()) {
 
@@ -82,7 +82,6 @@ class KurikulumController extends Controller
         }
     }
 
-
     /**
      * Menampilkan detail kurikulum beserta mata kuliahnya.
      */
@@ -91,9 +90,9 @@ class KurikulumController extends Controller
         try {
             // Ambil data kurikulum dari API
             $response = Http::withToken($this->apiToken)
-                ->get($this->apiUrl . "kurikulum/{$id}");
+                ->get($this->apiUrl."kurikulum/{$id}");
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return back()->withErrors('Gagal mengambil data dari API');
             }
 
@@ -101,7 +100,7 @@ class KurikulumController extends Controller
 
             // Ambil dropdown mata kuliah berdasarkan prodi kurikulum
             $mataKuliahResponse = Http::withToken($this->apiToken)
-                ->get($this->apiUrl . "kurikulum/{$id}/mata-kuliah-list"); // 🔥 Gunakan endpoint baru
+                ->get($this->apiUrl."kurikulum/{$id}/mata-kuliah-list"); // 🔥 Gunakan endpoint baru
 
             if ($mataKuliahResponse->successful()) {
                 $matakuliah = $mataKuliahResponse->json('data.matakuliah', []);
@@ -114,7 +113,7 @@ class KurikulumController extends Controller
 
             // Ambil dropdown kurikulum lain untuk clone (dari prodi yang sama)
             $kurikulumLainResponse = Http::withToken($this->apiToken)
-                ->get($this->apiUrl . "kurikulum/{$id}/kurikulum-list"); // 🔥 Gunakan endpoint baru
+                ->get($this->apiUrl."kurikulum/{$id}/kurikulum-list"); // 🔥 Gunakan endpoint baru
 
             if ($kurikulumLainResponse->successful()) {
                 $kurikulumLainRaw = $kurikulumLainResponse->json('data.kurikulum', []);
@@ -129,7 +128,7 @@ class KurikulumController extends Controller
 
             $dropdown = $dropdownService->get('prodi,semester,kurikulum');
             $konversiResponse = Http::withToken($this->apiToken)
-                ->get($this->apiUrl . 'konversi-mata-kuliah', [
+                ->get($this->apiUrl.'konversi-mata-kuliah', [
                     'id_kurikulum_tujuan' => $id,
                 ]);
 
@@ -158,9 +157,9 @@ class KurikulumController extends Controller
         try {
             // Ambil data kurikulum dari API
             $response = Http::withToken($this->apiToken)
-                ->get($this->apiUrl . "kurikulum/{$id}");
+                ->get($this->apiUrl."kurikulum/{$id}");
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return back()->withErrors('Gagal mengambil data dari API');
             }
 
@@ -168,7 +167,7 @@ class KurikulumController extends Controller
 
             // Ambil dropdown mata kuliah berdasarkan prodi kurikulum
             $mataKuliahResponse = Http::withToken($this->apiToken)
-                ->get($this->apiUrl . "kurikulum/{$id}/mata-kuliah-list");
+                ->get($this->apiUrl."kurikulum/{$id}/mata-kuliah-list");
 
             $matakuliah = $mataKuliahResponse->successful()
                 ? $mataKuliahResponse->json('data.matakuliah', [])
@@ -196,12 +195,11 @@ class KurikulumController extends Controller
 
             $response = Http::withToken($this->apiToken)
                 ->post(
-                    $this->apiUrl . "kurikulum/{$id_kurikulum}/tambah-mata-kuliah",
+                    $this->apiUrl."kurikulum/{$id_kurikulum}/tambah-mata-kuliah",
                     $request->all()
                 );
 
             $result = $response->json();
-
 
             /*
         |--------------------------------------------------------------------------
@@ -266,7 +264,6 @@ class KurikulumController extends Controller
                     );
             }
 
-
             /*
         |--------------------------------------------------------------------------
         | API gagal
@@ -291,7 +288,7 @@ class KurikulumController extends Controller
     {
         try {
             $response = Http::withToken($this->apiToken)
-                ->post($this->apiUrl . "kurikulum/{$id_kurikulum}/tambah-mata-kuliah-checkbox", $request->all());
+                ->post($this->apiUrl."kurikulum/{$id_kurikulum}/tambah-mata-kuliah-checkbox", $request->all());
 
             if ($response->successful()) {
                 return redirect()->back()->with('success', 'Mata kuliah berhasil ditambahkan.');
@@ -312,14 +309,14 @@ class KurikulumController extends Controller
         try {
             // Validasi existensi kurikulum di API
             $checkResponse = Http::withToken($this->apiToken)
-                ->get($this->apiUrl . "kurikulum/{$request->id_kurikulum_asal}");
+                ->get($this->apiUrl."kurikulum/{$request->id_kurikulum_asal}");
 
-            if (!$checkResponse->successful()) {
+            if (! $checkResponse->successful()) {
                 return back()->withErrors('Kurikulum asal tidak ditemukan.');
             }
 
             $response = Http::withToken($this->apiToken)
-                ->post($this->apiUrl . "kurikulum/{$id_kurikulum_tujuan}/clone-mata-kuliah/{$request->id_kurikulum_asal}", []);
+                ->post($this->apiUrl."kurikulum/{$id_kurikulum_tujuan}/clone-mata-kuliah/{$request->id_kurikulum_asal}", []);
 
             if ($response->successful()) {
                 return redirect()->back()->with('success', 'Mata kuliah berhasil dikloning.');
@@ -338,7 +335,7 @@ class KurikulumController extends Controller
     {
         try {
             $response = Http::withToken($this->apiToken)
-                ->put($this->apiUrl . "kurikulum/{$id_kurikulum}/mata-kuliah/{$id_mata_kuliah}", $request->all());
+                ->put($this->apiUrl."kurikulum/{$id_kurikulum}/mata-kuliah/{$id_mata_kuliah}", $request->all());
 
             if ($response->successful()) {
                 return redirect()->back()->with('success', 'Mata kuliah berhasil diperbarui.');
@@ -357,7 +354,7 @@ class KurikulumController extends Controller
     {
         try {
             $response = Http::withToken($this->apiToken)
-                ->delete($this->apiUrl . "kurikulum/{$id_kurikulum}/mata-kuliah/{$id_mata_kuliah}");
+                ->delete($this->apiUrl."kurikulum/{$id_kurikulum}/mata-kuliah/{$id_mata_kuliah}");
 
             if ($response->successful()) {
                 return redirect()->back()->with('success', 'Mata kuliah berhasil dihapus.');
@@ -372,7 +369,7 @@ class KurikulumController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            $response = Http::withToken($this->apiToken)->put($this->apiUrl . "kurikulum/{$id}", $request->all());
+            $response = Http::withToken($this->apiToken)->put($this->apiUrl."kurikulum/{$id}", $request->all());
 
             if ($response->successful()) {
                 return redirect()->route('kurikulum.index')->with('success', 'Data berhasil diupdate');
@@ -389,7 +386,7 @@ class KurikulumController extends Controller
     public function destroy($id)
     {
         try {
-            $response = Http::withToken($this->apiToken)->delete($this->apiUrl . "kurikulum/{$id}");
+            $response = Http::withToken($this->apiToken)->delete($this->apiUrl."kurikulum/{$id}");
 
             if ($response->successful()) {
                 return response()->json($response->json());
@@ -398,12 +395,12 @@ class KurikulumController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => $response->json('message') ?? 'Gagal menghapus data di API',
-                'errors' => $response->json('errors') ?? $response->json()
+                'errors' => $response->json('errors') ?? $response->json(),
             ], $response->status());
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -412,9 +409,9 @@ class KurikulumController extends Controller
     {
         try {
             $response = Http::withToken($this->apiToken)
-                ->get($this->apiUrl . "kurikulum/{$id}");
+                ->get($this->apiUrl."kurikulum/{$id}");
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Gagal mengambil data kurikulum dari API',
@@ -437,7 +434,7 @@ class KurikulumController extends Controller
     {
         try {
             $response = Http::withToken($this->apiToken)
-                ->post($this->apiUrl . 'konversi-mata-kuliah', $request->all());
+                ->post($this->apiUrl.'konversi-mata-kuliah', $request->all());
 
             if ($response->successful()) {
                 return response()->json($response->json());
@@ -460,7 +457,7 @@ class KurikulumController extends Controller
     {
         try {
             $response = Http::withToken($this->apiToken)
-                ->put($this->apiUrl . "konversi-mata-kuliah/{$id}", $request->all());
+                ->put($this->apiUrl."konversi-mata-kuliah/{$id}", $request->all());
 
             if ($response->successful()) {
                 return response()->json($response->json());
@@ -483,7 +480,7 @@ class KurikulumController extends Controller
     {
         try {
             $response = Http::withToken($this->apiToken)
-                ->delete($this->apiUrl . "konversi-mata-kuliah/{$id}");
+                ->delete($this->apiUrl."konversi-mata-kuliah/{$id}");
 
             if ($response->successful()) {
                 return response()->json($response->json());

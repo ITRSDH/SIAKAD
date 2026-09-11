@@ -132,7 +132,7 @@ class PenilaianController extends Controller
         $request = Http::withToken(session('access_token'))
             ->acceptJson();
 
-        $url = rtrim($this->apiUrl, '/') . '/' . ltrim($endpoint, '/');
+        $url = rtrim($this->apiUrl, '/').'/'.ltrim($endpoint, '/');
 
         return match (strtolower($method)) {
             'get' => $request->get($url, $query),

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Http;
 class SertifikatAkreditasi extends Controller
 {
     protected string $apiUrl;
+
     protected string $apiToken;
 
     public function __construct()
@@ -21,7 +22,7 @@ class SertifikatAkreditasi extends Controller
     {
         try {
             // Ambil data sertifikat akreditasi
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . 'sertifikat-akreditasi');
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl.'sertifikat-akreditasi');
 
             if ($response->successful()) {
                 $sertifikatAkreditasi = $response->json()['data'] ?? [];
@@ -38,26 +39,26 @@ class SertifikatAkreditasi extends Controller
     public function store(Request $request)
     {
         try {
-    
+
             $request->validate([
                 'nama' => 'required|string|max:255',
                 'deskripsi' => 'nullable|string',
-    
+
                 'fotos' => 'required|array|min:1',
                 'fotos.*' => 'required|mimes:jpeg,png,jpg,jpeg,webp|max:2048',
             ]);
-    
+
             $data = $request->only([
                 'nama',
-                'deskripsi'
+                'deskripsi',
             ]);
-    
+
             $http = Http::withToken($this->apiToken);
-    
+
             if ($request->hasFile('fotos')) {
-    
+
                 foreach ($request->file('fotos') as $foto) {
-    
+
                     $http = $http->attach(
                         'fotos[]',
                         file_get_contents($foto),
@@ -65,44 +66,44 @@ class SertifikatAkreditasi extends Controller
                     );
                 }
             }
-    
+
             $response = $http->post(
-                $this->apiUrl . 'sertifikat-akreditasi',
+                $this->apiUrl.'sertifikat-akreditasi',
                 $data
             );
-    
+
             if ($response->successful()) {
                 return response()->json($response->json());
             }
-    
+
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menyimpan data ke API',
                 'errors' => $response->json(),
             ], 422);
-    
+
         } catch (\Illuminate\Validation\ValidationException $e) {
-    
+
             return response()->json([
                 'success' => false,
                 'message' => 'Validation error',
                 'errors' => $e->errors(),
             ], 422);
-    
+
         } catch (\Exception $e) {
-    
+
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage(),
             ], 500);
-    
+
         }
     }
 
     public function show($id)
     {
         try {
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . "sertifikat-akreditasi/{$id}");
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl."sertifikat-akreditasi/{$id}");
 
             if ($response->successful()) {
                 return response()->json($response->json());
@@ -130,78 +131,78 @@ class SertifikatAkreditasi extends Controller
     public function update(Request $request, $id)
     {
         try {
-    
+
             $request->validate([
                 'nama' => 'required|string|max:255',
                 'deskripsi' => 'nullable|string',
-    
+
                 'fotos' => 'nullable|array|min:1',
                 'fotos.*' => 'required|mimes:jpeg,png,jpg,jpeg,webp|max:2048',
             ]);
-    
+
             $data = $request->only([
                 'nama',
-                'deskripsi'
+                'deskripsi',
             ]);
-    
+
             $http = Http::withToken($this->apiToken);
-    
+
             if ($request->hasFile('fotos')) {
-    
+
                 foreach ($request->file('fotos') as $foto) {
-    
+
                     $http = $http->attach(
                         'fotos[]',
                         file_get_contents($foto),
                         $foto->getClientOriginalName()
                     );
                 }
-    
+
                 $response = $http->post(
-                    $this->apiUrl . "sertifikat-akreditasi/{$id}?_method=PUT",
+                    $this->apiUrl."sertifikat-akreditasi/{$id}?_method=PUT",
                     $data
                 );
-    
+
             } else {
-    
+
                 $response = $http->put(
-                    $this->apiUrl . "sertifikat-akreditasi/{$id}",
+                    $this->apiUrl."sertifikat-akreditasi/{$id}",
                     $data
                 );
             }
-    
+
             if ($response->successful()) {
                 return response()->json($response->json());
             }
-    
+
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal memperbarui data di API',
                 'errors' => $response->json(),
             ], 422);
-    
+
         } catch (\Illuminate\Validation\ValidationException $e) {
-    
+
             return response()->json([
                 'success' => false,
                 'message' => 'Validation error',
                 'errors' => $e->errors(),
             ], 422);
-    
+
         } catch (\Exception $e) {
-    
+
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage(),
             ], 500);
-    
+
         }
     }
 
     public function destroy($id)
     {
         try {
-            $response = Http::withToken($this->apiToken)->delete($this->apiUrl . "sertifikat-akreditasi/{$id}");
+            $response = Http::withToken($this->apiToken)->delete($this->apiUrl."sertifikat-akreditasi/{$id}");
 
             if ($response->successful()) {
                 return response()->json($response->json());

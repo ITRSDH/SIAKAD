@@ -13,6 +13,7 @@ use Illuminate\View\View;
 class StudentStudyAdministrationController extends Controller
 {
     protected string $apiUrl;
+
     protected ?string $apiToken;
 
     public function __construct()
@@ -49,11 +50,11 @@ class StudentStudyAdministrationController extends Controller
             $filtersResponse = $this->apiRequest('get', 'administrasi-studi/filters');
             $summaryResponse = $this->apiRequest('get', 'administrasi-studi/summary');
 
-            if (!$filtersResponse->successful()) {
+            if (! $filtersResponse->successful()) {
                 throw new \RuntimeException($filtersResponse->json('message') ?? 'Gagal mengambil filter administrasi studi.');
             }
 
-            if (!$summaryResponse->successful()) {
+            if (! $summaryResponse->successful()) {
                 throw new \RuntimeException($summaryResponse->json('message') ?? 'Gagal mengambil ringkasan administrasi studi.');
             }
 
@@ -74,11 +75,11 @@ class StudentStudyAdministrationController extends Controller
         $filtersResponse = $this->apiRequest('get', 'administrasi-studi/filters');
         $summaryResponse = $this->apiRequest('get', 'administrasi-studi/summary');
 
-        if (!$filtersResponse->successful()) {
+        if (! $filtersResponse->successful()) {
             throw new \RuntimeException($filtersResponse->json('message') ?? 'Gagal mengambil filter administrasi studi.');
         }
 
-        if (!$summaryResponse->successful()) {
+        if (! $summaryResponse->successful()) {
             throw new \RuntimeException($summaryResponse->json('message') ?? 'Gagal mengambil ringkasan administrasi studi.');
         }
 
@@ -133,7 +134,7 @@ class StudentStudyAdministrationController extends Controller
                 'angkatan' => $request->query('angkatan'),
                 'semester_ke' => $request->query('semester_ke'),
                 'mode' => $request->query('mode'),
-            ], fn($value) => filled($value)));
+            ], fn ($value) => filled($value)));
 
             return response()->json($response->json(), $response->status());
         } catch (\Exception $e) {
@@ -149,7 +150,7 @@ class StudentStudyAdministrationController extends Controller
         try {
             $response = $this->apiRequest('get', 'administrasi-studi/batches');
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 throw new \RuntimeException($response->json('message') ?? 'Gagal mengambil riwayat batch administrasi studi.');
             }
 
@@ -166,7 +167,7 @@ class StudentStudyAdministrationController extends Controller
         try {
             $response = $this->apiRequest('get', "administrasi-studi/batches/{$source}/{$id}");
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 throw new \RuntimeException($response->json('message') ?? 'Gagal mengambil detail batch administrasi studi.');
             }
 
@@ -189,7 +190,7 @@ class StudentStudyAdministrationController extends Controller
         ]);
 
         try {
-            $response = $this->apiRequest('get', 'krs-historical/eligible-mahasiswa', [], array_filter($validated, fn($value) => filled($value)));
+            $response = $this->apiRequest('get', 'krs-historical/eligible-mahasiswa', [], array_filter($validated, fn ($value) => filled($value)));
 
             return response()->json($response->json(), $response->status());
         } catch (\Exception $e) {
@@ -328,7 +329,7 @@ class StudentStudyAdministrationController extends Controller
                 'id_prodi' => $request->query('id_prodi'),
                 'angkatan' => $request->query('angkatan'),
                 'semester_ke' => $request->query('semester_ke'),
-            ], fn($value) => filled($value)));
+            ], fn ($value) => filled($value)));
 
             return response()->json($response->json(), $response->status());
         } catch (\Exception $e) {
@@ -346,7 +347,7 @@ class StudentStudyAdministrationController extends Controller
                 'id_semester' => $request->query('id_semester'),
                 'id_prodi' => $request->query('id_prodi'),
                 'angkatan' => $request->query('angkatan'),
-            ], fn($value) => filled($value)));
+            ], fn ($value) => filled($value)));
 
             return response()->json($response->json(), $response->status());
         } catch (\Exception $e) {
@@ -442,7 +443,7 @@ class StudentStudyAdministrationController extends Controller
         try {
             $response = $this->apiRequest('get', 'khs/import/template/export', [], $validated);
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return back()->withInput()->with('error', $response->json('message') ?? 'Gagal mengekspor template nilai.');
             }
 
@@ -473,7 +474,7 @@ class StudentStudyAdministrationController extends Controller
                     'id_semester' => $validated['id_semester'],
                 ]);
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return redirect()
                     ->route('akademik.administrasi-studi.nilai')
                     ->withInput()
@@ -482,7 +483,7 @@ class StudentStudyAdministrationController extends Controller
 
             $batchId = $response->json('data.batch.id');
 
-            if (!filled($batchId)) {
+            if (! filled($batchId)) {
                 return redirect()
                     ->route('akademik.administrasi-studi.nilai')
                     ->withInput()
@@ -505,7 +506,7 @@ class StudentStudyAdministrationController extends Controller
         try {
             $response = $this->apiRequest('get', "khs/import/{$batchId}/preview");
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 throw new \RuntimeException($response->json('message') ?? 'Gagal memuat preview import nilai.');
             }
 
@@ -529,7 +530,7 @@ class StudentStudyAdministrationController extends Controller
         try {
             $response = $this->apiRequest('post', "khs/import/{$batchId}/process");
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return redirect()
                     ->route('akademik.administrasi-studi.import.preview', $batchId)
                     ->with('error', $response->json('message') ?? 'Gagal memproses batch import nilai.');
@@ -554,7 +555,7 @@ class StudentStudyAdministrationController extends Controller
         try {
             $response = $this->apiRequest('post', "khs/import/{$batchId}/finalize", $validated);
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return redirect()
                     ->route('akademik.administrasi-studi.import.preview', $batchId)
                     ->with('error', $response->json('message') ?? 'Gagal melakukan finalisasi batch import.');
@@ -575,7 +576,7 @@ class StudentStudyAdministrationController extends Controller
         try {
             $response = $this->apiRequest('post', "khs/import/{$batchId}/rollback");
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return redirect()
                     ->route('akademik.administrasi-studi.import.preview', $batchId)
                     ->with('error', $response->json('message') ?? 'Gagal melakukan rollback batch import.');
@@ -596,7 +597,7 @@ class StudentStudyAdministrationController extends Controller
         try {
             $response = $this->apiRequest('get', "khs/import/{$batchId}/export-errors");
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return back()->with('error', $response->json('message') ?? 'Gagal mengekspor error import nilai.');
             }
 
@@ -611,7 +612,7 @@ class StudentStudyAdministrationController extends Controller
         try {
             $response = $this->apiRequest('get', "khs/import/{$batchId}/export-results");
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return back()->with('error', $response->json('message') ?? 'Gagal mengekspor hasil import nilai.');
             }
 
@@ -637,7 +638,7 @@ class StudentStudyAdministrationController extends Controller
 
     private function requireApiToken(): string
     {
-        if (!filled($this->apiToken)) {
+        if (! filled($this->apiToken)) {
             throw new \RuntimeException('Sesi login Anda sudah habis. Silakan login ulang lalu coba lagi.');
         }
 
@@ -646,7 +647,7 @@ class StudentStudyAdministrationController extends Controller
 
     private function buildApiUrl(string $endpoint): string
     {
-        return rtrim($this->apiUrl, '/') . '/' . ltrim($endpoint, '/');
+        return rtrim($this->apiUrl, '/').'/'.ltrim($endpoint, '/');
     }
 
     private function normalizeBatchHistoryPayload(mixed $payload): array
@@ -655,7 +656,7 @@ class StudentStudyAdministrationController extends Controller
             $payload = $payload['data'];
         }
 
-        if (!is_array($payload)) {
+        if (! is_array($payload)) {
             return [];
         }
 
@@ -672,7 +673,7 @@ class StudentStudyAdministrationController extends Controller
             $payload = $payload['data'];
         }
 
-        if (!is_array($payload)) {
+        if (! is_array($payload)) {
             return [];
         }
 
@@ -688,7 +689,7 @@ class StudentStudyAdministrationController extends Controller
 
     private function normalizeBatchListItem(mixed $item): ?array
     {
-        if (!is_array($item)) {
+        if (! is_array($item)) {
             return null;
         }
 
@@ -718,7 +719,7 @@ class StudentStudyAdministrationController extends Controller
     {
         $value = $this->normalizeScalarRouteParam($value);
 
-        if (!$value) {
+        if (! $value) {
             return null;
         }
 
@@ -809,7 +810,7 @@ class StudentStudyAdministrationController extends Controller
 
         return array_filter($payload, function ($value) {
             if (is_array($value)) {
-                return !empty($value);
+                return ! empty($value);
             }
 
             return $value !== null && $value !== '';
@@ -852,7 +853,7 @@ class StudentStudyAdministrationController extends Controller
 
         return response($response->body())
             ->header('Content-Type', $contentType)
-            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"')
+            ->header('Content-Disposition', 'attachment; filename="'.$filename.'"')
             ->header('Cache-Control', 'no-cache, must-revalidate')
             ->header('Pragma', 'no-cache')
             ->header('Expires', '0');

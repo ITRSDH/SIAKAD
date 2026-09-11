@@ -22,7 +22,7 @@ class YudisiumController extends Controller
             $yudisiumResponse = $this->apiRequest('get', 'yudisium');
             $mahasiswaResponse = $this->apiRequest('get', 'mahasiswa');
 
-            if (!$yudisiumResponse->successful()) {
+            if (! $yudisiumResponse->successful()) {
                 return back()->with('error', 'Gagal mengambil data yudisium dari API');
             }
 
@@ -40,7 +40,7 @@ class YudisiumController extends Controller
         try {
             $response = $this->apiRequest('get', "yudisium/{$id}");
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return redirect()->route('yudisium.index')
                     ->with('error', 'Gagal mengambil detail yudisium dari API.');
             }
@@ -93,7 +93,7 @@ class YudisiumController extends Controller
     private function apiRequest(string $method, string $endpoint, array $payload = [], array $query = []): Response
     {
         $request = Http::withToken(session('access_token'))->acceptJson();
-        $url = rtrim($this->apiUrl, '/') . '/' . ltrim($endpoint, '/');
+        $url = rtrim($this->apiUrl, '/').'/'.ltrim($endpoint, '/');
 
         return match (strtolower($method)) {
             'get' => $request->get($url, $query),

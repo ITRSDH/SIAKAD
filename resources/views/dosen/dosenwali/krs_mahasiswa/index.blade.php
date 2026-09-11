@@ -315,11 +315,17 @@
                     const mahasiswa = data.mahasiswa || {};
                     const semester = data.semester || {};
 
+                    const isRpl = ['RPL', 'Pindahan'].includes(mahasiswa.jenis_pendaftaran);
+                    const jalurBadge = isRpl
+                        ? `<span class="badge bg-info text-dark">${escapeHtml(mahasiswa.jenis_pendaftaran)}</span> <small class="text-muted">(${escapeHtml(mahasiswa.sks_diakui || 0)} SKS Konversi)</small>`
+                        : `<span class="badge bg-light text-dark">${escapeHtml(mahasiswa.jenis_pendaftaran || 'Reguler')}</span>`;
+
                     let html = `
                         <div class="detail-card mb-3">
                             <div class="fw-semibold mb-2">Informasi Mahasiswa</div>
                             <div class="mb-1"><strong>Nama:</strong> ${escapeHtml(mahasiswa.nama_mahasiswa)}</div>
                             <div class="mb-1"><strong>NIM:</strong> ${escapeHtml(mahasiswa.nim || '-')}</div>
+                            <div class="mb-1"><strong>Jalur:</strong> ${jalurBadge}</div>
                             <div class="mb-1"><strong>Semester:</strong> ${escapeHtml(formatSemester(semester))}</div>
                             <div class="mb-1"><strong>Total SKS:</strong> ${escapeHtml(data.total_sks ?? 0)}</div>
                             <div class="mb-1"><strong>Status:</strong> ${escapeHtml(data.status_approval || '-')}</div>

@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Http;
 class DosenPengajarKelasController extends Controller
 {
     protected string $apiUrl;
+
     protected string $apiToken;
 
     public function __construct()
@@ -22,11 +23,11 @@ class DosenPengajarKelasController extends Controller
     {
         try {
             $response = Http::withToken($this->apiToken)
-                ->get($this->apiUrl . "dosen-pengajar-kelas/kelas/{$id_kelas_kuliah}");
+                ->get($this->apiUrl."dosen-pengajar-kelas/kelas/{$id_kelas_kuliah}");
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return response()->json([
-                    'message' => 'Gagal mengambil data dosen'
+                    'message' => 'Gagal mengambil data dosen',
                 ], 500);
             }
 
@@ -42,11 +43,11 @@ class DosenPengajarKelasController extends Controller
                 'dosen' => $dropdown['dosen_pengajar'] ?? [],
                 'totalSks' => $totalSks,
                 'sksMatakuliah' => $sksMatakuliah,
-                'isValid' => $isValid
+                'isValid' => $isValid,
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -55,7 +56,7 @@ class DosenPengajarKelasController extends Controller
     {
         try {
             $response = Http::withToken($this->apiToken)
-                ->post($this->apiUrl . "dosen-pengajar-kelas/kelas/{$id_kelas_kuliah}", $request->all());
+                ->post($this->apiUrl."dosen-pengajar-kelas/kelas/{$id_kelas_kuliah}", $request->all());
 
             if ($response->successful()) {
                 return response()->json($response->json(), $response->status());
@@ -71,7 +72,7 @@ class DosenPengajarKelasController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -80,12 +81,12 @@ class DosenPengajarKelasController extends Controller
     {
         try {
             $response = Http::withToken($this->apiToken)
-                ->get($this->apiUrl . "dosen-pengajar-kelas/{$id}");
+                ->get($this->apiUrl."dosen-pengajar-kelas/{$id}");
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Gagal mengambil data'
+                    'message' => 'Gagal mengambil data',
                 ], 500);
             }
 
@@ -93,12 +94,12 @@ class DosenPengajarKelasController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'data' => $apiData
+                'data' => $apiData,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -107,7 +108,7 @@ class DosenPengajarKelasController extends Controller
     {
         try {
             $response = Http::withToken($this->apiToken)
-                ->put($this->apiUrl . "dosen-pengajar-kelas/{$id}", $request->all());
+                ->put($this->apiUrl."dosen-pengajar-kelas/{$id}", $request->all());
 
             if ($response->successful()) {
                 return response()->json($response->json(), $response->status());
@@ -123,7 +124,7 @@ class DosenPengajarKelasController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -132,23 +133,23 @@ class DosenPengajarKelasController extends Controller
     {
         try {
             $response = Http::withToken($this->apiToken)
-                ->delete($this->apiUrl . "dosen-pengajar-kelas/{$id}");
+                ->delete($this->apiUrl."dosen-pengajar-kelas/{$id}");
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Gagal hapus data'
+                    'message' => 'Gagal hapus data',
                 ], 500);
             }
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Data berhasil dihapus'
+                'message' => 'Data berhasil dihapus',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }

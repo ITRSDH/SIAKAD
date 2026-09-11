@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers\Siakad\MasterData;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
 class MahasiswaController extends Controller
 {
     protected string $apiUrl;
+
     protected string $apiToken;
 
     public function __construct()
@@ -21,18 +22,18 @@ class MahasiswaController extends Controller
     public function index()
     {
         try {
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . 'mahasiswa');
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl.'mahasiswa');
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return response()->json($response->json());
             }
 
             $apiData = $response->json()['data'] ?? [];
 
-            $mahasiswa      = $apiData['mahasiswa'] ?? [];
-            $prodi          = $apiData['prodi'] ?? [];
-            $dosen          = $apiData['dosen'] ?? [];
-            $kurikulum      = $apiData['kurikulum'] ?? [];
+            $mahasiswa = $apiData['mahasiswa'] ?? [];
+            $prodi = $apiData['prodi'] ?? [];
+            $dosen = $apiData['dosen'] ?? [];
+            $kurikulum = $apiData['kurikulum'] ?? [];
 
             return view('masterdata.mahasiswa.index', compact(
                 'mahasiswa',
@@ -48,7 +49,7 @@ class MahasiswaController extends Controller
     public function store(Request $request)
     {
         try {
-            $response = Http::withToken($this->apiToken)->post($this->apiUrl . 'mahasiswa', $request->all());
+            $response = Http::withToken($this->apiToken)->post($this->apiUrl.'mahasiswa', $request->all());
 
             if ($response->successful()) {
                 return response()->json($response->json());
@@ -57,12 +58,12 @@ class MahasiswaController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menyimpan data ke API',
-                'errors' => $response->json()
+                'errors' => $response->json(),
             ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -70,7 +71,7 @@ class MahasiswaController extends Controller
     public function show($id)
     {
         try {
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . "mahasiswa/{$id}");
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl."mahasiswa/{$id}");
 
             if ($response->successful()) {
                 return response()->json($response->json());
@@ -79,12 +80,12 @@ class MahasiswaController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal mengambil data dari API',
-                'errors' => $response->json()
+                'errors' => $response->json(),
             ], 404);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -92,7 +93,7 @@ class MahasiswaController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            $response = Http::withToken($this->apiToken)->put($this->apiUrl . "mahasiswa/{$id}", $request->all());
+            $response = Http::withToken($this->apiToken)->put($this->apiUrl."mahasiswa/{$id}", $request->all());
 
             if ($response->successful()) {
                 return response()->json($response->json());
@@ -103,12 +104,12 @@ class MahasiswaController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => $payload['message'] ?? 'Gagal memperbarui data di API',
-                'errors' => $payload['errors'] ?? $payload
+                'errors' => $payload['errors'] ?? $payload,
             ], $response->status());
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -116,7 +117,7 @@ class MahasiswaController extends Controller
     public function destroy($id)
     {
         try {
-            $response = Http::withToken($this->apiToken)->delete($this->apiUrl . "mahasiswa/{$id}");
+            $response = Http::withToken($this->apiToken)->delete($this->apiUrl."mahasiswa/{$id}");
 
             if ($response->successful()) {
                 return response()->json($response->json());
@@ -125,12 +126,12 @@ class MahasiswaController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => $response->json('message') ?? 'Gagal menghapus data di API',
-                'errors' => $response->json('errors') ?? $response->json()
+                'errors' => $response->json('errors') ?? $response->json(),
             ], $response->status());
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -139,7 +140,7 @@ class MahasiswaController extends Controller
     {
         try {
             $response = Http::withToken($this->apiToken)
-                ->post($this->apiUrl . 'mahasiswa/bulk-delete', [
+                ->post($this->apiUrl.'mahasiswa/bulk-delete', [
                     'ids' => $request->input('ids', []),
                 ]);
 
@@ -150,12 +151,12 @@ class MahasiswaController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => $response->json('message') ?? 'Gagal menghapus data mahasiswa secara kolektif di API',
-                'errors' => $response->json('errors') ?? $response->json()
+                'errors' => $response->json('errors') ?? $response->json(),
             ], $response->status());
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -166,12 +167,12 @@ class MahasiswaController extends Controller
     public function exportTemplate(Request $request, $id_prodi)
     {
         try {
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . "mahasiswa/template/{$id_prodi}");
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl."mahasiswa/template/{$id_prodi}");
 
             if ($response->successful()) {
                 // Get the file content from API response
                 $fileContent = $response->body();
-                $filename = 'template_mahasiswa_import_' . date('Y-m-d_H-i-s') . '.xlsx';
+                $filename = 'template_mahasiswa_import_'.date('Y-m-d_H-i-s').'.xlsx';
 
                 return response($fileContent)
                     ->header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
@@ -183,7 +184,7 @@ class MahasiswaController extends Controller
 
             return back()->with('error', 'Gagal download template');
         } catch (\Exception $e) {
-            return back()->with('error', 'Gagal download template: ' . $e->getMessage());
+            return back()->with('error', 'Gagal download template: '.$e->getMessage());
         }
     }
 
@@ -208,7 +209,7 @@ class MahasiswaController extends Controller
                 ->connectTimeout(30)
                 ->timeout(300)
                 ->attach('file', fopen($file->getPathname(), 'r'), $file->getClientOriginalName())
-                ->post($this->apiUrl . "mahasiswa/import/prodi/{$id_prodi}");
+                ->post($this->apiUrl."mahasiswa/import/prodi/{$id_prodi}");
 
             if ($response->successful()) {
                 $data = $response->json();
@@ -216,25 +217,53 @@ class MahasiswaController extends Controller
                 return response()->json([
                     'success' => true,
                     'message' => 'Data mahasiswa berhasil diimport',
-                    'data' => $data
+                    'data' => $data,
                 ]);
             }
 
             return response()->json([
                 'success' => false,
                 'message' => $response->json('message') ?? 'Gagal import data',
-                'errors' => $response->json('errors') ?? []
+                'errors' => $response->json('errors') ?? [],
             ], 422);
         } catch (ConnectionException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Permintaan import melebihi batas waktu tunggu. Proses import di server mungkin masih berjalan. Silakan cek data mahasiswa yang sudah masuk sebelum mengulangi import.'
+                'message' => 'Permintaan import melebihi batas waktu tunggu. Proses import di server mungkin masih berjalan. Silakan cek data mahasiswa yang sudah masuk sebelum mengulangi import.',
             ], 504);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal import data: ' . $e->getMessage()
+                'message' => 'Gagal import data: '.$e->getMessage(),
             ], 500);
+        }
+    }
+
+    /**
+     * Export data mahasiswa ke Excel
+     */
+    public function exportData(Request $request)
+    {
+        try {
+            $queryParams = http_build_query($request->all());
+            $url = $this->apiUrl.'mahasiswa/export'.($queryParams ? "?{$queryParams}" : '');
+            $response = Http::withToken($this->apiToken)->get($url);
+
+            if ($response->successful()) {
+                $fileContent = $response->body();
+                $filename = 'data_mahasiswa_'.date('Y-m-d_H-i-s').'.xlsx';
+
+                return response($fileContent)
+                    ->header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+                    ->header('Content-Disposition', "attachment; filename=\"{$filename}\"")
+                    ->header('Cache-Control', 'no-cache, must-revalidate')
+                    ->header('Pragma', 'no-cache')
+                    ->header('Expires', '0');
+            }
+
+            return back()->with('error', 'Gagal export data mahasiswa');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal export data: '.$e->getMessage());
         }
     }
 }

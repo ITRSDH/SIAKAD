@@ -12,6 +12,7 @@ use Illuminate\View\View;
 class KhsController extends Controller
 {
     protected string $apiUrl;
+
     protected string $apiToken;
 
     public function __construct()
@@ -24,7 +25,7 @@ class KhsController extends Controller
     {
         try {
             $response = $this->apiRequest('get', "khs/{$khsId}");
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return redirect()->route('akademik.khs.import.history')
                     ->with('error', $response->json('message') ?? 'Gagal mengambil detail KHS.');
             }
@@ -43,7 +44,7 @@ class KhsController extends Controller
                         return $revision;
                     });
                 })
-                ->sortByDesc(fn(array $item) => $item['created_at'] ?? '')
+                ->sortByDesc(fn (array $item) => $item['created_at'] ?? '')
                 ->values()
                 ->all();
 
@@ -109,7 +110,7 @@ class KhsController extends Controller
         try {
             $response = $this->apiRequest('post', "khs/{$khsId}/finalize", $validated);
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return back()->with('error', $response->json('message') ?? 'Gagal melakukan finalisasi KHS.');
             }
 
@@ -124,7 +125,7 @@ class KhsController extends Controller
         $request = Http::withToken($this->apiToken)
             ->acceptJson();
 
-        $url = rtrim($this->apiUrl, '/') . '/' . ltrim($endpoint, '/');
+        $url = rtrim($this->apiUrl, '/').'/'.ltrim($endpoint, '/');
 
         return match (strtolower($method)) {
             'get' => $request->get($url, $query),
@@ -143,13 +144,13 @@ class KhsController extends Controller
             ->map(function (string $batchId) {
                 $response = $this->apiRequest('get', "khs/import/{$batchId}");
 
-                if (!$response->successful()) {
+                if (! $response->successful()) {
                     return null;
                 }
 
                 return $response->json('data', []);
             })
-            ->filter(fn($item) => is_array($item) && !empty($item))
+            ->filter(fn ($item) => is_array($item) && ! empty($item))
             ->values()
             ->all();
     }

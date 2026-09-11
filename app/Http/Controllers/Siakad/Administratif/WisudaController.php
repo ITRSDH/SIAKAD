@@ -21,7 +21,7 @@ class WisudaController extends Controller
         try {
             $response = $this->apiRequest('get', 'wisuda/periode');
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return back()->with('error', 'Gagal mengambil data periode wisuda dari API');
             }
 
@@ -38,7 +38,7 @@ class WisudaController extends Controller
         try {
             $response = $this->apiRequest('get', "wisuda/periode/{$id}");
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return redirect()->route('wisuda.periode.index')
                     ->with('error', 'Gagal mengambil detail periode wisuda dari API.');
             }
@@ -107,7 +107,7 @@ class WisudaController extends Controller
             $pesertaResponse = $this->apiRequest('get', "wisuda/periode/{$periodeId}/peserta");
             $kelulusanResponse = $this->apiRequest('get', 'kelulusan');
 
-            if (!$periodeResponse->successful() || !$pesertaResponse->successful()) {
+            if (! $periodeResponse->successful() || ! $pesertaResponse->successful()) {
                 return redirect()->route('wisuda.periode.index')
                     ->with('error', 'Gagal mengambil data periode atau peserta wisuda.');
             }
@@ -127,7 +127,7 @@ class WisudaController extends Controller
         try {
             $response = $this->apiRequest('get', "wisuda/peserta/{$id}");
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return redirect()->route('wisuda.periode.index')
                     ->with('error', 'Gagal mengambil detail peserta wisuda dari API.');
             }
@@ -188,7 +188,7 @@ class WisudaController extends Controller
     private function apiRequest(string $method, string $endpoint, array $payload = [], array $query = []): Response
     {
         $request = Http::withToken(session('access_token'))->acceptJson();
-        $url = rtrim($this->apiUrl, '/') . '/' . ltrim($endpoint, '/');
+        $url = rtrim($this->apiUrl, '/').'/'.ltrim($endpoint, '/');
 
         return match (strtolower($method)) {
             'get' => $request->get($url, $query),

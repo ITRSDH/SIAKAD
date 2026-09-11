@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers\Siakad\MasterData;
 
-use Illuminate\Http\Request;
-use App\Services\DropdownService;
 use App\Http\Controllers\Controller;
+use App\Services\DropdownService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class MataKuliahController extends Controller
 {
     protected string $apiUrl;
+
     protected string $apiToken;
 
     public function __construct()
@@ -24,6 +25,7 @@ class MataKuliahController extends Controller
         try {
             // Ambil data mata kuliah terkelompok dari API
             $prodi = $dropdownService->get('prodi');
+
             // Kirim data ke view
             return response()->json(['data' => $prodi['prodi']]);
         } catch (\Exception $e) {
@@ -41,11 +43,11 @@ class MataKuliahController extends Controller
         try {
 
             $response = Http::withToken($this->apiToken)
-                ->get($this->apiUrl . "mata-kuliah/prodi/{$id_prodi}", $request->all());
+                ->get($this->apiUrl."mata-kuliah/prodi/{$id_prodi}", $request->all());
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return response()->json([
-                    'error' => 'Gagal mengambil data dari API'
+                    'error' => 'Gagal mengambil data dari API',
                 ], 500);
             }
 
@@ -57,18 +59,17 @@ class MataKuliahController extends Controller
         } catch (\Exception $e) {
 
             return response()->json([
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
-
 
     public function index(Request $request, $id_prodi)
     {
         try {
             // Panggil getData
             $response = Http::withToken($this->apiToken)
-                ->get($this->apiUrl . "prodi/{$id_prodi}");
+                ->get($this->apiUrl."prodi/{$id_prodi}");
 
             // Ambil data
             $prodi = $response->json()['data'] ?? [];
@@ -87,7 +88,7 @@ class MataKuliahController extends Controller
     {
         try {
             $response = Http::withToken($this->apiToken)
-                ->get($this->apiUrl . "mata-kuliah/{$id}");
+                ->get($this->apiUrl."mata-kuliah/{$id}");
 
             $matakuliah = $response->json()['data'] ?? [];
 
@@ -95,29 +96,29 @@ class MataKuliahController extends Controller
             try {
                 $prasyaratResponse = Http::withToken($this->apiToken)
                     ->timeout(30)
-                    ->get($this->apiUrl . "mata-kuliah/{$id}/prasyarat");
+                    ->get($this->apiUrl."mata-kuliah/{$id}/prasyarat");
 
                 $prasyarat = $prasyaratResponse->successful()
                     ? ($prasyaratResponse->json()['data'] ?? [])
                     : [];
 
-                if (!$prasyaratResponse->successful()) {
+                if (! $prasyaratResponse->successful()) {
                     Log::warning('Gagal mengambil data prasyarat di detail page', [
                         'id_mata_kuliah' => $id,
                         'status' => $prasyaratResponse->status(),
-                        'message' => $prasyaratResponse->json('message') ?? 'Unknown error'
+                        'message' => $prasyaratResponse->json('message') ?? 'Unknown error',
                     ]);
                 }
             } catch (\Exception $e) {
                 Log::error('Exception saat mengambil prasyarat di detail page', [
                     'id_mata_kuliah' => $id,
-                    'message' => $e->getMessage()
+                    'message' => $e->getMessage(),
                 ]);
                 $prasyarat = [];
             }
 
             $mataKuliahProdiResponse = Http::withToken($this->apiToken)
-                ->get($this->apiUrl . "mata-kuliah/prodi/" . ($matakuliah['id_prodi'] ?? ''));
+                ->get($this->apiUrl.'mata-kuliah/prodi/'.($matakuliah['id_prodi'] ?? ''));
 
             $referensiPrasyarat = collect($mataKuliahProdiResponse->json()['data'] ?? [])
                 ->filter(fn ($item) => (string) ($item['id'] ?? '') !== (string) $id)
@@ -135,32 +136,32 @@ class MataKuliahController extends Controller
     public function prasyarat($id)
     {
         $response = Http::withToken($this->apiToken)
-            ->get($this->apiUrl . "mata-kuliah/{$id}/prasyarat");
+            ->get($this->apiUrl."mata-kuliah/{$id}/prasyarat");
 
         if ($response->successful()) {
             $responseData = $response->json();
-            
+
             if (isset($responseData['status']) && $responseData['status'] === 'success') {
                 return response()->json([
                     'success' => true,
-                    'data' => $responseData['data']['prasyarat'] ?? []
+                    'data' => $responseData['data']['prasyarat'] ?? [],
                 ]);
             }
-            
+
             return response()->json($responseData, $response->status());
         }
 
         return response()->json([
             'success' => false,
             'message' => $response->json('message') ?? 'Gagal mengambil data prasyarat',
-            'errors' => $response->json('errors') ?? []
+            'errors' => $response->json('errors') ?? [],
         ], $response->status());
     }
 
     public function updatePrasyarat(Request $request, $id)
     {
         $prasyarat = $request->input('prasyarat', []);
-        
+
         // Transform format data untuk backend
         $prasyaratData = [];
         foreach ($prasyarat as $item) {
@@ -168,39 +169,39 @@ class MataKuliahController extends Controller
                 // Format lama: hanya ID
                 $prasyaratData[] = [
                     'id_mata_kuliah_prasyarat' => $item,
-                    'min_bobot_nilai' => 2.00
+                    'min_bobot_nilai' => 2.00,
                 ];
             } elseif (is_array($item)) {
                 // Format baru: dengan min_bobot_nilai
                 $prasyaratData[] = [
                     'id_mata_kuliah_prasyarat' => $item['id'],
-                    'min_bobot_nilai' => floatval($item['min_bobot_nilai'] ?? 2.00)
+                    'min_bobot_nilai' => floatval($item['min_bobot_nilai'] ?? 2.00),
                 ];
             }
         }
 
         $response = Http::withToken($this->apiToken)
-            ->put($this->apiUrl . "mata-kuliah/{$id}/prasyarat", [
+            ->put($this->apiUrl."mata-kuliah/{$id}/prasyarat", [
                 'prasyarat' => $prasyaratData,
             ]);
 
         if ($response->successful()) {
             $responseData = $response->json();
-            
+
             if (isset($responseData['status']) && $responseData['status'] === 'success') {
                 return response()->json([
                     'success' => true,
-                    'message' => $responseData['message'] ?? 'Prasyarat berhasil diperbarui'
+                    'message' => $responseData['message'] ?? 'Prasyarat berhasil diperbarui',
                 ]);
             }
-            
+
             return response()->json($responseData, $response->status());
         }
 
         return response()->json([
             'success' => false,
             'message' => $response->json('message') ?? 'Gagal menyimpan prasyarat',
-            'errors' => $response->json('errors') ?? []
+            'errors' => $response->json('errors') ?? [],
         ], $response->status());
     }
 
@@ -209,7 +210,7 @@ class MataKuliahController extends Controller
         try {
             // Panggil getData
             $response = Http::withToken($this->apiToken)
-                ->get($this->apiUrl . "prodi/{$id_prodi}");
+                ->get($this->apiUrl."prodi/{$id_prodi}");
 
             // Ambil data
             $prodi = $response->json()['data'] ?? [];
@@ -228,7 +229,7 @@ class MataKuliahController extends Controller
     {
         try {
             $response = Http::withToken($this->apiToken)
-                ->post($this->apiUrl . "mata-kuliah/prodi/{$id_prodi}", $request->all());
+                ->post($this->apiUrl."mata-kuliah/prodi/{$id_prodi}", $request->all());
 
             if ($response->successful()) {
 
@@ -246,18 +247,17 @@ class MataKuliahController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
-
 
     // Panggil endpoint update dari API
     public function update(Request $request, $id, $id_prodi)
     {
         try {
             $response = Http::withToken($this->apiToken)
-                ->put($this->apiUrl . "mata-kuliah/{$id}/prodi/{$id_prodi}", $request->all());
+                ->put($this->apiUrl."mata-kuliah/{$id}/prodi/{$id_prodi}", $request->all());
 
             if ($response->successful()) {
                 return back()->with('success', 'Data berhasil diperbarui');
@@ -274,7 +274,7 @@ class MataKuliahController extends Controller
     public function destroy(Request $request, $id)
     {
         try {
-            $response = Http::withToken($this->apiToken)->delete($this->apiUrl . "mata-kuliah/{$id}");
+            $response = Http::withToken($this->apiToken)->delete($this->apiUrl."mata-kuliah/{$id}");
 
             if ($response->successful()) {
                 return response()->json($response->json());
@@ -283,12 +283,12 @@ class MataKuliahController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menghapus data di API',
-                'errors' => $response->json()
+                'errors' => $response->json(),
             ], 404);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -296,14 +296,12 @@ class MataKuliahController extends Controller
     /**
      * Import matakuliah dari Excel
      */
-
-
     public function importExcel(Request $request, $id_prodi)
     {
         try {
             Log::info('=== START IMPORT EXCEL ===', [
                 'id_prodi' => $id_prodi,
-                'request' => $request->all()
+                'request' => $request->all(),
             ]);
 
             $request->validate([
@@ -316,7 +314,7 @@ class MataKuliahController extends Controller
                 'nama' => $file->getClientOriginalName(),
                 'mime' => $file->getMimeType(),
                 'size' => $file->getSize(),
-                'path' => $file->getPathname()
+                'path' => $file->getPathname(),
             ]);
 
             // Kirim ke API
@@ -326,12 +324,12 @@ class MataKuliahController extends Controller
                     fopen($file->getPathname(), 'r'),
                     $file->getClientOriginalName()
                 )
-                ->post($this->apiUrl . "mata-kuliah/import/prodi/{$id_prodi}");
+                ->post($this->apiUrl."mata-kuliah/import/prodi/{$id_prodi}");
 
             Log::info('Response dari API', [
                 'status' => $response->status(),
                 'body' => $response->body(),
-                'json' => $response->json()
+                'json' => $response->json(),
             ]);
 
             if ($response->successful()) {
@@ -340,30 +338,30 @@ class MataKuliahController extends Controller
                 return response()->json([
                     'success' => true,
                     'message' => 'Data mata kuliah berhasil diimport',
-                    'data' => $response->json()
+                    'data' => $response->json(),
                 ]);
             }
 
             Log::warning('IMPORT GAGAL DARI API', [
                 'status' => $response->status(),
-                'errors' => $response->json()
+                'errors' => $response->json(),
             ]);
 
             return response()->json([
                 'success' => false,
                 'message' => $response->json('message') ?? 'Gagal import data',
-                'errors' => $response->json('errors') ?? []
+                'errors' => $response->json('errors') ?? [],
             ], 422);
         } catch (\Illuminate\Validation\ValidationException $e) {
 
             Log::error('VALIDATION ERROR', [
-                'errors' => $e->errors()
+                'errors' => $e->errors(),
             ]);
 
             return response()->json([
                 'success' => false,
                 'message' => 'Validasi gagal',
-                'errors' => $e->errors()
+                'errors' => $e->errors(),
             ], 422);
         } catch (\Exception $e) {
 
@@ -371,12 +369,12 @@ class MataKuliahController extends Controller
                 'message' => $e->getMessage(),
                 'line' => $e->getLine(),
                 'file' => $e->getFile(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal import data: ' . $e->getMessage()
+                'message' => 'Gagal import data: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -388,7 +386,7 @@ class MataKuliahController extends Controller
     {
         try {
             $response = Http::withToken($this->apiToken)
-                ->get($this->apiUrl . "mata-kuliah/format/prodi/{$id_prodi}");
+                ->get($this->apiUrl."mata-kuliah/format/prodi/{$id_prodi}");
 
             if ($response->successful()) {
                 // Get the file content from API response
@@ -405,7 +403,7 @@ class MataKuliahController extends Controller
 
             return back()->with('error', 'Gagal download template');
         } catch (\Exception $e) {
-            return back()->with('error', 'Gagal download template: ' . $e->getMessage());
+            return back()->with('error', 'Gagal download template: '.$e->getMessage());
         }
     }
 
@@ -417,17 +415,17 @@ class MataKuliahController extends Controller
         try {
             $id_prodi = $request->input('id_prodi');
 
-            if (!$id_prodi) {
+            if (! $id_prodi) {
                 return back()->with('error', 'ID Prodi wajib diisi');
             }
 
             $response = Http::withToken($this->apiToken)
-                ->get($this->apiUrl . "mata-kuliah/export/prodi/{$id_prodi}");
+                ->get($this->apiUrl."mata-kuliah/export/prodi/{$id_prodi}");
 
             if ($response->successful()) {
                 // Get the file content from API response
                 $fileContent = $response->body();
-                $filename = 'data_matakuliah_' . date('Y-m-d_H-i-s') . '.xlsx';
+                $filename = 'data_matakuliah_'.date('Y-m-d_H-i-s').'.xlsx';
 
                 return response($fileContent)
                     ->header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
@@ -439,7 +437,7 @@ class MataKuliahController extends Controller
 
             return back()->with('error', 'Gagal export data');
         } catch (\Exception $e) {
-            return back()->with('error', 'Gagal export data: ' . $e->getMessage());
+            return back()->with('error', 'Gagal export data: '.$e->getMessage());
         }
     }
 }

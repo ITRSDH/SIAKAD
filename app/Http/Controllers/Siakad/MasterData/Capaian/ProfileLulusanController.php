@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Http;
 class ProfileLulusanController extends Controller
 {
     protected string $apiUrl;
+
     protected string $apiToken;
 
     public function __construct()
@@ -27,26 +28,26 @@ class ProfileLulusanController extends Controller
         try {
 
             $response = Http::withToken($this->apiToken)
-                ->get($this->apiUrl . "profile-lulusan/prodi/{$id_prodi}", $request->all());
+                ->get($this->apiUrl."profile-lulusan/prodi/{$id_prodi}", $request->all());
 
             if ($response->successful()) {
 
                 $data = $response->json();
 
                 return response()->json([
-                    'data' => $data['data'] ?? []
+                    'data' => $data['data'] ?? [],
                 ]);
             }
 
             return response()->json([
                 'data' => [],
-                'message' => 'Gagal mengambil data di API'
+                'message' => 'Gagal mengambil data di API',
             ], 404);
         } catch (\Exception $e) {
 
             return response()->json([
                 'data' => [],
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -55,25 +56,25 @@ class ProfileLulusanController extends Controller
     {
         try {
             $response = Http::withToken($this->apiToken)
-                ->post($this->apiUrl . "profile-lulusan/prodi/{$id_prodi}", $request->all());
+                ->post($this->apiUrl."profile-lulusan/prodi/{$id_prodi}", $request->all());
 
             if ($response->successful()) {
                 return response()->json([
                     'success' => true,
                     'message' => 'Data Profile Lulusan berhasil ditambahkan',
-                    'data' => $response->json()
+                    'data' => $response->json(),
                 ]);
             }
 
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menambahkan data',
-                'errors' => $response->json()
+                'errors' => $response->json(),
             ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -82,23 +83,23 @@ class ProfileLulusanController extends Controller
     {
         try {
             $response = Http::withToken($this->apiToken)
-                ->get($this->apiUrl . "profile-lulusan/{$id}");
+                ->get($this->apiUrl."profile-lulusan/{$id}");
 
             if ($response->successful()) {
                 return response()->json([
                     'success' => true,
-                    'data' => $response->json()
+                    'data' => $response->json(),
                 ]);
             }
 
             return response()->json([
                 'success' => false,
-                'message' => 'Data tidak ditemukan'
+                'message' => 'Data tidak ditemukan',
             ], 404);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -107,25 +108,25 @@ class ProfileLulusanController extends Controller
     {
         try {
             $response = Http::withToken($this->apiToken)
-                ->put($this->apiUrl . "profile-lulusan/{$id}/prodi/{$id_prodi}", $request->all());
+                ->put($this->apiUrl."profile-lulusan/{$id}/prodi/{$id_prodi}", $request->all());
 
             if ($response->successful()) {
                 return response()->json([
                     'success' => true,
                     'message' => 'Data Profile Lulusan berhasil diperbarui',
-                    'data' => $response->json()
+                    'data' => $response->json(),
                 ]);
             }
 
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal memperbarui data',
-                'errors' => $response->json()
+                'errors' => $response->json(),
             ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -134,23 +135,23 @@ class ProfileLulusanController extends Controller
     {
         try {
             $response = Http::withToken($this->apiToken)
-                ->delete($this->apiUrl . "profile-lulusan/{$id}");
+                ->delete($this->apiUrl."profile-lulusan/{$id}");
 
             if ($response->successful()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Data Profile Lulusan berhasil dihapus'
+                    'message' => 'Data Profile Lulusan berhasil dihapus',
                 ]);
             }
 
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal menghapus data'
+                'message' => 'Gagal menghapus data',
             ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }

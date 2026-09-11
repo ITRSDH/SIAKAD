@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Http;
 class PeriodeKRSController extends Controller
 {
     protected string $apiUrl;
+
     protected string $apiToken;
 
     public function __construct()
@@ -22,9 +23,9 @@ class PeriodeKRSController extends Controller
     {
         try {
             // Ambil data periode KRS dari API (tanpa paginate)
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . 'periode-krs');
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl.'periode-krs');
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return back()->with('error', 'Gagal mengambil data periode KRS dari API');
             }
 
@@ -39,6 +40,7 @@ class PeriodeKRSController extends Controller
     public function create(DropdownService $dropdownService)
     {
         $semester = $dropdownService->get('semester');
+
         return view('masterdata.periode_krs.create', [
             'semester' => $semester['semester'] ?? [],
         ]);
@@ -47,7 +49,7 @@ class PeriodeKRSController extends Controller
     public function store(Request $request)
     {
         try {
-            $response = Http::withToken($this->apiToken)->post($this->apiUrl . 'periode-krs', $request->all());
+            $response = Http::withToken($this->apiToken)->post($this->apiUrl.'periode-krs', $request->all());
 
             if ($response->successful()) {
                 return redirect()->route('periode-krs.index')->with('success', 'Data periode KRS berhasil ditambahkan');
@@ -79,7 +81,7 @@ class PeriodeKRSController extends Controller
                 ->withInput();
         } catch (\Exception $e) {
             return back()
-                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage())
+                ->with('error', 'Terjadi kesalahan: '.$e->getMessage())
                 ->withInput();
         }
     }
@@ -87,7 +89,7 @@ class PeriodeKRSController extends Controller
     public function show($id)
     {
         try {
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . "periode-krs/{$id}");
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl."periode-krs/{$id}");
 
             if ($response->successful()) {
                 return response()->json($response->json());
@@ -115,12 +117,13 @@ class PeriodeKRSController extends Controller
     public function edit($id, DropdownService $dropdownService)
     {
         try {
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . "periode-krs/{$id}");
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl."periode-krs/{$id}");
 
             if ($response->successful()) {
                 $periodeKRS = $response->json()['data'] ?? [];
 
                 $semester = $dropdownService->get('semester');
+
                 return view('masterdata.periode_krs.edit', [
                     'periodeKRS' => $periodeKRS,
                     'semester' => $semester['semester'] ?? [],
@@ -136,7 +139,7 @@ class PeriodeKRSController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            $response = Http::withToken($this->apiToken)->put($this->apiUrl . "periode-krs/{$id}", $request->all());
+            $response = Http::withToken($this->apiToken)->put($this->apiUrl."periode-krs/{$id}", $request->all());
 
             if ($response->successful()) {
                 return redirect()->route('periode-krs.index')->with('success', 'Data periode KRS berhasil diperbarui');
@@ -168,7 +171,7 @@ class PeriodeKRSController extends Controller
                 ->withInput();
         } catch (\Exception $e) {
             return back()
-                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage())
+                ->with('error', 'Terjadi kesalahan: '.$e->getMessage())
                 ->withInput();
         }
     }
@@ -176,7 +179,7 @@ class PeriodeKRSController extends Controller
     public function destroy($id)
     {
         try {
-            $response = Http::withToken($this->apiToken)->delete($this->apiUrl . "periode-krs/{$id}");
+            $response = Http::withToken($this->apiToken)->delete($this->apiUrl."periode-krs/{$id}");
 
             if ($response->successful()) {
                 return response()->json($response->json());

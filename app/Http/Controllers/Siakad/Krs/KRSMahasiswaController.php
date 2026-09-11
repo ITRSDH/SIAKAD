@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Siakad\Krs;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use Illuminate\Http\Client\Response;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class KRSMahasiswaController extends Controller
 {
@@ -73,7 +73,7 @@ class KRSMahasiswaController extends Controller
             $query = array_filter([
                 'id_krs' => $request->query('id_krs'),
                 'id_semester' => $request->query('id_semester'),
-            ], fn($value) => filled($value));
+            ], fn ($value) => filled($value));
 
             $response = $this->apiRequest('get', 'krs-mahasiswa/available-mata-kuliah', [], $query);
 
@@ -91,7 +91,7 @@ class KRSMahasiswaController extends Controller
         try {
             $query = array_filter([
                 'id_krs' => $request->query('id_krs'),
-            ], fn($value) => filled($value));
+            ], fn ($value) => filled($value));
 
             $response = $this->apiRequest('get', 'krs-mahasiswa/repeat-candidates', [], $query);
 
@@ -151,14 +151,14 @@ class KRSMahasiswaController extends Controller
         try {
             $response = $this->apiRequest('get', "krs-mahasiswa/{$id}");
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return $this->redirectBackWithError($response->json('message') ?? 'Gagal memuat data KRS untuk dicetak.');
             }
 
             $payload = $response->json();
             $krs = $payload['data'] ?? null;
 
-            if (!(($payload['success'] ?? false)) || !$krs) {
+            if (! (($payload['success'] ?? false)) || ! $krs) {
                 return $this->redirectBackWithError($payload['message'] ?? 'Data KRS tidak ditemukan.');
             }
 
@@ -244,7 +244,7 @@ class KRSMahasiswaController extends Controller
         $request = Http::withToken(session('access_token'))
             ->acceptJson();
 
-        $url = rtrim($this->apiUrl, '/') . '/' . ltrim($endpoint, '/');
+        $url = rtrim($this->apiUrl, '/').'/'.ltrim($endpoint, '/');
 
         return match (strtolower($method)) {
             'get' => $request->get($url, $query),

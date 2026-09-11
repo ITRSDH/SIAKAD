@@ -2,9 +2,9 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -46,6 +46,7 @@ class AppServiceProvider extends ServiceProvider
         // 🔸 Custom Blade directive untuk permission
         Blade::if('canApi', function ($permission) {
             $permissions = Session::get('user.permission', []);
+
             return in_array($permission, $permissions);
         });
 
@@ -65,13 +66,15 @@ class AppServiceProvider extends ServiceProvider
         // 🔸 Custom Blade directive untuk role
         Blade::if('hasRole', function ($role) {
             $roles = Session::get('user.role', []);
+
             return in_array($role, $roles);
         });
 
         // 🔸 Custom Blade directive kebalikannya (jika tidak punya permission)
         Blade::if('cannotApi', function ($permission) {
             $permissions = Session::get('user.permission', []);
-            return !in_array($permission, $permissions);
+
+            return ! in_array($permission, $permissions);
         });
 
         // 🔸 Custom directive untuk section pengguna yang bypass admin
@@ -104,6 +107,7 @@ class AppServiceProvider extends ServiceProvider
             }
 
             $permissions = Session::get('user.permission', []);
+
             return in_array($permission, $permissions);
         });
     }

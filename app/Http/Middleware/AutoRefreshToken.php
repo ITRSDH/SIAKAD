@@ -4,9 +4,9 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
+use Symfony\Component\HttpFoundation\Response;
 
 class AutoRefreshToken
 {
@@ -48,9 +48,9 @@ class AutoRefreshToken
         try {
             $response = Http::withHeaders([
                 // Jika API membutuhkan header tambahan seperti Content-Type, tambahkan di sini
-                'Authorization' => 'Bearer ' . session('access_token'), // Jika refresh membutuhkan access_token lama
-            ])->post($this->apiUrl . 'auth/refresh', [
-                'refresh_token' => session('refresh_token')
+                'Authorization' => 'Bearer '.session('access_token'), // Jika refresh membutuhkan access_token lama
+            ])->post($this->apiUrl.'auth/refresh', [
+                'refresh_token' => session('refresh_token'),
             ]);
 
             if ($response->successful()) {

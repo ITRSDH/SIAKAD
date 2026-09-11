@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Http;
 class BaakWorkspaceController extends Controller
 {
     protected string $apiUrl;
+
     protected string $apiToken;
 
     public function __construct()
@@ -20,19 +21,19 @@ class BaakWorkspaceController extends Controller
     {
         try {
             $responses = [
-                'tahunAkademik' => Http::withToken($this->apiToken)->get($this->apiUrl . 'tahun-akademik'),
-                'periodeKrs' => Http::withToken($this->apiToken)->get($this->apiUrl . 'periode-krs'),
-                'kelasKuliah' => Http::withToken($this->apiToken)->get($this->apiUrl . 'kelas-kuliah'),
-                'khs' => Http::withToken($this->apiToken)->get($this->apiUrl . 'khs'),
-                'khsImportHistory' => Http::withToken($this->apiToken)->get($this->apiUrl . 'khs/import/history'),
-                'transkrip' => Http::withToken($this->apiToken)->get($this->apiUrl . 'transkrip'),
-                'yudisium' => Http::withToken($this->apiToken)->get($this->apiUrl . 'yudisium'),
-                'kelulusan' => Http::withToken($this->apiToken)->get($this->apiUrl . 'kelulusan'),
-                'wisuda' => Http::withToken($this->apiToken)->get($this->apiUrl . 'wisuda/periode'),
+                'tahunAkademik' => Http::withToken($this->apiToken)->get($this->apiUrl.'tahun-akademik'),
+                'periodeKrs' => Http::withToken($this->apiToken)->get($this->apiUrl.'periode-krs'),
+                'kelasKuliah' => Http::withToken($this->apiToken)->get($this->apiUrl.'kelas-kuliah'),
+                'khs' => Http::withToken($this->apiToken)->get($this->apiUrl.'khs'),
+                'khsImportHistory' => Http::withToken($this->apiToken)->get($this->apiUrl.'khs/import/history'),
+                'transkrip' => Http::withToken($this->apiToken)->get($this->apiUrl.'transkrip'),
+                'yudisium' => Http::withToken($this->apiToken)->get($this->apiUrl.'yudisium'),
+                'kelulusan' => Http::withToken($this->apiToken)->get($this->apiUrl.'kelulusan'),
+                'wisuda' => Http::withToken($this->apiToken)->get($this->apiUrl.'wisuda/periode'),
             ];
 
             foreach ($responses as $response) {
-                if (!$response->successful()) {
+                if (! $response->successful()) {
                     return back()->with('error', 'Gagal mengambil data workspace BAAK dari API.');
                 }
             }
@@ -144,7 +145,7 @@ class BaakWorkspaceController extends Controller
                 'khs' => count($khsItems),
                 'khs_import' => count($khsImportHistoryItems),
                 'khs_import_failed' => collect($khsImportHistoryItems)->where('status', 'failed')->count(),
-                'khs_draft' => collect($khsItems)->filter(fn($item) => empty($item['is_final']))->count(),
+                'khs_draft' => collect($khsItems)->filter(fn ($item) => empty($item['is_final']))->count(),
                 'transkrip' => count($transkripItems),
                 'yudisium' => count($yudisiumItems),
                 'kelulusan' => count($kelulusanItems),
@@ -195,7 +196,7 @@ class BaakWorkspaceController extends Controller
 
     protected function resolvePeriodeLabel(?array $periode): string
     {
-        if (!$periode) {
+        if (! $periode) {
             return '-';
         }
 

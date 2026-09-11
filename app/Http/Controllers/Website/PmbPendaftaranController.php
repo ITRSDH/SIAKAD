@@ -10,18 +10,19 @@ use Illuminate\Support\Facades\Log;
 class PmbPendaftaranController extends Controller
 {
     protected string $apiUrl;
+
     protected string $apiToken;
 
     public function __construct()
     {
         $this->apiUrl = config('api.base_url');
         $this->apiToken = session('access_token');
-        
+
         // Debug logging
         Log::info('PmbPendaftaranController initialized', [
             'api_url' => $this->apiUrl,
-            'token_exists' => !empty($this->apiToken),
-            'token_preview' => $this->apiToken ? substr($this->apiToken, 0, 20) . '...' : 'null'
+            'token_exists' => ! empty($this->apiToken),
+            'token_preview' => $this->apiToken ? substr($this->apiToken, 0, 20).'...' : 'null',
         ]);
     }
 
@@ -29,7 +30,7 @@ class PmbPendaftaranController extends Controller
     {
         try {
             // Ambil data landing content (single content)
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . 'pmb-pendaftaran');
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl.'pmb-pendaftaran');
 
             if ($response->successful()) {
                 $pmbPendaftaran = $response->json()['data'] ?? null;
@@ -49,16 +50,16 @@ class PmbPendaftaranController extends Controller
             // Validasi input dengan aturan yang lebih spesifik
             $request->validate([
                 'tata_cara' => 'nullable|string',
-                'deskripsi' => 'nullable|string'
+                'deskripsi' => 'nullable|string',
             ]);
 
             // Buat data dasar untuk dikirim ke API
             $data = $request->only([
-                'tata_cara', 'deskripsi'
+                'tata_cara', 'deskripsi',
             ]);
 
             $response = Http::withToken($this->apiToken)
-                    ->post($this->apiUrl . 'pmb-pendaftaran', $data);
+                ->post($this->apiUrl.'pmb-pendaftaran', $data);
 
             if ($response->successful()) {
                 return response()->json($response->json());
@@ -68,18 +69,18 @@ class PmbPendaftaranController extends Controller
             Log::error('API Error Response', [
                 'status' => $response->status(),
                 'body' => $response->body(),
-                'data_sent' => $data
+                'data_sent' => $data,
             ]);
 
             return response()->json(
                 [
                     'success' => false,
-                    'message' => 'Gagal menyimpan data ke API: ' . ($response->json()['message'] ?? 'Unknown error'),
+                    'message' => 'Gagal menyimpan data ke API: '.($response->json()['message'] ?? 'Unknown error'),
                     'errors' => $response->json()['errors'] ?? [],
                     'debug' => [
                         'status_code' => $response->status(),
-                        'response_body' => $response->json()
-                    ]
+                        'response_body' => $response->json(),
+                    ],
                 ],
                 422,
             );
@@ -95,14 +96,14 @@ class PmbPendaftaranController extends Controller
         } catch (\Exception $e) {
             Log::error('Pmb Pendaftaran Store Error', [
                 'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
-            
+
             return response()->json(
                 [
                     'success' => false,
                     'message' => $e->getMessage(),
-                    'debug' => 'Check logs for more details'
+                    'debug' => 'Check logs for more details',
                 ],
                 500,
             );
@@ -113,24 +114,24 @@ class PmbPendaftaranController extends Controller
     {
         try {
             // Test koneksi API terlebih dahulu
-            $testResponse = Http::withToken($this->apiToken)->get($this->apiUrl . 'pmb-pendaftaran');
-            
-            if (!$testResponse->successful()) {
+            $testResponse = Http::withToken($this->apiToken)->get($this->apiUrl.'pmb-pendaftaran');
+
+            if (! $testResponse->successful()) {
                 Log::error('API Connection Test Failed', [
-                    'url' => $this->apiUrl . 'pmb-pendaftaran',
+                    'url' => $this->apiUrl.'pmb-pendaftaran',
                     'status' => $testResponse->status(),
-                    'body' => $testResponse->body()
+                    'body' => $testResponse->body(),
                 ]);
-                
+
                 return response()->json(
                     [
                         'success' => false,
                         'message' => 'Koneksi ke API gagal',
                         'debug' => [
-                            'api_url' => $this->apiUrl . 'pmb-pendaftaran',
+                            'api_url' => $this->apiUrl.'pmb-pendaftaran',
                             'status' => $testResponse->status(),
-                            'response' => $testResponse->body()
-                        ]
+                            'response' => $testResponse->body(),
+                        ],
                     ],
                     500,
                 );
@@ -141,17 +142,17 @@ class PmbPendaftaranController extends Controller
             Log::error('Show Pmb Pendaftaran Error', [
                 'message' => $e->getMessage(),
                 'api_url' => $this->apiUrl,
-                'token_exists' => !empty($this->apiToken)
+                'token_exists' => ! empty($this->apiToken),
             ]);
-            
+
             return response()->json(
                 [
                     'success' => false,
                     'message' => $e->getMessage(),
                     'debug' => [
                         'api_url' => $this->apiUrl,
-                        'token_exists' => !empty($this->apiToken)
-                    ]
+                        'token_exists' => ! empty($this->apiToken),
+                    ],
                 ],
                 500,
             );
@@ -173,27 +174,27 @@ class PmbPendaftaranController extends Controller
             // Attach files if present
             if ($request->hasFile('hero_background')) {
                 $httpRequest = $httpRequest->attach(
-                    'hero_background', 
-                    file_get_contents($request->file('hero_background')), 
+                    'hero_background',
+                    file_get_contents($request->file('hero_background')),
                     $request->file('hero_background')->getClientOriginalName()
                 );
             }
 
             if ($request->hasFile('logo')) {
                 $httpRequest = $httpRequest->attach(
-                    'logo', 
-                    file_get_contents($request->file('logo')), 
+                    'logo',
+                    file_get_contents($request->file('logo')),
                     $request->file('logo')->getClientOriginalName()
                 );
             }
 
             // Buat data untuk dikirim ke API
             $data = $request->only([
-                'tata_cara', 'deskripsi'
+                'tata_cara', 'deskripsi',
             ]);
 
             // Untuk single content, gunakan ID 1
-            $response = $httpRequest->post($this->apiUrl . "pmb-pendaftaran/1?_method=PUT", $data);
+            $response = $httpRequest->post($this->apiUrl.'pmb-pendaftaran/1?_method=PUT', $data);
 
             if ($response->successful()) {
                 return response()->json($response->json());
@@ -231,7 +232,7 @@ class PmbPendaftaranController extends Controller
     {
         try {
             // Untuk single content, gunakan ID 1
-            $response = Http::withToken($this->apiToken)->delete($this->apiUrl . "pmb-pendaftaran/1");
+            $response = Http::withToken($this->apiToken)->delete($this->apiUrl.'pmb-pendaftaran/1');
 
             if ($response->successful()) {
                 return response()->json($response->json());

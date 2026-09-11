@@ -11,16 +11,15 @@ class DataTableResponse
         // Handle berbagai kemungkinan struktur response API
         $data = $payload['data'] ?? $payload;
         $total = $payload['total'] ?? (is_array($data) ? count($data) : 0);
-        
+
         return response()->json([
             'draw' => intval($request->draw),
             'recordsTotal' => $total,
             'recordsFiltered' => $total,
             'data' => collect($data)
                 ->values()
-                ->map(fn ($row, $i) =>
-                    $mapper($row, $i, $request)
-                )
+                ->map(fn ($row, $i) => $mapper($row, $i, $request)
+                ),
         ]);
     }
 

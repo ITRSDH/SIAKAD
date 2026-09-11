@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Http;
 class DosenWaliController extends Controller
 {
     protected string $apiUrl;
+
     protected string $apiToken;
 
     public function __construct()
@@ -22,8 +23,8 @@ class DosenWaliController extends Controller
     {
         try {
             // Ambil data kelaskuliah dari API
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . 'dosen-wali');
-            if (!$response->successful()) {
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl.'dosen-wali');
+            if (! $response->successful()) {
                 return back()->with('error', 'Gagal mengambil data All Dosen Wali dari API');
             }
 
@@ -53,20 +54,20 @@ class DosenWaliController extends Controller
         try {
             // 🔥 Ambil parameter sesuai API baru
             $params = array_filter([
-                'nama'     => $request->get('nama'), // gabungan nim + nama
+                'nama' => $request->get('nama'), // gabungan nim + nama
                 'angkatan' => $request->get('angkatan'),
                 'id_prodi' => $request->get('id_prodi'),
-                'page'     => $request->get('page', 1),
+                'page' => $request->get('page', 1),
                 'per_page' => $request->get('per_page', 10),
-            ], fn($v) => !is_null($v) && $v !== '');
+            ], fn ($v) => ! is_null($v) && $v !== '');
 
             $response = Http::withToken($this->apiToken)
-                ->get($this->apiUrl . 'dosen-wali/mahasiswa', $params);
+                ->get($this->apiUrl.'dosen-wali/mahasiswa', $params);
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Gagal mengambil data mahasiswa dari API'
+                    'message' => 'Gagal mengambil data mahasiswa dari API',
                 ], 500);
             }
 
@@ -75,12 +76,12 @@ class DosenWaliController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => $responseData['data'] ?? [],
-                'meta' => $responseData['meta'] ?? []
+                'meta' => $responseData['meta'] ?? [],
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -92,7 +93,7 @@ class DosenWaliController extends Controller
 
             return view('masterdata.dosen_wali.create', [
                 'dosen_wali' => $dropdown['dosen_wali'] ?? [],
-                'prodi' => $dropdown['prodi'] ?? []
+                'prodi' => $dropdown['prodi'] ?? [],
             ]);
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
@@ -102,7 +103,7 @@ class DosenWaliController extends Controller
     public function assign(Request $request)
     {
         try {
-            $response = Http::withToken($this->apiToken)->post($this->apiUrl . 'dosen-wali/assign', $request->all());
+            $response = Http::withToken($this->apiToken)->post($this->apiUrl.'dosen-wali/assign', $request->all());
 
             if ($response->successful()) {
                 return response()->json($response->json());
@@ -111,12 +112,12 @@ class DosenWaliController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menyimpan data ke API',
-                'errors' => $response->json()
+                'errors' => $response->json(),
             ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -124,7 +125,7 @@ class DosenWaliController extends Controller
     public function unassign(Request $request)
     {
         try {
-            $response = Http::withToken($this->apiToken)->post($this->apiUrl . 'dosen-wali/unassign', $request->all());
+            $response = Http::withToken($this->apiToken)->post($this->apiUrl.'dosen-wali/unassign', $request->all());
 
             if ($response->successful()) {
                 $responseData = $response->json();
@@ -136,19 +137,19 @@ class DosenWaliController extends Controller
                     'success' => true,
                     'message' => 'Dosen wali berhasil diperbarui',
                     'data' => $responseData['data'] ?? [],
-                    'redirect_url' => route('dosen-wali.detail', $newDosenId)
+                    'redirect_url' => route('dosen-wali.detail', $newDosenId),
                 ]);
             }
 
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal memperbarui dosen wali',
-                'errors' => $response->json()
+                'errors' => $response->json(),
             ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -156,16 +157,17 @@ class DosenWaliController extends Controller
     public function detail(DropdownService $dropdownService, $id)
     {
         try {
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . "dosen-wali/{$id}");
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl."dosen-wali/{$id}");
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 // Return JSON error for AJAX requests
                 if (request()->expectsJson()) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Gagal mengambil data dari API'
+                        'message' => 'Gagal mengambil data dari API',
                     ], 500);
                 }
+
                 return back()->withErrors('Gagal mengambil data dari API');
             }
 
@@ -175,7 +177,7 @@ class DosenWaliController extends Controller
             if (request()->expectsJson()) {
                 return response()->json([
                     'success' => true,
-                    'data' => $responseData['data'] ?? null
+                    'data' => $responseData['data'] ?? null,
                 ]);
             }
 
@@ -185,34 +187,34 @@ class DosenWaliController extends Controller
             return view('masterdata.dosen_wali.detail', [
                 'dosenWali' => $responseData['data'] ?? null,
                 'dosen_wali' => $dropdown['dosen_wali'] ?? [],
-                'prodi' => $dropdown['prodi'] ?? []
+                'prodi' => $dropdown['prodi'] ?? [],
             ]);
         } catch (\Exception $e) {
             // Return JSON error for AJAX requests
             if (request()->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => $e->getMessage()
+                    'message' => $e->getMessage(),
                 ], 500);
             }
+
             return back()->with('error', $e->getMessage());
         }
     }
-
 
     public function remove(Request $request)
     {
         try {
             // Convert id_mahasiswa to mahasiswa_ids array for API compatibility
             $data = $request->all();
-            if (isset($data['id_mahasiswa']) && !isset($data['mahasiswa_ids'])) {
+            if (isset($data['id_mahasiswa']) && ! isset($data['mahasiswa_ids'])) {
                 $data['mahasiswa_ids'] = is_array($data['id_mahasiswa'])
                     ? $data['id_mahasiswa']
                     : [$data['id_mahasiswa']];
                 unset($data['id_mahasiswa']);
             }
 
-            $response = Http::withToken($this->apiToken)->post($this->apiUrl . 'dosen-wali/remove', $data);
+            $response = Http::withToken($this->apiToken)->post($this->apiUrl.'dosen-wali/remove', $data);
 
             if ($response->successful()) {
                 $responseData = $response->json();
@@ -221,19 +223,19 @@ class DosenWaliController extends Controller
                     'success' => true,
                     'message' => 'Mahasiswa berhasil dihapus dari daftar bimbingan',
                     'data' => $responseData['data'] ?? [],
-                    'refresh_needed' => true
+                    'refresh_needed' => true,
                 ]);
             }
 
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menghapus data dari API',
-                'errors' => $response->json()
+                'errors' => $response->json(),
             ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }

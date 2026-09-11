@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Auth;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
 
@@ -38,11 +38,10 @@ class AuthController extends Controller
         ]);
 
         // Kirim ke API
-        $response = Http::post($this->apiUrl . 'auth/login', [
+        $response = Http::post($this->apiUrl.'auth/login', [
             'username' => $request->username,
             'password' => $request->password,
         ]);
-
 
         if ($response->successful()) {
             $data = $response->json();
@@ -67,7 +66,7 @@ class AuthController extends Controller
             }
 
             return back()->withErrors([
-                'username' => 'Login gagal: respon server tidak valid.'
+                'username' => 'Login gagal: respon server tidak valid.',
             ]);
         }
 
@@ -77,17 +76,16 @@ class AuthController extends Controller
             ?? 'Login gagal';
 
         return back()->withErrors([
-            'username' => $error
+            'username' => $error,
         ]);
     }
-
 
     public function profile(Request $request)
     {
         $token = session('access_token');
 
         // Jika belum login, arahkan ke halaman login
-        if (!$token) {
+        if (! $token) {
             return redirect()->route('login');
         }
 
@@ -98,7 +96,7 @@ class AuthController extends Controller
             $profile_type = session('profile_type'); // Ubah nama variabel agar sesuai dengan view
         } else {
             // Panggil API hanya sekali
-            $response = Http::withToken($token)->get($this->apiUrl . 'auth/me');
+            $response = Http::withToken($token)->get($this->apiUrl.'auth/me');
 
             if ($response->successful()) {
                 $apiData = $response->json();
@@ -112,15 +110,17 @@ class AuthController extends Controller
                     session([
                         'user' => $user,
                         'profile' => $profile,
-                        'profile_type' => $profile_type
+                        'profile_type' => $profile_type,
                     ]);
                 } else {
                     Session::flush();
+
                     return redirect()->route('login')->with('error', 'Gagal mengambil data pengguna dari API.');
                 }
             } else {
                 Session::flush();
-                return redirect()->route('login')->with('error', 'Gagal mengambil data pengguna. (' . $response->status() . ')');
+
+                return redirect()->route('login')->with('error', 'Gagal mengambil data pengguna. ('.$response->status().')');
             }
         }
 
@@ -133,7 +133,7 @@ class AuthController extends Controller
         $token = session('access_token');
 
         // Jika belum login, arahkan ke halaman login
-        if (!$token) {
+        if (! $token) {
             return redirect()->route('login');
         }
 
@@ -150,7 +150,7 @@ class AuthController extends Controller
 
         try {
             // Kirim request ke API untuk mengubah password
-            $response = Http::withToken($token)->post($this->apiUrl . 'auth/change-password', [
+            $response = Http::withToken($token)->post($this->apiUrl.'auth/change-password', [
                 'current_password' => $request->current_password,
                 'new_password' => $request->new_password,
                 'new_password_confirmation' => $request->new_password_confirmation,
@@ -184,8 +184,8 @@ class AuthController extends Controller
         if ($refreshToken) {
             try {
                 // Kirim refresh token ke API untuk dicabut
-                Http::withToken($token)->post($this->apiUrl . 'auth/logout', [
-                    'refresh_token' => $refreshToken
+                Http::withToken($token)->post($this->apiUrl.'auth/logout', [
+                    'refresh_token' => $refreshToken,
                 ]);
             } catch (\Exception $e) {
                 // Log error jika perlu
@@ -201,13 +201,13 @@ class AuthController extends Controller
     // Endpoint untuk refresh token secara manual (misalnya via AJAX)
     public function refreshToken(Request $request)
     {
-        if (!Session::has('refresh_token')) {
+        if (! Session::has('refresh_token')) {
             return response()->json(['success' => false, 'message' => 'Tidak ada refresh token'], 401);
         }
 
         try {
-            $response = Http::post($this->apiUrl . 'auth/refresh', [
-                'refresh_token' => session('refresh_token')
+            $response = Http::post($this->apiUrl.'auth/refresh', [
+                'refresh_token' => session('refresh_token'),
             ]);
 
             if ($response->successful()) {
@@ -226,19 +226,22 @@ class AuthController extends Controller
                     return response()->json([
                         'success' => true,
                         'access_token' => $tokenData['access_token'],
-                        'expires_at' => time() + $tokenData['expires_in']
+                        'expires_at' => time() + $tokenData['expires_in'],
                     ]);
                 } else {
                     Session::flush();
+
                     return response()->json(['success' => false, 'message' => 'API refresh gagal'], 401);
                 }
             } else {
                 $error = $response->json()['error'] ?? 'API refresh gagal';
                 Session::flush();
+
                 return response()->json(['success' => false, 'message' => $error], 401);
             }
         } catch (\Exception $e) {
             Session::flush();
+
             return response()->json(['success' => false, 'message' => 'Terjadi kesalahan'], 500);
         }
     }

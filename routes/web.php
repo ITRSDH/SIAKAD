@@ -1,35 +1,32 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
-use App\Http\Controllers\Siakad\Akademik\MonitoringAkademikController;
-use App\Http\Controllers\Siakad\Akademik\KhsController as AkademikKhsController;
-use App\Http\Controllers\Siakad\Akademik\KhsImportController as AkademikKhsImportController;
-use App\Http\Controllers\Siakad\Akademik\StudentStudyAdministrationController;
-use App\Http\Controllers\Siakad\Administratif\BaakWorkspaceController;
-use App\Http\Controllers\Siakad\Administratif\DosenPengajarWorkspaceController;
-use App\Http\Controllers\Siakad\Administratif\KaprodiWorkspaceController;
-use App\Http\Controllers\Siakad\Administratif\PembimbingAkademikWorkspaceController;
 use App\Http\Controllers\Mahasiswa\KHSController;
 use App\Http\Controllers\Mahasiswa\PembayaranController;
-// use App\Http\Controllers\Website\ProfileKampusController;
-use App\Http\Controllers\Website\ProfileDosenController;
-// use App\Http\Controllers\Website\LandingContentController;
-use App\Http\Controllers\Website\PmbPendaftaranController;
-use App\Http\Controllers\Website\SertifikatAkreditasi;
-
-// Route Siakad
 use App\Http\Controllers\Mahasiswa\TranskripController;
 use App\Http\Controllers\ManagementPengguna\PermissionController;
 use App\Http\Controllers\ManagementPengguna\RoleController;
 use App\Http\Controllers\ManagementPengguna\UserController;
-use App\Http\Controllers\Siakad\Krs\KRSDosenWaliController;
-use App\Http\Controllers\Siakad\Krs\KRSHistoricalController;
-use App\Http\Controllers\Siakad\Krs\KRSMahasiswaController;
+use App\Http\Controllers\Siakad\Administratif\BaakWorkspaceController;
+use App\Http\Controllers\Siakad\Administratif\DosenPengajarWorkspaceController;
+use App\Http\Controllers\Siakad\Administratif\KaprodiWorkspaceController;
+use App\Http\Controllers\Siakad\Administratif\PddiktiSettingController;
+use App\Http\Controllers\Siakad\Administratif\PembimbingAkademikWorkspaceController;
+// use App\Http\Controllers\Website\ProfileKampusController;
 use App\Http\Controllers\Siakad\Administratif\WisudaController;
-use App\Http\Controllers\Siakad\AkhirStudi\YudisiumController;
+// use App\Http\Controllers\Website\LandingContentController;
+use App\Http\Controllers\Siakad\Akademik\KhsController as AkademikKhsController;
+use App\Http\Controllers\Siakad\Akademik\KhsImportController as AkademikKhsImportController;
+// Route Siakad
+use App\Http\Controllers\Siakad\Akademik\MonitoringAkademikController;
+use App\Http\Controllers\Siakad\Akademik\StudentStudyAdministrationController;
 use App\Http\Controllers\Siakad\AkhirStudi\KelulusanController;
 use App\Http\Controllers\Siakad\AkhirStudi\MonitoringAkhirStudiController;
 use App\Http\Controllers\Siakad\AkhirStudi\TugasAkhirController;
+use App\Http\Controllers\Siakad\AkhirStudi\YudisiumController;
+use App\Http\Controllers\Siakad\Krs\KRSDosenWaliController;
+use App\Http\Controllers\Siakad\Krs\KRSHistoricalController;
+use App\Http\Controllers\Siakad\Krs\KRSMahasiswaController;
 use App\Http\Controllers\Siakad\MasterData\AktorAkademikController;
 use App\Http\Controllers\Siakad\MasterData\Capaian\CapaianController;
 use App\Http\Controllers\Siakad\MasterData\Capaian\CPLController;
@@ -58,8 +55,11 @@ use App\Http\Controllers\Website\GaleriController;
 use App\Http\Controllers\Website\LandingContentController;
 use App\Http\Controllers\Website\OrmawaController;
 use App\Http\Controllers\Website\PengumumanController;
+use App\Http\Controllers\Website\PmbPendaftaranController;
 use App\Http\Controllers\Website\PrestasiController;
+use App\Http\Controllers\Website\ProfileDosenController;
 use App\Http\Controllers\Website\ProfileKampusController;
+use App\Http\Controllers\Website\SertifikatAkreditasi;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['guest.token'])->group(function () {
@@ -81,6 +81,11 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
     Route::get('/workspace/dosen-pengajar', [DosenPengajarWorkspaceController::class, 'index'])->name('workspace.dosen-pengajar');
     Route::get('/workspace/kaprodi', [KaprodiWorkspaceController::class, 'index'])->name('workspace.kaprodi');
     Route::get('/workspace/pembimbing-akademik', [PembimbingAkademikWorkspaceController::class, 'index'])->name('workspace.pembimbing-akademik');
+    Route::prefix('pddikti/setting')->name('pddikti.setting.')->group(function () {
+        Route::get('/', [PddiktiSettingController::class, 'index'])->name('index');
+        Route::post('/', [PddiktiSettingController::class, 'update'])->name('update');
+        Route::post('/test-connection', [PddiktiSettingController::class, 'testConnection'])->name('test-connection');
+    });
 
     Route::prefix('akademik/khs')->name('akademik.khs.')->group(function () {
         Route::get('/import', [AkademikKhsImportController::class, 'index'])->name('import.index');
@@ -110,6 +115,17 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
         Route::post('/execute', [KRSHistoricalController::class, 'execute'])->name('execute');
         Route::get('/batches', [KRSHistoricalController::class, 'batchHistory'])->name('batches');
         Route::get('/batches/{id}', [KRSHistoricalController::class, 'showBatch'])->name('batches.show');
+    });
+
+    Route::prefix('akademik/nilai-transfer')->name('akademik.nilai-transfer.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Siakad\Akademik\NilaiTransferController::class, 'index'])->name('index');
+        Route::get('/data', [\App\Http\Controllers\Siakad\Akademik\NilaiTransferController::class, 'data'])->name('data');
+        Route::get('/summary/{mahasiswaId}', [\App\Http\Controllers\Siakad\Akademik\NilaiTransferController::class, 'summary'])->name('summary');
+        Route::post('/', [\App\Http\Controllers\Siakad\Akademik\NilaiTransferController::class, 'store'])->name('store');
+        Route::put('/{id}', [\App\Http\Controllers\Siakad\Akademik\NilaiTransferController::class, 'update'])->name('update');
+        Route::delete('/{id}', [\App\Http\Controllers\Siakad\Akademik\NilaiTransferController::class, 'destroy'])->name('destroy');
+        Route::get('/mata-kuliah-options', [\App\Http\Controllers\Siakad\Akademik\NilaiTransferController::class, 'mataKuliahOptions'])->name('mata-kuliah-options');
+        Route::get('/mahasiswa-options', [\App\Http\Controllers\Siakad\Akademik\NilaiTransferController::class, 'mahasiswaOptions'])->name('mahasiswa-options');
     });
 
     Route::prefix('akademik/administrasi-studi')->name('akademik.administrasi-studi.')->group(function () {
@@ -173,7 +189,6 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
         Route::put('/{id}/kaprodi', [ProdiController::class, 'updateKaprodi'])->name('updateKaprodi');
     });
 
-
     Route::prefix('capaian')->name('capaian.')->group(function () {
         Route::get('/prodi', [CapaianController::class, 'indexProdi'])->name('indexProdi');
         Route::get('/data', [CapaianController::class, 'getDataProdi'])->name('dataProdi');
@@ -231,7 +246,6 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
         Route::put('/{id}', [PeriodeKRSController::class, 'update'])->name('update');
         Route::delete('/{id}', [PeriodeKRSController::class, 'destroy'])->name('destroy');
     });
-
 
     Route::prefix('tahun-akademik')->name('tahun-akademik.')->group(function () {
         Route::get('/', [TahunAkademikController::class, 'index'])->name('index');
@@ -348,6 +362,7 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
         // Import/Export Routes
         Route::post('/import/{id_prodi}', [MahasiswaController::class, 'import'])->name('import');
         Route::get('/export/template/{id_prodi}', [MahasiswaController::class, 'exportTemplate'])->name('export.template');
+        Route::get('/export/data', [MahasiswaController::class, 'exportData'])->name('export.data');
     });
 
     // Route Mahasiswa Baru
@@ -355,6 +370,7 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
         Route::get('/', [MahasiswaBaruController::class, 'index'])->name('index');
         Route::post('/', [MahasiswaBaruController::class, 'store'])->name('store');
         Route::post('/sync', [MahasiswaBaruController::class, 'sync'])->name('sync');
+        Route::post('/{id}/verify', [MahasiswaBaruController::class, 'verify'])->whereUuid('id')->name('verify');
         Route::get('/{id}', [MahasiswaBaruController::class, 'show'])->whereUuid('id')->name('show');
         Route::put('/{id}', [MahasiswaBaruController::class, 'update'])->whereUuid('id')->name('update');
         Route::delete('/{id}', [MahasiswaBaruController::class, 'destroy'])->whereUuid('id')->name('destroy');
@@ -448,7 +464,6 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
     Route::put('/profile-kampus/{id?}', [ProfileKampusController::class, 'update'])->name('profile-kampus.update');
     Route::delete('/profile-kampus/{id?}', [ProfileKampusController::class, 'destroy'])->name('profile-kampus.destroy');
 
-
     // Route Pembayaran Mahasiswa
     Route::get('/pembayaran', [PembayaranController::class, 'index'])->name('student.pembayaran.index');
     Route::get('/pembayaran/{tagihanId}/create', [PembayaranController::class, 'create'])->name('student.pembayaran.create');
@@ -467,7 +482,6 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
         Route::get('/data', [TranskripController::class, 'data'])->name('data');
         Route::get('/{transkripId}', [TranskripController::class, 'show'])->name('show');
     });
-
 
     Route::get('/dosen-pa/krs', [KRSDosenWaliController::class, 'index'])->name('dosenpa.krs.index');
     Route::get('/dosen-pa/krs/statistics', [KRSDosenWaliController::class, 'statistics'])->name('dosenpa.krs.statistics');

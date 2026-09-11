@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\Siakad\MasterData;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
 class TahunAkademikController extends Controller
 {
     protected string $apiUrl;
+
     protected string $apiToken;
 
     public function __construct()
@@ -16,6 +17,7 @@ class TahunAkademikController extends Controller
         $this->apiUrl = config('api.base_url');
         $this->apiToken = session('access_token');
     }
+
     /**
      * ============================
      * LIST TAHUN AKADEMIK
@@ -24,12 +26,12 @@ class TahunAkademikController extends Controller
     public function index()
     {
         $response = Http::withToken($this->apiToken)
-            ->get($this->apiUrl . 'tahun-akademik');
+            ->get($this->apiUrl.'tahun-akademik');
 
-        abort_if(!$response->successful(), 500, 'Gagal mengambil data');
+        abort_if(! $response->successful(), 500, 'Gagal mengambil data');
 
         return view('masterdata.tahun_akademik.index', [
-            'data' => $response->json('data')
+            'data' => $response->json('data'),
         ]);
     }
 
@@ -56,7 +58,7 @@ class TahunAkademikController extends Controller
         ]);
 
         $response = Http::withToken($this->apiToken)
-            ->post($this->apiUrl . 'tahun-akademik', $request->all());
+            ->post($this->apiUrl.'tahun-akademik', $request->all());
 
         return $response->successful()
             ? redirect()->route('tahun-akademik.index')->with('success', 'Data berhasil disimpan')
@@ -71,12 +73,12 @@ class TahunAkademikController extends Controller
     public function edit(string $id)
     {
         $response = Http::withToken($this->apiToken)
-            ->get($this->apiUrl . "tahun-akademik/{$id}");
+            ->get($this->apiUrl."tahun-akademik/{$id}");
 
-        abort_if(!$response->successful(), 404);
+        abort_if(! $response->successful(), 404);
 
         return view('masterdata.tahun_akademik.edit', [
-            'data' => $response->json('data')
+            'data' => $response->json('data'),
         ]);
     }
 
@@ -88,7 +90,7 @@ class TahunAkademikController extends Controller
     public function update(Request $request, string $id)
     {
         $response = Http::withToken($this->apiToken)
-            ->put($this->apiUrl . "tahun-akademik/{$id}", $request->all());
+            ->put($this->apiUrl."tahun-akademik/{$id}", $request->all());
 
         return $response->successful()
             ? redirect()->route('tahun-akademik.index')->with('success', 'Data berhasil diupdate')
@@ -103,7 +105,7 @@ class TahunAkademikController extends Controller
     public function destroy(string $id)
     {
         $response = Http::withToken($this->apiToken)
-            ->delete($this->apiUrl . "tahun-akademik/{$id}");
+            ->delete($this->apiUrl."tahun-akademik/{$id}");
 
         return back()->with(
             $response->successful() ? 'success' : 'error',
@@ -119,7 +121,7 @@ class TahunAkademikController extends Controller
     public function setTahunAktif(string $id)
     {
         $response = Http::withToken($this->apiToken)
-            ->put($this->apiUrl . "tahun-akademik/tahun-aktif/{$id}");
+            ->put($this->apiUrl."tahun-akademik/tahun-aktif/{$id}");
 
         return back()->with('success', $response->json('message'));
     }
@@ -132,10 +134,10 @@ class TahunAkademikController extends Controller
     public function setSemesterAktif(string $id)
     {
         $response = Http::withToken($this->apiToken)
-            ->put($this->apiUrl . "tahun-akademik/semester-aktif/{$id}");
+            ->put($this->apiUrl."tahun-akademik/semester-aktif/{$id}");
 
         // ❌ Jika API menolak (422 / 500)
-        if (!$response->successful()) {
+        if (! $response->successful()) {
             return back()->withErrors(
                 $response->json('message')
                     ?? 'Tidak dapat mengaktifkan semester'

@@ -8,7 +8,8 @@ use Illuminate\Support\Facades\Http;
 
 class ProfileDosenController extends Controller
 {
-   protected string $apiUrl;
+    protected string $apiUrl;
+
     protected string $apiToken;
 
     public function __construct()
@@ -20,9 +21,9 @@ class ProfileDosenController extends Controller
     public function index()
     {
         try {
-            $prodiResponse = Http::withToken($this->apiToken)->get($this->apiUrl . 'prodi');
+            $prodiResponse = Http::withToken($this->apiToken)->get($this->apiUrl.'prodi');
 
-            if (!$prodiResponse->successful()) {
+            if (! $prodiResponse->successful()) {
                 return back()->with('error', 'Gagal mengambil data dari API');
             }
 
@@ -30,9 +31,9 @@ class ProfileDosenController extends Controller
             $prodi = $prodiData['prodi'] ?? [];
             $jenjangPendidikan = $prodiData['jenjang_pendidikan'] ?? [];
 
-            $profileDosenResponse = Http::withToken($this->apiToken)->get($this->apiUrl . 'profile-dosen');
+            $profileDosenResponse = Http::withToken($this->apiToken)->get($this->apiUrl.'profile-dosen');
 
-            if (!$profileDosenResponse->successful()) {
+            if (! $profileDosenResponse->successful()) {
                 return back()->with('error', 'Gagal mengambil data profile dosen dari API');
             }
 
@@ -55,20 +56,20 @@ class ProfileDosenController extends Controller
                 'nidn' => 'required|string|max:255',
                 'status' => 'required|in:Aktif,Tidak Aktif',
                 'biografi' => 'required|string',
-                'foto' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048'
+                'foto' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             ]);
 
             // Buat data untuk dikirim ke API
             $data = $request->only(['nama', 'id_prodi', 'nidn', 'status', 'biografi']);
-            
+
             // Jika ada file gambar, siapkan untuk multipart/form-data
             if ($request->hasFile('foto')) {
                 $response = Http::withToken($this->apiToken)
                     ->attach('foto', file_get_contents($request->file('foto')), $request->file('foto')->getClientOriginalName())
-                    ->post($this->apiUrl . 'profile-dosen', $data);
+                    ->post($this->apiUrl.'profile-dosen', $data);
             } else {
                 // Jika tidak ada file, kirim sebagai JSON biasa
-                $response = Http::withToken($this->apiToken)->post($this->apiUrl . 'profile-dosen', $data);
+                $response = Http::withToken($this->apiToken)->post($this->apiUrl.'profile-dosen', $data);
             }
 
             if ($response->successful()) {
@@ -106,7 +107,7 @@ class ProfileDosenController extends Controller
     public function show($id)
     {
         try {
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . "profile-dosen/{$id}");
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl."profile-dosen/{$id}");
 
             if ($response->successful()) {
                 return response()->json($response->json());
@@ -138,9 +139,9 @@ class ProfileDosenController extends Controller
             if ($request->hasFile('foto')) {
                 $response = Http::withToken($this->apiToken)
                     ->attach('foto', file_get_contents($request->file('foto')), $request->file('foto')->getClientOriginalName())
-                    ->post($this->apiUrl . "profile-dosen/{$id}?_method=PUT", $request->except('foto'));
+                    ->post($this->apiUrl."profile-dosen/{$id}?_method=PUT", $request->except('foto'));
             } else {
-                $response = Http::withToken($this->apiToken)->put($this->apiUrl . "profile-dosen/{$id}", $request->all());
+                $response = Http::withToken($this->apiToken)->put($this->apiUrl."profile-dosen/{$id}", $request->all());
             }
 
             if ($response->successful()) {
@@ -169,7 +170,7 @@ class ProfileDosenController extends Controller
     public function destroy($id)
     {
         try {
-            $response = Http::withToken($this->apiToken)->delete($this->apiUrl . "profile-dosen/{$id}");
+            $response = Http::withToken($this->apiToken)->delete($this->apiUrl."profile-dosen/{$id}");
 
             if ($response->successful()) {
                 return response()->json($response->json());

@@ -23,7 +23,7 @@ class TugasAkhirController extends Controller
             $mahasiswaResponse = $this->apiRequest('get', 'mahasiswa');
             $dosenResponse = $this->apiRequest('get', 'dosen');
 
-            if (!$tugasAkhirResponse->successful()) {
+            if (! $tugasAkhirResponse->successful()) {
                 return back()->with('error', 'Gagal mengambil data tugas akhir dari API');
             }
 
@@ -42,7 +42,7 @@ class TugasAkhirController extends Controller
         try {
             $response = $this->apiRequest('get', "tugas-akhir/{$id}");
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return redirect()->route('tugas-akhir.index')
                     ->with('error', 'Gagal mengambil detail tugas akhir dari API.');
             }
@@ -171,7 +171,7 @@ class TugasAkhirController extends Controller
     private function apiRequest(string $method, string $endpoint, array $payload = [], array $query = []): Response
     {
         $request = Http::withToken(session('access_token'))->acceptJson();
-        $url = rtrim($this->apiUrl, '/') . '/' . ltrim($endpoint, '/');
+        $url = rtrim($this->apiUrl, '/').'/'.ltrim($endpoint, '/');
 
         return match (strtolower($method)) {
             'get' => $request->get($url, $query),

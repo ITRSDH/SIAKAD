@@ -50,21 +50,21 @@ class KHSController extends Controller
         try {
             $response = $this->apiRequest('get', "khs/{$khsId}");
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return $this->redirectBackWithError($response->json('message') ?? 'Gagal memuat data KHS untuk dicetak.');
             }
 
             $payload = $response->json();
             $khs = $payload['data'] ?? null;
 
-            if (!(($payload['success'] ?? false)) || !$khs) {
+            if (! (($payload['success'] ?? false)) || ! $khs) {
                 return $this->redirectBackWithError($payload['message'] ?? 'Data KHS tidak ditemukan.');
             }
 
             $mahasiswa = $khs['mahasiswa'] ?? [];
             $mahasiswaDetail = [];
 
-            if (!empty($mahasiswa['id'])) {
+            if (! empty($mahasiswa['id'])) {
                 $mahasiswaResponse = $this->apiRequest('get', "mahasiswa/{$mahasiswa['id']}");
                 if ($mahasiswaResponse->successful()) {
                     $mahasiswaDetail = $mahasiswaResponse->json('data') ?? [];
@@ -101,7 +101,7 @@ class KHSController extends Controller
         $request = Http::withToken(session('access_token'))
             ->acceptJson();
 
-        $url = rtrim($this->apiUrl, '/') . '/' . ltrim($endpoint, '/');
+        $url = rtrim($this->apiUrl, '/').'/'.ltrim($endpoint, '/');
 
         return match (strtolower($method)) {
             'get' => $request->get($url, $query),
@@ -114,7 +114,7 @@ class KHSController extends Controller
     {
         $mahasiswaId = session('profile.id');
 
-        if (!filled($mahasiswaId)) {
+        if (! filled($mahasiswaId)) {
             throw new \RuntimeException('Profil mahasiswa tidak ditemukan. Silakan login ulang.');
         }
 

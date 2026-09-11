@@ -151,6 +151,13 @@
                                     </div>
                                 </div>
                             </div>
+                            <div id="rplInfoAlert" class="alert alert-info d-none mt-2 mb-0 py-2 d-flex align-items-center">
+                                <i class="fas fa-graduation-cap fa-lg me-3 text-info"></i>
+                                <div>
+                                    <div class="fw-bold">Mahasiswa Jalur RPL / Alih Jenjang</div>
+                                    <small id="rplInfoText" class="text-muted"></small>
+                                </div>
+                            </div>
                         </form>
                     </div>
                 </div>
@@ -1044,6 +1051,13 @@
             $('#tahun_akademik').val(formatAcademicYear(semesterAktif));
             $('#semester').val(formatSemesterStudyLabel(semesterAktif, payload?.semester_saat_ini));
 
+            if (payload?.is_rpl) {
+                $('#rplInfoAlert').removeClass('d-none');
+                $('#rplInfoText').text(`Mahasiswa Jalur RPL diakui memiliki ${payload.sks_diakui || 0} SKS Konversi (${payload.nilai_transfer_count || 0} mata kuliah terkonversi). Terdaftar pada Semester ${payload.semester_saat_ini || 1} dengan paket perkuliahan Semester ${payload.paket_semester || payload.semester_saat_ini || 1}.`);
+            } else {
+                $('#rplInfoAlert').addClass('d-none');
+            }
+
             if (!currentKrs) {
                 $('#statusBadge').attr('class', 'badge bg-secondary badge-status').text('Belum Ada KRS');
                 $('#totalSksLabel').text('0');
@@ -1255,9 +1269,14 @@
                             '-';
                         const category = getOfferedCourseCategory(item, currentSemesterNumber);
 
-                        const statusHtml = item.is_available ?
-                            '<span class="badge bg-success">Tersedia</span>' :
-                            `<span class="badge bg-secondary">${escapeHtml(item.availability_reason || 'Tidak tersedia')}</span>`;
+                        let statusHtml = '';
+                        if (item.is_transferred) {
+                            statusHtml = `<span class="badge bg-info text-dark"><i class="fas fa-check-circle me-1"></i>Diakui Konversi (${escapeHtml(item.nilai_transfer || 'A')})</span>`;
+                        } else if (item.is_available) {
+                            statusHtml = '<span class="badge bg-success">Tersedia</span>';
+                        } else {
+                            statusHtml = `<span class="badge bg-secondary">${escapeHtml(item.availability_reason || 'Tidak tersedia')}</span>`;
+                        }
 
                         const addButton = item.is_available ?
                             `<button class="btn btn-sm btn-primary" onclick="addCourse('${item.id}')"><i class="fas fa-plus me-1"></i>Tambah</button>` :

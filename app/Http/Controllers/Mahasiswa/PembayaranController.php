@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 class PembayaranController extends Controller
 {
     protected string $apiUrl;
+
     protected string $apiUrlakad;
 
     protected string $secret;
@@ -32,18 +33,18 @@ class PembayaranController extends Controller
         $token = session('access_token');
         $res = Http::withToken($token)
             ->acceptJson()
-            ->get($this->apiUrlakad . 'auth/me');
+            ->get($this->apiUrlakad.'auth/me');
         $data = $res->json();
 
         $path = '/api/internal/bills';
-        $url  = $this->apiUrl . $path;
+        $url = $this->apiUrl.$path;
 
         $queryParams = [
             'siswa_id' => $data['profile']['id'],
         ];
 
         $timestamp = time();
-        $method    = 'GET';
+        $method = 'GET';
 
         // Create HMAC signature
         $bodyForSign = json_encode($queryParams);
@@ -52,25 +53,26 @@ class PembayaranController extends Controller
 
         try {
             $response = Http::withHeaders([
-                'X-API-KEY'   => 'siakad',
+                'X-API-KEY' => 'siakad',
                 'X-TIMESTAMP' => $timestamp,
                 'X-SIGNATURE' => $signature,
             ])->timeout(10)->get($url, $queryParams);
-
 
             if ($response->successful()) {
                 $bills = $response->json()['data'] ?? [];
             } else {
                 Log::error('Failed to fetch bills from API', [
                     'status' => $response->status(),
-                    'body' => $response->body()
+                    'body' => $response->body(),
                 ]);
                 $bills = [];
+
                 return redirect()->back()->with('error', 'Gagal mengambil data tagihan dari server.');
             }
         } catch (\Exception $e) {
             Log::error('Exception when fetching bills', ['error' => $e->getMessage()]);
             $bills = [];
+
             return redirect()->back()->with('error', 'Terjadi kesalahan koneksi ke server keuangan.');
         }
 
@@ -87,17 +89,17 @@ class PembayaranController extends Controller
         $token = session('access_token');
         $res = Http::withToken($token)
             ->acceptJson()
-            ->get($this->apiUrlakad . 'auth/me');
+            ->get($this->apiUrlakad.'auth/me');
         $data = $res->json();
         $path = '/api/internal/bills';
-        $url  = $this->apiUrl . $path;
+        $url = $this->apiUrl.$path;
 
         $queryParams = [
             'siswa_id' => $data['profile']['id'],
         ];
 
         $timestamp = time();
-        $method    = 'GET';
+        $method = 'GET';
 
         // Create HMAC signature
         $bodyForSign = json_encode($queryParams);
@@ -106,7 +108,7 @@ class PembayaranController extends Controller
 
         try {
             $response = Http::withHeaders([
-                'X-API-KEY'   => 'siakad',
+                'X-API-KEY' => 'siakad',
                 'X-TIMESTAMP' => $timestamp,
                 'X-SIGNATURE' => $signature,
             ])->timeout(10)->get($url, $queryParams);
@@ -116,7 +118,7 @@ class PembayaranController extends Controller
                 // Find the specific bill by ID
                 $tagihan = collect($bills)->firstWhere('id', $tagihanId);
 
-                if (!$tagihan) {
+                if (! $tagihan) {
                     return redirect()->route('student.pembayaran.index')
                         ->with('error', 'Tagihan tidak ditemukan.');
                 }
@@ -126,13 +128,15 @@ class PembayaranController extends Controller
             } else {
                 Log::error('Failed to fetch bill details from API', [
                     'status' => $response->status(),
-                    'body' => $response->body()
+                    'body' => $response->body(),
                 ]);
+
                 return redirect()->route('student.pembayaran.index')
                     ->with('error', 'Gagal mengambil data tagihan dari server.');
             }
         } catch (\Exception $e) {
             Log::error('Exception when fetching bill details', ['error' => $e->getMessage()]);
+
             return redirect()->route('student.pembayaran.index')
                 ->with('error', 'Terjadi kesalahan koneksi ke server keuangan.');
         }
@@ -150,7 +154,7 @@ class PembayaranController extends Controller
         $token = session('access_token');
         $res = Http::withToken($token)
             ->acceptJson()
-            ->get($this->apiUrlakad . 'auth/me');
+            ->get($this->apiUrlakad.'auth/me');
         $data = $res->json();
         // Validate input first
         $request->validate([
@@ -159,10 +163,10 @@ class PembayaranController extends Controller
         ]);
 
         $path = "/api/internal/bills/{$tagihanId}/pay";
-        $url  = $this->apiUrl . $path;
+        $url = $this->apiUrl.$path;
 
         $timestamp = time();
-        $method    = 'POST';
+        $method = 'POST';
 
         // Prepare form data
         $formData = [
@@ -179,7 +183,7 @@ class PembayaranController extends Controller
         try {
             // Build multipart request
             $http = Http::withHeaders([
-                'X-API-KEY'   => 'siakad',
+                'X-API-KEY' => 'siakad',
                 'X-TIMESTAMP' => $timestamp,
                 'X-SIGNATURE' => $signature,
             ])->timeout(30);
@@ -204,7 +208,7 @@ class PembayaranController extends Controller
             } else {
                 Log::error('Failed to submit payment to API', [
                     'status' => $response->status(),
-                    'body' => $response->body()
+                    'body' => $response->body(),
                 ]);
 
                 $errorMessage = 'Gagal mengirim pembayaran ke server.';
@@ -220,7 +224,7 @@ class PembayaranController extends Controller
         } catch (\Exception $e) {
             Log::error('Exception when submitting payment', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return redirect()->back()

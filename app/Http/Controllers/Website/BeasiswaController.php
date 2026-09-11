@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Http;
 class BeasiswaController extends Controller
 {
     protected string $apiUrl;
+
     protected string $apiToken;
 
     public function __construct()
@@ -21,14 +22,14 @@ class BeasiswaController extends Controller
     {
         try {
             // Ambil data beasiswa dari API (tanpa paginate)
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . 'beasiswa');
-            
-            if (!$response->successful()) {
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl.'beasiswa');
+
+            if (! $response->successful()) {
                 return back()->with('error', 'Gagal mengambil data beasiswa dari API');
             }
 
             $beasiswa = $response->json()['data'] ?? [];
-            
+
             return view('admin.master.website.beasiswa.index', compact('beasiswa'));
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
@@ -55,10 +56,10 @@ class BeasiswaController extends Controller
             if ($request->hasFile('gambar')) {
                 $response = Http::withToken($this->apiToken)
                     ->attach('gambar', file_get_contents($request->file('gambar')), $request->file('gambar')->getClientOriginalName())
-                    ->post($this->apiUrl . 'beasiswa', $data);
+                    ->post($this->apiUrl.'beasiswa', $data);
             } else {
                 // Jika tidak ada file, kirim sebagai JSON biasa
-                $response = Http::withToken($this->apiToken)->post($this->apiUrl . 'beasiswa', $data);
+                $response = Http::withToken($this->apiToken)->post($this->apiUrl.'beasiswa', $data);
             }
 
             if ($response->successful()) {
@@ -96,7 +97,7 @@ class BeasiswaController extends Controller
     public function show($id)
     {
         try {
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . "beasiswa/{$id}");
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl."beasiswa/{$id}");
 
             if ($response->successful()) {
                 return response()->json($response->json());
@@ -136,14 +137,14 @@ class BeasiswaController extends Controller
 
             // Buat data untuk dikirim ke API
             $data = $request->only(['nama', 'kategori', 'deskripsi', 'deadline', 'kuota']);
-            
+
             // Handle file upload dengan attach jika ada file
             if ($request->hasFile('gambar')) {
                 $response = Http::withToken($this->apiToken)
                     ->attach('gambar', file_get_contents($request->file('gambar')), $request->file('gambar')->getClientOriginalName())
-                    ->post($this->apiUrl . "beasiswa/{$id}?_method=PUT", $data);
+                    ->post($this->apiUrl."beasiswa/{$id}?_method=PUT", $data);
             } else {
-                $response = Http::withToken($this->apiToken)->put($this->apiUrl . "beasiswa/{$id}", $data);
+                $response = Http::withToken($this->apiToken)->put($this->apiUrl."beasiswa/{$id}", $data);
             }
 
             if ($response->successful()) {
@@ -181,7 +182,7 @@ class BeasiswaController extends Controller
     public function destroy($id)
     {
         try {
-            $response = Http::withToken($this->apiToken)->delete($this->apiUrl . "beasiswa/{$id}");
+            $response = Http::withToken($this->apiToken)->delete($this->apiUrl."beasiswa/{$id}");
 
             if ($response->successful()) {
                 return response()->json($response->json());

@@ -6,13 +6,13 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Client\Response;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use Illuminate\View\View;
 
 class KhsImportController extends Controller
 {
     protected string $apiUrl;
+
     protected ?string $apiToken;
 
     public function __construct()
@@ -23,7 +23,7 @@ class KhsImportController extends Controller
 
     public function index(): View|RedirectResponse
     {
-        if (!request()->boolean('legacy')) {
+        if (! request()->boolean('legacy')) {
             return redirect()
                 ->route('akademik.administrasi-studi.nilai')
                 ->with('info', 'Silakan lanjutkan import nilai melalui Administrasi Studi Mahasiswa.');
@@ -44,7 +44,7 @@ class KhsImportController extends Controller
 
     public function history(): View|RedirectResponse
     {
-        if (!request()->boolean('legacy')) {
+        if (! request()->boolean('legacy')) {
             return redirect()
                 ->route('akademik.administrasi-studi.batches')
                 ->with('info', 'Riwayat import nilai tersedia di Administrasi Studi Mahasiswa.');
@@ -52,7 +52,7 @@ class KhsImportController extends Controller
 
         try {
             $historyResponse = $this->apiRequest('get', 'khs/import/history');
-            if (!$historyResponse->successful()) {
+            if (! $historyResponse->successful()) {
                 throw new \RuntimeException($historyResponse->json('message') ?? 'Gagal mengambil riwayat import KHS.');
             }
 
@@ -66,7 +66,7 @@ class KhsImportController extends Controller
 
     public function show(string $batchId): View|RedirectResponse
     {
-        if (!request()->boolean('legacy')) {
+        if (! request()->boolean('legacy')) {
             return redirect()
                 ->route('akademik.administrasi-studi.batches.show', ['source' => 'import', 'id' => $batchId])
                 ->with('info', 'Detail batch import tersedia di Administrasi Studi Mahasiswa.');
@@ -74,7 +74,7 @@ class KhsImportController extends Controller
 
         try {
             $detailResponse = $this->apiRequest('get', "khs/import/{$batchId}");
-            if (!$detailResponse->successful()) {
+            if (! $detailResponse->successful()) {
                 throw new \RuntimeException($detailResponse->json('message') ?? 'Gagal mengambil detail batch import KHS.');
             }
 
@@ -88,7 +88,7 @@ class KhsImportController extends Controller
 
     public function preview(string $batchId): View|RedirectResponse
     {
-        if (!request()->boolean('legacy')) {
+        if (! request()->boolean('legacy')) {
             return redirect()
                 ->route('akademik.administrasi-studi.nilai')
                 ->with('info', 'Preview import nilai tersedia di Administrasi Studi Mahasiswa.');
@@ -96,7 +96,7 @@ class KhsImportController extends Controller
 
         try {
             $previewResponse = $this->apiRequest('get', "khs/import/{$batchId}/preview");
-            if (!$previewResponse->successful()) {
+            if (! $previewResponse->successful()) {
                 throw new \RuntimeException($previewResponse->json('message') ?? 'Gagal memuat preview import KHS.');
             }
 
@@ -138,12 +138,12 @@ class KhsImportController extends Controller
                     'id_semester' => $validated['id_semester'],
                 ]);
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return back()->withInput()->with('error', $response->json('message') ?? 'Gagal mengunggah file import KHS.');
             }
 
             $batchId = $response->json('data.batch.id');
-            if (!filled($batchId)) {
+            if (! filled($batchId)) {
                 return back()->withInput()->with('error', 'Batch import berhasil dibuat, tetapi ID batch tidak ditemukan.');
             }
 
@@ -160,7 +160,7 @@ class KhsImportController extends Controller
         try {
             $response = $this->apiRequest('post', "khs/import/{$batchId}/process");
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return redirect()
                     ->route('akademik.khs.import.preview', $batchId)
                     ->with('error', $response->json('message') ?? 'Gagal memproses batch import KHS.');
@@ -179,7 +179,7 @@ class KhsImportController extends Controller
         try {
             $response = $this->apiRequest('post', "khs/import/{$batchId}/rollback");
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return back()->with('error', $response->json('message') ?? 'Gagal melakukan rollback batch import KHS.');
             }
 
@@ -198,7 +198,7 @@ class KhsImportController extends Controller
         try {
             $response = $this->apiRequest('post', "khs/import/{$batchId}/finalize", $validated);
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return back()->with('error', $response->json('message') ?? 'Gagal melakukan finalisasi semua KHS dalam batch ini.');
             }
 
@@ -225,7 +225,7 @@ class KhsImportController extends Controller
         try {
             $response = $this->apiRequest('get', 'khs/import/template/export', [], $validated);
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return back()->withInput()->with('error', $response->json('message') ?? 'Gagal mengekspor template nilai KHS.');
             }
 
@@ -240,7 +240,7 @@ class KhsImportController extends Controller
         try {
             $response = $this->apiRequest('get', "khs/import/{$batchId}/export-errors");
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return back()->with('error', $response->json('message') ?? 'Gagal mengekspor error report batch KHS.');
             }
 
@@ -255,7 +255,7 @@ class KhsImportController extends Controller
         try {
             $response = $this->apiRequest('get', "khs/import/{$batchId}/export-results");
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return back()->with('error', $response->json('message') ?? 'Gagal mengekspor hasil import KHS.');
             }
 
@@ -271,15 +271,15 @@ class KhsImportController extends Controller
         $tahunAkademikResponse = $this->apiRequest('get', 'tahun-akademik');
         $historyResponse = $this->apiRequest('get', 'khs/import/history');
 
-        if (!$prodiResponse->successful()) {
+        if (! $prodiResponse->successful()) {
             throw new \RuntimeException($prodiResponse->json('message') ?? 'Gagal mengambil daftar program studi.');
         }
 
-        if (!$tahunAkademikResponse->successful()) {
+        if (! $tahunAkademikResponse->successful()) {
             throw new \RuntimeException($tahunAkademikResponse->json('message') ?? 'Gagal mengambil daftar tahun akademik.');
         }
 
-        if (!$historyResponse->successful()) {
+        if (! $historyResponse->successful()) {
             throw new \RuntimeException($historyResponse->json('message') ?? 'Gagal mengambil riwayat import KHS.');
         }
 
@@ -300,10 +300,10 @@ class KhsImportController extends Controller
                     'id' => $item['id'] ?? null,
                     'nama_prodi' => $item['nama_prodi']
                         ?? $item['prodi']
-                        ?? trim((string) (($item['jenjang_pendidikan'] ?? '') . ' ' . ($item['nama'] ?? 'Program Studi'))),
+                        ?? trim((string) (($item['jenjang_pendidikan'] ?? '').' '.($item['nama'] ?? 'Program Studi'))),
                 ];
             })
-            ->filter(fn(array $item) => filled($item['id']))
+            ->filter(fn (array $item) => filled($item['id']))
             ->values()
             ->all();
     }
@@ -317,12 +317,12 @@ class KhsImportController extends Controller
                 return collect($tahun['semester'] ?? [])->map(function (array $semester) use ($tahunLabel) {
                     return [
                         'id' => $semester['id'] ?? null,
-                        'label' => trim(($semester['nama_semester'] ?? $semester['nama'] ?? 'Semester') . ' ' . $tahunLabel),
+                        'label' => trim(($semester['nama_semester'] ?? $semester['nama'] ?? 'Semester').' '.$tahunLabel),
                         'is_active' => strtolower((string) ($semester['status'] ?? '')) === 'aktif' || ($semester['is_active'] ?? false),
                     ];
                 });
             })
-            ->filter(fn(array $item) => filled($item['id']))
+            ->filter(fn (array $item) => filled($item['id']))
             ->values()
             ->all();
     }
@@ -357,7 +357,7 @@ class KhsImportController extends Controller
 
     private function requireApiToken(): string
     {
-        if (!filled($this->apiToken)) {
+        if (! filled($this->apiToken)) {
             throw new \RuntimeException('Sesi login Anda sudah habis. Silakan login ulang lalu coba import nilai lagi.');
         }
 
@@ -366,7 +366,7 @@ class KhsImportController extends Controller
 
     private function buildApiUrl(string $endpoint): string
     {
-        return rtrim($this->apiUrl, '/') . '/' . ltrim($endpoint, '/');
+        return rtrim($this->apiUrl, '/').'/'.ltrim($endpoint, '/');
     }
 
     private function downloadBinaryResponse(Response $response, string $fallbackFilename)
@@ -381,7 +381,7 @@ class KhsImportController extends Controller
 
         return response($response->body())
             ->header('Content-Type', $contentType)
-            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"')
+            ->header('Content-Disposition', 'attachment; filename="'.$filename.'"')
             ->header('Cache-Control', 'no-cache, must-revalidate')
             ->header('Pragma', 'no-cache')
             ->header('Expires', '0');

@@ -53,7 +53,7 @@ class TranskripController extends Controller
         $request = Http::withToken(session('access_token'))
             ->acceptJson();
 
-        $url = rtrim($this->apiUrl, '/') . '/' . ltrim($endpoint, '/');
+        $url = rtrim($this->apiUrl, '/').'/'.ltrim($endpoint, '/');
 
         return match (strtolower($method)) {
             'get' => $request->get($url, $query),
@@ -66,7 +66,7 @@ class TranskripController extends Controller
     {
         $mahasiswaId = session('profile.id');
 
-        if (!filled($mahasiswaId)) {
+        if (! filled($mahasiswaId)) {
             throw new \RuntimeException('Profil mahasiswa tidak ditemukan. Silakan login ulang.');
         }
 

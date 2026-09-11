@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Http;
 class PrestasiController extends Controller
 {
     protected string $apiUrl;
+
     protected string $apiToken;
 
     public function __construct()
@@ -20,18 +21,18 @@ class PrestasiController extends Controller
     public function index()
     {
         try {
-            $prodiResponse = Http::withToken($this->apiToken)->get($this->apiUrl . 'prodi');
+            $prodiResponse = Http::withToken($this->apiToken)->get($this->apiUrl.'prodi');
 
-            if (!$prodiResponse->successful()) {
+            if (! $prodiResponse->successful()) {
                 return back()->with('error', 'Gagal mengambil data dari API');
             }
 
             $prodiData = $prodiResponse->json()['data'] ?? [];
             $prodi = $prodiData['prodi'] ?? [];
 
-            $prestasiResponse = Http::withToken($this->apiToken)->get($this->apiUrl . 'prestasi');
+            $prestasiResponse = Http::withToken($this->apiToken)->get($this->apiUrl.'prestasi');
 
-            if (!$prestasiResponse->successful()) {
+            if (! $prestasiResponse->successful()) {
                 return back()->with('error', 'Gagal mengambil data prestasi dari API');
             }
 
@@ -40,6 +41,7 @@ class PrestasiController extends Controller
             return view('admin.master.website.prestasi.index', compact('prestasi', 'prodi'));
         } catch (\Exception $e) {
             dd($e->getMessage());
+
             return back()->with('error', $e->getMessage());
         }
     }
@@ -55,20 +57,20 @@ class PrestasiController extends Controller
                 'tingkat' => 'required|in:regional,kampus,nasional,internasional',
                 'tahun' => 'required|integer|min:1900|max:2100',
                 'deskripsi' => 'nullable|string',
-                'gambar' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048'
+                'gambar' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             ]);
 
             // Buat data untuk dikirim ke API
             $data = $request->only(['nama_mahasiswa', 'id_prodi', 'judul_prestasi', 'tingkat', 'tahun', 'deskripsi']);
-            
+
             // Jika ada file gambar, siapkan untuk multipart/form-data
             if ($request->hasFile('gambar')) {
                 $response = Http::withToken($this->apiToken)
                     ->attach('gambar', file_get_contents($request->file('gambar')), $request->file('gambar')->getClientOriginalName())
-                    ->post($this->apiUrl . 'prestasi', $data);
+                    ->post($this->apiUrl.'prestasi', $data);
             } else {
                 // Jika tidak ada file, kirim sebagai JSON biasa
-                $response = Http::withToken($this->apiToken)->post($this->apiUrl . 'prestasi', $data);
+                $response = Http::withToken($this->apiToken)->post($this->apiUrl.'prestasi', $data);
             }
 
             if ($response->successful()) {
@@ -106,7 +108,7 @@ class PrestasiController extends Controller
     public function show($id)
     {
         try {
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . "prestasi/{$id}");
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl."prestasi/{$id}");
 
             if ($response->successful()) {
                 return response()->json($response->json());
@@ -138,9 +140,9 @@ class PrestasiController extends Controller
             if ($request->hasFile('gambar')) {
                 $response = Http::withToken($this->apiToken)
                     ->attach('gambar', file_get_contents($request->file('gambar')), $request->file('gambar')->getClientOriginalName())
-                    ->post($this->apiUrl . "prestasi/{$id}?_method=PUT", $request->except('gambar'));
+                    ->post($this->apiUrl."prestasi/{$id}?_method=PUT", $request->except('gambar'));
             } else {
-                $response = Http::withToken($this->apiToken)->put($this->apiUrl . "prestasi/{$id}", $request->all());
+                $response = Http::withToken($this->apiToken)->put($this->apiUrl."prestasi/{$id}", $request->all());
             }
 
             if ($response->successful()) {
@@ -169,7 +171,7 @@ class PrestasiController extends Controller
     public function destroy($id)
     {
         try {
-            $response = Http::withToken($this->apiToken)->delete($this->apiUrl . "prestasi/{$id}");
+            $response = Http::withToken($this->apiToken)->delete($this->apiUrl."prestasi/{$id}");
 
             if ($response->successful()) {
                 return response()->json($response->json());

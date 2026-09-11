@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 class MahasiswaBaruController extends Controller
 {
     protected string $apiUrl;
+
     protected string $apiToken;
 
     public function __construct()
@@ -21,16 +22,16 @@ class MahasiswaBaruController extends Controller
     public function index()
     {
         try {
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . 'mahasiswa-baru');
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl.'mahasiswa-baru');
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return back()->with('error', 'Gagal mengambil data mahasiswa baru dari API');
             }
 
             $apiData = $response->json()['data'] ?? [];
 
-            $mahasiswa      = $apiData['mahasiswa'] ?? [];
-            $prodi          = $apiData['prodi'] ?? [];
+            $mahasiswa = $apiData['mahasiswa'] ?? [];
+            $prodi = $apiData['prodi'] ?? [];
 
             return view('masterdata.mahasiswa-baru.index', compact(
                 'mahasiswa',
@@ -45,18 +46,18 @@ class MahasiswaBaruController extends Controller
     {
         try {
             $request->validate([
-                'id_periode_pendaftaran' => 'required|string'
+                'id_periode_pendaftaran' => 'required|string',
             ]);
 
             $response = Http::withToken($this->apiToken)
-                ->post($this->apiUrl . 'mahasiswa-baru/sync', [
-                    'id_periode_pendaftaran' => $request->id_periode_pendaftaran
+                ->post($this->apiUrl.'mahasiswa-baru/sync', [
+                    'id_periode_pendaftaran' => $request->id_periode_pendaftaran,
                 ]);
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Gagal melakukan sync ke API'
+                    'message' => 'Gagal melakukan sync ke API',
                 ], 500);
             }
 
@@ -64,7 +65,7 @@ class MahasiswaBaruController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -72,7 +73,7 @@ class MahasiswaBaruController extends Controller
     public function store(Request $request)
     {
         try {
-            $response = Http::withToken($this->apiToken)->post($this->apiUrl . 'mahasiswa-baru', $request->all());
+            $response = Http::withToken($this->apiToken)->post($this->apiUrl.'mahasiswa-baru', $request->all());
 
             if ($response->successful()) {
                 return response()->json($response->json());
@@ -81,12 +82,12 @@ class MahasiswaBaruController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menyimpan data ke API',
-                'errors' => $response->json()
+                'errors' => $response->json(),
             ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -94,7 +95,7 @@ class MahasiswaBaruController extends Controller
     public function show($id)
     {
         try {
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . "mahasiswa-baru/{$id}");
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl."mahasiswa-baru/{$id}");
 
             if ($response->successful()) {
                 return response()->json($response->json());
@@ -103,12 +104,12 @@ class MahasiswaBaruController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal mengambil data dari API',
-                'errors' => $response->json()
+                'errors' => $response->json(),
             ], 404);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -118,7 +119,7 @@ class MahasiswaBaruController extends Controller
         try {
             $validated = $request->validate([
                 'nama_mahasiswa' => 'required|string|max:255',
-                'nim' => 'required|string|max:55',
+                'nim' => 'nullable|string|max:55',
                 'id_prodi' => 'required|string',
                 'jenis_kelamin' => 'required|in:L,P',
                 'tanggal_lahir' => 'required|date',
@@ -128,28 +129,58 @@ class MahasiswaBaruController extends Controller
                 'nama_orang_tua' => 'nullable|string|max:255',
                 'no_hp_orang_tua' => 'nullable|string|max:20',
                 'status' => 'required|in:Aktif,Cuti,DO,Lulus,PMB',
-                'angkatan' => 'required|integer|min:1990|max:' . (date('Y') + 10),
+                'angkatan' => 'required|integer|min:1990|max:'.(date('Y') + 10),
+                'jalur_masuk' => 'nullable|string|max:50',
             ]);
 
-            $response = Http::withToken($this->apiToken)->put($this->apiUrl . "mahasiswa-baru/{$id}", $validated);
+            $response = Http::withToken($this->apiToken)->put($this->apiUrl."mahasiswa-baru/{$id}", $validated);
 
             if ($response->successful()) {
                 return response()->json($response->json());
             }
 
             // Debug: log response dari API
-            Log::error('Update Mahasiswa API Error: ' . $response->body());
-            Log::error('Payload sent: ' . json_encode($validated));
+            Log::error('Update Mahasiswa API Error: '.$response->body());
+            Log::error('Payload sent: '.json_encode($validated));
 
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal memperbarui data di API',
-                'errors' => $response->json()
+                'message' => $response->json()['message'] ?? 'Gagal memperbarui data di API',
+                'errors' => $response->json(),
             ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function verify(Request $request, $id)
+    {
+        try {
+            $validated = $request->validate([
+                'jalur_masuk' => 'nullable|string|in:Reguler,RPL,Pindahan,Alih Jenjang',
+                'angkatan' => 'nullable|integer',
+            ]);
+
+            $response = Http::withToken($this->apiToken)->post($this->apiUrl."mahasiswa-baru/{$id}/verify", $validated);
+
+            if ($response->successful()) {
+                return response()->json($response->json());
+            }
+
+            Log::error('Verify Mahasiswa API Error: '.$response->body());
+
+            return response()->json([
+                'success' => false,
+                'message' => $response->json()['message'] ?? 'Gagal memverifikasi mahasiswa di API',
+                'errors' => $response->json(),
+            ], $response->status() >= 400 ? $response->status() : 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -157,7 +188,7 @@ class MahasiswaBaruController extends Controller
     public function destroy($id)
     {
         try {
-            $response = Http::withToken($this->apiToken)->delete($this->apiUrl . "mahasiswa-baru/{$id}");
+            $response = Http::withToken($this->apiToken)->delete($this->apiUrl."mahasiswa-baru/{$id}");
 
             if ($response->successful()) {
                 return response()->json($response->json());
@@ -166,12 +197,12 @@ class MahasiswaBaruController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menghapus data di API',
-                'errors' => $response->json()
+                'errors' => $response->json(),
             ], 404);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }

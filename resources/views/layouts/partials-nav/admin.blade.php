@@ -181,7 +181,7 @@
 
     $baakWorkspaceRoutes = ['workspace.baak'];
     $dosenRoutes = ['aktor-akademik.*', 'dosen.*', 'dosen-wali.*', 'prodi.*', 'users.*'];
-    $mahasiswaRoutes = ['mahasiswa.*', 'mahasiswa.baru.*'];
+    $mahasiswaRoutes = ['mahasiswa.*', 'mahasiswa.baru.*', 'akademik.nilai-transfer.*'];
     $transaksiRoutes = ['kelas-kuliah.*'];
     $monitoringAkademikRoutes = [
         'akademik.monitoring',
@@ -519,7 +519,8 @@
 {{-- ================= MAHASISWA ================= --}}
 @canAnyApi(
 'siakad.master.refrensi.mahasiswa.index',
-'siakad.master.refrensi.mahasiswa-baru.index'
+'siakad.master.refrensi.mahasiswa-baru.index',
+'siakad.akademik.nilai-transfer.index'
 )
 <li class="nav-item {{ $isMahasiswaActive ? 'active' : '' }}">
     <a data-bs-toggle="collapse" href="#mahasiswaMenu" class="{{ $isMahasiswaActive ? '' : 'collapsed' }}">
@@ -547,6 +548,12 @@
                 </a>
             </li>
             @endcanApi
+
+            <li class="{{ request()->routeIs('akademik.nilai-transfer.*') ? 'active' : '' }}">
+                <a href="{{ route('akademik.nilai-transfer.index') }}">
+                    <span class="sub-item">Konversi Nilai (RPL)</span>
+                </a>
+            </li>
 
         </ul>
     </div>

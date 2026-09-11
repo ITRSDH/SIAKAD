@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Http;
 class CapaianController extends Controller
 {
     protected string $apiUrl;
+
     protected string $apiToken;
 
     public function __construct()
@@ -23,6 +24,7 @@ class CapaianController extends Controller
         try {
             // Ambil data mata kuliah terkelompok dari API
             $prodi = $dropdownService->get('prodi');
+
             // Kirim data ke view
             return response()->json(['data' => $prodi['prodi']]);
         } catch (\Exception $e) {
@@ -40,7 +42,7 @@ class CapaianController extends Controller
         try {
             // Ambil data prodi dari API
             $response = Http::withToken($this->apiToken)
-                ->get($this->apiUrl . "prodi/{$id_prodi}");
+                ->get($this->apiUrl."prodi/{$id_prodi}");
 
             // Ambil data
             $prodi = $response->json()['data'] ?? [];

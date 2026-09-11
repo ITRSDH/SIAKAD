@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Siakad\AkhirStudi;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Client\Response;
+use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Http\Request;
 
 class MonitoringAkhirStudiController extends Controller
 {
@@ -26,10 +26,10 @@ class MonitoringAkhirStudiController extends Controller
             $periodeWisudaResponse = $this->apiRequest('wisuda/periode');
 
             if (
-                !$tugasAkhirResponse->successful() ||
-                !$yudisiumResponse->successful() ||
-                !$kelulusanResponse->successful() ||
-                !$periodeWisudaResponse->successful()
+                ! $tugasAkhirResponse->successful() ||
+                ! $yudisiumResponse->successful() ||
+                ! $kelulusanResponse->successful() ||
+                ! $periodeWisudaResponse->successful()
             ) {
                 return back()->with('error', 'Gagal mengambil data monitoring akhir studi dari API.');
             }
@@ -91,7 +91,7 @@ class MonitoringAkhirStudiController extends Controller
     {
         return Http::withToken(session('access_token'))
             ->acceptJson()
-            ->get(rtrim($this->apiUrl, '/') . '/' . ltrim($endpoint, '/'));
+            ->get(rtrim($this->apiUrl, '/').'/'.ltrim($endpoint, '/'));
     }
 
     private function buildStatusBreakdown(Collection $items, array $orderedStatuses): array
@@ -107,7 +107,7 @@ class MonitoringAkhirStudiController extends Controller
         }
 
         foreach ($counts as $status => $count) {
-            if (!array_key_exists($status, $result)) {
+            if (! array_key_exists($status, $result)) {
                 $result[$status] = $count;
             }
         }

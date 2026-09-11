@@ -74,8 +74,9 @@
                                         <th>Nama</th>
                                         <th>NIM Sementara</th>
                                         <th>Prodi yang Dipilih</th>
+                                        <th>Jalur</th>
                                         <th>Status</th>
-                                        <th>Aksi</th>
+                                        <th class="text-center">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody></tbody>
@@ -183,14 +184,26 @@
                             </div>
 
                             <div class="col-md-6 mb-3">
+                                <label>Jalur Masuk</label>
+                                <select id="jalur_masuk" class="form-control">
+                                    <option value="Reguler">Reguler (NIM Murni Angka)</option>
+                                    <option value="RPL">RPL / Alih Jenjang (NIM Berakhiran B)</option>
+                                    <option value="Pindahan">Pindahan (NIM Berakhiran B)</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
                                 <label>Status</label>
                                 <select id="status" class="form-select" required>
-                                    <option value="Aktif">Aktif</option>
+                                    <option value="PMB">PMB (Calon Mahasiswa)</option>
+                                    <option value="Aktif">Aktif (Verifikasi ke SIAKAD)</option>
                                     <option value="Cuti">Cuti</option>
                                     <option value="DO">Drop Out</option>
                                     <option value="Lulus">Lulus</option>
-                                    <option value="PMB">PMB</option>
                                 </select>
+                                <small class="text-muted d-block mt-1">
+                                    Jika diubah menjadi <b>Aktif</b>, NIM resmi akan diterbitkan otomatis sesuai jalur.
+                                </small>
                             </div>
 
                             <div class="col-md-6 mb-3">
@@ -282,16 +295,37 @@
                     },
                     {
                         data: null,
-                        render: row => row.status ?? '-'
+                        render: row => {
+                            const jalur = row.jalur_masuk || row.jenis_pendaftaran || 'Reguler';
+                            const isRpl = ['rpl', 'pindahan', 'alih jenjang', 'transfer'].includes(jalur.toLowerCase());
+                            return isRpl
+                                ? `<span class="badge bg-warning text-dark"><i class="fas fa-exchange-alt me-1"></i>${jalur}</span>`
+                                : `<span class="badge bg-info text-white"><i class="fas fa-user-graduate me-1"></i>Reguler</span>`;
+                        }
+                    },
+                    {
+                        data: null,
+                        render: row => {
+                            const status = row.status ?? '-';
+                            if (status === 'Aktif') {
+                                return `<span class="badge bg-success">${status}</span>`;
+                            } else if (status === 'PMB') {
+                                return `<span class="badge bg-secondary">${status}</span>`;
+                            }
+                            return `<span class="badge bg-light text-dark">${status}</span>`;
+                        }
                     },
                     {
                         data: null,
                         render: row => `
-                <div class="d-flex justify-content-center gap-2">
-                    <button class="btn btn-warning btn-sm edit-btn" data-id="${row.id}">
+                <div class="d-flex justify-content-center gap-1">
+                    <button class="btn btn-success btn-sm verify-btn" data-id="${row.id}" data-nama="${row.nama_mahasiswa}" data-jalur="${row.jalur_masuk || row.jenis_pendaftaran || 'Reguler'}" title="Verifikasi & Terbitkan NIM">
+                        <i class="fas fa-check-circle me-1"></i> Verifikasi
+                    </button>
+                    <button class="btn btn-warning btn-sm edit-btn" data-id="${row.id}" title="Edit Data">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button class="btn btn-danger btn-sm delete-btn" data-id="${row.id}">
+                    <button class="btn btn-danger btn-sm delete-btn" data-id="${row.id}" title="Hapus">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>`
@@ -398,6 +432,7 @@
                         tanggal_lahir: $('#tanggal_lahir').val(),
                         alamat: $('#alamat').val(),
                         tempat_lahir: $('#tempat_lahir').val(),
+                        jalur_masuk: $('#jalur_masuk').val(),
                         status: $('#status').val(),
                         angkatan: $('#angkatan').val()
                     },
@@ -437,6 +472,7 @@
                     $('#tanggal_lahir').val(m.tanggal_lahir?.split('T')[0] ?? '');
                     $('#alamat').val(m.alamat);
                     $('#tempat_lahir').val(m.tempat_lahir);
+                    $('#jalur_masuk').val(m.jalur_masuk || m.jenis_pendaftaran || 'Reguler');
                     $('#status').val(m.status);
                     $('#angkatan').val(m.angkatan);
                     if (!m.angkatan) {
@@ -447,6 +483,80 @@
                     modal.show();
 
                 }).fail(() => Swal.fire('Gagal', 'Tidak dapat mengambil data', 'error'));
+            });
+
+            // Verifikasi Langsung (PMB -> Aktif)
+            $(document).on('click', '.verify-btn', function() {
+                const id = $(this).data('id');
+                const nama = $(this).data('nama');
+                const currentJalur = $(this).data('jalur') || 'Reguler';
+                const isRplDefault = ['rpl', 'pindahan', 'alih jenjang'].includes(String(currentJalur).toLowerCase());
+
+                Swal.fire({
+                    title: 'Verifikasi Mahasiswa Baru',
+                    html: `
+                        <div class="text-start">
+                            <p class="mb-2">Verifikasi mahasiswa <b>${nama}</b> menjadi <b>Mahasiswa Aktif</b>?</p>
+                            <p class="mb-3 text-muted small">NIM resmi akan diterbitkan otomatis sesuai format STIKES:<br>
+                            - <b>Reguler</b>: Murni Angka (misal: <code>0126001</code>)<br>
+                            - <b>RPL</b>: Berakhiran 'B' (misal: <code>0126001B</code>)
+                            </p>
+                            <label class="form-label fw-semibold">Pilih Jalur Masuk:</label>
+                            <select id="swal-jalur-select" class="form-select mb-2">
+                                <option value="Reguler" ${!isRplDefault ? 'selected' : ''}>Reguler (NIM Murni Angka)</option>
+                                <option value="RPL" ${isRplDefault ? 'selected' : ''}>RPL / Alih Jenjang (NIM Akhiran B)</option>
+                                <option value="Pindahan">Pindahan (NIM Akhiran B)</option>
+                            </select>
+                        </div>
+                    `,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: '<i class="fas fa-check-circle me-1"></i> Ya, Verifikasi & Terbitkan NIM',
+                    cancelButtonText: 'Batal',
+                    confirmButtonColor: '#28a745',
+                    preConfirm: () => {
+                        return {
+                            jalur_masuk: $('#swal-jalur-select').val()
+                        };
+                    }
+                }).then(result => {
+                    if (result.isConfirmed) {
+                        const payload = result.value;
+                        Swal.showLoading();
+
+                        const verifyUrl = "{{ route('mahasiswa.baru.verify', ':id') }}".replace(':id', id);
+
+                        $.ajax({
+                            url: verifyUrl,
+                            type: 'POST',
+                            data: {
+                                _token: "{{ csrf_token() }}",
+                                jalur_masuk: payload.jalur_masuk
+                            },
+                            success: res => {
+                                Swal.close();
+                                if (res.success) {
+                                    const generatedNim = res.nim || res.data?.nim;
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Mahasiswa Aktif Terverifikasi!',
+                                        html: `<b>${nama}</b> resmi aktif di SIAKAD.<br><div class="alert alert-success mt-3 py-2"><b>NIM Resmi:</b> <code class="fs-5">${generatedNim}</code></div>`,
+                                        confirmButtonText: 'OK'
+                                    }).then(() => {
+                                        location.reload();
+                                    });
+                                } else {
+                                    Swal.fire('Gagal', res.message ?? 'Verifikasi gagal.', 'error');
+                                }
+                            },
+                            error: err => {
+                                Swal.close();
+                                const msg = err.responseJSON?.message || 'Terjadi kesalahan saat verifikasi mahasiswa.';
+                                Swal.fire('Gagal', msg, 'error');
+                            }
+                        });
+                    }
+                });
             });
 
             // Hapus

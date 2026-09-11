@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Http;
 class AktorAkademikController extends Controller
 {
     protected string $apiUrl;
+
     protected string $apiToken;
 
     public function __construct()
@@ -19,12 +20,12 @@ class AktorAkademikController extends Controller
     public function index()
     {
         try {
-            $dosenResponse = Http::withToken($this->apiToken)->get($this->apiUrl . 'dosen');
-            $prodiResponse = Http::withToken($this->apiToken)->get($this->apiUrl . 'prodi');
-            $pembimbingResponse = Http::withToken($this->apiToken)->get($this->apiUrl . 'dosen-wali');
-            $usersResponse = Http::withToken($this->apiToken)->get($this->apiUrl . 'users');
+            $dosenResponse = Http::withToken($this->apiToken)->get($this->apiUrl.'dosen');
+            $prodiResponse = Http::withToken($this->apiToken)->get($this->apiUrl.'prodi');
+            $pembimbingResponse = Http::withToken($this->apiToken)->get($this->apiUrl.'dosen-wali');
+            $usersResponse = Http::withToken($this->apiToken)->get($this->apiUrl.'users');
 
-            if (!$dosenResponse->successful() || !$prodiResponse->successful() || !$pembimbingResponse->successful() || !$usersResponse->successful()) {
+            if (! $dosenResponse->successful() || ! $prodiResponse->successful() || ! $pembimbingResponse->successful() || ! $usersResponse->successful()) {
                 return back()->with('error', 'Gagal mengambil data aktor akademik dari API.');
             }
 
@@ -46,7 +47,7 @@ class AktorAkademikController extends Controller
                 return false;
             }));
 
-            $kaprodiAssigned = array_values(array_filter($prodi, fn($item) => !empty($item['id_kaprodi'] ?? null)));
+            $kaprodiAssigned = array_values(array_filter($prodi, fn ($item) => ! empty($item['id_kaprodi'] ?? null)));
             $totalMahasiswaBimbingan = array_sum(array_map(function ($item) {
                 return (int) (
                     $item['jumlah_mahasiswa_bimbingan']
@@ -112,8 +113,8 @@ class AktorAkademikController extends Controller
     public function kaprodi()
     {
         try {
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . 'prodi');
-            if (!$response->successful()) {
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl.'prodi');
+            if (! $response->successful()) {
                 return back()->with('error', 'Gagal mengambil data kaprodi dari API.');
             }
 

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Http;
 class RuangKuliahController extends Controller
 {
     protected string $apiUrl;
+
     protected string $apiToken;
 
     public function __construct()
@@ -21,14 +22,14 @@ class RuangKuliahController extends Controller
     {
         try {
             // Ambil data ruang kuliah dari API (tanpa paginate)
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . 'ruang-kuliah');
-            
-            if (!$response->successful()) {
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl.'ruang-kuliah');
+
+            if (! $response->successful()) {
                 return back()->with('error', 'Gagal mengambil data ruang kuliah dari API');
             }
 
             $ruangKuliah = $response->json()['data'] ?? [];
-            
+
             return view('masterdata.ruang_kuliah.index', compact('ruangKuliah'));
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
@@ -43,7 +44,7 @@ class RuangKuliahController extends Controller
     public function store(Request $request)
     {
         try {
-            $response = Http::withToken($this->apiToken)->post($this->apiUrl . 'ruang-kuliah', $request->all());
+            $response = Http::withToken($this->apiToken)->post($this->apiUrl.'ruang-kuliah', $request->all());
 
             if ($response->successful()) {
                 return redirect()->route('ruang-kuliah.index')->with('success', 'Data ruang kuliah berhasil ditambahkan');
@@ -58,7 +59,7 @@ class RuangKuliahController extends Controller
     public function show($id)
     {
         try {
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . "ruang-kuliah/{$id}");
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl."ruang-kuliah/{$id}");
 
             if ($response->successful()) {
                 return response()->json($response->json());
@@ -67,12 +68,12 @@ class RuangKuliahController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal mengambil data dari API',
-                'errors' => $response->json()
+                'errors' => $response->json(),
             ], 404);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -80,10 +81,11 @@ class RuangKuliahController extends Controller
     public function edit($id)
     {
         try {
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . "ruang-kuliah/{$id}");
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl."ruang-kuliah/{$id}");
 
             if ($response->successful()) {
                 $ruangKuliah = $response->json()['data'] ?? [];
+
                 return view('masterdata.ruang_kuliah.edit', compact('ruangKuliah'));
             }
 
@@ -96,7 +98,7 @@ class RuangKuliahController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            $response = Http::withToken($this->apiToken)->put($this->apiUrl . "ruang-kuliah/{$id}", $request->all());
+            $response = Http::withToken($this->apiToken)->put($this->apiUrl."ruang-kuliah/{$id}", $request->all());
 
             if ($response->successful()) {
                 return redirect()->route('ruang-kuliah.index')->with('success', 'Data ruang kuliah berhasil diperbarui');
@@ -111,7 +113,7 @@ class RuangKuliahController extends Controller
     public function destroy($id)
     {
         try {
-            $response = Http::withToken($this->apiToken)->delete($this->apiUrl . "ruang-kuliah/{$id}");
+            $response = Http::withToken($this->apiToken)->delete($this->apiUrl."ruang-kuliah/{$id}");
 
             if ($response->successful()) {
                 return response()->json($response->json());
@@ -120,12 +122,12 @@ class RuangKuliahController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menghapus data di API',
-                'errors' => $response->json()
+                'errors' => $response->json(),
             ], 404);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }

@@ -22,7 +22,7 @@ class KelulusanController extends Controller
             $kelulusanResponse = $this->apiRequest('get', 'kelulusan');
             $mahasiswaResponse = $this->apiRequest('get', 'mahasiswa');
 
-            if (!$kelulusanResponse->successful()) {
+            if (! $kelulusanResponse->successful()) {
                 return back()->with('error', 'Gagal mengambil data kelulusan dari API');
             }
 
@@ -40,7 +40,7 @@ class KelulusanController extends Controller
         try {
             $response = $this->apiRequest('get', "kelulusan/{$id}");
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return redirect()->route('kelulusan.index')
                     ->with('error', 'Gagal mengambil detail kelulusan dari API.');
             }
@@ -78,7 +78,7 @@ class KelulusanController extends Controller
     private function apiRequest(string $method, string $endpoint, array $payload = [], array $query = []): Response
     {
         $request = Http::withToken(session('access_token'))->acceptJson();
-        $url = rtrim($this->apiUrl, '/') . '/' . ltrim($endpoint, '/');
+        $url = rtrim($this->apiUrl, '/').'/'.ltrim($endpoint, '/');
 
         return match (strtolower($method)) {
             'get' => $request->get($url, $query),

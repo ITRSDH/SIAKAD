@@ -180,11 +180,25 @@
                 '<span class="badge bg-warning text-dark">Lewati</span>' :
                 '<span class="badge bg-danger">Perlu Cek</span>';
 
+            const isRpl = Boolean(row.is_rpl)
+                || String(row.nim || '').toUpperCase().endsWith('B')
+                || ['rpl', 'pindahan', 'alih jenjang', 'transfer'].includes(String(row.jalur_masuk || '').toLowerCase());
+            const jalurBadge = isRpl
+                ? `<span class="badge bg-warning text-dark ms-1"><i class="fas fa-exchange-alt me-1"></i>RPL (${row.sks_diakui || 0} SKS)</span>`
+                : `<span class="badge bg-info text-white ms-1">Reguler</span>`;
+
+            const semesterMhs = row.semester_ke ?? row.semester_target ?? 1;
+            const paketSem = row.paket_semester ?? (isRpl ? (semesterMhs + Math.floor((row.sks_diakui || 0) / 20)) : semesterMhs);
+
+            const semesterTargetDisplay = isRpl
+                ? `<div><span class="fw-bold text-primary">Sem ${semesterMhs}</span></div><span class="badge bg-success-subtle text-success border border-success-subtle d-inline-block mt-1" style="font-size:0.75rem;"><i class="fas fa-layer-group me-1"></i>Paket Sem ${paketSem}</span>`
+                : `Sem ${semesterMhs}`;
+
             return `
                     <tr data-search="${escapeHtml(`${row.nama_mahasiswa ?? ''} ${row.nim ?? ''}`.toLowerCase())}">
                         <td><input type="checkbox" class="study-historical-student-checkbox" value="${escapeHtml(row.id)}" ${selectedHistoricalStudentIds.includes(row.id) ? 'checked' : ''}></td>
                         <td>
-                            <div class="fw-semibold">${escapeHtml(row.nama_mahasiswa)}</div>
+                            <div class="fw-semibold">${escapeHtml(row.nama_mahasiswa)} ${jalurBadge}</div>
                             <div class="small text-muted mt-1">
                                 <div><strong>Struktur:</strong> ${escapeHtml(row.kurikulum_context?.struktur_operasional?.nama_struktur_mk ?? row.nama_struktur_operasional ?? row.nama_kurikulum ?? '-')}</div>
                             </div>
@@ -192,7 +206,7 @@
                             <div class="small text-muted mt-1">${escapeHtml(row.message ?? '')}</div>
                             <div class="mt-2"><span class="badge ${getHistoricalStudentProgress(row).className}">${escapeHtml(getHistoricalStudentProgress(row).text)}</span></div>
                         </td>
-                        <td>${row.semester_target ?? '-'}</td>
+                        <td>${semesterTargetDisplay}</td>
                         <td>${existing}</td>
                         <td>${statusBadge}</td>
                     </tr>
@@ -245,13 +259,20 @@
             const repeatCount = (historicalRepeatCandidatesByStudent[student.id] ?? []).length;
             const actualIndex = navStart + navIndex;
 
+            const isRplStudent = Boolean(student.is_rpl)
+                || String(student.nim || '').toUpperCase().endsWith('B')
+                || ['rpl', 'pindahan', 'alih jenjang', 'transfer'].includes(String(student.jalur_masuk || '').toLowerCase());
+            const studentSem = student.semester_ke ?? student.semester_target ?? 1;
+            const studentPaket = student.paket_semester ?? (isRplStudent ? (studentSem + Math.floor((student.sks_diakui || 0) / 20)) : studentSem);
+            const semLabel = isRplStudent ? `Semester ${studentSem} (Paket Sem ${studentPaket})` : `Semester ${studentSem}`;
+
             return `
                     <button type="button"
                         class="study-builder-nav-item ${isActive ? 'active' : ''}"
                         data-id-mahasiswa="${escapeHtml(student.id)}">
                         <div class="fw-semibold">${escapeHtml(student.nama_mahasiswa)}</div>
                         <div class="meta">${escapeHtml(student.nim)}${student.prodi?.nama_prodi ? ' • ' + escapeHtml(student.prodi.nama_prodi) : ''}</div>
-                        <div class="meta mt-1">Urutan ${actualIndex + 1} dari ${selectedStudents.length} • Semester ${student.semester_target ?? '-'}</div>
+                        <div class="meta mt-1">Urutan ${actualIndex + 1} dari ${selectedStudents.length} • ${semLabel}</div>
                         ${repeatCount ? `<div class="meta mt-1 text-warning">Ulang gagal tersedia: ${repeatCount}</div>` : ''}
                     </button>
                 `;
@@ -336,6 +357,15 @@
                     </div>
                 ` : '';
 
+            const isRplStudentCard = Boolean(student.is_rpl)
+                || String(student.nim || '').toUpperCase().endsWith('B')
+                || ['rpl', 'pindahan', 'alih jenjang', 'transfer'].includes(String(student.jalur_masuk || '').toLowerCase());
+            const semMhsCard = student.semester_ke ?? student.semester_target ?? 1;
+            const paketCard = student.paket_semester ?? (isRplStudentCard ? (semMhsCard + Math.floor((student.sks_diakui || 0) / 20)) : semMhsCard);
+            const badgeTargetHtml = isRplStudentCard
+                ? `<span class="badge bg-primary-subtle text-primary border border-primary-subtle me-1">Semester ${semMhsCard}</span><span class="badge bg-success-subtle text-success border border-success-subtle"><i class="fas fa-layer-group me-1"></i>Paket Sem ${paketCard}</span>`
+                : `<span class="badge bg-light text-dark">Semester Target ${semMhsCard}</span>`;
+
             return `
                     <div class="study-builder-card study-student-builder-card ${isActive ? '' : 'd-none'}" data-id-mahasiswa="${escapeHtml(student.id)}">
                         <div class="study-builder-toolbar">
@@ -354,7 +384,7 @@
                                 <div class="fw-semibold">${escapeHtml(student.nama_mahasiswa)}</div>
                                 <div class="small text-muted">${escapeHtml(student.nim)}${student.prodi?.nama_prodi ? ' • ' + escapeHtml(student.prodi.nama_prodi) : ''}</div>
                             </div>
-                            <span class="badge bg-light text-dark">Semester Target ${student.semester_target ?? '-'}</span>
+                            <div>${badgeTargetHtml}</div>
                         </div>
                         <div class="d-grid gap-2">${packageRows}</div>
                         ${repeatSection}

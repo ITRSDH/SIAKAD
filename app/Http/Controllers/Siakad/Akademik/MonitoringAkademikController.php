@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Siakad\Akademik;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Client\Response;
+use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Http\Request;
 
 class MonitoringAkademikController extends Controller
 {
@@ -26,10 +26,10 @@ class MonitoringAkademikController extends Controller
             $transkripResponse = $this->apiRequest('transkrip');
 
             if (
-                !$periodeKrsResponse->successful() ||
-                !$kelasKuliahResponse->successful() ||
-                !$khsResponse->successful() ||
-                !$transkripResponse->successful()
+                ! $periodeKrsResponse->successful() ||
+                ! $kelasKuliahResponse->successful() ||
+                ! $khsResponse->successful() ||
+                ! $transkripResponse->successful()
             ) {
                 return back()->with('error', 'Gagal mengambil data monitoring akademik dari API.');
             }
@@ -66,7 +66,7 @@ class MonitoringAkademikController extends Controller
 
             $kelasSummary = [
                 'total' => $kelasKuliah->count(),
-                'punya_pengajar' => $kelasKuliah->filter(fn (array $item) => !empty($item['dosen_pengajar']) && count((array) $item['dosen_pengajar']) > 0)->count(),
+                'punya_pengajar' => $kelasKuliah->filter(fn (array $item) => ! empty($item['dosen_pengajar']) && count((array) $item['dosen_pengajar']) > 0)->count(),
                 'punya_peserta' => $kelasKuliah->filter(fn (array $item) => (int) ($item['peserta_terdaftar'] ?? 0) > 0)->count(),
                 'total_peserta' => $kelasKuliah->sum(fn (array $item) => (int) ($item['peserta_terdaftar'] ?? 0)),
             ];
@@ -111,7 +111,7 @@ class MonitoringAkademikController extends Controller
     {
         return Http::withToken(session('access_token'))
             ->acceptJson()
-            ->get(rtrim($this->apiUrl, '/') . '/' . ltrim($endpoint, '/'));
+            ->get(rtrim($this->apiUrl, '/').'/'.ltrim($endpoint, '/'));
     }
 
     private function resolvePeriodeAktif(Collection $periodeKrs): ?array

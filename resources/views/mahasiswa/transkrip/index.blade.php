@@ -254,14 +254,21 @@
             let rows = '';
             details.forEach((item, index) => {
                 const mk = item.mata_kuliah || item.mk || {};
+                const isTransfer = item.semester_label && item.semester_label.toLowerCase().includes('transfer');
+                const badgeClass = isTransfer ? 'bg-info text-dark' : 'bg-light text-muted border';
+                const semesterBadge = item.semester_label ? `<br><span class="badge ${badgeClass} mt-1"><i class="${isTransfer ? 'fas fa-exchange-alt me-1' : ''}"></i>${escapeHtml(item.semester_label)}</span>` : '';
+
                 rows += `
                     <tr>
                         <td>${index + 1}</td>
                         <td>${escapeHtml(mk.kode_mk || item.kode_mk || '-')}</td>
-                        <td>${escapeHtml(mk.nama_mk || item.nama_mk || item.nama_mata_kuliah || '-')}</td>
+                        <td>
+                            <div class="fw-semibold">${escapeHtml(mk.nama_mk || item.nama_mk || item.nama_mata_kuliah || '-')}</div>
+                            ${semesterBadge}
+                        </td>
                         <td>${escapeHtml(mk.sks || item.sks || 0)}</td>
                         <td>${escapeHtml(item.nilai_akhir ?? item.nilai_angka ?? '-')}</td>
-                        <td>${escapeHtml(item.nilai_huruf ?? '-')}</td>
+                        <td><span class="badge bg-primary">${escapeHtml(item.nilai_huruf ?? '-')}</span></td>
                         <td>${escapeHtml(item.bobot_nilai ?? item.bobot ?? '-')}</td>
                     </tr>
                 `;

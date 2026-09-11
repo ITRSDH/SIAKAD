@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Session;
 class RoleController extends Controller
 {
     protected string $apiUrl;
+
     protected string $apiToken;
 
     public function __construct()
@@ -21,7 +22,7 @@ class RoleController extends Controller
     public function index()
     {
         try {
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . 'roles');
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl.'roles');
 
             if ($response->successful()) {
                 $apiData = $response->json()['data'] ?? [];
@@ -153,7 +154,7 @@ class RoleController extends Controller
                         $item = [
                             'title' => $key,
                             'permissions' => $permissionItems,
-                            'children' => !empty($children) ? $buildMenu($children, false) : [],
+                            'children' => ! empty($children) ? $buildMenu($children, false) : [],
                         ];
 
                         if ($isRoot) {
@@ -168,7 +169,7 @@ class RoleController extends Controller
 
                 foreach ($permissions as $perm) {
                     $name = $perm['name'] ?? $perm['permission'] ?? null;
-                    if (!$name) {
+                    if (! $name) {
                         continue;
                     }
 
@@ -182,7 +183,7 @@ class RoleController extends Controller
                         $keys = [$labelize($name)];
                     }
 
-                    if (!isset($sectionBuckets[$sectionName])) {
+                    if (! isset($sectionBuckets[$sectionName])) {
                         $sectionBuckets[$sectionName] = [];
                     }
 
@@ -205,7 +206,7 @@ class RoleController extends Controller
 
                 $permissionSections = [];
                 foreach ($sectionOrder as $sectionName) {
-                    if (!isset($sectionBuckets[$sectionName])) {
+                    if (! isset($sectionBuckets[$sectionName])) {
                         continue;
                     }
 
@@ -227,7 +228,7 @@ class RoleController extends Controller
     public function store(Request $request)
     {
         try {
-            $response = Http::withToken($this->apiToken)->post($this->apiUrl . 'roles', $request->all());
+            $response = Http::withToken($this->apiToken)->post($this->apiUrl.'roles', $request->all());
 
             if ($response->successful()) {
                 return response()->json($response->json());
@@ -236,12 +237,12 @@ class RoleController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menyimpan data ke API',
-                'errors' => $response->json()
+                'errors' => $response->json(),
             ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -249,7 +250,7 @@ class RoleController extends Controller
     public function show($id)
     {
         try {
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . "roles/{$id}");
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl."roles/{$id}");
 
             if ($response->successful()) {
                 return response()->json($response->json());
@@ -258,12 +259,12 @@ class RoleController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal mengambil data dari API',
-                'errors' => $response->json()
+                'errors' => $response->json(),
             ], 404);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -272,11 +273,11 @@ class RoleController extends Controller
     {
         try {
             $response = Http::withToken($this->apiToken)
-                ->put($this->apiUrl . "roles/{$id}", $request->all());
+                ->put($this->apiUrl."roles/{$id}", $request->all());
 
             if ($response->successful()) {
                 $userResponse = Http::withToken($this->apiToken)
-                    ->get($this->apiUrl . "auth/me");
+                    ->get($this->apiUrl.'auth/me');
 
                 if ($userResponse->successful()) {
                     $apiUser = $userResponse->json()['user'];
@@ -298,12 +299,12 @@ class RoleController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal memperbarui data di API',
-                'errors' => $response->json()
+                'errors' => $response->json(),
             ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -311,7 +312,7 @@ class RoleController extends Controller
     public function destroy($id)
     {
         try {
-            $response = Http::withToken($this->apiToken)->delete($this->apiUrl . "roles/{$id}");
+            $response = Http::withToken($this->apiToken)->delete($this->apiUrl."roles/{$id}");
 
             if ($response->successful()) {
                 return response()->json($response->json());
@@ -320,12 +321,12 @@ class RoleController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menghapus data di API',
-                'errors' => $response->json()
+                'errors' => $response->json(),
             ], 404);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Http;
 class DosenPengajarWorkspaceController extends Controller
 {
     protected string $apiUrl;
+
     protected string $apiToken;
 
     public function __construct()
@@ -19,18 +20,18 @@ class DosenPengajarWorkspaceController extends Controller
     public function index()
     {
         try {
-            $kelasResponse = Http::withToken($this->apiToken)->get($this->apiUrl . 'kelas-kuliah/dosen-saya', [
+            $kelasResponse = Http::withToken($this->apiToken)->get($this->apiUrl.'kelas-kuliah/dosen-saya', [
                 'per_page' => 100,
             ]);
 
-            if (!$kelasResponse->successful()) {
+            if (! $kelasResponse->successful()) {
                 return back()->with('error', 'Gagal mengambil data workspace dosen pengajar dari API.');
             }
 
             $kelasItems = $this->extractItems($kelasResponse->json('data', []), ['kelas_kuliah', 'data']);
             $kelasCount = count($kelasItems);
-            $totalPeserta = array_sum(array_map(fn($item) => (int) ($item['peserta_terdaftar'] ?? $item['jumlah_peserta'] ?? $item['peserta_count'] ?? 0), $kelasItems));
-            $totalSks = array_sum(array_map(fn($item) => (int) ($item['mata_kuliah']['sks'] ?? $item['mata_kuliah']['jumlah_sks'] ?? $item['sks'] ?? 0), $kelasItems));
+            $totalPeserta = array_sum(array_map(fn ($item) => (int) ($item['peserta_terdaftar'] ?? $item['jumlah_peserta'] ?? $item['peserta_count'] ?? 0), $kelasItems));
+            $totalSks = array_sum(array_map(fn ($item) => (int) ($item['mata_kuliah']['sks'] ?? $item['mata_kuliah']['jumlah_sks'] ?? $item['sks'] ?? 0), $kelasItems));
 
             $kpis = [
                 [

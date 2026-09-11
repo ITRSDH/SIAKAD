@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Http;
 class FaqController extends Controller
 {
     protected string $apiUrl;
+
     protected string $apiToken;
 
     public function __construct()
@@ -21,7 +22,7 @@ class FaqController extends Controller
     {
         try {
             // Ambil data prestasi
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . 'faq');
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl.'faq');
 
             if ($response->successful()) {
                 $faq = $response->json()['data'] ?? [];
@@ -47,7 +48,7 @@ class FaqController extends Controller
             // Buat data untuk dikirim ke API
             $data = $request->only(['pertanyaan', 'jawaban']);
 
-            $response = Http::withToken($this->apiToken)->post($this->apiUrl . 'faq', $data);
+            $response = Http::withToken($this->apiToken)->post($this->apiUrl.'faq', $data);
 
             if ($response->successful()) {
                 return response()->json($response->json());
@@ -84,7 +85,7 @@ class FaqController extends Controller
     public function show($id)
     {
         try {
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . "faq/{$id}");
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl."faq/{$id}");
 
             if ($response->successful()) {
                 return response()->json($response->json());
@@ -121,7 +122,7 @@ class FaqController extends Controller
             // Buat data untuk dikirim ke API
             $data = $request->only(['pertanyaan', 'jawaban']);
 
-            $response = Http::withToken($this->apiToken)->put($this->apiUrl . "faq/{$id}", $data);
+            $response = Http::withToken($this->apiToken)->put($this->apiUrl."faq/{$id}", $data);
 
             if ($response->successful()) {
                 return response()->json($response->json());
@@ -158,7 +159,7 @@ class FaqController extends Controller
     public function destroy($id)
     {
         try {
-            $response = Http::withToken($this->apiToken)->delete($this->apiUrl . "faq/{$id}");
+            $response = Http::withToken($this->apiToken)->delete($this->apiUrl."faq/{$id}");
 
             if ($response->successful()) {
                 return response()->json($response->json());

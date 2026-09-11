@@ -10,18 +10,19 @@ use Illuminate\Support\Facades\Log;
 class LandingContentController extends Controller
 {
     protected string $apiUrl;
+
     protected string $apiToken;
 
     public function __construct()
     {
         $this->apiUrl = config('api.base_url');
         $this->apiToken = session('access_token');
-        
+
         // Debug logging
         Log::info('LandingContentController initialized', [
             'api_url' => $this->apiUrl,
-            'token_exists' => !empty($this->apiToken),
-            'token_preview' => $this->apiToken ? substr($this->apiToken, 0, 20) . '...' : 'null'
+            'token_exists' => ! empty($this->apiToken),
+            'token_preview' => $this->apiToken ? substr($this->apiToken, 0, 20).'...' : 'null',
         ]);
     }
 
@@ -29,7 +30,7 @@ class LandingContentController extends Controller
     {
         try {
             // Ambil data landing content (single content)
-            $response = Http::withToken($this->apiToken)->get($this->apiUrl . 'landing-content');
+            $response = Http::withToken($this->apiToken)->get($this->apiUrl.'landing-content');
 
             if ($response->successful()) {
                 $landingContent = $response->json()['data'] ?? null;
@@ -71,11 +72,11 @@ class LandingContentController extends Controller
 
             // Buat data dasar untuk dikirim ke API
             $data = $request->only([
-                'hero_title', 'hero_subtitle', 'jumlah_program_studi', 
-                'jumlah_mahasiswa', 'jumlah_dosen', 'jumlah_mitra', 
-                'keunggulan', 'nama_aplikasi', 'deskripsi_footer', 
-                'facebook', 'twitter', 'instagram', 'linkedin', 
-                'youtube', 'alamat', 'telepon', 'email'
+                'hero_title', 'hero_subtitle', 'jumlah_program_studi',
+                'jumlah_mahasiswa', 'jumlah_dosen', 'jumlah_mitra',
+                'keunggulan', 'nama_aplikasi', 'deskripsi_footer',
+                'facebook', 'twitter', 'instagram', 'linkedin',
+                'youtube', 'alamat', 'telepon', 'email',
             ]);
 
             // Siapkan HTTP request
@@ -83,31 +84,31 @@ class LandingContentController extends Controller
 
             // Jika ada file, gunakan multipart/form-data
             $hasFiles = $request->hasFile('hero_background') || $request->hasFile('logo');
-            
+
             if ($hasFiles) {
                 // Attach files jika ada
                 if ($request->hasFile('hero_background')) {
                     $httpRequest = $httpRequest->attach(
-                        'hero_background', 
-                        file_get_contents($request->file('hero_background')), 
+                        'hero_background',
+                        file_get_contents($request->file('hero_background')),
                         $request->file('hero_background')->getClientOriginalName()
                     );
                 }
 
                 if ($request->hasFile('logo')) {
                     $httpRequest = $httpRequest->attach(
-                        'logo', 
-                        file_get_contents($request->file('logo')), 
+                        'logo',
+                        file_get_contents($request->file('logo')),
                         $request->file('logo')->getClientOriginalName()
                     );
                 }
 
                 // Kirim sebagai multipart
-                $response = $httpRequest->post($this->apiUrl . 'landing-content', $data);
+                $response = $httpRequest->post($this->apiUrl.'landing-content', $data);
             } else {
                 // Kirim sebagai JSON jika tidak ada file
                 $response = Http::withToken($this->apiToken)
-                    ->post($this->apiUrl . 'landing-content', $data);
+                    ->post($this->apiUrl.'landing-content', $data);
             }
 
             if ($response->successful()) {
@@ -118,18 +119,18 @@ class LandingContentController extends Controller
             Log::error('API Error Response', [
                 'status' => $response->status(),
                 'body' => $response->body(),
-                'data_sent' => $data
+                'data_sent' => $data,
             ]);
 
             return response()->json(
                 [
                     'success' => false,
-                    'message' => 'Gagal menyimpan data ke API: ' . ($response->json()['message'] ?? 'Unknown error'),
+                    'message' => 'Gagal menyimpan data ke API: '.($response->json()['message'] ?? 'Unknown error'),
                     'errors' => $response->json()['errors'] ?? [],
                     'debug' => [
                         'status_code' => $response->status(),
-                        'response_body' => $response->json()
-                    ]
+                        'response_body' => $response->json(),
+                    ],
                 ],
                 422,
             );
@@ -145,14 +146,14 @@ class LandingContentController extends Controller
         } catch (\Exception $e) {
             Log::error('Landing Content Store Error', [
                 'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
-            
+
             return response()->json(
                 [
                     'success' => false,
                     'message' => $e->getMessage(),
-                    'debug' => 'Check logs for more details'
+                    'debug' => 'Check logs for more details',
                 ],
                 500,
             );
@@ -163,24 +164,24 @@ class LandingContentController extends Controller
     {
         try {
             // Test koneksi API terlebih dahulu
-            $testResponse = Http::withToken($this->apiToken)->get($this->apiUrl . 'landing-content');
-            
-            if (!$testResponse->successful()) {
+            $testResponse = Http::withToken($this->apiToken)->get($this->apiUrl.'landing-content');
+
+            if (! $testResponse->successful()) {
                 Log::error('API Connection Test Failed', [
-                    'url' => $this->apiUrl . 'landing-content',
+                    'url' => $this->apiUrl.'landing-content',
                     'status' => $testResponse->status(),
-                    'body' => $testResponse->body()
+                    'body' => $testResponse->body(),
                 ]);
-                
+
                 return response()->json(
                     [
                         'success' => false,
                         'message' => 'Koneksi ke API gagal',
                         'debug' => [
-                            'api_url' => $this->apiUrl . 'landing-content',
+                            'api_url' => $this->apiUrl.'landing-content',
                             'status' => $testResponse->status(),
-                            'response' => $testResponse->body()
-                        ]
+                            'response' => $testResponse->body(),
+                        ],
                     ],
                     500,
                 );
@@ -191,17 +192,17 @@ class LandingContentController extends Controller
             Log::error('Show Landing Content Error', [
                 'message' => $e->getMessage(),
                 'api_url' => $this->apiUrl,
-                'token_exists' => !empty($this->apiToken)
+                'token_exists' => ! empty($this->apiToken),
             ]);
-            
+
             return response()->json(
                 [
                     'success' => false,
                     'message' => $e->getMessage(),
                     'debug' => [
                         'api_url' => $this->apiUrl,
-                        'token_exists' => !empty($this->apiToken)
-                    ]
+                        'token_exists' => ! empty($this->apiToken),
+                    ],
                 ],
                 500,
             );
@@ -240,31 +241,31 @@ class LandingContentController extends Controller
             // Attach files if present
             if ($request->hasFile('hero_background')) {
                 $httpRequest = $httpRequest->attach(
-                    'hero_background', 
-                    file_get_contents($request->file('hero_background')), 
+                    'hero_background',
+                    file_get_contents($request->file('hero_background')),
                     $request->file('hero_background')->getClientOriginalName()
                 );
             }
 
             if ($request->hasFile('logo')) {
                 $httpRequest = $httpRequest->attach(
-                    'logo', 
-                    file_get_contents($request->file('logo')), 
+                    'logo',
+                    file_get_contents($request->file('logo')),
                     $request->file('logo')->getClientOriginalName()
                 );
             }
 
             // Buat data untuk dikirim ke API
             $data = $request->only([
-                'hero_title', 'hero_subtitle', 'jumlah_program_studi', 
-                'jumlah_mahasiswa', 'jumlah_dosen', 'jumlah_mitra', 
-                'keunggulan', 'nama_aplikasi', 'deskripsi_footer', 
-                'facebook', 'twitter', 'instagram', 'linkedin', 
-                'youtube', 'alamat', 'telepon', 'email'
+                'hero_title', 'hero_subtitle', 'jumlah_program_studi',
+                'jumlah_mahasiswa', 'jumlah_dosen', 'jumlah_mitra',
+                'keunggulan', 'nama_aplikasi', 'deskripsi_footer',
+                'facebook', 'twitter', 'instagram', 'linkedin',
+                'youtube', 'alamat', 'telepon', 'email',
             ]);
 
             // Untuk single content, gunakan ID 1
-            $response = $httpRequest->post($this->apiUrl . "landing-content/1?_method=PUT", $data);
+            $response = $httpRequest->post($this->apiUrl.'landing-content/1?_method=PUT', $data);
 
             if ($response->successful()) {
                 return response()->json($response->json());
@@ -302,7 +303,7 @@ class LandingContentController extends Controller
     {
         try {
             // Untuk single content, gunakan ID 1
-            $response = Http::withToken($this->apiToken)->delete($this->apiUrl . "landing-content/1");
+            $response = Http::withToken($this->apiToken)->delete($this->apiUrl.'landing-content/1');
 
             if ($response->successful()) {
                 return response()->json($response->json());

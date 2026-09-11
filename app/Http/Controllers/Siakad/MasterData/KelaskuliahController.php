@@ -170,6 +170,90 @@ class KelaskuliahController extends Controller
         }
     }
 
+    /**
+     * Halaman Generate Kelas Kuliah Massal (terpisah dari form tambah single).
+     */
+    public function generate(DropdownService $dropdownService)
+    {
+        try {
+            $dropdown = $dropdownService->get('prodi,semester,kurikulum');
+
+            return view('masterdata.kelaskuliah.generate', [
+                'prodi' => $dropdown['prodi'] ?? [],
+                'semester' => $dropdown['semester'] ?? [],
+                'kurikulum' => $dropdown['kurikulum'] ?? [],
+            ]);
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * Ambil daftar mata kuliah calon kelas (datatable isi tabel lihat MK).
+     */
+    public function generateCandidates(Request $request)
+    {
+        try {
+            $response = Http::withToken($this->apiToken)
+                ->acceptJson()
+                ->get($this->apiUrl.'kelas-kuliah/generate/candidates', $request->only([
+                    'id_prodi',
+                    'id_kurikulum',
+                    'id_semester',
+                    'semester_ke',
+                    'default_kapasitas',
+                ]));
+
+            $payload = $response->json();
+
+            return response()->json([
+                'data' => $payload['data'] ?? [],
+                'meta' => $payload['meta'] ?? [],
+                'message' => $payload['message'] ?? null,
+                'success' => (bool) ($payload['success'] ?? false),
+            ], $response->status());
+        } catch (\Exception $e) {
+            return response()->json([
+                'data' => [],
+                'meta' => [],
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Eksekusi pembuatan kelas kuliah massal (satu klik).
+     */
+    public function generateCreate(Request $request)
+    {
+        try {
+            $response = Http::withToken($this->apiToken)
+                ->acceptJson()
+                ->post($this->apiUrl.'kelas-kuliah/generate/create', [
+                    'id_prodi' => $request->input('id_prodi'),
+                    'id_kurikulum' => $request->input('id_kurikulum'),
+                    'id_semester' => $request->input('id_semester'),
+                    'semester_ke' => $request->input('semester_ke'),
+                    'rows' => $request->input('rows', []),
+                ]);
+
+            $payload = $response->json();
+
+            return response()->json([
+                'success' => (bool) ($payload['success'] ?? false),
+                'data' => $payload['data'] ?? [],
+                'message' => $payload['message'] ?? null,
+            ], $response->status());
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'data' => [],
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
     public function registerKrsMahasiswa(Request $request, string $id)
     {
         $validated = $request->validate([

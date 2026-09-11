@@ -303,6 +303,9 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
     Route::prefix('kelas-kuliah')->name('kelas-kuliah.')->group(function () {
         Route::get('/data', [KelaskuliahController::class, 'getDatakelaskuliah'])->name('dataKelaskuliah');
         Route::get('/', [KelaskuliahController::class, 'index'])->name('index');
+        Route::get('/generate', [KelaskuliahController::class, 'generate'])->name('generate');
+        Route::get('/generate/candidates', [KelaskuliahController::class, 'generateCandidates'])->name('generate.candidates');
+        Route::post('/generate/create', [KelaskuliahController::class, 'generateCreate'])->name('generate.create');
         Route::get('/add', [KelaskuliahController::class, 'create'])->name('create');
         Route::post('/', [KelaskuliahController::class, 'store'])->name('store');
         Route::get('/detail/{id}', [KelaskuliahController::class, 'detail'])->name('detail');

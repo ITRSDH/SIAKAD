@@ -89,6 +89,11 @@
                         <div class="fs-4 fw-semibold d-flex justify-content-between align-items-center">
                             <h4 class="card-title"> Data Kelas Kuliah</h4>
                             <div class="d-flex gap-2">
+                                @if (in_array('admin', $user['role'] ?? []) || in_array('baak', $user['role'] ?? []))
+                                    <a href="{{ route('kelas-kuliah.generate') }}" class="btn btn-sm btn-warning">
+                                        <i class="fas fa-layer-group me-1"></i> Generate Kelas
+                                    </a>
+                                @endif
                                 <a href="{{ route('kelas-kuliah.create') }}" class="btn btn-sm btn-primary">
                                     <i class="fas fa-plus me-1"></i> Tambah
                                 </a>

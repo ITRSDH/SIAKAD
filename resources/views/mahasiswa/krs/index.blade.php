@@ -264,6 +264,43 @@
                     </div>
                     <div class="modal-body">
                         <div class="alert alert-light border mb-3 d-none" id="penawaranInfoBox"></div>
+
+                        <!-- Filter Bar -->
+                        <div class="card bg-light border mb-3">
+                            <div class="card-body py-2 px-3">
+                                <div class="row g-2 align-items-center">
+                                    <div class="col-md-3">
+                                        <label class="form-label small fw-bold mb-1" for="filterPenawaranKategori">Kategori:</label>
+                                        <select class="form-select form-select-sm" id="filterPenawaranKategori">
+                                            <option value="all">Semua Kategori</option>
+                                            <option value="Paket" selected>Paket (Default)</option>
+                                            <option value="Ulang">Ulang</option>
+                                            <option value="Tambahan">Tambahan</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label small fw-bold mb-1" for="filterPenawaranSemester">Semester Target:</label>
+                                        <select class="form-select form-select-sm" id="filterPenawaranSemester">
+                                            <option value="all">Semua Semester</option>
+                                            <!-- Dynamically populated / updated based on loaded items -->
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label small fw-bold mb-1" for="filterPenawaranSearch">Cari Mata Kuliah / Kelas:</label>
+                                        <div class="input-group input-group-sm">
+                                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                            <input type="text" class="form-control" id="filterPenawaranSearch" placeholder="Ketik kode / nama MK / kelas...">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 d-flex align-items-end">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary w-100 mt-md-4" id="resetPenawaranFilterBtn">
+                                            <i class="fas fa-undo me-1"></i> Reset
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="table-responsive">
                             <table class="table table-bordered align-middle">
                                 <thead>
@@ -418,8 +455,10 @@
         // State management variables
         let currentKrs = null;
         let currentSemesterNumber = null;
+        let targetKurikulumSemester = null;
         let packageSummary = null;
         let unresolvedPackageItems = [];
+        let rawOfferedCourses = [];
         let penawaranModalInstance = null;
         let historyModalInstance = null;
         let detailModalInstance = null;
@@ -1255,55 +1294,28 @@
                     id_semester: currentKrs.id_semester || currentKrs?.semester?.id
                 },
                 success: function(response) {
-                    const rowsData = Array.isArray(response.data) ? response.data : [];
+                    rawOfferedCourses = Array.isArray(response.data) ? response.data : [];
                     const metaMessage = response.meta?.message;
+                    if (response.meta?.paket_semester) {
+                        targetKurikulumSemester = response.meta.paket_semester;
+                    }
                     renderPenawaranInfo(response.meta || {});
 
-                    if (!response.success || !rowsData.length) {
+                    // Populate semester target filter dropdown
+                    populatePenawaranSemesterOptions(rawOfferedCourses);
+
+                    // Reset filter ke default: Kategori "Paket"
+                    $('#filterPenawaranKategori').val('Paket');
+                    $('#filterPenawaranSearch').val('');
+
+                    if (!response.success || !rawOfferedCourses.length) {
                         $('#availableCoursesBody').html(
                             `<tr><td colspan="10" class="text-center text-muted">${escapeHtml(metaMessage || 'Tidak ada penawaran mata kuliah manual yang tersedia pada semester ini.')}</td></tr>`
                         );
                         return;
                     }
 
-                    let rows = '';
-                    rowsData.forEach((item, index) => {
-                        const jadwalText = Array.isArray(item.jadwal) && item.jadwal.length ?
-                            item.jadwal.map(j => `${j.hari}, ${j.jam_mulai} - ${j.jam_selesai}`).join(
-                                '<br>') :
-                            '-';
-                        const category = getOfferedCourseCategory(item, currentSemesterNumber);
-
-                        let statusHtml = '';
-                        if (item.is_transferred) {
-                            statusHtml = `<span class="badge bg-info text-dark"><i class="fas fa-check-circle me-1"></i>Diakui Konversi (${escapeHtml(item.nilai_transfer || 'A')})</span>`;
-                        } else if (item.is_available) {
-                            statusHtml = '<span class="badge bg-success">Tersedia</span>';
-                        } else {
-                            statusHtml = `<span class="badge bg-secondary">${escapeHtml(item.availability_reason || 'Tidak tersedia')}</span>`;
-                        }
-
-                        const addButton = item.is_available ?
-                            `<button class="btn btn-sm btn-primary" onclick="addCourse('${item.id}')"><i class="fas fa-plus me-1"></i>Tambah</button>` :
-                            '<button class="btn btn-sm btn-outline-secondary" disabled>Tidak Bisa</button>';
-
-                        rows += `
-                                                <tr>
-                                                    <td>${index + 1}</td>
-                                                    <td>${escapeHtml(item.kode_mk)}</td>
-                                                    <td>${escapeHtml(item.mata_kuliah)}</td>
-                                                    <td>${escapeHtml(item.nama_kelas)}</td>
-                                                    <td><span class="badge ${category.className}">${escapeHtml(category.text)}</span></td>
-                                                    <td>${escapeHtml(item.semester_ke ?? '-')}</td>
-                                                    <td>${escapeHtml(item.sks)}</td>
-                                                    <td>${jadwalText}</td>
-                                                    <td>${statusHtml}</td>
-                                                    <td class="text-center">${addButton}</td>
-                                                </tr>
-                                            `;
-                    });
-
-                    $('#availableCoursesBody').html(rows);
+                    renderFilteredAvailableCourses();
                 },
                 error: function(xhr) {
                     $('#availableCoursesBody').html(
@@ -1312,6 +1324,114 @@
                     notify(xhr.responseJSON?.message || 'Gagal memuat penawaran mata kuliah manual.', 'danger');
                 }
             });
+        }
+
+        /**
+         * Populate semester options in filter dropdown based on available courses
+         */
+        function populatePenawaranSemesterOptions(courses) {
+            const semesters = [...new Set(courses.map(c => Number(c.semester_ke)).filter(s => s > 0))].sort((a, b) => a - b);
+            let options = '<option value="all">Semua Semester</option>';
+            semesters.forEach(s => {
+                const isCurrent = (targetKurikulumSemester && s === Number(targetKurikulumSemester)) || (currentSemesterNumber && s === Number(currentSemesterNumber));
+                options += `<option value="${s}">Semester ${s}${isCurrent ? ' (Target Mahasiswa)' : ''}</option>`;
+            });
+            $('#filterPenawaranSemester').html(options);
+
+            // Default: jika ada target semester, pilih target semester atau default "all"
+            $('#filterPenawaranSemester').val('all');
+        }
+
+        /**
+         * Render filtered available courses based on current filter values
+         */
+        function renderFilteredAvailableCourses() {
+            if (!rawOfferedCourses.length) {
+                $('#availableCoursesBody').html(
+                    '<tr><td colspan="10" class="text-center text-muted">Tidak ada data penawaran kelas.</td></tr>'
+                );
+                return;
+            }
+
+            const targetSemesterNum = targetKurikulumSemester || currentSemesterNumber;
+            const selectedCategory = $('#filterPenawaranKategori').val() || 'all';
+            const selectedSemester = $('#filterPenawaranSemester').val() || 'all';
+            const searchQuery = ($('#filterPenawaranSearch').val() || '').trim().toLowerCase();
+
+            const filtered = rawOfferedCourses.filter(item => {
+                const category = getOfferedCourseCategory(item, targetSemesterNum);
+
+                // Filter Kategori
+                if (selectedCategory !== 'all' && category.text !== selectedCategory) {
+                    return false;
+                }
+
+                // Filter Semester
+                if (selectedSemester !== 'all' && Number(item.semester_ke) !== Number(selectedSemester)) {
+                    return false;
+                }
+
+                // Filter Pencarian Teks (Kode MK, Nama MK, Nama Kelas)
+                if (searchQuery) {
+                    const matchKode = (item.kode_mk || '').toLowerCase().includes(searchQuery);
+                    const matchNama = (item.mata_kuliah || '').toLowerCase().includes(searchQuery);
+                    const matchKelas = (item.nama_kelas || '').toLowerCase().includes(searchQuery);
+                    if (!matchKode && !matchNama && !matchKelas) {
+                        return false;
+                    }
+                }
+
+                return true;
+            });
+
+            if (!filtered.length) {
+                let emptyMsg = 'Tidak ada mata kuliah yang cocok dengan filter yang dipilih.';
+                if (selectedCategory === 'Paket') {
+                    emptyMsg = 'Tidak ada mata kuliah kategori <strong>Paket</strong> yang tersedia (atau sudah masuk semua ke KRS). Anda dapat mengubah filter kategori ke <em>"Semua Kategori"</em> untuk melihat mata kuliah lainnya.';
+                }
+                $('#availableCoursesBody').html(
+                    `<tr><td colspan="10" class="text-center text-muted py-4">${emptyMsg}</td></tr>`
+                );
+                return;
+            }
+
+            let rows = '';
+            filtered.forEach((item, index) => {
+                const jadwalText = Array.isArray(item.jadwal) && item.jadwal.length ?
+                    item.jadwal.map(j => `${j.hari}, ${j.jam_mulai} - ${j.jam_selesai}`).join('<br>') :
+                    '-';
+                const category = getOfferedCourseCategory(item, targetSemesterNum);
+
+                let statusHtml = '';
+                if (item.is_transferred) {
+                    statusHtml = `<span class="badge bg-info text-dark"><i class="fas fa-check-circle me-1"></i>Diakui Konversi (${escapeHtml(item.nilai_transfer || 'A')})</span>`;
+                } else if (item.is_available) {
+                    statusHtml = '<span class="badge bg-success">Tersedia</span>';
+                } else {
+                    statusHtml = `<span class="badge bg-secondary">${escapeHtml(item.availability_reason || 'Tidak tersedia')}</span>`;
+                }
+
+                const addButton = item.is_available ?
+                    `<button class="btn btn-sm btn-primary" onclick="addCourse('${item.id}')"><i class="fas fa-plus me-1"></i>Tambah</button>` :
+                    '<button class="btn btn-sm btn-outline-secondary" disabled>Tidak Bisa</button>';
+
+                rows += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${escapeHtml(item.kode_mk)}</td>
+                        <td>${escapeHtml(item.mata_kuliah)}</td>
+                        <td>${escapeHtml(item.nama_kelas)}</td>
+                        <td><span class="badge ${category.className}">${escapeHtml(category.text)}</span></td>
+                        <td>${escapeHtml(item.semester_ke ?? '-')}</td>
+                        <td>${escapeHtml(item.sks)}</td>
+                        <td>${jadwalText}</td>
+                        <td>${statusHtml}</td>
+                        <td class="text-center">${addButton}</td>
+                    </tr>
+                `;
+            });
+
+            $('#availableCoursesBody').html(rows);
         }
 
         /**
@@ -1632,6 +1752,16 @@
         $('#openModalBtn').on('click', loadAvailableCourses);
         $('#regenerateBtn').on('click', regeneratePackage);
         $('#submitBtn').on('click', submitKrs);
+
+        // Filter event handlers for Modal Penawaran Mata Kuliah Manual
+        $('#filterPenawaranKategori, #filterPenawaranSemester').on('change', renderFilteredAvailableCourses);
+        $('#filterPenawaranSearch').on('input', renderFilteredAvailableCourses);
+        $('#resetPenawaranFilterBtn').on('click', function() {
+            $('#filterPenawaranKategori').val('Paket');
+            $('#filterPenawaranSemester').val('all');
+            $('#filterPenawaranSearch').val('');
+            renderFilteredAvailableCourses();
+        });
 
         // Global function assignments
         window.showHistoryDetail = showHistoryDetail;

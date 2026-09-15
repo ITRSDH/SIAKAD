@@ -496,6 +496,7 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
 
     Route::get('/krs/current', [KRSMahasiswaController::class, 'current'])->name('krs.current');
     Route::post('/krs/current/init', [KRSMahasiswaController::class, 'initCurrent'])->name('krs.current.init');
+    Route::post('/krs/current/regenerate', [KRSMahasiswaController::class, 'regeneratePackage'])->name('krs.current.regenerate');
     Route::post('/krs', [KRSMahasiswaController::class, 'store'])->name('krs.store');
     Route::get('/krs/penawaran', [KRSMahasiswaController::class, 'penawaranMK'])->name('krs.penawaran');
     Route::get('/krs/repeat-candidates', [KRSMahasiswaController::class, 'repeatCandidates'])->name('krs.repeat-candidates');

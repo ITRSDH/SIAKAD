@@ -185,6 +185,9 @@
                             <button class="btn btn-sm btn-primary d-none" id="createDraftBtn">
                                 <i class="fas fa-file-circle-plus me-1"></i> Buat Draft KRS
                             </button>
+                            <button class="btn btn-sm btn-outline-warning d-none" id="regenerateBtn" title="Muat ulang paket mata kuliah sesuai kurikulum aktif">
+                                <i class="fas fa-rotate me-1"></i> Muat Ulang Paket
+                            </button>
                             <button class="btn btn-sm btn-primary d-none" id="openModalBtn">
                                 <i class="fas fa-plus me-1"></i> Tambah Mata Kuliah Manual
                             </button>
@@ -399,6 +402,7 @@
         const routes = {
             current: "{{ route('krs.current') }}",
             initCurrent: "{{ route('krs.current.init') }}",
+            regenerate: "{{ route('krs.current.regenerate') }}",
             available: "{{ route('krs.penawaran') }}",
             repeatCandidates: "{{ route('krs.repeat-candidates') }}",
             history: "{{ route('krs.data') }}",
@@ -1066,7 +1070,7 @@
                 $('#krsMetaInfo').text(payload?.eligibility_message || 'KRS semester aktif belum tersedia.');
                 $('#emptyState').removeClass('d-none');
                 $('#krsContent').addClass('d-none');
-                $('#createDraftBtn, #createDraftBtnEmpty, #openModalBtn, #submitBtn, #printBtn').addClass('d-none');
+                $('#createDraftBtn, #createDraftBtnEmpty, #openModalBtn, #regenerateBtn, #submitBtn, #printBtn').addClass('d-none');
                 packageSummary = null;
                 unresolvedPackageItems = [];
 
@@ -1112,6 +1116,7 @@
             $('#krsContent').removeClass('d-none');
             $('#createDraftBtn').addClass('d-none');
             $('#openModalBtn').toggleClass('d-none', !currentKrs.can_edit);
+            $('#regenerateBtn').toggleClass('d-none', !currentKrs.can_edit);
             $('#submitBtn').toggleClass('d-none', !currentKrs.can_submit);
             $('#printBtn').toggleClass('d-none', currentKrs.status_approval !== 'approved');
 
@@ -1551,6 +1556,63 @@
             });
         }
 
+        /**
+         * Regenerate package courses for current active semester
+         */
+        function regeneratePackage() {
+            if (!currentKrs?.id) {
+                notify('Draft KRS belum tersedia.', 'warning');
+                return;
+            }
+
+            Swal.fire({
+                title: 'Muat Ulang Paket Semester?',
+                text: 'Mata kuliah draft KRS Anda akan disinkronkan kembali sesuai struktur kurikulum semester aktif. Lanjutkan?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, muat ulang',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+            }).then((result) => {
+                if (!result.isConfirmed) {
+                    return;
+                }
+
+                $.ajax({
+                    url: routes.regenerate,
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    beforeSend: function() {
+                        Swal.fire({
+                            title: 'Memproses...',
+                            text: 'Sedang memuat ulang paket semester sesuai kurikulum.',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            didOpen: () => Swal.showLoading()
+                        });
+                    },
+                    success: function(response) {
+                        Swal.close();
+
+                        if (!response.success) {
+                            notify(response.message || 'Gagal memuat ulang paket KRS.', 'danger');
+                            return;
+                        }
+
+                        notify(response.message || 'Paket KRS berhasil dimuat ulang.', 'success');
+                        loadCurrentKrs();
+                    },
+                    error: function(xhr) {
+                        Swal.close();
+                        const message = xhr.responseJSON?.message || 'Gagal memuat ulang paket KRS.';
+                        notify(message, 'danger');
+                    }
+                });
+            });
+        }
+
         // ================================
         // EVENT HANDLERS & INITIALIZATION
         // ================================
@@ -1568,6 +1630,7 @@
         });
         $('#createDraftBtn, #createDraftBtnEmpty').on('click', createDraft);
         $('#openModalBtn').on('click', loadAvailableCourses);
+        $('#regenerateBtn').on('click', regeneratePackage);
         $('#submitBtn').on('click', submitKrs);
 
         // Global function assignments

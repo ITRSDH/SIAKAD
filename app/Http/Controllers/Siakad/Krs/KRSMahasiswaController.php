@@ -67,6 +67,20 @@ class KRSMahasiswaController extends Controller
         }
     }
 
+    public function regeneratePackage()
+    {
+        try {
+            $response = $this->apiRequest('post', 'krs-mahasiswa/current/regenerate-package');
+
+            return response()->json($response->json(), $response->status());
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
     public function penawaranMK(Request $request)
     {
         try {

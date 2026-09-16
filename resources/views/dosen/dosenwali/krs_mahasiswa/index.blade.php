@@ -3,30 +3,184 @@
 
 @push('styles-custom')
     <style>
-        .summary-card {
-            border: 1px solid #e9ecef;
-            border-radius: 0.75rem;
-            padding: 1rem;
-            background: #fff;
+        :root {
+            --pa-primary: #1572e8;
+            --pa-primary-rgb: 21, 114, 232;
+            --pa-primary-soft: #edf5ff;
+            --pa-info: #0284c7;
+            --pa-info-rgb: 2, 132, 199;
+            --pa-info-soft: #f0f9ff;
+            --pa-border: #e2e8f0;
+            --pa-card-shadow: 0 4px 16px rgba(21, 114, 232, 0.05);
+        }
+
+        /* Modern PA Card */
+        .pa-card {
+            border: 1px solid var(--pa-border);
+            border-radius: 1rem;
+            box-shadow: var(--pa-card-shadow);
+            background: #ffffff;
+            transition: all 0.25s ease;
+        }
+
+        .pa-card-header {
+            background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+            border-bottom: 1px solid var(--pa-border);
+            padding: 1.15rem 1.4rem;
+            border-top-left-radius: 1rem;
+            border-top-right-radius: 1rem;
+        }
+
+        /* Stat Cards */
+        .summary-stat-card {
+            background: #ffffff;
+            border: 1px solid var(--pa-border);
+            border-radius: 0.85rem;
+            padding: 1.1rem 1.25rem;
             height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
         }
 
-        .summary-label {
-            font-size: 0.85rem;
-            color: #6c757d;
-            margin-bottom: 0.25rem;
+        .summary-stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(21, 114, 232, 0.08);
+            border-color: rgba(var(--pa-primary-rgb), 0.35);
         }
 
-        .summary-value {
-            font-size: 1.2rem;
+        .summary-stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--pa-primary);
+        }
+
+        .summary-stat-card.stat-info::before {
+            background: var(--pa-info);
+        }
+
+        .stat-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .stat-label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            font-weight: 700;
+            color: #64748b;
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-value {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #1e293b;
+            line-height: 1.2;
+        }
+
+        .stat-icon-wrapper {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.15rem;
+            flex-shrink: 0;
+            margin-left: 0.75rem;
+        }
+
+        .stat-icon-primary {
+            background: var(--pa-primary-soft);
+            color: var(--pa-primary);
+        }
+
+        .stat-icon-info {
+            background: var(--pa-info-soft);
+            color: var(--pa-info);
+        }
+
+        /* Pill / Soft Badges */
+        .badge-soft-primary {
+            background-color: #e0e7ff !important;
+            color: #1d4ed8 !important;
+            border: 1px solid #c7d2fe !important;
             font-weight: 600;
+            border-radius: 30px;
+            padding: 0.38em 0.85em;
         }
 
-        .detail-card {
-            border: 1px solid #e9ecef;
-            border-radius: 0.75rem;
-            padding: 1rem;
-            background: #fff;
+        .badge-soft-info {
+            background-color: #e0f2fe !important;
+            color: #0369a1 !important;
+            border: 1px solid #bae6fd !important;
+            font-weight: 600;
+            border-radius: 30px;
+            padding: 0.38em 0.85em;
+        }
+
+        .badge-soft-secondary {
+            background-color: #f1f5f9 !important;
+            color: #475569 !important;
+            border: 1px solid #cbd5e1 !important;
+            font-weight: 600;
+            border-radius: 30px;
+            padding: 0.38em 0.85em;
+        }
+
+        /* Modern Table */
+        .table-pa {
+            margin-bottom: 0;
+        }
+
+        .table-pa thead th {
+            background: #f8fafc;
+            color: #475569;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 700;
+            border-bottom: 2px solid var(--pa-border);
+            padding: 0.95rem 0.85rem;
+            white-space: nowrap;
+        }
+
+        .table-pa tbody td {
+            padding: 0.95rem 0.85rem;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+            font-size: 0.88rem;
+        }
+
+        .table-pa tbody tr:hover {
+            background-color: rgba(var(--pa-primary-rgb), 0.025);
+        }
+
+        /* Detail Boxes inside Modal */
+        .detail-box-modern {
+            border: 1px solid var(--pa-border);
+            border-radius: 0.85rem;
+            background: #ffffff;
+            padding: 1.25rem;
+        }
+
+        /* Empty State */
+        .pa-empty-state {
+            border: 2px dashed #cbd5e1;
+            border-radius: 1rem;
+            padding: 4rem 1.5rem;
+            text-align: center;
+            background: #f8fafc;
         }
     </style>
 @endpush
@@ -42,61 +196,98 @@
             </ul>
         </div>
 
-        <div class="row g-3 mb-3">
-            <div class="col-md-3">
-                <div class="summary-card">
-                    <div class="summary-label">Total Mahasiswa Wali</div>
-                    <div class="summary-value" id="totalMahasiswaWali">0</div>
+        <!-- Top Summary Stat Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-lg-3">
+                <div class="summary-stat-card">
+                    <div class="stat-content">
+                        <div class="stat-label">Total Mahasiswa Wali</div>
+                        <div class="stat-value text-primary" id="totalMahasiswaWali">0</div>
+                    </div>
+                    <div class="stat-icon-wrapper stat-icon-primary d-none d-sm-flex">
+                        <i class="fas fa-user-friends"></i>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="summary-card">
-                    <div class="summary-label">Pending Approval</div>
-                    <div class="summary-value" id="pendingApproval">0</div>
+            <div class="col-6 col-lg-3">
+                <div class="summary-stat-card stat-info">
+                    <div class="stat-content">
+                        <div class="stat-label">Pending Approval</div>
+                        <div class="stat-value text-info" id="pendingApproval">0</div>
+                    </div>
+                    <div class="stat-icon-wrapper stat-icon-info d-none d-sm-flex">
+                        <i class="fas fa-hourglass-half"></i>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="summary-card">
-                    <div class="summary-label">Disetujui Semester Ini</div>
-                    <div class="summary-value" id="approvedThisSemester">0</div>
+            <div class="col-6 col-lg-3">
+                <div class="summary-stat-card">
+                    <div class="stat-content">
+                        <div class="stat-label">Disetujui Semester Ini</div>
+                        <div class="stat-value text-primary" id="approvedThisSemester">0</div>
+                    </div>
+                    <div class="stat-icon-wrapper stat-icon-primary d-none d-sm-flex">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="summary-card">
-                    <div class="summary-label">Revisi Semester Ini</div>
-                    <div class="summary-value" id="revisedThisSemester">0</div>
+            <div class="col-6 col-lg-3">
+                <div class="summary-stat-card stat-info">
+                    <div class="stat-content">
+                        <div class="stat-label">Revisi Semester Ini</div>
+                        <div class="stat-value text-info" id="revisedThisSemester">0</div>
+                    </div>
+                    <div class="stat-icon-wrapper stat-icon-info d-none d-sm-flex">
+                        <i class="fas fa-sync-alt"></i>
+                    </div>
                 </div>
             </div>
         </div>
 
+        <!-- Full-Width Approval Workspace -->
         <div class="row">
-            <div class="col-lg-6">
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <div>
-                            <h4 class="card-title mb-0">Daftar KRS Pending</h4>
-                            <small class="text-muted">KRS mahasiswa yang sudah diajukan dan menunggu pemeriksaan.</small>
+            <div class="col-12">
+                <div class="pa-card">
+                    <div class="pa-card-header d-flex flex-wrap justify-content-between align-items-center gap-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="stat-icon-wrapper stat-icon-primary" style="width: 38px; height: 38px; border-radius: 8px; font-size: 1rem; margin-left: 0;">
+                                <i class="fas fa-clipboard-check"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-0 text-dark">Antrean Persetujuan KRS Mahasiswa</h5>
+                                <small class="text-muted">Daftar pengajuan KRS yang menunggu pemeriksaan dan persetujuan Anda</small>
+                            </div>
                         </div>
-                        <button class="btn btn-sm btn-outline-secondary" id="refreshPendingBtn">
-                            <i class="fas fa-rotate-right me-1"></i> Refresh
-                        </button>
+                        <div class="d-flex flex-wrap align-items-center gap-2">
+                            <div class="input-group input-group-sm" style="max-width: 280px;">
+                                <span class="input-group-text bg-white border-end-0 rounded-start-pill text-muted">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                                <input type="text" class="form-control border-start-0 rounded-end-pill" id="searchPendingInput" placeholder="Cari nama mahasiswa / NIM...">
+                            </div>
+                            <button class="btn btn-sm btn-outline-primary rounded-pill px-3" id="refreshPendingBtn">
+                                <i class="fas fa-sync-alt me-1"></i> Refresh
+                            </button>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-bordered align-middle">
+
+                    <div class="card-body p-3 p-md-4">
+                        <div class="table-responsive rounded-3 border">
+                            <table class="table table-pa align-middle">
                                 <thead>
                                     <tr>
-                                        <th width="5%">No</th>
+                                        <th width="4%" class="text-center">No</th>
                                         <th>Mahasiswa</th>
                                         <th>Semester</th>
-                                        <th>SKS</th>
-                                        <th>Status</th>
-                                        <th width="12%">Aksi</th>
+                                        <th class="text-center">Jalur Masuk</th>
+                                        <th class="text-center">Beban SKS</th>
+                                        <th class="text-center">Status</th>
+                                        <th width="12%" class="text-center">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody id="pendingTableBody">
                                     <tr>
-                                        <td colspan="6" class="text-center text-muted">Memuat data...</td>
+                                        <td colspan="7" class="text-center text-muted py-5">Memuat data pengajuan KRS...</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -104,14 +295,31 @@
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="col-lg-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h4 class="card-title mb-0">Detail KRS Mahasiswa</h4>
+        <!-- Modal Tinjau & Validasi KRS (Focused Review Dialog) -->
+        <div class="modal fade" id="modalDetailKrs" tabindex="-1" aria-labelledby="modalDetailKrsLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-xl">
+                <div class="modal-content border-0 shadow-lg" style="border-radius: 1rem; overflow: hidden;">
+                    <div class="modal-header bg-light border-bottom px-4 py-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="stat-icon-wrapper stat-icon-primary" style="width: 36px; height: 36px; border-radius: 8px; font-size: 1rem; margin-left: 0;">
+                                <i class="fas fa-user-check"></i>
+                            </div>
+                            <div>
+                                <h5 class="modal-title fw-bold text-dark" id="modalDetailKrsLabel">Tinjau & Validasi KRS</h5>
+                                <small class="text-muted">Pemeriksaan rencana studi & keputusan Dosen PA</small>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="card-body" id="detailContainer">
-                        <div class="text-muted">Pilih salah satu KRS pending untuk melihat detail.</div>
+                    <div class="modal-body p-3 p-md-4" id="detailContainer">
+                        <div class="text-center py-5">
+                            <div class="stat-icon-wrapper stat-icon-primary mx-auto mb-2" style="width: 44px; height: 44px; font-size: 1.25rem;">
+                                <i class="fas fa-spinner fa-spin"></i>
+                            </div>
+                            <div class="text-muted small">Memuat detail pengajuan KRS...</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -133,25 +341,51 @@
             reject: "{{ route('dosenpa.krs.reject') }}",
         };
 
+        let rawPendingList = [];
         let selectedKrsId = null;
         let latestStatistics = {};
+        let detailModalInstance = null;
 
         function escapeHtml(value) {
             return $('<div>').text(value ?? '').html();
         }
 
+        function getDetailModal() {
+            if (!detailModalInstance) {
+                const modalEl = document.getElementById('modalDetailKrs');
+                if (modalEl && window.bootstrap) {
+                    detailModalInstance = new bootstrap.Modal(modalEl);
+                }
+            }
+            return detailModalInstance;
+        }
+
+        // Modern Toast Notification Instance
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3500,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer);
+                toast.addEventListener('mouseleave', Swal.resumeTimer);
+            }
+        });
+
         function notify(message, type = 'info') {
-            const alertClass = {
-                success: 'alert-success',
-                danger: 'alert-danger',
-                warning: 'alert-warning',
-                info: 'alert-info'
-            } [type] || 'alert-info';
+            const iconMap = {
+                success: 'success',
+                danger: 'error',
+                error: 'error',
+                warning: 'warning',
+                info: 'info'
+            };
 
-            const html = `<div class="alert ${alertClass} alert-dismissible fade show" role="alert">${escapeHtml(message)}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>`;
-            $('.page-inner').prepend(html);
-
-            setTimeout(() => $('.page-inner .alert').first().alert('close'), 4000);
+            Toast.fire({
+                icon: iconMap[type] || 'info',
+                title: message
+            });
         }
 
         function formatSemester(semester) {
@@ -175,94 +409,182 @@
                 });
         }
 
+        function renderPendingRows(data) {
+            if (!data.length) {
+                const totalMahasiswaWali = latestStatistics.total_mahasiswa_wali ?? 0;
+
+                if (totalMahasiswaWali <= 0) {
+                    $('#pendingTableBody').html(`
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-5">
+                                <div class="pa-empty-state border-0 py-2">
+                                    <div class="stat-icon-wrapper stat-icon-info mx-auto mb-3" style="width: 54px; height: 54px; font-size: 1.35rem; margin-left: auto;">
+                                        <i class="fas fa-info-circle"></i>
+                                    </div>
+                                    <h6 class="fw-bold text-dark mb-1">Belum Ada Mahasiswa Bimbingan</h6>
+                                    <p class="text-muted small mb-0">${escapeHtml(currentDosenName)} belum memiliki mahasiswa bimbingan, sehingga belum ada KRS yang perlu diperiksa.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    `);
+                    notify(`${currentDosenName} belum memiliki mahasiswa bimbingan.`, 'info');
+                } else {
+                    $('#pendingTableBody').html(`
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-5">
+                                <div class="pa-empty-state border-0 py-2">
+                                    <div class="stat-icon-wrapper stat-icon-primary mx-auto mb-3" style="width: 54px; height: 54px; font-size: 1.35rem; margin-left: auto;">
+                                        <i class="fas fa-check-double"></i>
+                                    </div>
+                                    <h6 class="fw-bold text-dark mb-1">Tidak Ada Antrean KRS Pending</h6>
+                                    <p class="text-muted small mb-0">Semua KRS mahasiswa bimbingan Anda telah selesai diperiksa dan disetujui.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    `);
+                }
+                return;
+            }
+
+            let rows = '';
+            data.forEach((item, index) => {
+                const mahasiswa = item.mahasiswa || {};
+                const isRpl = ['RPL', 'Pindahan'].includes(mahasiswa.jenis_pendaftaran);
+                const jalurBadge = isRpl
+                    ? `<span class="badge badge-soft-info">${escapeHtml(mahasiswa.jenis_pendaftaran)}</span>`
+                    : `<span class="badge badge-soft-secondary">Reguler</span>`;
+
+                rows += `
+                    <tr>
+                        <td class="text-center text-muted fw-semibold">${index + 1}</td>
+                        <td>
+                            <div class="fw-bold text-dark">${escapeHtml(mahasiswa.nama_mahasiswa || '-')}</div>
+                            <div class="small text-muted font-monospace">${escapeHtml(mahasiswa.nim || '-')}</div>
+                        </td>
+                        <td>
+                            <div class="small fw-semibold text-dark">${escapeHtml(formatSemester(item.semester))}</div>
+                        </td>
+                        <td class="text-center">
+                            ${jalurBadge}
+                        </td>
+                        <td class="text-center">
+                            <span class="badge bg-light text-primary border fw-bold px-3 py-1">${escapeHtml(item.total_sks ?? 0)} SKS</span>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-soft-info">Menunggu Approval</span>
+                        </td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-primary rounded-pill px-3 shadow-sm" onclick="loadDetail('${item.id}')">
+                                <i class="fas fa-search me-1"></i> Tinjau KRS
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            $('#pendingTableBody').html(rows);
+        }
+
         function loadPendingList() {
-            $('#pendingTableBody').html('<tr><td colspan="6" class="text-center text-muted">Memuat data...</td></tr>');
+            $('#pendingTableBody').html('<tr><td colspan="7" class="text-center text-muted py-5">Memuat data pengajuan KRS...</td></tr>');
 
             $.get(routes.pending)
                 .done(function(response) {
-                    const data = response.data || [];
-
-                    if (!data.length) {
-                        const totalMahasiswaWali = latestStatistics.total_mahasiswa_wali ?? 0;
-
-                        if (totalMahasiswaWali <= 0) {
-                            $('#pendingTableBody').html(`<tr><td colspan="6" class="text-center text-muted">${escapeHtml(currentDosenName)} belum memiliki mahasiswa bimbingan, sehingga belum ada KRS yang perlu diperiksa.</td></tr>`);
-                            $('#detailContainer').html('<div class="text-muted">Detail KRS akan muncul setelah Anda memiliki mahasiswa bimbingan yang mengajukan KRS.</div>');
-                            notify(`${currentDosenName} belum memiliki mahasiswa bimbingan.`, 'info');
-                        } else {
-                            $('#pendingTableBody').html('<tr><td colspan="6" class="text-center text-muted">Belum ada KRS pending dari mahasiswa bimbingan Anda.</td></tr>');
-                            $('#detailContainer').html('<div class="text-muted">Saat ini belum ada KRS pending untuk diperiksa. Detail akan muncul jika ada pengajuan baru.</div>');
-                        }
-                        return;
-                    }
-
-                    let rows = '';
-                    data.forEach((item, index) => {
-                        const mahasiswa = item.mahasiswa || {};
-                        rows += `
-                            <tr>
-                                <td>${index + 1}</td>
-                                <td>
-                                    <div class="fw-semibold">${escapeHtml(mahasiswa.nama_mahasiswa)}</div>
-                                    <small class="text-muted">${escapeHtml(mahasiswa.nim || '-')}</small>
-                                </td>
-                                <td>${escapeHtml(formatSemester(item.semester))}</td>
-                                <td>${escapeHtml(item.total_sks ?? 0)}</td>
-                                <td><span class="badge bg-info text-dark">Pending</span></td>
-                                <td class="text-center">
-                                    <button class="btn btn-sm btn-primary" onclick="loadDetail('${item.id}')">
-                                        Detail
-                                    </button>
-                                </td>
-                            </tr>
-                        `;
-                    });
-
-                    $('#pendingTableBody').html(rows);
+                    rawPendingList = response.data || [];
+                    applyPendingSearchFilter();
                 })
                 .fail(function(xhr) {
-                    $('#pendingTableBody').html('<tr><td colspan="6" class="text-center text-danger">Gagal memuat data.</td></tr>');
+                    $('#pendingTableBody').html('<tr><td colspan="7" class="text-center text-danger py-5">Gagal memuat daftar KRS pending.</td></tr>');
                     notify(xhr.responseJSON?.message || 'Gagal memuat daftar KRS pending.', 'danger');
                 });
         }
 
-        function renderValidationSummary(summary) {
-            if (!summary) {
-                return '<div class="text-muted">Validasi belum tersedia.</div>';
+        function applyPendingSearchFilter() {
+            const query = ($('#searchPendingInput').val() || '').trim().toLowerCase();
+
+            if (!query) {
+                renderPendingRows(rawPendingList);
+                return;
             }
 
+            const filtered = rawPendingList.filter(item => {
+                const mahasiswa = item.mahasiswa || {};
+                const matchNama = (mahasiswa.nama_mahasiswa || '').toLowerCase().includes(query);
+                const matchNim = (mahasiswa.nim || '').toLowerCase().includes(query);
+                return matchNama || matchNim;
+            });
+
+            if (!filtered.length) {
+                $('#pendingTableBody').html('<tr><td colspan="7" class="text-center text-muted py-4">Tidak ada mahasiswa yang cocok dengan pencarian.</td></tr>');
+                return;
+            }
+
+            renderPendingRows(filtered);
+        }
+
+        function renderValidationSummary(summary) {
+            if (!summary) {
+                return '<div class="text-muted text-center py-3">Validasi belum tersedia.</div>';
+            }
+
+            const currentSks = Number(summary.total_sks ?? 0);
+            const maxSks = Number(summary.max_sks_allowed ?? 24);
+            const percentage = Math.min(100, Math.round((currentSks / (maxSks || 1)) * 100));
+
             return `
-                <div class="detail-card mb-3">
-                    <div class="fw-semibold mb-2">Ringkasan Validasi</div>
-                    <div class="d-flex justify-content-between mb-1">
-                        <span>Total Mata Kuliah</span>
-                        <span>${escapeHtml(summary.total_matkul ?? 0)}</span>
+                <div class="detail-box-modern mb-3">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div class="fw-bold text-dark"><i class="fas fa-shield-alt text-primary me-1"></i> Ringkasan Validasi KRS</div>
+                        <span class="badge ${summary.is_valid ? 'badge-soft-primary' : 'badge-soft-secondary'}">
+                            <i class="fas ${summary.is_valid ? 'fa-check-circle' : 'fa-info-circle'} me-1"></i>
+                            ${summary.is_valid ? 'Valid untuk Diproses' : 'Perlu Diperiksa'}
+                        </span>
                     </div>
-                    <div class="d-flex justify-content-between mb-1">
-                        <span>Total SKS</span>
-                        <span>${escapeHtml(summary.total_sks ?? 0)}</span>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between small fw-bold text-secondary mb-1">
+                            <span>Beban Pengambilan SKS</span>
+                            <span class="text-primary">${currentSks} / ${maxSks} SKS (${percentage}%)</span>
+                        </div>
+                        <div class="progress" style="height: 8px; border-radius: 20px; background-color: #f1f5f9;">
+                            <div class="progress-bar bg-primary" role="progressbar" style="width: ${percentage}%; border-radius: 20px;" aria-valuenow="${percentage}" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
                     </div>
-                    <div class="d-flex justify-content-between mb-1">
-                        <span>Maksimal SKS</span>
-                        <span class="${summary.max_sks_ok ? 'text-success' : 'text-danger'}">${escapeHtml(summary.max_sks_allowed ?? 24)}</span>
+
+                    <div class="row g-2 text-center">
+                        <div class="col-4">
+                            <div class="p-2 border rounded-3 bg-light-soft">
+                                <div class="small text-muted">Jumlah MK</div>
+                                <div class="fw-bold text-dark">${escapeHtml(summary.total_matkul ?? 0)} MK</div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="p-2 border rounded-3 bg-light-soft">
+                                <div class="small text-muted">Batas Maks. SKS</div>
+                                <div class="fw-bold ${summary.max_sks_ok ? 'text-primary' : 'text-danger'}">${escapeHtml(maxSks)} SKS</div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="p-2 border rounded-3 bg-light-soft">
+                                <div class="small text-muted">Sisa Kuota SKS</div>
+                                <div class="fw-bold text-info">${escapeHtml(summary.remaining_sks ?? 0)} SKS</div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="d-flex justify-content-between mb-1">
-                        <span>Sisa SKS</span>
-                        <span>${escapeHtml(summary.remaining_sks ?? 0)}</span>
-                    </div>
-                    <div class="mt-2">
-                        <small class="${summary.is_valid ? 'text-success' : 'text-danger'}">
-                            ${summary.is_valid ? 'KRS valid untuk diproses.' : 'KRS belum valid untuk disetujui.'}
-                        </small>
-                    </div>
-                    ${summary.is_sks_override ? `<div class="mt-2"><small class="text-info">Override SKS aktif: ${escapeHtml(summary.sks_override_reason || 'Override administratif')}</small></div>` : ''}
+
+                    ${summary.is_sks_override ? `
+                        <div class="alert alert-info border-0 shadow-sm mt-3 mb-0 p-2 small rounded-3 d-flex align-items-center">
+                            <i class="fas fa-shield-alt text-primary fa-lg me-2"></i>
+                            <div><strong>Batas SKS dioverride:</strong> ${escapeHtml(summary.sks_override_reason || 'Override administratif')}</div>
+                        </div>
+                    ` : ''}
                 </div>
             `;
         }
 
         function renderDetailsTable(details) {
             if (!Array.isArray(details) || !details.length) {
-                return '<div class="text-muted">Belum ada detail mata kuliah.</div>';
+                return '<div class="text-muted text-center py-3">Belum ada rincian mata kuliah pada KRS ini.</div>';
             }
 
             let rows = '';
@@ -271,31 +593,31 @@
                 const kmk = kelas?.kurikulum_mata_kuliah || kelas?.kurikulumMataKuliah;
                 const mk = kmk?.mata_kuliah || kmk?.mataKuliah;
                 const jadwal = Array.isArray(kelas?.jadwal) && kelas.jadwal.length ?
-                    kelas.jadwal.map(j => `${j.hari}, ${j.jam_mulai} - ${j.jam_selesai}`).join('<br>') :
-                    '-';
+                    kelas.jadwal.map(j => `<span class="badge bg-light text-dark border me-1"><i class="far fa-clock text-info me-1"></i>${j.hari}, ${j.jam_mulai} - ${j.jam_selesai}</span>`).join(' ') :
+                    '<span class="text-muted">-</span>';
 
                 rows += `
                     <tr>
-                        <td>${index + 1}</td>
-                        <td>${escapeHtml(mk?.kode_mk)}</td>
-                        <td>${escapeHtml(mk?.nama_mk)}</td>
-                        <td>${escapeHtml(kelas?.nama_kelas)}</td>
-                        <td>${escapeHtml(mk?.sks ?? 0)}</td>
+                        <td class="text-center text-muted fw-semibold">${index + 1}</td>
+                        <td class="fw-bold font-monospace text-primary">${escapeHtml(mk?.kode_mk)}</td>
+                        <td class="fw-semibold text-dark">${escapeHtml(mk?.nama_mk)}</td>
+                        <td><span class="badge bg-light text-dark border">${escapeHtml(kelas?.nama_kelas)}</span></td>
+                        <td class="text-center fw-bold text-dark">${escapeHtml(mk?.sks ?? 0)}</td>
                         <td>${jadwal}</td>
                     </tr>
                 `;
             });
 
             return `
-                <div class="table-responsive">
-                    <table class="table table-bordered align-middle">
+                <div class="table-responsive rounded-3 border mb-3">
+                    <table class="table table-pa align-middle">
                         <thead>
                             <tr>
-                                <th>No</th>
-                                <th>Kode</th>
+                                <th width="5%" class="text-center">No</th>
+                                <th>Kode MK</th>
                                 <th>Mata Kuliah</th>
                                 <th>Kelas</th>
-                                <th>SKS</th>
+                                <th class="text-center">SKS</th>
                                 <th>Jadwal</th>
                             </tr>
                         </thead>
@@ -307,7 +629,17 @@
 
         function loadDetail(id) {
             selectedKrsId = id;
-            $('#detailContainer').html('<div class="text-muted">Memuat detail KRS...</div>');
+
+            $('#detailContainer').html(`
+                <div class="text-center py-5">
+                    <div class="stat-icon-wrapper stat-icon-primary mx-auto mb-2" style="width: 44px; height: 44px; font-size: 1.25rem;">
+                        <i class="fas fa-spinner fa-spin"></i>
+                    </div>
+                    <div class="text-muted small">Memuat detail pengajuan KRS...</div>
+                </div>
+            `);
+
+            getDetailModal()?.show();
 
             $.get(routes.showTemplate.replace('__ID__', id))
                 .done(function(response) {
@@ -317,56 +649,107 @@
 
                     const isRpl = ['RPL', 'Pindahan'].includes(mahasiswa.jenis_pendaftaran);
                     const jalurBadge = isRpl
-                        ? `<span class="badge bg-info text-dark">${escapeHtml(mahasiswa.jenis_pendaftaran)}</span> <small class="text-muted">(${escapeHtml(mahasiswa.sks_diakui || 0)} SKS Konversi)</small>`
-                        : `<span class="badge bg-light text-dark">${escapeHtml(mahasiswa.jenis_pendaftaran || 'Reguler')}</span>`;
+                        ? `<span class="badge badge-soft-info">${escapeHtml(mahasiswa.jenis_pendaftaran)}</span> <small class="text-muted">(${escapeHtml(mahasiswa.sks_diakui || 0)} SKS Konversi)</small>`
+                        : `<span class="badge badge-soft-secondary">${escapeHtml(mahasiswa.jenis_pendaftaran || 'Reguler')}</span>`;
 
                     let html = `
-                        <div class="detail-card mb-3">
-                            <div class="fw-semibold mb-2">Informasi Mahasiswa</div>
-                            <div class="mb-1"><strong>Nama:</strong> ${escapeHtml(mahasiswa.nama_mahasiswa)}</div>
-                            <div class="mb-1"><strong>NIM:</strong> ${escapeHtml(mahasiswa.nim || '-')}</div>
-                            <div class="mb-1"><strong>Jalur:</strong> ${jalurBadge}</div>
-                            <div class="mb-1"><strong>Semester:</strong> ${escapeHtml(formatSemester(semester))}</div>
-                            <div class="mb-1"><strong>Total SKS:</strong> ${escapeHtml(data.total_sks ?? 0)}</div>
-                            <div class="mb-1"><strong>Status:</strong> ${escapeHtml(data.status_approval || '-')}</div>
+                        <!-- Student Profile Banner -->
+                        <div class="detail-box-modern mb-3">
+                            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3 pb-2 border-bottom">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="stat-icon-wrapper stat-icon-primary" style="width: 42px; height: 42px; border-radius: 10px; font-size: 1.15rem; margin-left: 0;">
+                                        <i class="fas fa-user-graduate"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="fw-bold text-dark mb-0">${escapeHtml(mahasiswa.nama_mahasiswa || '-')}</h5>
+                                        <small class="text-muted font-monospace">${escapeHtml(mahasiswa.nim || '-')}</small>
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="badge badge-soft-primary px-3 py-2 fw-bold" style="font-size: 0.9rem;">
+                                        <i class="fas fa-layer-group me-1"></i> Total ${escapeHtml(data.total_sks ?? 0)} SKS
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="row g-3 small">
+                                <div class="col-sm-4">
+                                    <span class="text-muted d-block">Jalur Masuk:</span>
+                                    <div class="mt-1">${jalurBadge}</div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <span class="text-muted d-block">Semester Aktif:</span>
+                                    <strong class="text-dark">${escapeHtml(formatSemester(semester))}</strong>
+                                </div>
+                                <div class="col-sm-4">
+                                    <span class="text-muted d-block">Status Approval:</span>
+                                    <span class="badge badge-soft-info mt-1">${escapeHtml(data.status_approval || 'Pending')}</span>
+                                </div>
+                            </div>
                         </div>
                     `;
 
                     html += renderValidationSummary(data.validation_summary);
 
                     if (data.catatan) {
-                        html += `<div class="alert alert-info"><strong>Catatan saat ini:</strong> ${escapeHtml(data.catatan)}</div>`;
+                        html += `
+                            <div class="alert alert-info border-0 shadow-sm mb-3 p-3 rounded-3 d-flex align-items-center">
+                                <i class="fas fa-comment-alt text-info fa-lg me-2"></i>
+                                <div>
+                                    <strong>Catatan Pengajuan:</strong>
+                                    <div class="text-secondary small mt-1">${escapeHtml(data.catatan)}</div>
+                                </div>
+                            </div>
+                        `;
                     }
 
                     if (data.sks_override?.is_active) {
                         const overrideBy = data.sks_override?.by?.name ? ` oleh ${escapeHtml(data.sks_override.by.name)}` : '';
-                        html += `<div class="alert alert-warning"><strong>Override SKS aktif${overrideBy}.</strong><br>${escapeHtml(data.sks_override?.reason || 'Override administratif')}</div>`;
+                        html += `
+                            <div class="alert alert-info border-0 shadow-sm mb-3 p-3 rounded-3 d-flex align-items-center">
+                                <i class="fas fa-shield-alt text-primary fa-lg me-2"></i>
+                                <div>
+                                    <strong>Override SKS Aktif${overrideBy}</strong>
+                                    <div class="text-secondary small">${escapeHtml(data.sks_override?.reason || 'Override administratif')}</div>
+                                </div>
+                            </div>
+                        `;
                     }
 
                     html += renderDetailsTable(data.details || []);
 
                     html += `
-                        <div class="mt-3">
-                            <label for="catatanDosen" class="form-label">Catatan Dosen</label>
-                            <textarea class="form-control" id="catatanDosen" rows="3" placeholder="Tulis catatan untuk mahasiswa..."></textarea>
-                        </div>
-                        <div class="d-flex gap-2 mt-3">
-                            <button class="btn btn-success" ${data.can_approve ? '' : 'disabled'} onclick="submitDecision('approve')">
-                                <i class="fas fa-check me-1"></i> Setujui
-                            </button>
-                            <button class="btn btn-warning text-dark" ${data.can_revision ? '' : 'disabled'} onclick="submitDecision('revision')">
-                                <i class="fas fa-rotate-left me-1"></i> Revisi
-                            </button>
-                            <button class="btn btn-danger" ${data.can_revision ? '' : 'disabled'} onclick="submitDecision('reject')">
-                                <i class="fas fa-xmark me-1"></i> Tolak
-                            </button>
+                        <!-- Decision & Feedback Form -->
+                        <div class="detail-box-modern">
+                            <div class="fw-bold text-dark mb-2">
+                                <i class="fas fa-pen-alt text-primary me-1"></i> Catatan Dosen PA
+                            </div>
+                            <div class="mb-3">
+                                <textarea class="form-control rounded-3" id="catatanDosen" rows="3" placeholder="Tuliskan catatan, saran, atau arahan revisi untuk mahasiswa..."></textarea>
+                                <small class="text-muted mt-1 d-block"><i class="fas fa-info-circle me-1"></i>Catatan wajib diisi jika Anda mengembalikan untuk revisi atau menolak pengajuan.</small>
+                            </div>
+                            <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center pt-2 border-top">
+                                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">
+                                    <i class="fas fa-arrow-left me-1"></i> Kembali
+                                </button>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-sm btn-outline-danger rounded-pill px-3" ${data.can_revision ? '' : 'disabled'} onclick="submitDecision('reject')">
+                                        <i class="fas fa-times me-1"></i> Tolak
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-info rounded-pill px-3" ${data.can_revision ? '' : 'disabled'} onclick="submitDecision('revision')">
+                                        <i class="fas fa-edit me-1"></i> Revisi
+                                    </button>
+                                    <button class="btn btn-sm btn-primary rounded-pill px-4 shadow-sm" ${data.can_approve ? '' : 'disabled'} onclick="submitDecision('approve')">
+                                        <i class="fas fa-check-circle me-1"></i> Setujui KRS
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     `;
 
                     $('#detailContainer').html(html);
                 })
                 .fail(function(xhr) {
-                    $('#detailContainer').html('<div class="text-danger">Gagal memuat detail KRS.</div>');
+                    $('#detailContainer').html('<div class="alert alert-danger mb-0">Gagal memuat rincian KRS mahasiswa. Silakan tutup dan coba kembali.</div>');
                     notify(xhr.responseJSON?.message || 'Gagal memuat detail KRS.', 'danger');
                 });
         }
@@ -391,28 +774,28 @@
             };
 
             if (action !== 'approve' && !catatan.trim()) {
-                notify('Catatan wajib diisi untuk revisi atau reject.', 'warning');
+                notify('Catatan wajib diisi untuk revisi atau penolakan.', 'warning');
                 return;
             }
 
             const actionConfig = {
                 approve: {
                     title: 'Setujui KRS ini?',
-                    text: 'KRS mahasiswa akan ditandai disetujui.',
+                    text: 'KRS mahasiswa akan disetujui dan status mahasiswa siap mengikuti perkuliahan.',
                     icon: 'question',
-                    confirmButtonText: 'Ya, setujui'
+                    confirmButtonText: 'Ya, Setujui'
                 },
                 revision: {
-                    title: 'Kembalikan untuk revisi?',
-                    text: 'Mahasiswa akan diminta memperbaiki KRS sesuai catatan Anda.',
+                    title: 'Kembalikan untuk Revisi?',
+                    text: 'Mahasiswa akan diminta memperbaiki KRS sesuai catatan yang Anda berikan.',
                     icon: 'warning',
-                    confirmButtonText: 'Ya, kirim revisi'
+                    confirmButtonText: 'Ya, Kembalikan'
                 },
                 reject: {
-                    title: 'Tolak KRS ini?',
-                    text: 'Pengajuan KRS akan ditolak sesuai catatan Anda.',
+                    title: 'Tolak Pengajuan KRS?',
+                    text: 'Pengajuan KRS mahasiswa akan ditolak.',
                     icon: 'warning',
-                    confirmButtonText: 'Ya, tolak'
+                    confirmButtonText: 'Ya, Tolak'
                 }
             };
 
@@ -458,18 +841,24 @@
 
                         notify(response.message || 'KRS berhasil diproses.', 'success');
                         selectedKrsId = null;
-                        $('#detailContainer').html('<div class="text-muted">Pilih salah satu KRS pending untuk melihat detail.</div>');
+
+                        // Hide modal
+                        getDetailModal()?.hide();
+
                         loadStatistics();
                         loadPendingList();
                     },
                     error: function(xhr) {
                         Swal.close();
                         notify(xhr.responseJSON?.message || 'Gagal memproses KRS.', 'danger');
-                        return;
                     }
                 });
             });
         }
+
+        $('#searchPendingInput').on('keyup', function() {
+            applyPendingSearchFilter();
+        });
 
         $('#refreshPendingBtn').on('click', function() {
             loadStatistics();

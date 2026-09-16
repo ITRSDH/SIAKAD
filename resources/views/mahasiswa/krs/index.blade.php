@@ -3,46 +3,204 @@
 
 @push('styles-custom')
     <style>
+        :root {
+            --krs-primary: #1572e8;
+            --krs-primary-rgb: 21, 114, 232;
+            --krs-primary-soft: #edf5ff;
+            --krs-info: #0284c7;
+            --krs-info-rgb: 2, 132, 199;
+            --krs-info-soft: #f0f9ff;
+            --krs-border: #e2e8f0;
+            --krs-card-shadow: 0 4px 16px rgba(21, 114, 232, 0.05);
+        }
+
         .modal-xxl {
-            max-width: 95% !important;
+            max-width: 96% !important;
         }
 
-        .summary-card {
-            border: 1px solid #e9ecef;
-            border-radius: 0.75rem;
-            padding: 1rem;
-            background: #fff;
+        /* Modern Dashboard Card */
+        .krs-card {
+            border: 1px solid var(--krs-border);
+            border-radius: 1rem;
+            box-shadow: var(--krs-card-shadow);
+            background: #ffffff;
+            transition: all 0.25s ease;
+        }
+
+        .krs-card-header {
+            background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+            border-bottom: 1px solid var(--krs-border);
+            padding: 1.1rem 1.35rem;
+            border-top-left-radius: 1rem;
+            border-top-right-radius: 1rem;
+        }
+
+        /* Summary Stat Cards */
+        .summary-stat-card {
+            background: #ffffff;
+            border: 1px solid var(--krs-border);
+            border-radius: 0.85rem;
+            padding: 1.1rem 1.25rem;
             height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
         }
 
-        .summary-label {
-            font-size: 0.85rem;
-            color: #6c757d;
-            margin-bottom: 0.25rem;
+        .summary-stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(21, 114, 232, 0.08);
+            border-color: rgba(var(--krs-primary-rgb), 0.35);
         }
 
-        .summary-value {
-            font-size: 1.1rem;
+        .summary-stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--krs-primary);
+        }
+
+        .summary-stat-card.stat-info::before {
+            background: var(--krs-info);
+        }
+
+        .stat-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .stat-label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            font-weight: 700;
+            color: #64748b;
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1e293b;
+            line-height: 1.2;
+            word-break: break-word;
+        }
+
+        .stat-icon-wrapper {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.15rem;
+            flex-shrink: 0;
+            margin-left: 0.75rem;
+        }
+
+        .stat-icon-primary {
+            background: var(--krs-primary-soft);
+            color: var(--krs-primary);
+        }
+
+        .stat-icon-info {
+            background: var(--krs-info-soft);
+            color: var(--krs-info);
+        }
+
+        /* Pill / Soft Badges */
+        .badge-soft-primary {
+            background-color: #e0e7ff !important;
+            color: #1d4ed8 !important;
+            border: 1px solid #c7d2fe !important;
             font-weight: 600;
+            border-radius: 30px;
+            padding: 0.4em 0.85em;
+        }
+
+        .badge-soft-info {
+            background-color: #e0f2fe !important;
+            color: #0369a1 !important;
+            border: 1px solid #bae6fd !important;
+            font-weight: 600;
+            border-radius: 30px;
+            padding: 0.4em 0.85em;
+        }
+
+        .badge-soft-secondary {
+            background-color: #f1f5f9 !important;
+            color: #475569 !important;
+            border: 1px solid #cbd5e1 !important;
+            font-weight: 600;
+            border-radius: 30px;
+            padding: 0.4em 0.85em;
         }
 
         .badge-status {
-            font-size: 0.85rem;
+            font-size: 0.82rem;
         }
 
+        /* Modern Tables */
+        .table-krs {
+            margin-bottom: 0;
+        }
+
+        .table-krs thead th {
+            background: #f8fafc;
+            color: #475569;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 700;
+            border-bottom: 2px solid var(--krs-border);
+            padding: 0.85rem 0.75rem;
+            white-space: nowrap;
+        }
+
+        .table-krs tbody td {
+            padding: 0.85rem 0.75rem;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+            font-size: 0.88rem;
+        }
+
+        .table-krs tbody tr:hover {
+            background-color: rgba(var(--krs-primary-rgb), 0.025);
+        }
+
+        /* Package Insights Box */
+        .package-box-modern {
+            border: 1px solid var(--krs-border);
+            border-radius: 0.85rem;
+            background: linear-gradient(180deg, #ffffff 0%, #f8faff 100%);
+            padding: 1.15rem;
+            font-size: 0.88rem;
+            height: 100%;
+        }
+
+        /* Empty State */
         .empty-state {
-            border: 1px dashed #ced4da;
-            border-radius: 0.75rem;
-            padding: 2rem;
+            border: 2px dashed #cbd5e1;
+            border-radius: 1rem;
+            padding: 3rem 1.5rem;
             text-align: center;
-            background: #f8f9fa;
+            background: #f8fafc;
         }
 
-        .package-box {
-            border: 1px solid #e8edf3;
-            border-radius: 0.75rem;
-            background: #fafcff;
-            padding: 1rem;
+        /* Responsive Sidebar */
+        @media (min-width: 992px) {
+            .sticky-sidebar {
+                position: sticky;
+                top: 20px;
+                z-index: 10;
+            }
         }
     </style>
 @endpush
@@ -60,34 +218,58 @@
             </ul>
         </div>
 
-        <div class="row g-3 mb-3" id="summarySection">
-            <div class="col-md-3">
-                <div class="summary-card">
-                    <div class="summary-label">Semester Aktif</div>
-                    <div class="summary-value" id="semesterAktifLabel">-</div>
+        <!-- Summary Stat Cards -->
+        <div class="row g-3 mb-4" id="summarySection">
+            <div class="col-6 col-lg-3">
+                <div class="summary-stat-card">
+                    <div class="stat-content">
+                        <div class="stat-label">Semester Aktif</div>
+                        <div class="stat-value" id="semesterAktifLabel">-</div>
+                    </div>
+                    <div class="stat-icon-wrapper stat-icon-primary d-none d-sm-flex">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="summary-card">
-                    <div class="summary-label">Status KRS</div>
-                    <div class="summary-value"><span id="statusBadge" class="badge bg-secondary badge-status">-</span></div>
+            <div class="col-6 col-lg-3">
+                <div class="summary-stat-card stat-info">
+                    <div class="stat-content">
+                        <div class="stat-label">Status KRS</div>
+                        <div class="stat-value">
+                            <span id="statusBadge" class="badge badge-soft-info badge-status">-</span>
+                        </div>
+                    </div>
+                    <div class="stat-icon-wrapper stat-icon-info d-none d-sm-flex">
+                        <i class="fas fa-clipboard-check"></i>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="summary-card">
-                    <div class="summary-label">Total SKS</div>
-                    <div class="summary-value" id="totalSksLabel">0</div>
+            <div class="col-6 col-lg-3">
+                <div class="summary-stat-card">
+                    <div class="stat-content">
+                        <div class="stat-label">Total SKS Diambil</div>
+                        <div class="stat-value text-primary" id="totalSksLabel">0</div>
+                    </div>
+                    <div class="stat-icon-wrapper stat-icon-primary d-none d-sm-flex">
+                        <i class="fas fa-book-open"></i>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="summary-card">
-                    <div class="summary-label">Batas Maksimal SKS</div>
-                    <div class="summary-value" id="maxSksLabel">0</div>
+            <div class="col-6 col-lg-3">
+                <div class="summary-stat-card stat-info">
+                    <div class="stat-content">
+                        <div class="stat-label">Batas Maks. SKS</div>
+                        <div class="stat-value text-info" id="maxSksLabel">0</div>
+                    </div>
+                    <div class="stat-icon-wrapper stat-icon-info d-none d-sm-flex">
+                        <i class="fas fa-tachometer-alt"></i>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="row">
+        <!-- Student Profile Card (Original Structure) -->
+        <div class="row mb-4">
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
@@ -164,76 +346,84 @@
             </div>
         </div>
 
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
+        <!-- Main KRS Content & Validation Summary Row -->
+        <div class="row g-3 mb-4">
+            <!-- KRS Semester Aktif (Table) Column -->
+            <div class="col-lg-8">
+                <div class="krs-card mb-3">
+                    <div class="krs-card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
                         <div>
-                            <h4 class="card-title mb-0">KRS Semester Aktif</h4>
+                            <h5 class="fw-bold mb-0 text-dark">KRS Semester Aktif</h5>
                             <small class="text-muted" id="krsMetaInfo">Memuat data KRS...</small>
                         </div>
-                        <div class="d-flex gap-2">
-                            <button class="btn btn-sm btn-outline-secondary" id="refreshBtn">
+                        <div class="d-flex flex-wrap gap-2 align-items-center">
+                            <button class="btn btn-sm btn-outline-primary rounded-pill px-3" id="refreshBtn">
                                 <i class="fas fa-sync me-1"></i> Refresh
                             </button>
-                            <button class="btn btn-sm btn-outline-primary" id="historyBtn">
-                                <i class="fas fa-clock-rotate-left me-1"></i> Riwayat KRS
+                            <button class="btn btn-sm btn-outline-info rounded-pill px-3" id="historyBtn">
+                                <i class="fas fa-history me-1"></i> Riwayat KRS
                             </button>
-                            <button class="btn btn-sm btn-outline-success d-none" id="printBtn">
+                            <button class="btn btn-sm btn-info text-white rounded-pill px-3 d-none" id="printBtn">
                                 <i class="fas fa-print me-1"></i> Cetak KRS
                             </button>
-                            <button class="btn btn-sm btn-primary d-none" id="createDraftBtn">
-                                <i class="fas fa-file-circle-plus me-1"></i> Buat Draft KRS
+                            <button class="btn btn-sm btn-primary rounded-pill px-3 d-none" id="createDraftBtn">
+                                <i class="fas fa-plus-circle me-1"></i> Buat Draft KRS
                             </button>
-                            <button class="btn btn-sm btn-outline-warning d-none" id="regenerateBtn" title="Muat ulang paket mata kuliah sesuai kurikulum aktif">
-                                <i class="fas fa-rotate me-1"></i> Muat Ulang Paket
+                            <button class="btn btn-sm btn-outline-info rounded-pill px-3 d-none" id="regenerateBtn" title="Muat ulang paket mata kuliah sesuai kurikulum aktif">
+                                <i class="fas fa-sync-alt me-1"></i> Muat Ulang Paket
                             </button>
-                            <button class="btn btn-sm btn-primary d-none" id="openModalBtn">
-                                <i class="fas fa-plus me-1"></i> Tambah Mata Kuliah Manual
+                            <button class="btn btn-sm btn-outline-primary rounded-pill px-3 d-none" id="openModalBtn">
+                                <i class="fas fa-plus me-1"></i> Tambah MK Manual
                             </button>
-                            <button class="btn btn-sm btn-success d-none" id="submitBtn">
+                            <button class="btn btn-sm btn-primary rounded-pill px-3 shadow-sm d-none" id="submitBtn">
                                 <i class="fas fa-paper-plane me-1"></i> Ajukan KRS
                             </button>
                         </div>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body p-3 p-md-4">
                         <div id="emptyState" class="empty-state d-none">
-                            <h5 class="mb-2" id="emptyStateTitle">Menyiapkan KRS semester aktif</h5>
-                            <p class="text-muted mb-0" id="emptyStateDescription">Sistem sedang memeriksa penawaran mata kuliah untuk semester aktif.</p>
+                            <div class="mb-3">
+                                <div class="stat-icon-wrapper stat-icon-primary mx-auto" style="width: 54px; height: 54px; font-size: 1.5rem; margin-left: auto;">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                </div>
+                            </div>
+                            <h5 class="fw-bold mb-2 text-dark" id="emptyStateTitle">Menyiapkan KRS semester aktif</h5>
+                            <p class="text-muted mb-0 mx-auto" style="max-width: 500px;" id="emptyStateDescription">Sistem sedang memeriksa penawaran mata kuliah untuk semester aktif.</p>
                         </div>
 
                         <div id="krsContent" class="d-none">
-                            <div class="alert alert-info d-none" id="catatanBox"></div>
+                            <div class="alert alert-info border-0 shadow-sm d-none mb-3 p-3 rounded-3" id="catatanBox"></div>
+                            
                             <div class="row g-3 mb-3">
-                                <div class="col-lg-6">
-                                    <div class="package-box" id="packageSummaryBox">
+                                <div class="col-md-6">
+                                    <div class="package-box-modern" id="packageSummaryBox">
                                         <div class="text-muted">Ringkasan paket semester belum tersedia.</div>
                                     </div>
                                 </div>
-                                <div class="col-lg-6">
-                                    <div class="package-box" id="packageIssueBox">
+                                <div class="col-md-6">
+                                    <div class="package-box-modern" id="packageIssueBox">
                                         <div class="text-muted">Kendala generate paket akan muncul di sini bila ada.</div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="table-responsive">
-                                <table class="table table-bordered align-middle">
+                            <div class="table-responsive rounded-3 border">
+                                <table class="table table-krs align-middle">
                                     <thead>
                                         <tr>
-                                            <th width="5%">No</th>
+                                            <th width="5%" class="text-center">No</th>
                                             <th>Kode MK</th>
                                             <th>Mata Kuliah</th>
                                             <th>Kelas</th>
-                                            <th>SKS</th>
-                                            <th>Kategori</th>
+                                            <th class="text-center">SKS</th>
+                                            <th class="text-center">Kategori</th>
                                             <th>Jadwal</th>
-                                            <th width="10%">Aksi</th>
+                                            <th width="8%" class="text-center">Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody id="selectedCoursesBody">
                                         <tr>
-                                            <td colspan="8" class="text-center text-muted">Memuat data...</td>
+                                            <td colspan="8" class="text-center text-muted py-4">Memuat data...</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -243,57 +433,77 @@
                 </div>
             </div>
 
+            <!-- Validation Summary Column -->
             <div class="col-lg-4">
-                <div class="card">
-                    <div class="card-header">
-                        <h4 class="card-title mb-0">Ringkasan Validasi</h4>
+                <div class="krs-card sticky-sidebar">
+                    <div class="krs-card-header d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="stat-icon-wrapper stat-icon-info" style="width: 32px; height: 32px; border-radius: 8px; font-size: 0.9rem; margin-left: 0;">
+                                <i class="fas fa-tasks"></i>
+                            </div>
+                            <h5 class="fw-bold mb-0 text-dark">Ringkasan Validasi</h5>
+                        </div>
                     </div>
-                    <div class="card-body" id="validationBox">
-                        <div class="text-muted">Memuat validasi...</div>
+                    <div class="card-body p-3 p-md-4" id="validationBox">
+                        <div class="text-muted text-center py-3">Memuat validasi...</div>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- Modal Penawaran Mata Kuliah Manual -->
         <div class="modal fade" id="modalPenawaran" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered modal-xxl">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Penawaran Mata Kuliah Manual</h5>
+                <div class="modal-content border-0 shadow-lg" style="border-radius: 1rem; overflow: hidden;">
+                    <div class="modal-header bg-light border-bottom px-4 py-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="stat-icon-wrapper stat-icon-primary" style="width: 36px; height: 36px; border-radius: 8px; font-size: 1rem; margin-left: 0;">
+                                <i class="fas fa-book-reader"></i>
+                            </div>
+                            <div>
+                                <h5 class="modal-title fw-bold text-dark">Penawaran Mata Kuliah Manual</h5>
+                                <small class="text-muted">Pilih mata kuliah yang ingin ditambahkan ke KRS Anda</small>
+                            </div>
+                        </div>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-                    <div class="modal-body">
-                        <div class="alert alert-light border mb-3 d-none" id="penawaranInfoBox"></div>
+                    <div class="modal-body p-3 p-md-4">
+                        <div class="alert alert-info border-0 shadow-sm mb-3 rounded-3 d-none" id="penawaranInfoBox"></div>
 
-                        <!-- Filter Bar -->
-                        <div class="card bg-light border mb-3">
-                            <div class="card-body py-2 px-3">
+                        <!-- Modern Filter Bar -->
+                        <div class="card border mb-3 rounded-3 shadow-sm" style="background: #f8fafc; border-color: #e2e8f0;">
+                            <div class="card-body py-3 px-3">
                                 <div class="row g-2 align-items-center">
-                                    <div class="col-md-3">
-                                        <label class="form-label small fw-bold mb-1" for="filterPenawaranKategori">Kategori:</label>
-                                        <select class="form-select form-select-sm" id="filterPenawaranKategori">
+                                    <div class="col-12 col-md-3">
+                                        <label class="form-label small fw-bold mb-1 text-secondary" for="filterPenawaranKategori">
+                                            <i class="fas fa-filter text-primary me-1"></i> Kategori:
+                                        </label>
+                                        <select class="form-select form-select-sm rounded-pill" id="filterPenawaranKategori">
                                             <option value="all">Semua Kategori</option>
                                             <option value="Paket" selected>Paket (Default)</option>
                                             <option value="Ulang">Ulang</option>
                                             <option value="Tambahan">Tambahan</option>
                                         </select>
                                     </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label small fw-bold mb-1" for="filterPenawaranSemester">Semester Target:</label>
-                                        <select class="form-select form-select-sm" id="filterPenawaranSemester">
+                                    <div class="col-12 col-md-3">
+                                        <label class="form-label small fw-bold mb-1 text-secondary" for="filterPenawaranSemester">
+                                            <i class="fas fa-layer-group text-info me-1"></i> Semester Target:
+                                        </label>
+                                        <select class="form-select form-select-sm rounded-pill" id="filterPenawaranSemester">
                                             <option value="all">Semua Semester</option>
-                                            <!-- Dynamically populated / updated based on loaded items -->
                                         </select>
                                     </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label small fw-bold mb-1" for="filterPenawaranSearch">Cari Mata Kuliah / Kelas:</label>
+                                    <div class="col-12 col-md-4">
+                                        <label class="form-label small fw-bold mb-1 text-secondary" for="filterPenawaranSearch">
+                                            <i class="fas fa-search text-primary me-1"></i> Cari Mata Kuliah / Kelas:
+                                        </label>
                                         <div class="input-group input-group-sm">
-                                            <span class="input-group-text"><i class="fas fa-search"></i></span>
-                                            <input type="text" class="form-control" id="filterPenawaranSearch" placeholder="Ketik kode / nama MK / kelas...">
+                                            <span class="input-group-text bg-white border-end-0 rounded-start-pill text-muted"><i class="fas fa-search"></i></span>
+                                            <input type="text" class="form-control border-start-0 rounded-end-pill" id="filterPenawaranSearch" placeholder="Ketik kode / nama MK / kelas...">
                                         </div>
                                     </div>
-                                    <div class="col-md-2 d-flex align-items-end">
-                                        <button type="button" class="btn btn-sm btn-outline-secondary w-100 mt-md-4" id="resetPenawaranFilterBtn">
+                                    <div class="col-12 col-md-2 d-flex align-items-end">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill w-100 mt-md-4" id="resetPenawaranFilterBtn">
                                             <i class="fas fa-undo me-1"></i> Reset
                                         </button>
                                     </div>
@@ -301,25 +511,25 @@
                             </div>
                         </div>
 
-                        <div class="table-responsive">
-                            <table class="table table-bordered align-middle">
+                        <div class="table-responsive rounded-3 border">
+                            <table class="table table-krs align-middle">
                                 <thead>
                                     <tr>
-                                        <th width="5%">No</th>
+                                        <th width="4%" class="text-center">No</th>
                                         <th>Kode MK</th>
                                         <th>Mata Kuliah</th>
                                         <th>Kelas</th>
-                                        <th>Kategori</th>
-                                        <th>Semester Paket</th>
-                                        <th>SKS</th>
+                                        <th class="text-center">Kategori</th>
+                                        <th class="text-center">Sem.</th>
+                                        <th class="text-center">SKS</th>
                                         <th>Jadwal</th>
-                                        <th>Status</th>
-                                        <th width="10%">Aksi</th>
+                                        <th class="text-center">Status</th>
+                                        <th width="8%" class="text-center">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody id="availableCoursesBody">
                                     <tr>
-                                        <td colspan="10" class="text-center text-muted">Memuat data...</td>
+                                        <td colspan="10" class="text-center text-muted py-4">Memuat data...</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -329,29 +539,38 @@
             </div>
         </div>
 
+        <!-- Modal Riwayat KRS -->
         <div class="modal fade" id="modalRiwayatKrs" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered modal-xl">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Riwayat KRS</h5>
+                <div class="modal-content border-0 shadow-lg" style="border-radius: 1rem; overflow: hidden;">
+                    <div class="modal-header bg-light border-bottom px-4 py-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="stat-icon-wrapper stat-icon-info" style="width: 36px; height: 36px; border-radius: 8px; font-size: 1rem; margin-left: 0;">
+                                <i class="fas fa-history"></i>
+                            </div>
+                            <div>
+                                <h5 class="modal-title fw-bold text-dark">Riwayat KRS Mahasiswa</h5>
+                                <small class="text-muted">Daftar KRS yang pernah diambil pada semester sebelumnya</small>
+                            </div>
+                        </div>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-                    <div class="modal-body">
-                        <div class="table-responsive">
-                            <table class="table table-bordered align-middle">
+                    <div class="modal-body p-3 p-md-4">
+                        <div class="table-responsive rounded-3 border">
+                            <table class="table table-krs align-middle">
                                 <thead>
                                     <tr>
-                                        <th width="5%">No</th>
+                                        <th width="5%" class="text-center">No</th>
                                         <th>Semester</th>
-                                        <th>Status</th>
-                                        <th>Total SKS</th>
+                                        <th class="text-center">Status</th>
+                                        <th class="text-center">Total SKS</th>
                                         <th>Catatan</th>
-                                        <th>Aksi</th>
+                                        <th width="15%" class="text-center">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody id="historyCoursesBody">
                                     <tr>
-                                        <td colspan="6" class="text-center text-muted">Memuat riwayat KRS...</td>
+                                        <td colspan="6" class="text-center text-muted py-4">Memuat riwayat KRS...</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -361,60 +580,77 @@
             </div>
         </div>
 
+        <!-- Modal Detail KRS -->
         <div class="modal fade" id="modalDetailKrs" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered modal-xl">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Detail KRS</h5>
+                <div class="modal-content border-0 shadow-lg" style="border-radius: 1rem; overflow: hidden;">
+                    <div class="modal-header bg-light border-bottom px-4 py-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="stat-icon-wrapper stat-icon-primary" style="width: 36px; height: 36px; border-radius: 8px; font-size: 1rem; margin-left: 0;">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <div>
+                                <h5 class="modal-title fw-bold text-dark">Detail KRS</h5>
+                                <small class="text-muted">Rincian mata kuliah pada KRS terpilih</small>
+                            </div>
+                        </div>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-                    <div class="modal-body">
+                    <div class="modal-body p-3 p-md-4">
                         <div class="row g-3 mb-3">
-                            <div class="col-md-3">
-                                <div class="summary-card">
-                                    <div class="summary-label">Semester</div>
-                                    <div class="summary-value" id="detailSemesterLabel">-</div>
+                            <div class="col-6 col-md-3">
+                                <div class="summary-stat-card">
+                                    <div class="stat-content">
+                                        <div class="stat-label">Semester</div>
+                                        <div class="stat-value" id="detailSemesterLabel">-</div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="col-md-3">
-                                <div class="summary-card">
-                                    <div class="summary-label">Status</div>
-                                    <div class="summary-value"><span id="detailStatusBadge"
-                                            class="badge bg-secondary badge-status">-</span></div>
+                            <div class="col-6 col-md-3">
+                                <div class="summary-stat-card stat-info">
+                                    <div class="stat-content">
+                                        <div class="stat-label">Status</div>
+                                        <div class="stat-value">
+                                            <span id="detailStatusBadge" class="badge badge-soft-info badge-status">-</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="col-md-3">
-                                <div class="summary-card">
-                                    <div class="summary-label">Total SKS</div>
-                                    <div class="summary-value" id="detailTotalSksLabel">0</div>
+                            <div class="col-6 col-md-3">
+                                <div class="summary-stat-card">
+                                    <div class="stat-content">
+                                        <div class="stat-label">Total SKS</div>
+                                        <div class="stat-value text-primary" id="detailTotalSksLabel">0</div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="col-md-3">
-                                <div class="summary-card">
-                                    <div class="summary-label">Mata Kuliah</div>
-                                    <div class="summary-value" id="detailTotalMkLabel">0</div>
+                            <div class="col-6 col-md-3">
+                                <div class="summary-stat-card stat-info">
+                                    <div class="stat-content">
+                                        <div class="stat-label">Jumlah MK</div>
+                                        <div class="stat-value text-info" id="detailTotalMkLabel">0</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="alert alert-info d-none" id="detailCatatanBox"></div>
+                        <div class="alert alert-info border-0 shadow-sm d-none mb-3 rounded-3" id="detailCatatanBox"></div>
 
-                        <div class="table-responsive">
-                            <table class="table table-bordered align-middle">
+                        <div class="table-responsive rounded-3 border">
+                            <table class="table table-krs align-middle">
                                 <thead>
                                     <tr>
-                                        <th width="5%">No</th>
+                                        <th width="5%" class="text-center">No</th>
                                         <th>Kode MK</th>
                                         <th>Mata Kuliah</th>
                                         <th>Kelas</th>
-                                        <th>SKS</th>
+                                        <th class="text-center">SKS</th>
                                         <th>Jadwal</th>
                                     </tr>
                                 </thead>
                                 <tbody id="detailCoursesBody">
                                     <tr>
-                                        <td colspan="6" class="text-center text-muted">Pilih riwayat KRS untuk melihat
-                                            detail.</td>
+                                        <td colspan="6" class="text-center text-muted py-4">Pilih riwayat KRS untuk melihat detail.</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -548,25 +784,25 @@
             const config = {
                 revised: {
                     text: 'Draft / Revisi',
-                    className: 'bg-warning text-dark'
+                    className: 'badge-soft-info'
                 },
                 pending: {
                     text: 'Menunggu Persetujuan',
-                    className: 'bg-info text-dark'
+                    className: 'badge-soft-primary'
                 },
                 approved: {
                     text: 'Disetujui',
-                    className: 'bg-success'
+                    className: 'badge-soft-primary'
                 },
                 rejected: {
                     text: 'Ditolak',
-                    className: 'bg-danger'
+                    className: 'badge-soft-secondary'
                 }
             };
 
             return config[status] || {
                 text: status || '-',
-                className: 'bg-secondary'
+                className: 'badge-soft-secondary'
             };
         }
 
@@ -634,11 +870,11 @@
             const maxSks = meta?.max_sks_allowed ?? currentKrs?.validation_summary?.max_sks_allowed ?? 0;
             const currentSks = meta?.current_sks ?? currentKrs?.total_sks ?? 0;
             const infoHtml = `
-                <div class="fw-semibold mb-2">Konteks Penawaran Manual</div>
-                <div class="small mb-1"><strong>Semester tempuh:</strong> ${escapeHtml(semesterTempuh)}</div>
-                <div class="small mb-1"><strong>Struktur kurikulum aktif:</strong> ${escapeHtml(formatOperationalCurriculumLabel(context))}</div>
-                <div class="small mb-1"><strong>SKS saat ini:</strong> ${escapeHtml(currentSks)} / ${escapeHtml(maxSks)}</div>
-                <div class="small text-muted">Jika paket otomatis belum lengkap, mata kuliah tetap bisa ditambahkan manual dari penawaran kelas yang sesuai semester tempuh.</div>
+                <div class="fw-bold text-dark mb-2"><i class="fas fa-info-circle text-primary me-1"></i> Konteks Penawaran Manual</div>
+                <div class="small mb-1 text-secondary"><strong>Semester tempuh:</strong> ${escapeHtml(semesterTempuh)}</div>
+                <div class="small mb-1 text-secondary"><strong>Struktur kurikulum aktif:</strong> ${escapeHtml(formatOperationalCurriculumLabel(context))}</div>
+                <div class="small mb-1 text-secondary"><strong>SKS saat ini:</strong> <span class="text-primary fw-bold">${escapeHtml(currentSks)}</span> / <span class="text-info fw-bold">${escapeHtml(maxSks)}</span></div>
+                <div class="small text-muted mt-2 pt-2 border-top">Jika paket otomatis belum lengkap, mata kuliah tetap bisa ditambahkan manual dari penawaran kelas yang sesuai semester tempuh.</div>
             `;
 
             $('#penawaranInfoBox').removeClass('d-none').html(infoHtml);
@@ -649,15 +885,15 @@
                 const map = {
                     paket: {
                         text: 'Paket',
-                        className: 'bg-primary'
+                        className: 'badge-soft-primary'
                     },
                     ulang: {
                         text: 'Ulang',
-                        className: 'bg-warning text-dark'
+                        className: 'badge-soft-info'
                     },
                     tambahan: {
                         text: 'Tambahan',
-                        className: 'bg-secondary'
+                        className: 'badge-soft-secondary'
                     }
                 };
 
@@ -671,20 +907,20 @@
             if (semesterNumber && semesterKe === Number(semesterNumber)) {
                 return {
                     text: 'Paket',
-                    className: 'bg-primary'
+                    className: 'badge-soft-primary'
                 };
             }
 
             if (semesterNumber && semesterKe > 0 && semesterKe < Number(semesterNumber)) {
                 return {
                     text: 'Ulang',
-                    className: 'bg-warning text-dark'
+                    className: 'badge-soft-info'
                 };
             }
 
             return {
                 text: 'Tambahan',
-                className: 'bg-secondary'
+                className: 'badge-soft-secondary'
             };
         }
 
@@ -695,20 +931,20 @@
             if (currentSemester > 0 && semesterKe === currentSemester) {
                 return {
                     text: 'Paket',
-                    className: 'bg-primary'
+                    className: 'badge-soft-primary'
                 };
             }
 
             if (currentSemester > 0 && semesterKe > 0 && semesterKe < currentSemester) {
                 return {
                     text: 'Ulang',
-                    className: 'bg-warning text-dark'
+                    className: 'badge-soft-info'
                 };
             }
 
             return {
                 text: 'Tambahan',
-                className: 'bg-secondary'
+                className: 'badge-soft-secondary'
             };
         }
 
@@ -754,51 +990,61 @@
             const hasAutomaticIssues = unresolvedCount > 0;
 
             $('#packageSummaryBox').html(`
-                <div class="fw-semibold mb-2">Ringkasan Paket Semester</div>
-                <div class="d-flex justify-content-between mb-1">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <i class="fas fa-cubes text-primary"></i>
+                    <span class="fw-bold text-dark">Ringkasan Paket Semester</span>
+                </div>
+                <div class="d-flex justify-content-between mb-1 small text-secondary">
                     <span>Semester tempuh</span>
-                    <span>${escapeHtml(summary?.semester_ke ?? semesterNumber ?? '-')}</span>
+                    <span class="fw-semibold text-dark">${escapeHtml(summary?.semester_ke ?? semesterNumber ?? '-')}</span>
                 </div>
-                <div class="d-flex justify-content-between mb-1">
+                <div class="d-flex justify-content-between mb-1 small text-secondary">
                     <span>Mata kuliah paket</span>
-                    <span>${escapeHtml(summary?.generated_count ?? 0)}</span>
+                    <span class="fw-semibold text-primary">${escapeHtml(summary?.generated_count ?? 0)}</span>
                 </div>
-                <div class="d-flex justify-content-between mb-1">
+                <div class="d-flex justify-content-between mb-1 small text-secondary">
                     <span>SKS paket</span>
-                    <span>${escapeHtml(summary?.generated_sks ?? 0)}</span>
+                    <span class="fw-semibold text-primary">${escapeHtml(summary?.generated_sks ?? 0)}</span>
                 </div>
-                <div class="d-flex justify-content-between mb-1">
+                <div class="d-flex justify-content-between mb-1 small text-secondary">
                     <span>Mata kuliah ulang di KRS</span>
-                    <span>${escapeHtml(summary?.repeat_count ?? 0)}</span>
+                    <span class="fw-semibold text-info">${escapeHtml(summary?.repeat_count ?? 0)}</span>
                 </div>
-                <div class="d-flex justify-content-between">
+                <div class="d-flex justify-content-between small text-secondary">
                     <span>SKS ulang di KRS</span>
-                    <span>${escapeHtml(summary?.repeat_sks ?? 0)}</span>
+                    <span class="fw-semibold text-info">${escapeHtml(summary?.repeat_sks ?? 0)}</span>
                 </div>
-                <hr class="my-2">
-                <div class="small ${hasAutomaticIssues ? 'text-warning' : 'text-success'}">
+                <hr class="my-2 border-light">
+                <div class="small ${hasAutomaticIssues ? 'text-info fw-semibold' : 'text-primary fw-semibold'}">
+                    <i class="fas ${hasAutomaticIssues ? 'fa-info-circle' : 'fa-check-circle'} me-1"></i>
                     ${hasAutomaticIssues
-                        ? 'Sebagian paket belum tergenerate otomatis. Anda masih bisa menambahkan mata kuliah manual dari penawaran kelas.'
-                        : 'Paket semester yang dapat digenerate otomatis sudah masuk ke draft KRS.'}
+                        ? 'Sebagian paket belum tergenerate otomatis. Anda dapat menambahkan mata kuliah manual dari penawaran kelas.'
+                        : 'Paket semester berhasil digenerate otomatis ke draft KRS.'}
                 </div>
             `);
 
             if (!Array.isArray(unresolvedPackageItems) || !unresolvedPackageItems.length) {
                 $('#packageIssueBox').html(`
-                    <div class="fw-semibold mb-2">Kendala Paket</div>
-                    <div class="text-success">Semua paket yang bisa digenerate sudah berhasil dimasukkan ke draft KRS.</div>
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <i class="fas fa-check-double text-info"></i>
+                        <span class="fw-bold text-dark">Status Paket</span>
+                    </div>
+                    <div class="text-info small"><i class="fas fa-check-circle me-1"></i>Semua paket kurikulum aktif yang tersedia sudah masuk ke draft KRS Anda.</div>
                 `);
                 return;
             }
 
             const items = unresolvedPackageItems.map(item => {
                 const title = item?.kode_mk ? `${item.kode_mk} - ${item.nama_mk}` : 'Item paket';
-                return `<li><strong>${escapeHtml(title)}</strong>: ${escapeHtml(item?.reason || 'Belum dapat digenerate')}</li>`;
+                return `<li class="small mb-1"><strong>${escapeHtml(title)}</strong>: <span class="text-muted">${escapeHtml(item?.reason || 'Belum dapat digenerate')}</span></li>`;
             }).join('');
 
             $('#packageIssueBox').html(`
-                <div class="fw-semibold mb-2">Kendala Paket</div>
-                <ul class="mb-0 ps-3">${items}</ul>
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <i class="fas fa-exclamation-circle text-info"></i>
+                    <span class="fw-bold text-dark">Catatan Paket</span>
+                </div>
+                <ul class="mb-0 ps-3 text-secondary">${items}</ul>
             `);
         }
 
@@ -854,55 +1100,92 @@
          */
         function renderValidationSummary(summary) {
             if (!summary) {
-                $('#validationBox').html('<div class="text-muted">Validasi belum tersedia.</div>');
+                $('#validationBox').html('<div class="text-muted text-center py-3">Validasi belum tersedia.</div>');
                 return;
             }
 
+            const currentSks = Number(summary.total_sks ?? 0);
+            const maxSks = Number(summary.max_sks_allowed ?? 1);
+            const percentage = Math.min(100, Math.round((currentSks / (maxSks || 1)) * 100));
+
             const checks = [{
                     label: 'Jumlah mata kuliah dipilih',
-                    value: summary.total_matkul ?? 0,
+                    value: `${summary.total_matkul ?? 0} MK`,
                     ok: summary.has_items
                 },
                 {
-                    label: 'Maksimal SKS',
-                    value: `${summary.total_sks ?? 0} / ${summary.max_sks_allowed ?? 0}`,
+                    label: 'Beban SKS saat ini',
+                    value: `${currentSks} / ${maxSks} SKS`,
                     ok: summary.max_sks_ok
                 },
                 {
-                    label: 'Bentrok jadwal',
-                    value: summary.schedule_conflict ? 'Ada bentrok' : 'Aman',
+                    label: 'Pemeriksaan bentrok jadwal',
+                    value: summary.schedule_conflict ? 'Ada bentrok' : 'Bebas bentrok',
                     ok: !summary.schedule_conflict
                 },
                 {
-                    label: 'Sisa SKS',
-                    value: summary.remaining_sks ?? 0,
+                    label: 'Sisa kuota SKS',
+                    value: `${summary.remaining_sks ?? 0} SKS`,
                     ok: true
                 }
             ];
 
-            let html = '<ul class="list-group list-group-flush">';
+            let html = `
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between small fw-bold text-secondary mb-1">
+                        <span>Penggunaan SKS</span>
+                        <span class="text-primary">${percentage}%</span>
+                    </div>
+                    <div class="progress" style="height: 8px; border-radius: 20px; background-color: #f1f5f9;">
+                        <div class="progress-bar bg-primary" role="progressbar" style="width: ${percentage}%; border-radius: 20px;" aria-valuenow="${percentage}" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </div>
+                <ul class="list-group list-group-flush border-top border-bottom my-3">
+            `;
+
             checks.forEach(item => {
+                const badgeClass = item.ok ? 'badge-soft-primary' : 'badge-soft-secondary';
+                const icon = item.ok ? '<i class="fas fa-check me-1"></i>' : '<i class="fas fa-clock me-1"></i>';
                 html += `
-                                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                            <div>${escapeHtml(item.label)}</div>
-                                            <div class="text-end">
-                                                <div>${escapeHtml(item.value)}</div>
-                                                <small class="${item.ok ? 'text-success' : 'text-danger'}">${item.ok ? 'OK' : 'Belum valid'}</small>
-                                            </div>
-                                        </li>
-                                    `;
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2 border-light">
+                        <div class="small text-secondary">${escapeHtml(item.label)}</div>
+                        <div class="text-end">
+                            <div class="small fw-bold text-dark">${escapeHtml(item.value)}</div>
+                            <span class="badge ${badgeClass} badge-status mt-1" style="font-size: 0.72rem; padding: 0.25em 0.65em;">${icon}${item.ok ? 'OK' : 'Periksa'}</span>
+                        </div>
+                    </li>
+                `;
             });
             html += '</ul>';
 
             if (summary.can_submit) {
-                html += '<div class="alert alert-success mt-3 mb-0">KRS sudah valid dan siap diajukan.</div>';
+                html += `
+                    <div class="alert alert-info border-0 shadow-sm mt-3 mb-0 p-3 rounded-3 d-flex align-items-center">
+                        <i class="fas fa-check-circle text-primary fa-lg me-2"></i>
+                        <div>
+                            <div class="fw-bold text-primary">KRS Siap Diajukan</div>
+                            <small class="text-secondary">Semua kriteria validasi telah terpenuhi.</small>
+                        </div>
+                    </div>
+                `;
             } else {
-                html +=
-                    '<div class="alert alert-warning mt-3 mb-0">KRS belum dapat diajukan. Lengkapi validasinya terlebih dahulu.</div>';
+                html += `
+                    <div class="alert alert-info border-0 shadow-sm mt-3 mb-0 p-3 rounded-3 d-flex align-items-center">
+                        <i class="fas fa-info-circle text-info fa-lg me-2"></i>
+                        <div>
+                            <div class="fw-bold text-info">Belum Dapat Diajukan</div>
+                            <small class="text-secondary">Pastikan mata kuliah dipilih dan tidak ada bentrok.</small>
+                        </div>
+                    </div>
+                `;
             }
 
             if (summary.is_sks_override) {
-                html += `<div class="alert alert-info mt-3 mb-0">Batas maksimal SKS telah dioverride. Alasan: ${escapeHtml(summary.sks_override_reason || 'Override administratif')}</div>`;
+                html += `
+                    <div class="alert alert-info border-0 shadow-sm mt-2 mb-0 p-2 small rounded-3">
+                        <i class="fas fa-shield-alt text-primary me-1"></i> <strong>Batas SKS dioverride:</strong> ${escapeHtml(summary.sks_override_reason || 'Override administratif')}
+                    </div>
+                `;
             }
 
             $('#validationBox').html(html);
@@ -917,10 +1200,10 @@
 
             if (!details.length) {
                 $('#selectedCoursesBody').html(`
-                                        <tr>
-                                            <td colspan="8" class="text-center text-muted">Belum ada mata kuliah yang dipilih.</td>
-                                        </tr>
-                                    `);
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-4">Belum ada mata kuliah yang dipilih.</td>
+                    </tr>
+                `);
                 return;
             }
 
@@ -932,25 +1215,25 @@
                 const jadwalList = kelas?.jadwal || [];
                 const category = getCourseCategory(detail, currentSemesterNumber);
                 const jadwalText = jadwalList.length ?
-                    jadwalList.map(j => `${j.hari}, ${j.jam_mulai} - ${j.jam_selesai}`).join('<br>') :
-                    '-';
+                    jadwalList.map(j => `<span class="badge bg-light text-dark border me-1"><i class="far fa-clock text-info me-1"></i>${j.hari}, ${j.jam_mulai} - ${j.jam_selesai}</span>`).join(' ') :
+                    '<span class="text-muted">-</span>';
 
                 const removeButton = krs.can_edit ?
-                    `<button class="btn btn-sm btn-outline-danger" onclick="removeCourse('${krs.id}', '${kelas?.id}')"><i class="fas fa-trash"></i></button>` :
+                    `<button class="btn btn-sm btn-outline-danger rounded-circle p-1" style="width: 28px; height: 28px; line-height: 1;" title="Hapus mata kuliah" onclick="removeCourse('${krs.id}', '${kelas?.id}')"><i class="fas fa-times fa-xs"></i></button>` :
                     '<span class="text-muted">-</span>';
 
                 rows += `
-                                        <tr>
-                                            <td>${index + 1}</td>
-                                            <td>${escapeHtml(mk?.kode_mk)}</td>
-                                            <td>${escapeHtml(mk?.nama_mk)}</td>
-                                            <td>${escapeHtml(kelas?.nama_kelas)}</td>
-                                            <td>${escapeHtml(mk?.sks ?? 0)}</td>
-                                            <td><span class="badge ${category.className}">${escapeHtml(category.text)}</span></td>
-                                            <td>${jadwalText}</td>
-                                            <td class="text-center">${removeButton}</td>
-                                        </tr>
-                                    `;
+                    <tr>
+                        <td class="text-center text-muted fw-semibold">${index + 1}</td>
+                        <td class="fw-bold font-monospace text-primary">${escapeHtml(mk?.kode_mk)}</td>
+                        <td class="fw-semibold text-dark">${escapeHtml(mk?.nama_mk)}</td>
+                        <td><span class="badge bg-light text-dark border">${escapeHtml(kelas?.nama_kelas)}</span></td>
+                        <td class="text-center fw-bold text-dark">${escapeHtml(mk?.sks ?? 0)}</td>
+                        <td class="text-center"><span class="badge ${category.className} badge-status">${escapeHtml(category.text)}</span></td>
+                        <td>${jadwalText}</td>
+                        <td class="text-center">${removeButton}</td>
+                    </tr>
+                `;
             });
 
             $('#selectedCoursesBody').html(rows);
@@ -992,23 +1275,22 @@
             items.forEach((item, index) => {
                 const semesterLabel = item.semester_aktif || '-';
 
-                const status = statusConfig(item.status_approval);
                 const printButton = item.status_approval === 'approved' ?
-                    `<button class="btn btn-sm btn-outline-success ms-1" onclick="printKrs('${item.id}')">
+                    `<button class="btn btn-sm btn-outline-info rounded-pill px-3" onclick="printKrs('${item.id}')">
                         <i class="fas fa-print me-1"></i>Cetak
                     </button>` :
                     '';
 
                 rows += `
                     <tr>
-                        <td>${index + 1}</td>
-                        <td>${escapeHtml(formatSemester(semesterLabel))}</td>
-                        <td><span class="badge ${status.className} badge-status">${escapeHtml(status.text)}</span></td>
-                        <td>${escapeHtml(item.total_sks ?? 0)}</td>
-                        <td>${escapeHtml(item.catatan || '-')}</td>
+                        <td class="text-center text-muted fw-semibold">${index + 1}</td>
+                        <td class="fw-semibold text-dark">${escapeHtml(formatSemester(semesterLabel))}</td>
+                        <td class="text-center"><span class="badge ${status.className} badge-status">${escapeHtml(status.text)}</span></td>
+                        <td class="text-center fw-bold text-primary">${escapeHtml(item.total_sks ?? 0)}</td>
+                        <td class="small text-secondary">${escapeHtml(item.catatan || '-')}</td>
                         <td class="text-center">
                             <div class="d-flex justify-content-center gap-2 flex-wrap">
-                                <button class="btn btn-sm btn-outline-primary" onclick="showHistoryDetail('${item.id}')">
+                                <button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="showHistoryDetail('${item.id}')">
                                     <i class="fas fa-eye me-1"></i>Detail
                                 </button>
                                 ${printButton}
@@ -1059,11 +1341,11 @@
 
                 rows += `
                     <tr>
-                        <td>${index + 1}</td>
-                        <td>${escapeHtml(mk?.kode_mk)}</td>
-                        <td>${escapeHtml(mk?.nama_mk)}</td>
-                        <td>${escapeHtml(kelas?.nama_kelas)}</td>
-                        <td>${escapeHtml(mk?.sks ?? 0)}</td>
+                        <td class="text-center text-muted fw-semibold">${index + 1}</td>
+                        <td class="fw-bold font-monospace text-primary">${escapeHtml(mk?.kode_mk)}</td>
+                        <td class="fw-semibold text-dark">${escapeHtml(mk?.nama_mk)}</td>
+                        <td><span class="badge bg-light text-dark border">${escapeHtml(kelas?.nama_kelas)}</span></td>
+                        <td class="text-center fw-bold text-dark">${escapeHtml(mk?.sks ?? 0)}</td>
                         <td>${jadwalText}</td>
                     </tr>
                 `;
@@ -1102,7 +1384,7 @@
             }
 
             if (!currentKrs) {
-                $('#statusBadge').attr('class', 'badge bg-secondary badge-status').text('Belum Ada KRS');
+                $('#statusBadge').attr('class', 'badge badge-soft-secondary badge-status').text('Belum Ada KRS');
                 $('#totalSksLabel').text('0');
                 $('#maxSksLabel').text('0');
                 $('#krsMetaInfo').removeClass('d-none');
@@ -1179,21 +1461,32 @@
          * @param {string} message
          * @param {string} type
          */
+        // Modern Toast Notification Instance
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3500,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer);
+                toast.addEventListener('mouseleave', Swal.resumeTimer);
+            }
+        });
+
         function notify(message, type = 'info') {
-            const alertClass = {
-                success: 'alert-success',
-                danger: 'alert-danger',
-                warning: 'alert-warning',
-                info: 'alert-info'
-            } [type] || 'alert-info';
+            const iconMap = {
+                success: 'success',
+                danger: 'error',
+                error: 'error',
+                warning: 'warning',
+                info: 'info'
+            };
 
-            const html =
-                `<div class="alert ${alertClass} alert-dismissible fade show" role="alert">${escapeHtml(message)}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>`;
-            $('.page-inner').prepend(html);
-
-            setTimeout(() => {
-                $('.page-inner .alert').first().alert('close');
-            }, 4000);
+            Toast.fire({
+                icon: iconMap[type] || 'info',
+                title: message
+            });
         }
 
         // ================================
@@ -1404,28 +1697,28 @@
 
                 let statusHtml = '';
                 if (item.is_transferred) {
-                    statusHtml = `<span class="badge bg-info text-dark"><i class="fas fa-check-circle me-1"></i>Diakui Konversi (${escapeHtml(item.nilai_transfer || 'A')})</span>`;
+                    statusHtml = `<span class="badge badge-soft-info badge-status"><i class="fas fa-check-circle me-1"></i>Konversi (${escapeHtml(item.nilai_transfer || 'A')})</span>`;
                 } else if (item.is_available) {
-                    statusHtml = '<span class="badge bg-success">Tersedia</span>';
+                    statusHtml = '<span class="badge badge-soft-primary badge-status"><i class="fas fa-check me-1"></i>Tersedia</span>';
                 } else {
-                    statusHtml = `<span class="badge bg-secondary">${escapeHtml(item.availability_reason || 'Tidak tersedia')}</span>`;
+                    statusHtml = `<span class="badge badge-soft-secondary badge-status">${escapeHtml(item.availability_reason || 'Tidak tersedia')}</span>`;
                 }
 
                 const addButton = item.is_available ?
-                    `<button class="btn btn-sm btn-primary" onclick="addCourse('${item.id}')"><i class="fas fa-plus me-1"></i>Tambah</button>` :
-                    '<button class="btn btn-sm btn-outline-secondary" disabled>Tidak Bisa</button>';
+                    `<button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="addCourse('${item.id}')"><i class="fas fa-plus me-1"></i>Pilih</button>` :
+                    '<button class="btn btn-sm btn-outline-secondary rounded-pill px-2" disabled>Penuh</button>';
 
                 rows += `
                     <tr>
-                        <td>${index + 1}</td>
-                        <td>${escapeHtml(item.kode_mk)}</td>
-                        <td>${escapeHtml(item.mata_kuliah)}</td>
-                        <td>${escapeHtml(item.nama_kelas)}</td>
-                        <td><span class="badge ${category.className}">${escapeHtml(category.text)}</span></td>
-                        <td>${escapeHtml(item.semester_ke ?? '-')}</td>
-                        <td>${escapeHtml(item.sks)}</td>
+                        <td class="text-center text-muted fw-semibold">${index + 1}</td>
+                        <td class="fw-bold font-monospace text-primary">${escapeHtml(item.kode_mk)}</td>
+                        <td class="fw-semibold text-dark">${escapeHtml(item.mata_kuliah)}</td>
+                        <td><span class="badge bg-light text-dark border">${escapeHtml(item.nama_kelas)}</span></td>
+                        <td class="text-center"><span class="badge ${category.className} badge-status">${escapeHtml(category.text)}</span></td>
+                        <td class="text-center fw-semibold">${escapeHtml(item.semester_ke ?? '-')}</td>
+                        <td class="text-center fw-bold text-dark">${escapeHtml(item.sks)}</td>
                         <td>${jadwalText}</td>
-                        <td>${statusHtml}</td>
+                        <td class="text-center">${statusHtml}</td>
                         <td class="text-center">${addButton}</td>
                     </tr>
                 `;

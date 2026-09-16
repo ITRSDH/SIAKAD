@@ -185,8 +185,33 @@
     <!-- Datatables -->
     <script src="{{ asset('') }}template/assets/js/plugin/datatables/datatables.min.js"></script>
 
-    <!-- Bootstrap Notify -->
-    <script src="{{ asset('') }}template/assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js"></script>
+    <!-- Sweet Alert 2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        window.Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3500,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer);
+                toast.addEventListener('mouseleave', Swal.resumeTimer);
+            }
+        });
+
+        window.notify = function(message, type = 'info') {
+            let icon = type;
+            if (type === 'danger') icon = 'error';
+            if (!['success', 'error', 'warning', 'info', 'question'].includes(icon)) {
+                icon = 'info';
+            }
+            window.Toast.fire({
+                icon: icon,
+                title: message
+            });
+        };
+    </script>
 
     @stack('scripts-custom')
 
@@ -307,11 +332,30 @@
                 });
         }
 
-        // Jalankan saat halaman dimuat jika token ada
-        if (window.Laravel.accessToken && window.Laravel.expiresAt) {
-            scheduleTokenRefresh();
         }
     </script> --}}
+
+    {{-- Global Flash Message Toaster --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            @if (session('success'))
+                window.notify({!! json_encode(session('success')) !!}, 'success');
+            @endif
+            @if (session('error'))
+                window.notify({!! json_encode(session('error')) !!}, 'error');
+            @endif
+            @if (session('warning'))
+                window.notify({!! json_encode(session('warning')) !!}, 'warning');
+            @endif
+            @if (session('info'))
+                window.notify({!! json_encode(session('info')) !!}, 'info');
+            @endif
+            @if (isset($errors) && is_object($errors) && method_exists($errors, 'any') && $errors->any())
+                const errList = {!! json_encode($errors->all()) !!};
+                window.notify(errList.join('<br>'), 'error');
+            @endif
+        });
+    </script>
 </body>
 
 </html>

@@ -157,17 +157,11 @@
         }
 
         function notify(message, type = 'info') {
-            const alertClass = {
-                success: 'alert-success',
-                danger: 'alert-danger',
-                warning: 'alert-warning',
-                info: 'alert-info'
-            }[type] || 'alert-info';
-
-            const html = `<div class="alert ${alertClass} alert-dismissible fade show" role="alert">${escapeHtml(message)}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>`;
-            $('.page-inner').prepend(html);
-
-            setTimeout(() => $('.page-inner .alert').first().alert('close'), 4000);
+            if (window.notify) {
+                window.notify(message, type);
+            } else {
+                alert(message);
+            }
         }
 
         function statusBadge(status) {

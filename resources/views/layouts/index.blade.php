@@ -234,6 +234,28 @@
     <!-- Script tambahan -->
     <script>
         $(document).ready(function() {
+            // Setup CSRF Token untuk seluruh request AJAX jQuery
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+
+            // Global Handler untuk Session Expired / CSRF Token Mismatch (HTTP 419)
+            $(document).ajaxError(function(event, xhr, settings) {
+                if (xhr.status === 419) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Sesi Telah Berakhir',
+                        html: 'Sesi login Anda telah berakhir atau token keamanan kedaluwarsa.<br>Silakan muat ulang halaman untuk memperbarui sesi.',
+                        confirmButtonText: '<i class="fas fa-sync-alt me-1"></i> Muat Ulang Halaman',
+                        allowOutsideClick: false
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                }
+            });
+
             // Aktifkan Select2 untuk elemen dengan class .select2.
             // Lewati yang sudah terinisialisasi (mis. di dalam modal yang sudah
             // dikonfigurasi dropdownParent/minimumResultsForSearch) agar

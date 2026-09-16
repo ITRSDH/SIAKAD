@@ -1530,6 +1530,29 @@
                     return;
                 }
 
+                const prodiId = $('#importProdi').val();
+                if (!prodiId) {
+                    Swal.fire('Perhatian', 'Pilih Program Studi terlebih dahulu.', 'warning');
+                    return;
+                }
+
+                const fileInput = $('#importFile')[0];
+                if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+                    Swal.fire('Perhatian', 'Pilih file yang akan diimport.', 'warning');
+                    return;
+                }
+
+                const file = fileInput.files[0];
+                const fileSizeMB = file.size / (1024 * 1024);
+                if (fileSizeMB > 10) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'File Terlalu Besar',
+                        text: `Ukuran file (${fileSizeMB.toFixed(2)} MB) melebihi batas maksimal 10 MB.`
+                    });
+                    return;
+                }
+
                 const formData = new FormData(this);
                 const submitBtn = $('#submitImportBtn');
                 importRequestInProgress = true;
@@ -1539,10 +1562,12 @@
                     '<i class="fas fa-spinner fa-spin me-1"></i>Mengimport...');
 
                 $.ajax({
-                    url: "{{ route('mahasiswa.import', ':id_prodi') }}".replace(':id_prodi', $(
-                        '#importProdi').val()),
+                    url: "{{ route('mahasiswa.import', ':id_prodi') }}".replace(':id_prodi', prodiId),
                     type: 'POST',
                     data: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
                     processData: false,
                     contentType: false,
                     success: function(res) {
@@ -1567,6 +1592,19 @@
                         }
                     },
                     error: function(xhr) {
+                        if (xhr.status === 419) {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Sesi Telah Berakhir',
+                                html: 'Sesi browser Anda telah kedaluwarsa atau token keamanan tidak valid.<br>Halaman akan dimuat ulang untuk memperbarui sesi.',
+                                confirmButtonText: '<i class="fas fa-sync-alt me-1"></i> Muat Ulang Halaman',
+                                allowOutsideClick: false
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                            return;
+                        }
+
                         let errorMessage = 'Terjadi kesalahan saat import';
 
                         if (xhr.responseJSON) {

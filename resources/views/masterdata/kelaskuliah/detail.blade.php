@@ -571,6 +571,13 @@
                                                     <span class="peserta-krs-filter-summary" id="pesertaKrsFilterSummary">
                                                         Menampilkan semua angkatan.
                                                     </span>
+                                                    <select class="form-select peserta-krs-filter" id="pesertaKrsStatusFilter" style="width: auto; min-width: 155px;">
+                                                        <option value="aktif" {{ ($statusMahasiswa ?? 'aktif') === 'aktif' ? 'selected' : '' }}>Status: Aktif</option>
+                                                        <option value="all" {{ ($statusMahasiswa ?? 'aktif') === 'all' ? 'selected' : '' }}>Status: Semua</option>
+                                                        <option value="cuti" {{ ($statusMahasiswa ?? '') === 'cuti' ? 'selected' : '' }}>Status: Cuti</option>
+                                                        <option value="lulus" {{ ($statusMahasiswa ?? '') === 'lulus' ? 'selected' : '' }}>Status: Lulus</option>
+                                                        <option value="do" {{ ($statusMahasiswa ?? '') === 'do' ? 'selected' : '' }}>Status: DO</option>
+                                                    </select>
                                                     <select class="form-select peserta-krs-filter" id="pesertaKrsAngkatanFilter">
                                                         <option value="">Semua angkatan</option>
                                                         @foreach (collect($krsCandidates ?? [])->pluck('angkatan')->filter()->unique()->sortDesc()->values() as $angkatanOption)
@@ -863,13 +870,13 @@
             function updatePesertaFilterSummary() {
                 const keyword = ($pesertaSearch.val() || '').trim();
                 const angkatan = ($pesertaAngkatanFilter.val() || '').trim();
-
-                if (!keyword && !angkatan) {
-                    $pesertaFilterSummary.text('Menampilkan semua angkatan.');
-                    return;
-                }
+                const statusText = $('#pesertaKrsStatusFilter option:selected').text();
 
                 const parts = [];
+
+                if (statusText) {
+                    parts.push(statusText);
+                }
 
                 if (angkatan) {
                     parts.push(`Angkatan ${angkatan}`);
@@ -1125,10 +1132,46 @@
             $pesertaSearch.on('input', filterPesertaKrs);
             $pesertaAngkatanFilter.on('change', filterPesertaKrs);
 
+            $('#pesertaKrsStatusFilter').on('change', function() {
+                const selectedStatus = $(this).val();
+                const url = new URL(window.location.href);
+                url.searchParams.set('status_mahasiswa', selectedStatus);
+                url.hash = 'mahasiswa';
+                window.location.href = url.toString();
+            });
+
             $pesertaResetFilterBtn.on('click', function() {
                 $pesertaSearch.val('');
                 $pesertaAngkatanFilter.val('');
                 filterPesertaKrs();
+
+                const currentStatus = $('#pesertaKrsStatusFilter').val();
+                if (currentStatus !== 'aktif') {
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('status_mahasiswa', 'aktif');
+                    url.hash = 'mahasiswa';
+                    window.location.href = url.toString();
+                }
+            });
+
+            // Aktifkan tab sesuai hash URL jika ada (misal #mahasiswa)
+            const currentHash = window.location.hash;
+            if (currentHash) {
+                const targetTabTrigger = document.querySelector(`a[href="${currentHash}"]`);
+                if (targetTabTrigger && window.bootstrap && window.bootstrap.Tab) {
+                    const tabInstance = bootstrap.Tab.getOrCreateInstance(targetTabTrigger);
+                    tabInstance.show();
+                }
+            }
+
+            // Simpan hash saat tab diganti
+            $('a[data-bs-toggle="pill"]').on('shown.bs.tab', function(e) {
+                const targetHref = $(e.target).attr('href');
+                if (targetHref && window.history.replaceState) {
+                    const url = new URL(window.location.href);
+                    url.hash = targetHref;
+                    window.history.replaceState(null, '', url.toString());
+                }
             });
         });
 

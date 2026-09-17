@@ -68,7 +68,7 @@ class KelaskuliahController extends Controller
         }
     }
 
-    public function detail(DropdownService $dropdownService, $id)
+    public function detail(Request $request, DropdownService $dropdownService, $id)
     {
         try {
             // Ambil data kelas-kuliah dari API
@@ -79,9 +79,11 @@ class KelaskuliahController extends Controller
                 return back()->withErrors('Gagal mengambil data dari API');
             }
 
+            $statusMahasiswa = $request->query('status_mahasiswa', 'aktif');
+
             $kelaskuliah = $response->json('data');
             $pesertaKrs = $this->fetchPesertaKrsByKelas($id);
-            $krsCandidates = $this->fetchKrsCandidatesByKelas($id);
+            $krsCandidates = $this->fetchKrsCandidatesByKelas($id, $statusMahasiswa);
 
             $dropdown = $dropdownService->get('prodi,semester,kurikulum_matakuliah');
 
@@ -90,6 +92,7 @@ class KelaskuliahController extends Controller
                 'pesertaKrs' => $pesertaKrs,
                 'krsCandidates' => $krsCandidates['rows'],
                 'krsCandidateSummary' => $krsCandidates['summary'],
+                'statusMahasiswa' => $statusMahasiswa,
                 'prodi' => $dropdown['prodi'] ?? [],
                 'semester' => $dropdown['semester'] ?? [],
                 'kurikulum_matakuliah' => $dropdown['kurikulum_matakuliah'] ?? [],
@@ -292,7 +295,7 @@ class KelaskuliahController extends Controller
             $message .= '.';
 
             return redirect()
-                ->route('kelas-kuliah.detail', $id)
+                ->to(route('kelas-kuliah.detail', $id).'#mahasiswa')
                 ->with('success', $message);
         } catch (\Exception $e) {
             return back()->withErrors($e->getMessage());
@@ -346,12 +349,14 @@ class KelaskuliahController extends Controller
         }
     }
 
-    private function fetchKrsCandidatesByKelas(string $kelasKuliahId): array
+    private function fetchKrsCandidatesByKelas(string $kelasKuliahId, string $status = 'aktif'): array
     {
         try {
             $response = Http::withToken($this->apiToken)
                 ->acceptJson()
-                ->get($this->apiUrl."kelas-kuliah/{$kelasKuliahId}/krs-candidates");
+                ->get($this->apiUrl."kelas-kuliah/{$kelasKuliahId}/krs-candidates", [
+                    'status' => $status,
+                ]);
 
             if (! $response->successful()) {
                 return [

@@ -89,11 +89,21 @@
                                 </select>
                             </div>
                             <div class="col-md-2">
+                                <label for="filterStatusMahasiswa" class="form-label">Status Mahasiswa</label>
+                                <select id="filterStatusMahasiswa" class="form-control">
+                                    <option value="Aktif" selected>Aktif</option>
+                                    <option value="">Semua Status</option>
+                                    <option value="Cuti">Cuti</option>
+                                    <option value="Lulus">Lulus</option>
+                                    <option value="DO">DO</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
                                 <label for="filterAngkatanMahasiswa" class="form-label">Filter Angkatan</label>
                                 <input type="number" id="filterAngkatanMahasiswa" class="form-control"
                                     placeholder="Contoh: 2024" min="1900" max="{{ date('Y') + 10 }}">
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <label for="filterJalurMahasiswa" class="form-label">Jalur Pendaftaran</label>
                                 <select id="filterJalurMahasiswa" class="form-control">
                                     <option value="">Semua Jalur (Reguler & RPL)</option>
@@ -102,7 +112,7 @@
                                     <option value="Pindahan">Pindahan</option>
                                 </select>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <div class="d-flex flex-wrap gap-2">
                                     <button type="button" class="btn btn-outline-primary btn-sm"
                                         id="selectFilteredMahasiswaBtn">
@@ -125,7 +135,7 @@
                             <div id="bulkSelectionInfoMahasiswa" class="mb-0 text-muted">
                                 Belum ada mahasiswa yang dipilih.
                             </div>
-                            <small class="text-muted">Gunakan filter prodi, angkatan, dan jalur untuk memudahkan pencarian.</small>
+                            <small class="text-muted">Gunakan filter prodi, status, angkatan, dan jalur untuk memudahkan pencarian.</small>
                         </div>
 
                         <div class="table-responsive">
@@ -780,15 +790,18 @@
 
             function getFilteredMahasiswaData() {
                 const prodiId = $('#filterProdiMahasiswa').val();
+                const status = ($('#filterStatusMahasiswa').val() || '').trim();
                 const angkatan = ($('#filterAngkatanMahasiswa').val() || '').trim();
                 const jalur = $('#filterJalurMahasiswa').val();
 
                 return mahasiswa.filter(row => {
                     const matchProdi = !prodiId || row.id_prodi === prodiId;
+                    const rowStatus = String(row.status || 'Aktif').trim();
+                    const matchStatus = !status || rowStatus.toLowerCase() === status.toLowerCase();
                     const matchAngkatan = !angkatan || String(row.angkatan ?? '') === angkatan;
                     const rowJalur = row.jenis_pendaftaran || 'Reguler';
                     const matchJalur = !jalur || rowJalur === jalur;
-                    return matchProdi && matchAngkatan && matchJalur;
+                    return matchProdi && matchStatus && matchAngkatan && matchJalur;
                 });
             }
 
@@ -931,7 +944,7 @@
                 syncBulkSelectionInfo(filteredRows);
             }
 
-            $('#filterProdiMahasiswa, #filterAngkatanMahasiswa, #filterJalurMahasiswa').on('change keyup', function() {
+            $('#filterProdiMahasiswa, #filterStatusMahasiswa, #filterAngkatanMahasiswa, #filterJalurMahasiswa').on('change keyup', function() {
                 refreshMahasiswaTable();
             });
 
@@ -1144,52 +1157,52 @@
                         // Tab 1: Biodata
                         nim: $('#nim').val(),
                         nik: $('#nik').val(),
-                        nisn: $('#nisn').val(),
+                        nisn: $('#nisn').val() || null,
                         nama_mahasiswa: $('#nama_mahasiswa').val(),
                         jenis_kelamin: $('#jenis_kelamin').val(),
                         agama: $('#agama').val(),
-                        tempat_lahir: $('#tempat_lahir').val(),
-                        tanggal_lahir: $('#tanggal_lahir').val(),
-                        handphone: $('#handphone').val(),
-                        email: $('#email').val(),
-                        email_pribadi: $('#email_pribadi').val(),
-                        password: $('#password').val(),
+                        tempat_lahir: $('#tempat_lahir').val() || null,
+                        tanggal_lahir: $('#tanggal_lahir').val() || null,
+                        handphone: $('#handphone').val() || null,
+                        email: $('#email').val() || null,
+                        email_pribadi: $('#email_pribadi').val() || null,
+                        password: $('#password').val() || null,
 
                         // Tab 2: Domisili & Kontak
-                        alamat: $('#alamat_jalan').val() || '',
-                        alamat_jalan: $('#alamat_jalan').val(),
-                        rt: $('#rt').val(),
-                        rw: $('#rw').val(),
-                        kelurahan: $('#kelurahan').val(),
-                        id_wilayah: $('#id_wilayah').val(),
-                        kode_pos: $('#kode_pos').val(),
+                        alamat: $('#alamat_jalan').val() || null,
+                        alamat_jalan: $('#alamat_jalan').val() || null,
+                        rt: $('#rt').val() || null,
+                        rw: $('#rw').val() || null,
+                        kelurahan: $('#kelurahan').val() || null,
+                        id_wilayah: $('#id_wilayah').val() || null,
+                        kode_pos: $('#kode_pos').val() || null,
 
                         // Tab 3: Orang Tua & Wali
-                        nama_ibu_kandung: $('#nama_ibu_kandung').val(),
-                        nik_ibu: $('#nik_ibu').val(),
-                        pendidikan_ibu: $('#pendidikan_ibu').val(),
-                        pekerjaan_ibu: $('#pekerjaan_ibu').val(),
-                        penghasilan_ibu: $('#penghasilan_ibu').val(),
-                        nama_ayah: $('#nama_ayah').val(),
-                        nik_ayah: $('#nik_ayah').val(),
-                        pendidikan_ayah: $('#pendidikan_ayah').val(),
-                        pekerjaan_ayah: $('#pekerjaan_ayah').val(),
-                        penghasilan_ayah: $('#penghasilan_ayah').val(),
-                        nama_wali: $('#nama_wali').val(),
-                        pendidikan_wali: $('#pendidikan_wali').val(),
-                        pekerjaan_wali: $('#pekerjaan_wali').val(),
-                        penghasilan_wali: $('#penghasilan_wali').val(),
+                        nama_ibu_kandung: $('#nama_ibu_kandung').val() || null,
+                        nik_ibu: $('#nik_ibu').val() || null,
+                        pendidikan_ibu: $('#pendidikan_ibu').val() || null,
+                        pekerjaan_ibu: $('#pekerjaan_ibu').val() || null,
+                        penghasilan_ibu: $('#penghasilan_ibu').val() || null,
+                        nama_ayah: $('#nama_ayah').val() || null,
+                        nik_ayah: $('#nik_ayah').val() || null,
+                        pendidikan_ayah: $('#pendidikan_ayah').val() || null,
+                        pekerjaan_ayah: $('#pekerjaan_ayah').val() || null,
+                        penghasilan_ayah: $('#penghasilan_ayah').val() || null,
+                        nama_wali: $('#nama_wali').val() || null,
+                        pendidikan_wali: $('#pendidikan_wali').val() || null,
+                        pekerjaan_wali: $('#pekerjaan_wali').val() || null,
+                        penghasilan_wali: $('#penghasilan_wali').val() || null,
 
                         // Tab 4: Akademik & RPL
                         id_prodi: $('#id_prodi').val(),
-                        angkatan: $('#angkatan').val(),
+                        angkatan: $('#angkatan').val() || null,
                         status: $('#status').val(),
-                        tanggal_masuk: $('#tanggal_masuk').val(),
+                        tanggal_masuk: $('#tanggal_masuk').val() || null,
                         jenis_pendaftaran: $('#jenis_pendaftaran').val(),
-                        jalur_masuk: $('#jalur_masuk').val(),
-                        perguruan_tinggi_asal: $('#perguruan_tinggi_asal').val(),
-                        prodi_asal: $('#prodi_asal').val(),
-                        sks_diakui: $('#sks_diakui').val()
+                        jalur_masuk: $('#jalur_masuk').val() || null,
+                        perguruan_tinggi_asal: $('#perguruan_tinggi_asal').val() || null,
+                        prodi_asal: $('#prodi_asal').val() || null,
+                        sks_diakui: $('#sks_diakui').val() || 0
                     },
                     success: res => {
                         Swal.fire({
@@ -1205,7 +1218,19 @@
                     error: err => {
                         const response = err.responseJSON || {};
                         const backendErrors = response.errors?.errors || response.errors || {};
-                        const firstError = Object.values(backendErrors).flat?.()[0] || Object.values(backendErrors)[0];
+                        let firstError = null;
+                        if (typeof backendErrors === 'object' && backendErrors !== null) {
+                            for (const val of Object.values(backendErrors)) {
+                                if (Array.isArray(val) && typeof val[0] === 'string') {
+                                    firstError = val[0];
+                                    break;
+                                } else if (typeof val === 'string' && val.length > 0) {
+                                    firstError = val;
+                                    break;
+                                }
+                            }
+                        }
+
                         applyFormErrors({
                             nim: '#nim',
                             nik: '#nik',
@@ -1235,8 +1260,10 @@
                             jenis_pendaftaran: '#jenis_pendaftaran',
                             sks_diakui: '#sks_diakui'
                         }, backendErrors);
-                        Swal.fire('Gagal', firstError || response.message ||
-                            'Terjadi kesalahan saat menyimpan data.', 'error');
+
+                        const alertMsg = firstError || response.error || response.message ||
+                            'Terjadi kesalahan saat menyimpan data.';
+                        Swal.fire('Gagal', alertMsg, 'error');
                     },
                     complete: () => {
                         // Enable button kembali
@@ -1429,10 +1456,12 @@
             // Export Data Mahasiswa
             $('#exportMahasiswaBtn').on('click', function() {
                 const prodiId = $('#filterProdiMahasiswa').val();
+                const status = $('#filterStatusMahasiswa').val();
                 const jalur = $('#filterJalurMahasiswa').val();
                 let url = "{{ route('mahasiswa.export.data') }}";
                 const params = new URLSearchParams();
                 if (prodiId) params.append('id_prodi', prodiId);
+                if (status) params.append('status', status);
                 if (jalur) params.append('jenis_pendaftaran', jalur);
                 const queryString = params.toString();
                 if (queryString) {

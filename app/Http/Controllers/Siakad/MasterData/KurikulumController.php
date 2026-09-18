@@ -354,7 +354,15 @@ class KurikulumController extends Controller
     {
         try {
             $response = Http::withToken($this->apiToken)
+                ->acceptJson()
                 ->delete($this->apiUrl."kurikulum/{$id_kurikulum}/mata-kuliah/{$id_mata_kuliah}");
+
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => $response->successful(),
+                    'message' => $response->json('message') ?? ($response->successful() ? 'Mata kuliah berhasil dihapus.' : 'Gagal menghapus mata kuliah.'),
+                ], $response->status());
+            }
 
             if ($response->successful()) {
                 return redirect()->back()->with('success', 'Mata kuliah berhasil dihapus.');
@@ -362,6 +370,13 @@ class KurikulumController extends Controller
 
             return back()->withErrors($response->json('message', 'Gagal menghapus mata kuliah.'));
         } catch (\Exception $e) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                ], 500);
+            }
+
             return back()->withErrors($e->getMessage());
         }
     }

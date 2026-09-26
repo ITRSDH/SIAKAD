@@ -310,6 +310,8 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
         Route::post('/', [KelaskuliahController::class, 'store'])->name('store');
         Route::get('/detail/{id}', [KelaskuliahController::class, 'detail'])->name('detail');
         Route::post('/detail/{id}/register-krs', [KelaskuliahController::class, 'registerKrsMahasiswa'])->name('register-krs');
+        Route::get('/detail/{id}/sync-krs-preview', [KelaskuliahController::class, 'syncKrsPreview'])->name('sync-krs-preview');
+        Route::post('/detail/{id}/sync-krs', [KelaskuliahController::class, 'syncKrs'])->name('sync-krs');
         Route::put('/{id}', [KelaskuliahController::class, 'update'])->name('update');
         Route::delete('/{id}', [KelaskuliahController::class, 'destroy'])->name('destroy');
         Route::get('/{id}/tab/{tab}', [KelaskuliahController::class, 'tab'])->name('tab');

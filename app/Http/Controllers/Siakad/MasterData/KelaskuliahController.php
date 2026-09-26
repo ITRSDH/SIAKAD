@@ -56,11 +56,12 @@ class KelaskuliahController extends Controller
     {
         try {
 
-            $dropdown = $dropdownService->get('prodi,semester,kurikulum_matakuliah');
+            $dropdown = $dropdownService->get('prodi,semester,kurikulum,kurikulum_matakuliah');
 
             return view('masterdata.kelaskuliah.create', [
                 'prodi' => $dropdown['prodi'] ?? [],
                 'semester' => $dropdown['semester'] ?? [],
+                'kurikulum' => $dropdown['kurikulum'] ?? [],
                 'kurikulum_matakuliah' => $dropdown['kurikulum_matakuliah'] ?? [],
             ]);
         } catch (\Exception $e) {
@@ -85,7 +86,7 @@ class KelaskuliahController extends Controller
             $pesertaKrs = $this->fetchPesertaKrsByKelas($id);
             $krsCandidates = $this->fetchKrsCandidatesByKelas($id, $statusMahasiswa);
 
-            $dropdown = $dropdownService->get('prodi,semester,kurikulum_matakuliah');
+            $dropdown = $dropdownService->get('prodi,semester,kurikulum,kurikulum_matakuliah');
 
             return view('masterdata.kelaskuliah.detail', [
                 'kelaskuliah' => $kelaskuliah,
@@ -95,6 +96,7 @@ class KelaskuliahController extends Controller
                 'statusMahasiswa' => $statusMahasiswa,
                 'prodi' => $dropdown['prodi'] ?? [],
                 'semester' => $dropdown['semester'] ?? [],
+                'kurikulum' => $dropdown['kurikulum'] ?? [],
                 'kurikulum_matakuliah' => $dropdown['kurikulum_matakuliah'] ?? [],
             ]);
         } catch (\Exception $e) {
@@ -204,6 +206,7 @@ class KelaskuliahController extends Controller
                     'id_kurikulum',
                     'id_semester',
                     'semester_ke',
+                    'default_nama_kelas',
                     'default_kapasitas',
                 ]));
 
@@ -299,6 +302,68 @@ class KelaskuliahController extends Controller
                 ->with('success', $message);
         } catch (\Exception $e) {
             return back()->withErrors($e->getMessage());
+        }
+    }
+
+    public function syncKrsPreview($id)
+    {
+        try {
+            $response = Http::withToken($this->apiToken)
+                ->acceptJson()
+                ->get($this->apiUrl."kelas-kuliah/{$id}/krs-sync-preview");
+
+            $payload = $response->json();
+
+            if (! $response->successful() || ! ($payload['success'] ?? false)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $payload['message'] ?? 'Gagal mengambil data pemeriksaan kurikulum peserta.',
+                ], $response->status() >= 400 ? $response->status() : 500);
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => $payload['data'] ?? [],
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: '.$e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function syncKrs(Request $request, $id)
+    {
+        try {
+            $payloadData = [];
+            if ($request->has('mahasiswa_ids')) {
+                $payloadData['mahasiswa_ids'] = $request->input('mahasiswa_ids');
+            }
+
+            $response = Http::withToken($this->apiToken)
+                ->acceptJson()
+                ->post($this->apiUrl."kelas-kuliah/{$id}/sync-krs", $payloadData);
+
+            $payload = $response->json();
+
+            if (! $response->successful() || ! ($payload['success'] ?? false)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $payload['message'] ?? 'Gagal menyinkronkan kurikulum peserta kelas.',
+                ], $response->status() >= 400 ? $response->status() : 500);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => $payload['message'] ?? 'Sinkronisasi kurikulum peserta berhasil dilakukan.',
+                'data' => $payload['data'] ?? [],
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: '.$e->getMessage(),
+            ], 500);
         }
     }
 

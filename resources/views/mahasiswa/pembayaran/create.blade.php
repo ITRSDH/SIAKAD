@@ -84,16 +84,38 @@
                                 </div>
 
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold">Jumlah Pembayaran <span class="text-danger">*</span></label>
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <label class="form-label fw-bold mb-0">Jumlah Pembayaran <span class="text-danger">*</span></label>
+                                        <button type="button" 
+                                                id="btn-bayar-lunas" 
+                                                class="btn btn-xs btn-outline-primary py-0 px-2 fw-semibold" 
+                                                style="font-size: 0.78rem;"
+                                                title="Isi otomatis dengan sisa tagihan">
+                                            <i class="fas fa-bolt me-1"></i>Bayar Penuh
+                                        </button>
+                                    </div>
                                     <div class="input-group">
-                                        <span class="input-group-text"><i class="fas fa-money-bill-wave"></i></span>
-                                        <input type="number"
-                                            name="jumlah"
-                                            min="0"
-                                            max="{{ $tagihan->sisa_pembayaran }}"
+                                        <span class="input-group-text fw-bold text-primary">Rp</span>
+                                        <input type="text"
+                                            id="jumlah_display"
                                             required
+                                            inputmode="numeric"
+                                            autocomplete="off"
                                             class="form-control fw-bold @error('jumlah') is-invalid @enderror"
-                                            placeholder="Masukkan nominal...">
+                                            placeholder="0"
+                                            value="{{ old('jumlah') ? number_format(old('jumlah'), 0, ',', '.') : '' }}">
+                                        <input type="hidden" 
+                                            name="jumlah" 
+                                            id="jumlah" 
+                                            value="{{ old('jumlah', '') }}">
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center mt-1">
+                                        <span class="form-text small text-muted">
+                                            Maks: <span class="fw-semibold text-dark">Rp {{ number_format($tagihan->sisa_pembayaran, 0, ',', '.') }}</span>
+                                        </span>
+                                        <span id="jumlah-error" class="text-danger small fw-semibold d-none">
+                                            <i class="fas fa-exclamation-circle me-1"></i>Melebihi sisa tagihan
+                                        </span>
                                     </div>
                                     @error('jumlah')
                                     <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -270,5 +292,83 @@
             fileNameDisplay.classList.remove('d-none');
         }
     });
+
+    // Format Rupiah untuk Input Nominal Pembayaran
+    const jumlahDisplay = document.getElementById('jumlah_display');
+    const jumlahHidden = document.getElementById('jumlah');
+    const jumlahError = document.getElementById('jumlah-error');
+    const btnBayarLunas = document.getElementById('btn-bayar-lunas');
+    const maxNominal = {{ (int) ($tagihan->sisa_pembayaran ?? 0) }};
+
+    function formatNumberToRupiah(val) {
+        if (!val) return '';
+        let clean = val.toString().replace(/\D/g, '');
+        if (!clean) return '';
+        return clean.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
+
+    if (jumlahDisplay) {
+        jumlahDisplay.addEventListener('input', function() {
+            let clean = this.value.replace(/\D/g, '');
+            let num = parseInt(clean, 10) || 0;
+
+            if (clean === '') {
+                this.value = '';
+                if (jumlahHidden) jumlahHidden.value = '';
+                if (jumlahError) jumlahError.classList.add('d-none');
+                this.classList.remove('is-invalid');
+                return;
+            }
+
+            this.value = formatNumberToRupiah(clean);
+            if (jumlahHidden) jumlahHidden.value = num;
+
+            if (maxNominal > 0 && num > maxNominal) {
+                if (jumlahError) jumlahError.classList.remove('d-none');
+                this.classList.add('is-invalid');
+            } else {
+                if (jumlahError) jumlahError.classList.add('d-none');
+                this.classList.remove('is-invalid');
+            }
+        });
+
+        if (btnBayarLunas) {
+            btnBayarLunas.addEventListener('click', function() {
+                if (maxNominal > 0) {
+                    jumlahDisplay.value = formatNumberToRupiah(maxNominal);
+                    if (jumlahHidden) jumlahHidden.value = maxNominal;
+                    if (jumlahError) jumlahError.classList.add('d-none');
+                    jumlahDisplay.classList.remove('is-invalid');
+                }
+            });
+        }
+    }
+
+    // Pastikan hidden input tersinkronisasi saat submit form
+    const formPembayaran = document.querySelector('form[action*="pembayaran"]');
+    if (formPembayaran) {
+        formPembayaran.addEventListener('submit', function(e) {
+            if (jumlahDisplay && jumlahHidden) {
+                let clean = jumlahDisplay.value.replace(/\D/g, '');
+                jumlahHidden.value = clean;
+                let num = parseInt(clean, 10) || 0;
+
+                if (!clean || num <= 0) {
+                    e.preventDefault();
+                    jumlahDisplay.classList.add('is-invalid');
+                    jumlahDisplay.focus();
+                    return false;
+                }
+
+                if (maxNominal > 0 && num > maxNominal) {
+                    e.preventDefault();
+                    if (jumlahError) jumlahError.classList.remove('d-none');
+                    jumlahDisplay.classList.add('is-invalid');
+                    jumlahDisplay.focus();
+                    return false;
+                }
+            }
+        });
+    }
 </script>
 @endpush

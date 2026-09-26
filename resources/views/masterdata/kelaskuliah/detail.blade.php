@@ -227,6 +227,13 @@
                                     <i class="fas fa-pen me-1"></i> Ubah
                                 </button>
 
+                                <button type="button" class="btn btn-sm btn-outline-primary btn-sync-krs"
+                                    data-id="{{ $kelaskuliah['id'] }}"
+                                    data-nama="{{ $kelaskuliah['nama_kelas'] ?? '' }}"
+                                    title="Periksa daftar kesesuaian kurikulum mahasiswa dan lakukan sinkronisasi">
+                                    <i class="fas fa-tasks me-1"></i> Periksa & Sinkronkan Peserta
+                                </button>
+
                                 <button type="button" class="btn btn-danger btn-sm delete-btn"
                                     data-id="{{ $kelaskuliah['id'] }}" data-nama="{{ $kelaskuliah['nama_kelas'] }}">
                                     <i class="fas fa-trash me-1"></i> Hapus
@@ -240,6 +247,14 @@
                     </div>
 
                     <div class="card-body">
+                        @php
+                            $currentMkId = old('id_kurikulum_mata_kuliah', $kelaskuliah['id_kurikulum_mata_kuliah'] ?? '');
+                            $currentKurikulumId = old('id_kurikulum', $kelaskuliah['id_kurikulum'] ?? '');
+                            if (! $currentKurikulumId && $currentMkId) {
+                                $foundKm = collect($kurikulum_matakuliah ?? [])->firstWhere('id', $currentMkId);
+                                $currentKurikulumId = $foundKm['id_kurikulum'] ?? '';
+                            }
+                        @endphp
                         <form id="form-kelas-kuliah" action="{{ route('kelas-kuliah.update', $kelaskuliah['id']) }}"
                             method="POST">
                             @csrf
@@ -249,9 +264,9 @@
                                 <!-- PRODI -->
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="id_prodi" class="form-label">Program Studi</label>
+                                        <label for="id_prodi" class="form-label">Program Studi <span class="text-danger">*</span></label>
                                         <select class="form-select select2" id="id_prodi" name="id_prodi" required>
-                                            <option value=""></option>
+                                            <option value="" disabled>-- Pilih Program Studi --</option>
                                             @foreach ($prodi as $p)
                                                 <option value="{{ $p['id'] }}"
                                                     {{ old('id_prodi', $kelaskuliah['id_prodi'] ?? '') == $p['id'] ? 'selected' : '' }}>
@@ -264,9 +279,9 @@
                                 <!-- SEMESTER -->
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="id_semester" class="form-label">Semester</label>
+                                        <label for="id_semester" class="form-label">Semester <span class="text-danger">*</span></label>
                                         <select class="form-select select2" id="id_semester" name="id_semester" required>
-                                            <option value=""></option>
+                                            <option value="" disabled>-- Pilih Semester --</option>
                                             @foreach ($semester as $s)
                                                 <option value="{{ $s['id'] }}"
                                                     {{ old('id_semester', $kelaskuliah['id_semester'] ?? '') == $s['id'] ? 'selected' : '' }}>
@@ -279,29 +294,82 @@
                             </div>
 
                             <div class="row">
-                                <!-- MATA KULIAH -->
+                                <!-- STRUKTUR KURIKULUM -->
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="id_kurikulum_mata_kuliah" class="form-label">Mata Kuliah</label>
-                                        <select class="form-select select2" id="id_kurikulum_mata_kuliah"
-                                            name="id_kurikulum_mata_kuliah" required>
-                                            <option value=""></option>
-                                            @foreach ($kurikulum_matakuliah as $mk)
-                                                <option value="{{ $mk['id'] }}"
-                                                    {{ old('id_kurikulum_mata_kuliah', $kelaskuliah['id_kurikulum_mata_kuliah'] ?? '') == $mk['id'] ? 'selected' : '' }}>
-                                                    {{ $mk['matakuliah'] }}
-                                                </option>
-                                            @endforeach
+                                        <label for="id_kurikulum" class="form-label">
+                                            Struktur Kurikulum <span class="text-danger">*</span>
+                                        </label>
+                                        <select class="form-select select2" id="id_kurikulum" required>
+                                            <option value="" disabled selected>-- Pilih Program Studi Terlebih Dahulu --</option>
                                         </select>
+                                        <small class="text-muted">Pilih kurikulum untuk menyaring mata kuliah yang berlaku.</small>
                                     </div>
                                 </div>
 
                                 <!-- NAMA KELAS -->
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="nama_kelas" class="form-label">Nama Kelas</label>
+                                        <label for="nama_kelas" class="form-label">Nama Kelas <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control" id="nama_kelas" name="nama_kelas"
                                             value="{{ old('nama_kelas', $kelaskuliah['nama_kelas'] ?? '') }}" required>
+                                        <small class="text-muted">Nama kelas dapat sama untuk paralel/sesi yang berbeda.</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <!-- MATA KULIAH -->
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label for="id_kurikulum_mata_kuliah" class="form-label">
+                                            Mata Kuliah <span class="text-danger">*</span>
+                                        </label>
+                                        <select class="form-select select2" id="id_kurikulum_mata_kuliah"
+                                            name="id_kurikulum_mata_kuliah" required>
+                                            <option value="" disabled selected>-- Pilih Struktur Kurikulum Terlebih Dahulu --</option>
+                                        </select>
+                                        <small class="text-muted">Mata kuliah otomatis dikelompokkan berdasarkan semester paket kurikulum.</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Preview Card Detail Mata Kuliah -->
+                            <div class="row" id="mk-preview-container">
+                                <div class="col-md-12">
+                                    <div id="mk-preview-card" class="card border border-primary border-opacity-25 bg-light mb-3 d-none shadow-sm">
+                                        <div class="card-body p-3">
+                                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+                                                <div class="d-flex align-items-center flex-wrap gap-2">
+                                                    <span class="badge bg-primary fs-6 px-2 py-1" id="preview-kode-mk">-</span>
+                                                    <span class="fw-bold fs-6 text-dark" id="preview-nama-mk">-</span>
+                                                </div>
+                                                <div class="d-flex align-items-center flex-wrap gap-1">
+                                                    <span class="badge bg-secondary" id="preview-kurikulum-badge">-</span>
+                                                    <span class="badge" id="preview-sifat-badge">-</span>
+                                                    <span class="badge bg-info text-dark" id="preview-semester-badge">-</span>
+                                                    <span class="badge" id="preview-kesesuaian-badge"></span>
+                                                </div>
+                                            </div>
+                                            <div class="row g-2 text-center text-md-start pt-2 border-top">
+                                                <div class="col-6 col-md-3">
+                                                    <div class="text-muted small">Total Bobot SKS</div>
+                                                    <div class="fw-bold text-primary fs-5" id="preview-sks-total">0 SKS</div>
+                                                </div>
+                                                <div class="col-6 col-md-3">
+                                                    <div class="text-muted small">Tatap Muka</div>
+                                                    <div class="fw-semibold text-secondary" id="preview-sks-tm">0 SKS</div>
+                                                </div>
+                                                <div class="col-6 col-md-3">
+                                                    <div class="text-muted small">Praktikum / Lapangan</div>
+                                                    <div class="fw-semibold text-secondary" id="preview-sks-prak">0 SKS</div>
+                                                </div>
+                                                <div class="col-6 col-md-3">
+                                                    <div class="text-muted small">Simulasi</div>
+                                                    <div class="fw-semibold text-secondary" id="preview-sks-sim">0 SKS</div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -515,8 +583,16 @@
                                                     Mahasiswa yang sudah terdaftar atau belum bisa diproses akan otomatis
                                                     dinonaktifkan.</div>
                                             </div>
-                                            <span class="badge bg-primary px-3 py-2"
-                                                id="pesertaKrsCountBadge">{{ count($krsCandidates ?? []) }} Mahasiswa</span>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <button type="button" class="btn btn-outline-primary btn-sm btn-sync-krs"
+                                                    data-id="{{ $kelaskuliah['id'] }}"
+                                                    data-nama="{{ $kelaskuliah['nama_kelas'] ?? '' }}"
+                                                    title="Periksa daftar kesesuaian kurikulum mahasiswa dan lakukan sinkronisasi">
+                                                    <i class="fas fa-tasks me-1"></i> Periksa & Sinkronkan Peserta
+                                                </button>
+                                                <span class="badge bg-primary px-3 py-2"
+                                                    id="pesertaKrsCountBadge">{{ count($krsCandidates ?? []) }} Mahasiswa</span>
+                                            </div>
                                         </div>
 
                                         <div class="peserta-krs-summary">
@@ -799,6 +875,124 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Pemeriksaan & Sinkronisasi Kurikulum Peserta -->
+    <div class="modal fade" id="modalSyncKurikulumPeserta" tabindex="-1" aria-labelledby="modalSyncKurikulumPesertaLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold" id="modalSyncKurikulumPesertaLabel">
+                        <i class="fas fa-tasks me-2"></i>Pemeriksaan & Sinkronisasi Kurikulum Peserta Kelas
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Loading State -->
+                    <div id="syncModalLoading" class="text-center py-5">
+                        <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <h6 class="text-muted fw-bold">Memeriksa data kesesuaian kurikulum peserta...</h6>
+                    </div>
+
+                    <!-- Content State -->
+                    <div id="syncModalContent" class="d-none">
+                        <!-- Info Card -->
+                        <div class="card bg-light border mb-3">
+                            <div class="card-body p-3">
+                                <div class="row g-2 align-items-center">
+                                    <div class="col-md-6">
+                                        <div class="small text-muted mb-1">Target Kurikulum Kelas Saat Ini:</div>
+                                        <div class="fw-bold fs-6 text-primary" id="syncModalTargetKurikulum">-</div>
+                                        <div class="small text-dark fw-semibold mt-1" id="syncModalTargetMk">-</div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="d-flex gap-2 flex-wrap justify-content-md-end">
+                                            <div class="text-center px-3 py-2 bg-white rounded border">
+                                                <div class="small text-muted">Total Peserta</div>
+                                                <div class="fw-bold fs-5 text-dark" id="syncModalTotalPeserta">0</div>
+                                            </div>
+                                            <div class="text-center px-3 py-2 bg-white rounded border border-warning">
+                                                <div class="small text-warning fw-bold">Perlu Sinkronisasi</div>
+                                                <div class="fw-bold fs-5 text-warning" id="syncModalMismatchCount">0</div>
+                                            </div>
+                                            <div class="text-center px-3 py-2 bg-white rounded border border-success">
+                                                <div class="small text-success fw-bold">Sudah Sesuai</div>
+                                                <div class="fw-bold fs-5 text-success" id="syncModalMatchedCount">0</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Alert Notice -->
+                        <div id="syncModalAlertBox" class="alert alert-warning d-flex align-items-center mb-3">
+                            <i class="fas fa-exclamation-triangle fs-4 me-3 text-warning"></i>
+                            <div>
+                                <span class="fw-bold">Hasil Pemeriksaan:</span> Terdapat <span class="fw-bold text-danger" id="syncModalAlertMismatchText">0 mahasiswa</span> yang mata kuliah di KRS-nya belum sesuai dengan kurikulum kelas saat ini. Centang mahasiswa yang ingin disinkronkan lalu klik tombol <strong>Eksekusi Sinkronisasi</strong>.
+                            </div>
+                        </div>
+
+                        <!-- Filter & Search Toolbar -->
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <button type="button" class="btn btn-outline-primary btn-sm" id="btnSyncModalSelectAllNeedsSync">
+                                    <i class="fas fa-check-square me-1"></i>Pilih Semua yang Perlu Sync
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm" id="btnSyncModalClearAll">
+                                    <i class="fas fa-square me-1"></i>Kosongkan Pilihan
+                                </button>
+                                <span class="badge bg-light text-dark border px-2 py-1" id="syncModalSelectedBadge">0 dipilih</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <select class="form-select form-select-sm" id="syncModalStatusFilter" style="width: auto;">
+                                    <option value="all">Semua Status</option>
+                                    <option value="needs_sync" selected>Hanya Perlu Sinkronisasi</option>
+                                    <option value="matched">Hanya Sudah Sesuai</option>
+                                </select>
+                                <input type="text" class="form-control form-control-sm" id="syncModalSearch" placeholder="Cari NIM atau Nama..." style="width: 220px;">
+                            </div>
+                        </div>
+
+                        <!-- Table Mahasiswa -->
+                        <div class="table-responsive" style="max-height: 420px; overflow-y: auto;">
+                            <table class="table table-bordered table-hover align-middle mb-0" id="syncModalTable">
+                                <thead class="table-light sticky-top">
+                                    <tr class="text-center small text-nowrap">
+                                        <th style="width: 40px;">
+                                            <input type="checkbox" id="syncModalCheckAll">
+                                        </th>
+                                        <th style="width: 45px;">No</th>
+                                        <th style="width: 120px;">NIM</th>
+                                        <th>Nama Mahasiswa</th>
+                                        <th style="width: 100px;">Jalur/Tipe</th>
+                                        <th>Mata Kuliah di KRS Saat Ini</th>
+                                        <th style="width: 170px;">Status Kesesuaian</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="syncModalTableBody">
+                                    <!-- Filled dynamically by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light d-flex justify-content-between align-items-center">
+                    <div class="small text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Sinkronisasi akan menyelaraskan ID mata kuliah di KRS peserta dengan kurikulum kelas saat ini serta menghitung ulang total SKS.
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                        <button type="button" class="btn btn-primary fw-bold" id="btnExecuteSyncModal" disabled>
+                            <i class="fas fa-sync-alt me-1"></i> Eksekusi Sinkronisasi (<span id="syncModalBtnCount">0</span> Mahasiswa)
+                        </button>
                     </div>
                 </div>
             </div>
@@ -1173,6 +1367,204 @@
                     window.history.replaceState(null, '', url.toString());
                 }
             });
+
+            // ==========================================
+            // Logika Cascading Kurikulum & Preview MK
+            // ==========================================
+            const rawKurikulum = @json($kurikulum);
+            const rawKurikulumMk = @json($kurikulum_matakuliah);
+
+            const $prodi = $('#id_prodi');
+            const $semester = $('#id_semester');
+            const $kurikulum = $('#id_kurikulum');
+            const $mataKuliah = $('#id_kurikulum_mata_kuliah');
+
+            const initialProdi = "{{ old('id_prodi', $kelaskuliah['id_prodi'] ?? '') }}";
+            const initialKurikulum = "{{ $currentKurikulumId }}";
+            const initialMk = "{{ $currentMkId }}";
+
+            function populateKurikulum(prodiId, selectedKurikulumId = null, selectedMkId = null) {
+                $kurikulum.empty();
+
+                if (!prodiId) {
+                    $kurikulum.append('<option value="" disabled selected>-- Pilih Program Studi Terlebih Dahulu --</option>');
+                    $kurikulum.trigger('change.select2');
+                    populateMataKuliah(null, null);
+                    return;
+                }
+
+                const filtered = rawKurikulum.filter(item => String(item.id_prodi) === String(prodiId));
+
+                if (filtered.length === 0) {
+                    $kurikulum.append('<option value="" disabled selected>-- Tidak ada Kurikulum untuk Prodi ini --</option>');
+                } else {
+                    $kurikulum.append('<option value="" disabled selected>-- Pilih Struktur Kurikulum --</option>');
+                    filtered.forEach(k => {
+                        const label = k.kurikulum || (k.kode_kurikulum + ' - ' + (k.nama_kurikulum || k.nama_struktur_mk));
+                        const isSelected = selectedKurikulumId && String(k.id) === String(selectedKurikulumId);
+                        $kurikulum.append(new Option(label, k.id, false, isSelected));
+                    });
+                }
+
+                if (filtered.length === 1 && !selectedKurikulumId) {
+                    $kurikulum.val(filtered[0].id);
+                } else if (selectedKurikulumId) {
+                    $kurikulum.val(selectedKurikulumId);
+                }
+
+                $kurikulum.trigger('change.select2');
+
+                const activeKurId = $kurikulum.val();
+                populateMataKuliah(activeKurId, selectedMkId);
+            }
+
+            function populateMataKuliah(kurikulumId, selectedMkId = null) {
+                $mataKuliah.empty();
+
+                if (!kurikulumId) {
+                    $mataKuliah.append('<option value="" disabled selected>-- Pilih Struktur Kurikulum Terlebih Dahulu --</option>');
+                    $mataKuliah.trigger('change.select2');
+                    updateMkPreview(null);
+                    return;
+                }
+
+                const filtered = rawKurikulumMk.filter(item => String(item.id_kurikulum) === String(kurikulumId));
+
+                if (filtered.length === 0) {
+                    $mataKuliah.append('<option value="" disabled selected>-- Tidak ada Mata Kuliah pada Kurikulum ini --</option>');
+                } else {
+                    $mataKuliah.append('<option value="" disabled selected>-- Pilih Mata Kuliah --</option>');
+
+                    // Kelompokkan per semester_ke
+                    const groups = {};
+                    filtered.forEach(mk => {
+                        const sem = mk.semester_ke || 'Lainnya';
+                        if (!groups[sem]) groups[sem] = [];
+                        groups[sem].push(mk);
+                    });
+
+                    const sortedSemesters = Object.keys(groups).sort((a, b) => {
+                        const numA = parseInt(a), numB = parseInt(b);
+                        if (isNaN(numA) && isNaN(numB)) return a.localeCompare(b);
+                        if (isNaN(numA)) return 1;
+                        if (isNaN(numB)) return -1;
+                        return numA - numB;
+                    });
+
+                    sortedSemesters.forEach(sem => {
+                        const groupLabel = isNaN(parseInt(sem)) ? sem : `Semester ${sem}`;
+                        const $optgroup = $(`<optgroup label="${groupLabel}"></optgroup>`);
+
+                        groups[sem].sort((a, b) => (a.kode_mk || '').localeCompare(b.kode_mk || ''));
+
+                        groups[sem].forEach(mk => {
+                            const sifat = mk.status_mk ? mk.status_mk.toUpperCase() : (mk.is_wajib ? 'WAJIB' : 'PILIHAN');
+                            const label = `[${mk.kode_mk || '-'}] ${mk.nama_mk || '-'} (${mk.sks || 0} SKS) - ${sifat}`;
+                            const isSelected = selectedMkId && String(mk.id) === String(selectedMkId);
+                            $optgroup.append(new Option(label, mk.id, false, isSelected));
+                        });
+
+                        $mataKuliah.append($optgroup);
+                    });
+                }
+
+                if (selectedMkId) {
+                    $mataKuliah.val(selectedMkId);
+                }
+
+                $mataKuliah.trigger('change.select2');
+                updateMkPreview($mataKuliah.val());
+            }
+
+            function updateMkPreview(mkId) {
+                if (!mkId) {
+                    $('#mk-preview-card').addClass('d-none');
+                    return;
+                }
+
+                const mk = rawKurikulumMk.find(item => String(item.id) === String(mkId));
+                if (!mk) {
+                    $('#mk-preview-card').addClass('d-none');
+                    return;
+                }
+
+                $('#preview-kode-mk').text(mk.kode_mk || '-');
+                $('#preview-nama-mk').text(mk.nama_mk || '-');
+                $('#preview-kurikulum-badge').text(mk.nama_kurikulum || 'Kurikulum');
+
+                const isWajib = mk.is_wajib || (mk.status_mk && String(mk.status_mk).toLowerCase() === 'wajib');
+                $('#preview-sifat-badge')
+                    .removeClass('bg-danger bg-info text-dark')
+                    .addClass(isWajib ? 'bg-danger' : 'bg-info text-dark')
+                    .text(isWajib ? 'Wajib' : 'Pilihan');
+
+                $('#preview-semester-badge').text('Semester Paket ' + (mk.semester_ke || '-'));
+
+                $('#preview-sks-total').text((mk.sks || 0) + ' SKS');
+                $('#preview-sks-tm').text((mk.sks_tatap_muka || 0) + ' SKS');
+                const prakSks = Number(mk.sks_praktikum || 0) + Number(mk.sks_praktek_lapangan || 0);
+                $('#preview-sks-prak').text(prakSks + ' SKS');
+                $('#preview-sks-sim').text((mk.sks_simulasi || 0) + ' SKS');
+
+                // Sinkronkan input form SKS readonly
+                if ($('#sks').length) $('#sks').val(mk.sks ?? 0);
+                if ($('#sks_tatap_muka').length) $('#sks_tatap_muka').val(mk.sks_tatap_muka ?? 0);
+                if ($('#sks_praktikum').length) $('#sks_praktikum').val(mk.sks_praktikum ?? 0);
+                if ($('#sks_praktik_lapangan').length) $('#sks_praktik_lapangan').val(mk.sks_praktek_lapangan ?? 0);
+                if ($('#sks_simulasi').length) $('#sks_simulasi').val(mk.sks_simulasi ?? 0);
+
+                // Validasi kesesuaian periode semester (Ganjil / Genap)
+                const semText = $('#id_semester option:selected').text().toLowerCase();
+                const mkSem = parseInt(mk.semester_ke);
+
+                if (semText && !isNaN(mkSem)) {
+                    const isGanjilSem = semText.includes('ganjil') || semText.includes('gasal');
+                    const isGenapSem = semText.includes('genap');
+                    const isMkGanjil = (mkSem % 2 !== 0);
+
+                    if ((isGanjilSem && isMkGanjil) || (isGenapSem && !isMkGanjil)) {
+                        $('#preview-kesesuaian-badge')
+                            .removeClass('d-none bg-warning text-dark')
+                            .addClass('badge bg-success')
+                            .html('<i class="fas fa-check-circle me-1"></i> Sesuai Periode (' + (isMkGanjil ? 'Ganjil' : 'Genap') + ')');
+                    } else if (isGanjilSem || isGenapSem) {
+                        $('#preview-kesesuaian-badge')
+                            .removeClass('d-none bg-success')
+                            .addClass('badge bg-warning text-dark')
+                            .html('<i class="fas fa-exclamation-triangle me-1"></i> Beda Periode (MK Semester ' + mkSem + ' di Semester ' + (isGanjilSem ? 'Ganjil' : 'Genap') + ')');
+                    } else {
+                        $('#preview-kesesuaian-badge').addClass('d-none');
+                    }
+                } else {
+                    $('#preview-kesesuaian-badge').addClass('d-none');
+                }
+
+                $('#mk-preview-card').removeClass('d-none');
+            }
+
+            // Event Handlers
+            $prodi.on('change', function() {
+                populateKurikulum($(this).val(), null, null);
+            });
+
+            $kurikulum.on('change', function() {
+                populateMataKuliah($(this).val(), null);
+            });
+
+            $mataKuliah.on('change', function() {
+                updateMkPreview($(this).val());
+            });
+
+            $semester.on('change', function() {
+                if ($mataKuliah.val()) {
+                    updateMkPreview($mataKuliah.val());
+                }
+            });
+
+            // Initial load populate
+            if (initialProdi) {
+                populateKurikulum(initialProdi, initialKurikulum, initialMk);
+            }
         });
 
         $(document).on('click', '.delete-btn', function() {
@@ -1228,6 +1620,302 @@
                                 text: errorMessage,
                                 confirmButtonText: 'OK'
                             });
+                        }
+                    });
+                }
+            });
+        });
+
+        // ==========================================
+        // FITUR PEMERIKSAAN & SINKRONISASI KURIKULUM PESERTA
+        // ==========================================
+        let currentSyncData = null;
+        let activeKelasIdForSync = null;
+
+        function renderSyncModalTable() {
+            if (!currentSyncData || !currentSyncData.peserta) return;
+
+            const tbody = $('#syncModalTableBody');
+            tbody.empty();
+
+            const statusFilter = $('#syncModalStatusFilter').val();
+            const keyword = ($('#syncModalSearch').val() || '').toLowerCase().trim();
+
+            let visibleCount = 0;
+
+            currentSyncData.peserta.forEach((item, index) => {
+                // Filter status
+                if (statusFilter === 'needs_sync' && !item.needs_sync) return;
+                if (statusFilter === 'matched' && item.needs_sync) return;
+
+                // Filter keyword
+                if (keyword) {
+                    const matchNim = (item.nim || '').toLowerCase().includes(keyword);
+                    const matchNama = (item.nama_mahasiswa || '').toLowerCase().includes(keyword);
+                    if (!matchNim && !matchNama) return;
+                }
+
+                visibleCount++;
+
+                const badgeJalur = item.jenis_pendaftaran === 'RPL' 
+                    ? '<span class="badge bg-warning text-dark">RPL</span>' 
+                    : '<span class="badge bg-primary">Reguler</span>';
+
+                let badgeKesesuaian = '';
+                if (item.needs_sync) {
+                    badgeKesesuaian = '<span class="badge bg-warning text-dark"><i class="fas fa-exclamation-circle me-1"></i>Perlu Sync</span>';
+                } else {
+                    badgeKesesuaian = '<span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Sudah Sesuai</span>';
+                }
+
+                if (item.keterangan_tipe) {
+                    badgeKesesuaian += '<br><small class="text-danger fw-semibold">' + item.keterangan_tipe + '</small>';
+                }
+
+                const isChecked = item.selected ? 'checked' : '';
+                const rowBg = item.needs_sync ? 'table-warning-subtle' : '';
+
+                const tr = $('<tr>').addClass(rowBg).attr('data-id-mhs', item.id_mahasiswa);
+                tr.append(
+                    $('<td class="text-center">').html(
+                        '<input type="checkbox" class="sync-modal-mhs-cb form-check-input" value="' + (item.id_mahasiswa || '') + '" data-detail-id="' + item.id_krs_detail + '" ' + isChecked + '>'
+                    ),
+                    $('<td class="text-center small text-muted">').text(visibleCount),
+                    $('<td>').html('<span class="fw-semibold font-monospace">' + (item.nim || '-') + '</span>'),
+                    $('<td>').html('<span class="fw-bold text-dark">' + (item.nama_mahasiswa || '-') + '</span><br><small class="text-muted">Angkatan ' + (item.angkatan || '-') + '</small>'),
+                    $('<td class="text-center">').html(badgeJalur),
+                    $('<td>').html('<span class="small ' + (item.needs_sync ? 'text-danger fw-semibold' : 'text-dark') + '">' + (item.current_mk_nama || '-') + '</span>'),
+                    $('<td class="text-center">').html(badgeKesesuaian)
+                );
+
+                tbody.append(tr);
+            });
+
+            if (visibleCount === 0) {
+                tbody.html('<tr><td colspan="7" class="text-center text-muted py-4"><i class="fas fa-info-circle me-1"></i>Tidak ada data mahasiswa yang sesuai dengan filter.</td></tr>');
+            }
+
+            updateSyncModalSelectedSummary();
+        }
+
+        function updateSyncModalSelectedSummary() {
+            if (!currentSyncData || !currentSyncData.peserta) return;
+
+            const selectedCount = currentSyncData.peserta.filter(p => p.selected).length;
+            $('#syncModalSelectedBadge').text(selectedCount + ' dipilih');
+            $('#syncModalBtnCount').text(selectedCount);
+
+            if (selectedCount > 0) {
+                $('#btnExecuteSyncModal').prop('disabled', false);
+            } else {
+                $('#btnExecuteSyncModal').prop('disabled', true);
+            }
+
+            // Update CheckAll checkbox state
+            const visibleCheckboxes = $('.sync-modal-mhs-cb');
+            const checkedVisible = $('.sync-modal-mhs-cb:checked');
+            if (visibleCheckboxes.length > 0 && visibleCheckboxes.length === checkedVisible.length) {
+                $('#syncModalCheckAll').prop('checked', true);
+            } else {
+                $('#syncModalCheckAll').prop('checked', false);
+            }
+        }
+
+        // Buka modal saat tombol .btn-sync-krs diklik
+        $(document).on('click', '.btn-sync-krs', function(e) {
+            e.preventDefault();
+            activeKelasIdForSync = $(this).data('id');
+            const previewUrl = "{{ url('/kelas-kuliah/detail') }}/" + activeKelasIdForSync + "/sync-krs-preview";
+
+            $('#modalSyncKurikulumPeserta').modal('show');
+            $('#syncModalLoading').removeClass('d-none');
+            $('#syncModalContent').addClass('d-none');
+            $('#btnExecuteSyncModal').prop('disabled', true);
+
+            $.ajax({
+                url: previewUrl,
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success && response.data) {
+                        currentSyncData = response.data;
+                        const kelasInfo = currentSyncData.kelas || {};
+                        const summary = currentSyncData.summary || {};
+
+                        // Tampilkan Info Target Kurikulum & MK
+                        const targetKurikulum = (kelasInfo.target_kurikulum && kelasInfo.target_kurikulum.nama) ? kelasInfo.target_kurikulum.nama : '-';
+                        const targetMk = (kelasInfo.target_mata_kuliah) ? (kelasInfo.target_mata_kuliah.kode + ' - ' + kelasInfo.target_mata_kuliah.nama + ' (' + kelasInfo.target_mata_kuliah.sks + ' SKS)') : '-';
+
+                        $('#syncModalTargetKurikulum').text(targetKurikulum);
+                        $('#syncModalTargetMk').text(targetMk);
+
+                        // Tampilkan Counter
+                        $('#syncModalTotalPeserta').text(summary.total_peserta || 0);
+                        $('#syncModalMismatchCount').text(summary.mismatch_count || 0);
+                        $('#syncModalMatchedCount').text(summary.matched_count || 0);
+                        $('#syncModalAlertMismatchText').text((summary.mismatch_count || 0) + ' mahasiswa');
+
+                        if ((summary.mismatch_count || 0) === 0) {
+                            $('#syncModalAlertBox').removeClass('alert-warning').addClass('alert-success').html(
+                                '<i class="fas fa-check-circle fs-4 me-3 text-success"></i><div><strong>Semua Sesuai:</strong> Seluruh peserta di kelas ini sudah tersinkronkan dengan kurikulum kelas saat ini.</div>'
+                            );
+                            $('#syncModalStatusFilter').val('all');
+                        } else {
+                            $('#syncModalAlertBox').removeClass('alert-success').addClass('alert-warning').html(
+                                '<i class="fas fa-exclamation-triangle fs-4 me-3 text-warning"></i><div><strong>Hasil Pemeriksaan:</strong> Terdapat <strong>' + summary.mismatch_count + ' mahasiswa</strong> yang mata kuliah di KRS-nya belum sesuai dengan kurikulum kelas saat ini. Centang mahasiswa yang ingin disinkronkan lalu klik tombol <strong>Eksekusi Sinkronisasi</strong>.</div>'
+                            );
+                            $('#syncModalStatusFilter').val('needs_sync');
+                        }
+
+                        // Default: centang semua yang needs_sync
+                        if (currentSyncData.peserta) {
+                            currentSyncData.peserta.forEach(p => {
+                                p.selected = (p.needs_sync === true);
+                            });
+                        }
+
+                        $('#syncModalLoading').addClass('d-none');
+                        $('#syncModalContent').removeClass('d-none');
+
+                        renderSyncModalTable();
+                    } else {
+                        $('#modalSyncKurikulumPeserta').modal('hide');
+                        Swal.fire('Gagal', response.message || 'Gagal memuat data pemeriksaan.', 'error');
+                    }
+                },
+                error: function(xhr) {
+                    $('#modalSyncKurikulumPeserta').modal('hide');
+                    let msg = 'Terjadi kesalahan saat memeriksa data kurikulum peserta.';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        msg = xhr.responseJSON.message;
+                    }
+                    Swal.fire('Gagal', msg, 'error');
+                }
+            });
+        });
+
+        // Event filter & search pada modal
+        $(document).on('change', '#syncModalStatusFilter', function() {
+            renderSyncModalTable();
+        });
+
+        $(document).on('input', '#syncModalSearch', function() {
+            renderSyncModalTable();
+        });
+
+        // Check/uncheck per baris
+        $(document).on('change', '.sync-modal-mhs-cb', function() {
+            const mhsId = $(this).val();
+            const isChecked = $(this).is(':checked');
+
+            if (currentSyncData && currentSyncData.peserta) {
+                const item = currentSyncData.peserta.find(p => p.id_mahasiswa === mhsId);
+                if (item) {
+                    item.selected = isChecked;
+                }
+            }
+
+            updateSyncModalSelectedSummary();
+        });
+
+        // Check All visible
+        $(document).on('change', '#syncModalCheckAll', function() {
+            const isChecked = $(this).is(':checked');
+            $('.sync-modal-mhs-cb').each(function() {
+                const mhsId = $(this).val();
+                $(this).prop('checked', isChecked);
+                if (currentSyncData && currentSyncData.peserta) {
+                    const item = currentSyncData.peserta.find(p => p.id_mahasiswa === mhsId);
+                    if (item) {
+                        item.selected = isChecked;
+                    }
+                }
+            });
+            updateSyncModalSelectedSummary();
+        });
+
+        // Tombol Pilih Semua yang Perlu Sync
+        $(document).on('click', '#btnSyncModalSelectAllNeedsSync', function() {
+            if (!currentSyncData || !currentSyncData.peserta) return;
+            currentSyncData.peserta.forEach(p => {
+                p.selected = (p.needs_sync === true);
+            });
+            renderSyncModalTable();
+        });
+
+        // Tombol Kosongkan Pilihan
+        $(document).on('click', '#btnSyncModalClearAll', function() {
+            if (!currentSyncData || !currentSyncData.peserta) return;
+            currentSyncData.peserta.forEach(p => {
+                p.selected = false;
+            });
+            renderSyncModalTable();
+        });
+
+        // Tombol Eksekusi Sinkronisasi
+        $(document).on('click', '#btnExecuteSyncModal', function() {
+            if (!currentSyncData || !activeKelasIdForSync) return;
+
+            const selectedMhs = currentSyncData.peserta.filter(p => p.selected);
+            if (selectedMhs.length === 0) {
+                Swal.fire('Perhatian', 'Pilih minimal satu mahasiswa untuk disinkronkan.', 'warning');
+                return;
+            }
+
+            const targetMkNama = $('#syncModalTargetMk').text();
+
+            Swal.fire({
+                title: 'Eksekusi Sinkronisasi?',
+                html: 'Anda akan menyinkronkan <b>' + selectedMhs.length + ' mahasiswa</b> ke mata kuliah:<br><span class="badge bg-primary fs-6 mt-2">' + targetMkNama + '</span><br><br>Sistem akan memperbarui KRS peserta dan menghitung ulang total SKS.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#0d6efd',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '<i class="fas fa-sync-alt me-1"></i> Ya, Eksekusi Sekarang!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Menyinkronkan...',
+                        text: 'Mohon tunggu, sedang memperbarui KRS peserta terpilih.',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    const syncUrl = "{{ url('/kelas-kuliah/detail') }}/" + activeKelasIdForSync + "/sync-krs";
+                    const selectedIds = selectedMhs.map(p => p.id_mahasiswa);
+
+                    $.ajax({
+                        url: syncUrl,
+                        type: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            mahasiswa_ids: selectedIds
+                        },
+                        dataType: 'json',
+                        success: function(response) {
+                            if (response.success) {
+                                $('#modalSyncKurikulumPeserta').modal('hide');
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Sinkronisasi Berhasil!',
+                                    text: response.message,
+                                    confirmButtonText: 'OK'
+                                }).then(() => {
+                                    window.location.reload();
+                                });
+                            } else {
+                                Swal.fire('Gagal', response.message || 'Gagal menyinkronkan data.', 'error');
+                            }
+                        },
+                        error: function(xhr) {
+                            let msg = 'Terjadi kesalahan saat menyinkronkan data peserta.';
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                msg = xhr.responseJSON.message;
+                            }
+                            Swal.fire('Gagal', msg, 'error');
                         }
                     });
                 }

@@ -156,6 +156,13 @@ class PembayaranController extends Controller
             ->acceptJson()
             ->get($this->apiUrlakad.'auth/me');
         $data = $res->json();
+
+        // Sanitize jumlah input (remove non-digits in case rupiah formatting is sent)
+        if ($request->has('jumlah')) {
+            $cleanedJumlah = preg_replace('/[^0-9]/', '', (string) $request->input('jumlah'));
+            $request->merge(['jumlah' => $cleanedJumlah !== '' ? (int) $cleanedJumlah : 0]);
+        }
+
         // Validate input first
         $request->validate([
             'jumlah' => ['required', 'numeric', 'min:1'],

@@ -17,9 +17,28 @@ class PembayaranController extends Controller
 
     public function __construct()
     {
-        $this->apiUrl = config('api.keuangan_url', 'http://localhost:8001');
-        $this->secret = config('services.internal_api.secret', 'siakad_keuangan_secret_2026');
-        $this->apiUrlakad = config('api.base_url', 'http://localhost:8001');
+        $this->apiUrl = config('api.keuangan_url') ?? env('API_URL_KEUANGAN', 'http://127.0.0.1:8900');
+        $this->secret = config('services.internal_api.secret') ?? env('INTERNAL_API_SECRET', 'super-secret-siakad-555');
+        $this->apiUrlakad = config('api.base_url') ?? env('API_BASE_URL', 'http://127.0.0.1:8800/api/v1/');
+    }
+
+    /**
+     * Kirim log error ke server Keuangan agar tercatat langsung di log Keu-Siakad
+     */
+    private function sendErrorLogToKeuangan(string $message, ?string $siswaId = null, $tagihanId = null, $details = null): void
+    {
+        try {
+            Http::timeout(5)->post(rtrim($this->apiUrl, '/') . '/api/payment-error-log', [
+                'client_source' => 'SIAKAD_MAHASISWA',
+                'message'       => $message,
+                'siswa_id'      => $siswaId,
+                'tagihan_id'    => $tagihanId,
+                'details'       => $details,
+                'url'           => request()->fullUrl(),
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('Gagal meneruskan log error ke server keuangan: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -27,20 +46,32 @@ class PembayaranController extends Controller
      */
     public function index()
     {
-        // TODO: Get from authenticated user session
-        $siswaId = 'a0c92e5d-0501-49e6-a30f-70c935e3b0d8';
-        // dd(auth()->user());/
         $token = session('access_token');
-        $res = Http::withToken($token)
-            ->acceptJson()
-            ->get($this->apiUrlakad.'auth/me');
-        $data = $res->json();
+        $siswaId = null;
+
+        try {
+            $res = Http::withToken($token)
+                ->acceptJson()
+                ->get(rtrim($this->apiUrlakad, '/') . '/auth/me');
+            $data = $res->json();
+            $siswaId = $data['profile']['id'] ?? null;
+        } catch (\Exception $e) {
+            Log::error('[SIAKAD Pembayaran] Gagal mengambil profil user dari auth/me', ['error' => $e->getMessage()]);
+            $this->sendErrorLogToKeuangan('Gagal auth/me saat akses halaman tagihan', null, null, ['error' => $e->getMessage()]);
+            return redirect()->back()->with('error', 'Gagal memverifikasi akun ke server SIAKAD.');
+        }
+
+        if (!$siswaId) {
+            Log::error('[SIAKAD Pembayaran] Profile ID mahasiswa tidak ditemukan dari auth/me', ['response' => $data ?? null]);
+            $this->sendErrorLogToKeuangan('Profile ID mahasiswa tidak ditemukan saat akses tagihan', null, null, $data ?? []);
+            return redirect()->back()->with('error', 'Data profil mahasiswa tidak ditemukan.');
+        }
 
         $path = '/api/internal/bills';
-        $url = $this->apiUrl.$path;
+        $url = rtrim($this->apiUrl, '/') . $path;
 
         $queryParams = [
-            'siswa_id' => $data['profile']['id'],
+            'siswa_id' => $siswaId,
         ];
 
         $timestamp = time();
@@ -64,15 +95,33 @@ class PembayaranController extends Controller
                 Log::error('Failed to fetch bills from API', [
                     'status' => $response->status(),
                     'body' => $response->body(),
+                    'siswa_id' => $siswaId,
                 ]);
-                $bills = [];
 
+                $this->sendErrorLogToKeuangan(
+                    "Gagal mengambil tagihan dari server keuangan (Status: {$response->status()})",
+                    $siswaId,
+                    null,
+                    [
+                        'status' => $response->status(),
+                        'response' => $response->json() ?? $response->body(),
+                    ]
+                );
+
+                $bills = [];
                 return redirect()->back()->with('error', 'Gagal mengambil data tagihan dari server.');
             }
         } catch (\Exception $e) {
-            Log::error('Exception when fetching bills', ['error' => $e->getMessage()]);
-            $bills = [];
+            Log::error('Exception when fetching bills', ['error' => $e->getMessage(), 'siswa_id' => $siswaId]);
 
+            $this->sendErrorLogToKeuangan(
+                'Exception saat mengambil tagihan: ' . $e->getMessage(),
+                $siswaId,
+                null,
+                ['error' => $e->getMessage()]
+            );
+
+            $bills = [];
             return redirect()->back()->with('error', 'Terjadi kesalahan koneksi ke server keuangan.');
         }
 
@@ -84,18 +133,25 @@ class PembayaranController extends Controller
      */
     public function create($tagihanId)
     {
-        // TODO: Get from authenticated user session
-        $siswaId = '7eb11250-75be-41ff-8b2c-fb418f68b128';
         $token = session('access_token');
-        $res = Http::withToken($token)
-            ->acceptJson()
-            ->get($this->apiUrlakad.'auth/me');
-        $data = $res->json();
+        $siswaId = null;
+
+        try {
+            $res = Http::withToken($token)
+                ->acceptJson()
+                ->get(rtrim($this->apiUrlakad, '/') . '/auth/me');
+            $data = $res->json();
+            $siswaId = $data['profile']['id'] ?? null;
+        } catch (\Exception $e) {
+            Log::error('[SIAKAD Pembayaran] Gagal auth/me saat create pembayaran', ['error' => $e->getMessage()]);
+            return redirect()->route('student.pembayaran.index')->with('error', 'Gagal verifikasi akun.');
+        }
+
         $path = '/api/internal/bills';
-        $url = $this->apiUrl.$path;
+        $url = rtrim($this->apiUrl, '/') . $path;
 
         $queryParams = [
-            'siswa_id' => $data['profile']['id'],
+            'siswa_id' => $siswaId,
         ];
 
         $timestamp = time();
@@ -119,6 +175,7 @@ class PembayaranController extends Controller
                 $tagihan = collect($bills)->firstWhere('id', $tagihanId);
 
                 if (! $tagihan) {
+                    $this->sendErrorLogToKeuangan('Tagihan ID ' . $tagihanId . ' tidak ditemukan di daftar tagihan mahasiswa', $siswaId, $tagihanId);
                     return redirect()->route('student.pembayaran.index')
                         ->with('error', 'Tagihan tidak ditemukan.');
                 }
@@ -129,13 +186,29 @@ class PembayaranController extends Controller
                 Log::error('Failed to fetch bill details from API', [
                     'status' => $response->status(),
                     'body' => $response->body(),
+                    'tagihan_id' => $tagihanId,
+                    'siswa_id' => $siswaId,
                 ]);
+
+                $this->sendErrorLogToKeuangan(
+                    "Gagal mengambil detail tagihan (Status: {$response->status()})",
+                    $siswaId,
+                    $tagihanId,
+                    ['response' => $response->json() ?? $response->body()]
+                );
 
                 return redirect()->route('student.pembayaran.index')
                     ->with('error', 'Gagal mengambil data tagihan dari server.');
             }
         } catch (\Exception $e) {
-            Log::error('Exception when fetching bill details', ['error' => $e->getMessage()]);
+            Log::error('Exception when fetching bill details', ['error' => $e->getMessage(), 'tagihan_id' => $tagihanId]);
+
+            $this->sendErrorLogToKeuangan(
+                'Exception saat memuat form pembayaran: ' . $e->getMessage(),
+                $siswaId,
+                $tagihanId,
+                ['error' => $e->getMessage()]
+            );
 
             return redirect()->route('student.pembayaran.index')
                 ->with('error', 'Terjadi kesalahan koneksi ke server keuangan.');
@@ -149,13 +222,20 @@ class PembayaranController extends Controller
      */
     public function store(Request $request, $tagihanId)
     {
-        // TODO: Get from authenticated user session
-        $siswaId = '7eb11250-75be-41ff-8b2c-fb418f68b128';
         $token = session('access_token');
-        $res = Http::withToken($token)
-            ->acceptJson()
-            ->get($this->apiUrlakad.'auth/me');
-        $data = $res->json();
+        $siswaId = null;
+
+        try {
+            $res = Http::withToken($token)
+                ->acceptJson()
+                ->get(rtrim($this->apiUrlakad, '/') . '/auth/me');
+            $data = $res->json();
+            $siswaId = $data['profile']['id'] ?? null;
+        } catch (\Exception $e) {
+            Log::error('[SIAKAD Pembayaran] Gagal auth/me saat store pembayaran', ['error' => $e->getMessage()]);
+            $this->sendErrorLogToKeuangan('Gagal auth/me saat submit pembayaran', null, $tagihanId, ['error' => $e->getMessage()]);
+            return redirect()->back()->withInput()->with('error', 'Gagal verifikasi identitas mahasiswa.');
+        }
 
         // Sanitize jumlah input (remove non-digits in case rupiah formatting is sent)
         if ($request->has('jumlah')) {
@@ -170,14 +250,14 @@ class PembayaranController extends Controller
         ]);
 
         $path = "/api/internal/bills/{$tagihanId}/pay";
-        $url = $this->apiUrl.$path;
+        $url = rtrim($this->apiUrl, '/') . $path;
 
         $timestamp = time();
         $method = 'POST';
 
         // Prepare form data
         $formData = [
-            'siswa_id' => $data['profile']['id'],
+            'siswa_id' => $siswaId,
             'jumlah' => $request->jumlah,
             'catatan' => $request->catatan ?? null,
         ];
@@ -209,19 +289,45 @@ class PembayaranController extends Controller
             $response = $http->post($url, $formData);
 
             if ($response->successful()) {
+                Log::info('[SIAKAD Pembayaran Sukses] Pembayaran berhasil dikirim ke Keuangan', [
+                    'tagihan_id' => $tagihanId,
+                    'siswa_id'   => $siswaId,
+                    'jumlah'     => $formData['jumlah'],
+                    'response'   => $response->json(),
+                ]);
+
                 return redirect()
                     ->route('student.pembayaran.index')
                     ->with('success', 'Pembayaran Anda berhasil dikirim dan sedang menunggu verifikasi admin.');
             } else {
                 Log::error('Failed to submit payment to API', [
-                    'status' => $response->status(),
-                    'body' => $response->body(),
+                    'status'     => $response->status(),
+                    'body'       => $response->body(),
+                    'tagihan_id' => $tagihanId,
+                    'siswa_id'   => $siswaId,
+                    'form_data'  => $formData,
                 ]);
+
+                // Kirim log error ke server keuangan agar tersimpan di Keu-Siakad/storage/logs/laravel.log
+                $this->sendErrorLogToKeuangan(
+                    "Gagal submit pembayaran ke API Keuangan (Status: {$response->status()})",
+                    $siswaId,
+                    $tagihanId,
+                    [
+                        'status'         => $response->status(),
+                        'response_body'  => $response->json() ?? $response->body(),
+                        'request_payload'=> $formData,
+                    ]
+                );
 
                 $errorMessage = 'Gagal mengirim pembayaran ke server.';
                 if ($response->status() === 422) {
                     $errors = $response->json()['errors'] ?? [];
                     $errorMessage = collect($errors)->flatten()->first() ?? $errorMessage;
+                } elseif ($response->status() === 401) {
+                    $errorMessage = 'Gagal otentikasi sistem (HMAC / Key Keuangan tidak valid).';
+                } elseif ($response->status() === 404) {
+                    $errorMessage = 'Tagihan tidak ditemukan di sistem keuangan.';
                 }
 
                 return redirect()->back()
@@ -230,13 +336,26 @@ class PembayaranController extends Controller
             }
         } catch (\Exception $e) {
             Log::error('Exception when submitting payment', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
+                'error'      => $e->getMessage(),
+                'trace'      => $e->getTraceAsString(),
+                'tagihan_id' => $tagihanId,
+                'siswa_id'   => $siswaId,
             ]);
+
+            // Teruskan exception ke log Keuangan
+            $this->sendErrorLogToKeuangan(
+                'Exception saat submit pembayaran di SIAKAD: ' . $e->getMessage(),
+                $siswaId,
+                $tagihanId,
+                [
+                    'exception' => $e->getMessage(),
+                    'file'      => $e->getFile() . ':' . $e->getLine(),
+                ]
+            );
 
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'Terjadi kesalahan koneksi ke server keuangan.');
+                ->with('error', 'Terjadi kesalahan koneksi ke server keuangan: ' . $e->getMessage());
         }
     }
 }

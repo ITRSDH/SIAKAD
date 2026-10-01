@@ -17,9 +17,9 @@ class PembayaranController extends Controller
 
     public function __construct()
     {
-        $this->apiUrl = config('api.keuangan_url') ?? env('API_URL_KEUANGAN', 'http://127.0.0.1:8900');
-        $this->secret = config('services.internal_api.secret') ?? env('INTERNAL_API_SECRET', 'super-secret-siakad-555');
-        $this->apiUrlakad = config('api.base_url') ?? env('API_BASE_URL', 'http://127.0.0.1:8800/api/v1/');
+        $this->apiUrl = config('api.keuangan_url') ?: (env('API_URL_KEUANGAN') ?: 'http://127.0.0.1:8900');
+        $this->secret = config('services.internal_api.secret') ?: (env('INTERNAL_API_SECRET') ?: 'super-secret-siakad-555');
+        $this->apiUrlakad = config('api.base_url') ?: (env('API_BASE_URL') ?: 'http://127.0.0.1:8800/api/v1/');
     }
 
     /**
@@ -257,10 +257,12 @@ class PembayaranController extends Controller
 
         // Prepare form data
         $formData = [
-            'siswa_id' => $siswaId,
-            'jumlah' => $request->jumlah,
-            'catatan' => $request->catatan ?? null,
+            'siswa_id' => (string) $siswaId,
+            'jumlah'   => $request->jumlah,
         ];
+        if (!empty($request->catatan)) {
+            $formData['catatan'] = (string) $request->catatan;
+        }
 
         // Create HMAC signature for POST with form data
         $bodyForSign = json_encode($formData);

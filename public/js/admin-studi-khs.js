@@ -18,12 +18,45 @@
     const khsBatchPageSize = 10;
     let khsSearchTerm = '';
 
+    function isRplStudent(row) {
+        return Boolean(row?.is_rpl)
+            || String(row?.nim || '').toUpperCase().endsWith('B')
+            || ['rpl', 'pindahan', 'alih jenjang', 'transfer'].includes(String(row?.jalur_masuk || '').toLowerCase());
+    }
+
+    function updateJalurFilterLabels(rows = readyKhsRows) {
+        let rplCount = 0;
+        let regulerCount = 0;
+        (rows || []).forEach((row) => {
+            if (isRplStudent(row)) {
+                rplCount++;
+            } else {
+                regulerCount++;
+            }
+        });
+        const totalCount = rplCount + regulerCount;
+        $('#khsBatchJalurFilter option[value="all"]').text(`Semua Jalur (${totalCount})`);
+        $('#khsBatchJalurFilter option[value="reguler"]').text(`Hanya Reguler (${regulerCount})`);
+        $('#khsBatchJalurFilter option[value="rpl"]').text(`Hanya RPL (${rplCount})`);
+    }
+
     function getFilteredReadyRows(rows) {
         const q = khsSearchTerm.trim().toLowerCase();
-        if (!q) {
-            return rows;
-        }
-        return rows.filter((row) => {
+        const jalurFilter = $('#khsBatchJalurFilter').val() || 'all';
+
+        return (rows || []).filter((row) => {
+            const isRpl = isRplStudent(row);
+
+            if (jalurFilter === 'rpl' && !isRpl) {
+                return false;
+            }
+            if (jalurFilter === 'reguler' && isRpl) {
+                return false;
+            }
+
+            if (!q) {
+                return true;
+            }
             const name = (row.nama_mahasiswa || '').toLowerCase();
             const nim = (row.nim || '').toLowerCase();
             return name.includes(q) || nim.includes(q);
@@ -35,11 +68,14 @@
         const filteredRows = getFilteredReadyRows(readyKhsRows);
         const hasSearch = khsSearchTerm.trim() !== '';
 
+        const jalurFilter = $('#khsBatchJalurFilter').val() || 'all';
+        const jalurText = jalurFilter === 'rpl' ? ' (Hanya RPL)' : (jalurFilter === 'reguler' ? ' (Hanya Reguler)' : '');
+
         if (!rows || !rows.length || !filteredRows.length) {
             $('#readyKhsTableBody').html(
                 '<tr><td colspan="7" class="text-center text-muted py-4">' +
-                (hasSearch
-                    ? 'Tidak ada mahasiswa yang cocok dengan pencarian.'
+                (hasSearch || jalurFilter !== 'all'
+                    ? 'Tidak ada mahasiswa yang cocok dengan pencarian / filter jalur.'
                     : 'Tidak ada mahasiswa yang bisa ditampilkan untuk konteks ini.') +
                 '</td></tr>'
             );
@@ -47,8 +83,19 @@
             $('#khsBatchSelectAll').prop('checked', false);
             $('#khsBatchResult').html('');
             renderKhsBatchPager(0);
+            $('#khsBatchSearchSummary').text(
+                (hasSearch || jalurFilter !== 'all')
+                    ? `Menampilkan 0 dari ${rows.length} mahasiswa${jalurText}.`
+                    : 'Cari mahasiswa berdasarkan nama/NIM atau gunakan filter jalur.'
+            );
             return;
         }
+
+        $('#khsBatchSearchSummary').text(
+            (hasSearch || jalurFilter !== 'all')
+                ? `Menampilkan ${filteredRows.length} dari ${rows.length} mahasiswa${jalurText}.`
+                : 'Cari mahasiswa berdasarkan nama/NIM atau gunakan filter jalur.'
+        );
 
         // Saring ID yang dipilih yang masih ada di daftar terbaru.
         const availableIds = readyKhsRows.map((row) => row.id_mahasiswa);
@@ -91,11 +138,16 @@
                     <i class="fas fa-eye me-1"></i> Detail
                 </button>`;
 
+            const isRpl = isRplStudent(row);
+            const jalurBadge = isRpl
+                ? `<span class="badge bg-warning text-dark ms-1"><i class="fas fa-exchange-alt me-1"></i>RPL</span>`
+                : `<span class="badge bg-info text-white ms-1">Reguler</span>`;
+
             return `
                     <tr>
                         <td><input type="checkbox" class="khs-batch-row-checkbox" value="${escapeHtml(row.id_mahasiswa)}" ${selected ? 'checked' : ''} ${checkDisabled}></td>
                         <td>
-                            <div class="fw-semibold">${escapeHtml(row.nama_mahasiswa)}</div>
+                            <div class="fw-semibold">${escapeHtml(row.nama_mahasiswa)} ${jalurBadge}</div>
                             <div class="small text-muted">${escapeHtml(row.nim)}${row.prodi ? ' • ' + escapeHtml(row.prodi) : ''}</div>
                             ${reason}
                         </td>
@@ -265,8 +317,10 @@
             angkatan: $('#studyAngkatan').val(),
             q: khsSearchTerm
         }).done(function (response) {
+            updateJalurFilterLabels(response.data ?? []);
             renderReadyKhsRows(response.data ?? []);
         }).fail(function (xhr) {
+            updateJalurFilterLabels([]);
             showStudyAlert(xhr.responseJSON?.message ?? 'Data mahasiswa yang siap dibuatkan KHS gagal dimuat.', 'danger');
         }).always(function () {
             $button.prop('disabled', false).html('<i class="fas fa-list-check me-1"></i> Muat Mahasiswa Siap');
@@ -318,6 +372,11 @@
 
     $('#khsBatchGenerateBtn').on('click', runKhsBatchGenerate);
 
+    $('#khsBatchJalurFilter').on('change', function () {
+        khsBatchPage = 1;
+        renderReadyKhsRows(readyKhsRows);
+    });
+
     // Pencarian nama / NIM mahasiswa (server-side, debounce 300ms).
     let khsSearchTimer = null;
     $('#khsBatchSearch').on('input', function () {
@@ -354,6 +413,8 @@
             selectedKhsStudentIds = [];
             khsBatchPage = 1;
             readyKhsRows = [];
+            $('#khsBatchJalurFilter').val('all');
+            updateJalurFilterLabels([]);
             $('#khsBatchGenerateBtn').prop('disabled', true).text('Generate KHS (0)');
             $('#readyKhsTableBody').html(
                 '<tr><td colspan="7" class="text-center text-muted py-4">Pilih semester lalu muat daftar.</td></tr>'

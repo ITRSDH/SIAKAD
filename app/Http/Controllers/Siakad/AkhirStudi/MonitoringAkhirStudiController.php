@@ -26,18 +26,18 @@ class MonitoringAkhirStudiController extends Controller
             $periodeWisudaResponse = $this->apiRequest('wisuda/periode');
 
             if (
-                ! $tugasAkhirResponse->successful() ||
-                ! $yudisiumResponse->successful() ||
-                ! $kelulusanResponse->successful() ||
+                ! $tugasAkhirResponse->successful() &&
+                ! $yudisiumResponse->successful() &&
+                ! $kelulusanResponse->successful() &&
                 ! $periodeWisudaResponse->successful()
             ) {
                 return back()->with('error', 'Gagal mengambil data monitoring akhir studi dari API.');
             }
 
-            $tugasAkhir = collect($tugasAkhirResponse->json()['data'] ?? []);
-            $yudisium = collect($yudisiumResponse->json()['data'] ?? []);
-            $kelulusan = collect($kelulusanResponse->json()['data'] ?? []);
-            $periodeWisuda = collect($periodeWisudaResponse->json()['data'] ?? []);
+            $tugasAkhir = collect($tugasAkhirResponse->successful() ? ($tugasAkhirResponse->json()['data'] ?? []) : []);
+            $yudisium = collect($yudisiumResponse->successful() ? ($yudisiumResponse->json()['data'] ?? []) : []);
+            $kelulusan = collect($kelulusanResponse->successful() ? ($kelulusanResponse->json()['data'] ?? []) : []);
+            $periodeWisuda = collect($periodeWisudaResponse->successful() ? ($periodeWisudaResponse->json()['data'] ?? []) : []);
 
             $filters = [
                 'tugas_akhir_status' => (string) $request->query('tugas_akhir_status', ''),

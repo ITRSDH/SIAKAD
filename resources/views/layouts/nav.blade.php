@@ -39,17 +39,36 @@
                     </a>
                 </li>
 
-                @if (in_array('baak', $user['role'] ?? []) || in_array('admin', $user['role'] ?? []))
-                    {{-- Admin --}}
+                @php
+                    $userRoles = (array) ($user['role'] ?? $user['roles'] ?? session('user.role', []));
+                    $userPermissions = (array) ($user['permission'] ?? $user['permissions'] ?? session('user.permission', []));
+                    $profileType = session('profile_type');
+
+                    // Hak akses menu pengelolaan / admin / staf / role kustom:
+                    $hasAdminOrStaffAccess = in_array('admin', $userRoles)
+                        || in_array('baak', $userRoles)
+                        || count(array_diff($userRoles, ['mahasiswa', 'dosen'])) > 0
+                        || (!empty($userPermissions) && !in_array('mahasiswa', $userRoles));
+
+                    $hasDosenAccess = in_array('dosen', $userRoles)
+                        || in_array('kaprodi', $userRoles)
+                        || $profileType === 'dosen';
+
+                    $hasMahasiswaAccess = in_array('mahasiswa', $userRoles)
+                        || $profileType === 'mahasiswa';
+                @endphp
+
+                @if ($hasAdminOrStaffAccess)
+                    {{-- Admin / Staf / Role Kustom --}}
                     @include('layouts.partials-nav.admin')
                 @endif
 
-                @if (in_array('dosen', $user['role'] ?? []) || in_array('kaprodi', $user['role'] ?? []))
+                @if ($hasDosenAccess)
                     {{-- Dosen --}}
                     @include('layouts.partials-nav.dosen')
                 @endif
 
-                @if (in_array('mahasiswa', $user['role'] ?? []))
+                @if ($hasMahasiswaAccess)
                     {{-- Mahasiswa --}}
                     @include('layouts.partials-nav.mahasiswa')
                 @endif

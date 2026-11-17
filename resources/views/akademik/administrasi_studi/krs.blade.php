@@ -77,6 +77,18 @@
                         </button>
                     </div>
                 </div>
+
+                <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top flex-wrap gap-2">
+                    <div class="small text-muted">
+                        <i class="fas fa-info-circle me-1 text-primary"></i>
+                        Pengesahan dan penguncian KRS data historis untuk semester lampau.
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-outline-success btn-sm fw-semibold" id="studyApproveKrsLampauBtn">
+                            <i class="fas fa-check-double me-1"></i> Sahkan Semua KRS Lampau
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -151,10 +163,17 @@
                 <div class="card-body p-4">
                     <div class="study-filter-strip">
                         <div class="summary" id="studyHistoricalEligibleSummary">Belum ada mahasiswa yang dimuat.</div>
-                        <div class="search-input-wrap">
-                            <i class="fas fa-search search-input-icon"></i>
-                            <input type="text" class="form-control form-control-sm" id="studyHistoricalEligibleSearch"
-                                placeholder="Cari nama atau NIM mahasiswa" disabled>
+                        <div class="d-flex flex-wrap align-items-center gap-2">
+                            <select class="form-select form-select-sm" id="studyHistoricalJalurFilter" style="width: auto; min-width: 170px;">
+                                <option value="all">Semua Jalur (Reguler &amp; RPL)</option>
+                                <option value="reguler">Hanya Reguler</option>
+                                <option value="rpl">Hanya RPL</option>
+                            </select>
+                            <div class="search-input-wrap">
+                                <i class="fas fa-search search-input-icon"></i>
+                                <input type="text" class="form-control form-control-sm" id="studyHistoricalEligibleSearch"
+                                    placeholder="Cari nama atau NIM mahasiswa">
+                            </div>
                         </div>
                     </div>
                     <div class="study-collective-table-wrap">
@@ -300,10 +319,11 @@
             historicalRepeatCandidatesRoute: '{{ route('akademik.administrasi-studi.historical.repeat-candidates') }}',
             historicalPreviewRoute: '{{ route('akademik.administrasi-studi.historical.preview') }}',
             historicalExecuteRoute: '{{ route('akademik.administrasi-studi.historical.execute') }}',
+            approveKrsLampauRoute: '{{ route('akademik.administrasi-studi.approve-krs-lampau') }}',
         };
     </script>
-    <script src="{{ asset('js/admin-studi-common.js') }}"></script>
-    <script src="{{ asset('js/admin-studi-krs.js') }}"></script>
+    <script src="{{ asset('js/admin-studi-common.js') }}?v={{ filemtime(public_path('js/admin-studi-common.js')) }}"></script>
+    <script src="{{ asset('js/admin-studi-krs.js') }}?v={{ filemtime(public_path('js/admin-studi-krs.js')) }}"></script>
     <script>
         // Wizard bertahap Daftarkan KRS (frontend hanya; API tidak diubah).
         (function() {

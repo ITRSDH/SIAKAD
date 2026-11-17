@@ -21,17 +21,21 @@ class ProfileDosenController extends Controller
     public function index()
     {
         try {
-            $prodiResponse = Http::withToken($this->apiToken)->get($this->apiUrl.'prodi');
+            $token = $this->apiToken ?: session('access_token');
+
+            // Coba ambil data prodi dari endpoint landing terlebih dahulu (tidak dibatasi role master data)
+            $prodiResponse = Http::withToken($token)->get($this->apiUrl.'landing/prodi');
 
             if (! $prodiResponse->successful()) {
-                return back()->with('error', 'Gagal mengambil data dari API');
+                // Fallback ke endpoint prodi master data
+                $prodiResponse = Http::withToken($token)->get($this->apiUrl.'prodi');
             }
 
             $prodiData = $prodiResponse->json()['data'] ?? [];
-            $prodi = $prodiData['prodi'] ?? [];
+            $prodi = isset($prodiData['prodi']) ? $prodiData['prodi'] : (is_array($prodiData) ? $prodiData : []);
             $jenjangPendidikan = $prodiData['jenjang_pendidikan'] ?? [];
 
-            $profileDosenResponse = Http::withToken($this->apiToken)->get($this->apiUrl.'profile-dosen');
+            $profileDosenResponse = Http::withToken($token)->get($this->apiUrl.'profile-dosen');
 
             if (! $profileDosenResponse->successful()) {
                 return back()->with('error', 'Gagal mengambil data profile dosen dari API');

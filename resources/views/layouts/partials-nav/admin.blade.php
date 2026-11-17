@@ -8,6 +8,9 @@
 'websitekampus.landing.landing-content.index',
 'websitekampus.landing.ormawa.index',
 'websitekampus.landing.profile-kampus.index',
+'websitekampus.landing.profile-dosen.index',
+'websitekampus.landing.pmb-pendaftaran.index',
+'websitekampus.landing.sertifikat-akreditasi.index'
 )
 <li class="nav-section">
     <span class="sidebar-mini-icon">
@@ -188,6 +191,7 @@
         'akademik.khs.*',
         'akademik.riwayat-studi.*',
         'akademik.administrasi-studi.*',
+        'akademik.import-aio.*',
     ];
     $capaianRoutes = ['capaian.*'];
     $akhirStudiRoutes = ['tugas-akhir.*', 'yudisium.*', 'kelulusan.*', 'akhir-studi.monitoring'];
@@ -248,9 +252,55 @@
         in_array('admin', $userRoles, true) || count(array_intersect($historicalPermissions, $userPermissions)) > 0;
     $canAccessStudentStudy =
         in_array('admin', $userRoles, true) || count(array_intersect($studentStudyPermissions, $userPermissions)) > 0;
+
+    $akademikPermissions = [
+        'siakad.master.refrensi.prodi.index',
+        'siakad.master.refrensi.tahun-akademik.index',
+        'siakad.master.refrensi.kurikulum.index',
+        'siakad.master.refrensi.mata-kuliah.index',
+        'siakad.master.refrensi.ruang-kuliah.index',
+        'siakad.master.refrensi.periode-krs.index',
+        'siakad.master.refrensi.kelas-kuliah.index',
+        'siakad.master.refrensi.cpl.index',
+        'siakad.master.refrensi.profile-lulusan.index',
+        'siakad.master.refrensi.indikator-kinerja.index',
+        'siakad.master.refrensi.pemetaan-pl-cpl.index',
+        'siakad.master.refrensi.pemetaan-cpl-mk.index',
+        'akademik.import-aio.options',
+        'akademik.import-aio.process',
+        'siakad.akademik.import-aio.index',
+        'siakad.akademik.tugas-akhir.index',
+        'siakad.akademik.yudisium.index',
+        'siakad.akademik.kelulusan.index',
+        'administratif.wisuda.periode.index',
+        'administratif.wisuda.peserta.index',
+        'siakad.akademik.wisuda.periode.index',
+        'siakad.akademik.wisuda.peserta.index',
+    ];
+    $canAccessAkademikSection = in_array('admin', $userRoles, true)
+        || in_array('baak', $userRoles, true)
+        || $canAccessStudentStudy
+        || count(array_intersect($akademikPermissions, $userPermissions)) > 0;
 @endphp
 
-{{-- ================= MASTER DATA ================= --}}
+{{-- ================= AKADEMIK SECTION ================= --}}
+@if ($canAccessAkademikSection)
+<li class="nav-section">
+    <span class="sidebar-mini-icon">
+        <i class="fa fa-ellipsis-h"></i>
+    </span>
+    <h4 class="text-section">Akademik</h4>
+</li>
+
+@if (in_array('admin', $userRoles, true) || in_array('baak', $userRoles, true))
+<li class="nav-item {{ $isBaakWorkspaceActive ? 'active' : '' }}">
+    <a href="{{ route('workspace.baak') }}">
+        <i class="fas fa-briefcase"></i>
+        <p>Workspace BAAK</p>
+    </a>
+</li>
+@endif
+
 @canAnyApi(
 'siakad.master.refrensi.prodi.index',
 'siakad.master.refrensi.tahun-akademik.index',
@@ -259,18 +309,6 @@
 'siakad.master.refrensi.ruang-kuliah.index',
 'siakad.master.refrensi.periode-krs.index'
 )
-<li class="nav-section">
-    <span class="sidebar-mini-icon">
-        <i class="fa fa-ellipsis-h"></i>
-    </span>
-    <h4 class="text-section">Akademik</h4>
-</li>
-<li class="nav-item {{ $isBaakWorkspaceActive ? 'active' : '' }}">
-    <a href="{{ route('workspace.baak') }}">
-        <i class="fas fa-briefcase"></i>
-        <p>Workspace BAAK</p>
-    </a>
-</li>
 <li class="nav-item {{ $isMasterActive ? 'active' : '' }}">
     <a data-bs-toggle="collapse" href="#masterdata" class="{{ $isMasterActive ? '' : 'collapsed' }}">
         <i class="fas fa-database"></i>
@@ -334,19 +372,29 @@
 </li>
 @endcanAnyApi
 
-{{-- <li class="nav-item {{ $isCapaianActive ? 'active' : '' }}">
+@canAnyApi(
+'siakad.master.refrensi.cpl.index',
+'siakad.master.refrensi.profile-lulusan.index',
+'siakad.master.refrensi.indikator-kinerja.index',
+'siakad.master.refrensi.pemetaan-pl-cpl.index',
+'siakad.master.refrensi.pemetaan-cpl-mk.index'
+)
+<li class="nav-item {{ $isCapaianActive ? 'active' : '' }}">
     <a href="{{ route('capaian.indexProdi') }}">
         <i class="fas fa-bullseye"></i>
         <p>Capaian Pembelajaran</p>
     </a>
-</li> --}}
+</li>
+@endcanAnyApi
 
+@canApi('siakad.master.refrensi.kelas-kuliah.index')
 <li class="nav-item {{ $isTransaksiActive ? 'active' : '' }}">
     <a href="{{ route('kelas-kuliah.index') }}">
         <i class="fas fa-chalkboard"></i>
         <p>Kelas Kuliah</p>
     </a>
 </li>
+@endcanApi
 
 <li class="nav-item {{ $isMonitoringAkademikActive ? 'active' : '' }}">
     <a data-bs-toggle="collapse" href="#monitoringAkademikMenu"
@@ -390,11 +438,23 @@
                     </a>
                 </li>
             @endif
+            @canAnyApi('akademik.import-aio.options', 'akademik.import-aio.process', 'siakad.akademik.import-aio.index')
+            <li class="{{ request()->routeIs('akademik.import-aio.*') ? 'active' : '' }}">
+                <a href="{{ route('akademik.import-aio.index') }}">
+                    <span class="sub-item">Import AIO</span>
+                </a>
+            </li>
+            @endcanAnyApi
         </ul>
     </div>
 </li>
 
-{{-- <li class="nav-item {{ $isAkhirStudiActive ? 'active' : '' }}">
+@canAnyApi(
+'siakad.akademik.tugas-akhir.index',
+'siakad.akademik.yudisium.index',
+'siakad.akademik.kelulusan.index'
+)
+<li class="nav-item {{ $isAkhirStudiActive ? 'active' : '' }}">
     <a data-bs-toggle="collapse" href="#akhirStudiMenu" class="{{ $isAkhirStudiActive ? '' : 'collapsed' }}">
         <i class="fas fa-graduation-cap"></i>
         <p>Akhir Studi</p>
@@ -403,31 +463,44 @@
 
     <div class="collapse {{ $isAkhirStudiActive ? 'show' : '' }}" id="akhirStudiMenu">
         <ul class="nav nav-collapse">
-            <li>
+            <li class="{{ request()->routeIs('akhir-studi.monitoring') ? 'active' : '' }}">
                 <a href="{{ route('akhir-studi.monitoring') }}">
                     <span class="sub-item">Monitoring</span>
                 </a>
             </li>
-            <li>
+            @canApi('siakad.akademik.tugas-akhir.index')
+            <li class="{{ request()->routeIs('tugas-akhir.*') ? 'active' : '' }}">
                 <a href="{{ route('tugas-akhir.index') }}">
                     <span class="sub-item">Tugas Akhir</span>
                 </a>
             </li>
-            <li>
+            @endcanApi
+            @canApi('siakad.akademik.yudisium.index')
+            <li class="{{ request()->routeIs('yudisium.*') ? 'active' : '' }}">
                 <a href="{{ route('yudisium.index') }}">
                     <span class="sub-item">Yudisium</span>
                 </a>
             </li>
-            <li>
+            @endcanApi
+            @canApi('siakad.akademik.kelulusan.index')
+            <li class="{{ request()->routeIs('kelulusan.*') ? 'active' : '' }}">
                 <a href="{{ route('kelulusan.index') }}">
                     <span class="sub-item">Kelulusan</span>
                 </a>
             </li>
+            @endcanApi
         </ul>
     </div>
-</li> --}}
+</li>
+@endcanAnyApi
 
-{{-- <li class="nav-item {{ $isAdministratifActive ? 'active' : '' }}">
+@canAnyApi(
+'administratif.wisuda.periode.index',
+'administratif.wisuda.peserta.index',
+'siakad.akademik.wisuda.periode.index',
+'siakad.akademik.wisuda.peserta.index'
+)
+<li class="nav-item {{ $isAdministratifActive ? 'active' : '' }}">
     <a data-bs-toggle="collapse" href="#administratifMenu" class="{{ $isAdministratifActive ? '' : 'collapsed' }}">
         <i class="fas fa-clipboard-check"></i>
         <p>Administratif</p>
@@ -441,25 +514,17 @@
                     <span class="sub-item">Wisuda</span>
                 </a>
             </li>
-            <li>
-                <a href="javascript:void(0)" class="text-muted">
-                    <span class="sub-item">Dokumen & Layanan</span>
-                    <span class="badge badge-secondary ms-2">Backlog</span>
-                </a>
-            </li>
-            <li>
-                <a href="{{ route('akademik.monitoring') }}">
-                    <span class="sub-item">Monitoring Akademik</span>
-                </a>
-            </li>
         </ul>
     </div>
-</li> --}}
+</li>
+@endcanAnyApi
+@endif
 
 
 {{-- ================= DOSEN ================= --}}
 @canAnyApi(
 'siakad.master.refrensi.dosen.index',
+'siakad.master.refrensi.dosen-wali.index',
 'siakad.master.refrensi.prodi.index'
 )
 <li class="nav-item {{ $isDosenActive ? 'active' : '' }}">
@@ -494,14 +559,14 @@
             </li>
             @endcanApi
 
-            @canApi('siakad.master.refrensi.dosen.index')
+            @canAnyApi('siakad.master.refrensi.dosen-wali.index', 'siakad.master.refrensi.dosen.index')
             <li
                 class="{{ request()->routeIs('aktor-akademik.pembimbing-akademik') || request()->routeIs('dosen-wali.*') ? 'active' : '' }}">
                 <a href="{{ route('aktor-akademik.pembimbing-akademik') }}">
                     <span class="sub-item">Pembimbing Akademik</span>
                 </a>
             </li>
-            @endcanApi
+            @endcanAnyApi
 
             @canApiPengguna('pengguna.setting.users.index')
             <li class="{{ request()->routeIs('workspace.baak') ? 'active' : '' }}">
@@ -549,11 +614,13 @@
             </li>
             @endcanApi
 
+            @canApi('siakad.akademik.nilai-transfer.index')
             <li class="{{ request()->routeIs('akademik.nilai-transfer.*') ? 'active' : '' }}">
                 <a href="{{ route('akademik.nilai-transfer.index') }}">
                     <span class="sub-item">Konversi Nilai (RPL)</span>
                 </a>
             </li>
+            @endcanApi
 
         </ul>
     </div>

@@ -33,18 +33,14 @@ class KRSHistoricalController extends Controller
             $filtersResponse = $this->apiRequest('get', 'krs-historical/filters');
             $batchesResponse = $this->apiRequest('get', 'krs-historical/batches', [], ['per_page' => 5]);
 
-            if (! $filtersResponse->successful()) {
-                throw new \RuntimeException($filtersResponse->json('message') ?? 'Gagal mengambil filter riwayat studi historis.');
-            }
-
-            if (! $batchesResponse->successful()) {
-                throw new \RuntimeException($batchesResponse->json('message') ?? 'Gagal mengambil histori batch riwayat studi historis.');
+            if (! $filtersResponse->successful() && ! $batchesResponse->successful()) {
+                throw new \RuntimeException($filtersResponse->json('message') ?? 'Gagal mengambil data riwayat studi historis.');
             }
 
             return view('akademik.riwayat_studi.index', [
-                'filters' => $filtersResponse->json('data', []),
-                'recentBatches' => $batchesResponse->json('data', []),
-                'recentBatchMeta' => $batchesResponse->json('meta', []),
+                'filters' => $filtersResponse->successful() ? $filtersResponse->json('data', []) : [],
+                'recentBatches' => $batchesResponse->successful() ? $batchesResponse->json('data', []) : [],
+                'recentBatchMeta' => $batchesResponse->successful() ? $batchesResponse->json('meta', []) : [],
             ]);
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());

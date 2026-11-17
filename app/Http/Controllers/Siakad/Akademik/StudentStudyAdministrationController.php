@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Siakad\Akademik;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Client\Response;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -75,17 +76,13 @@ class StudentStudyAdministrationController extends Controller
         $filtersResponse = $this->apiRequest('get', 'administrasi-studi/filters');
         $summaryResponse = $this->apiRequest('get', 'administrasi-studi/summary');
 
-        if (! $filtersResponse->successful()) {
-            throw new \RuntimeException($filtersResponse->json('message') ?? 'Gagal mengambil filter administrasi studi.');
-        }
-
-        if (! $summaryResponse->successful()) {
-            throw new \RuntimeException($summaryResponse->json('message') ?? 'Gagal mengambil ringkasan administrasi studi.');
+        if (! $filtersResponse->successful() && ! $summaryResponse->successful()) {
+            throw new \RuntimeException($filtersResponse->json('message') ?? 'Gagal mengambil data administrasi studi.');
         }
 
         return [
-            'filters' => $filtersResponse->json('data', []),
-            'workspaceSummary' => $summaryResponse->json('data', []),
+            'filters' => $filtersResponse->successful() ? $filtersResponse->json('data', []) : [],
+            'workspaceSummary' => $summaryResponse->successful() ? $summaryResponse->json('data', []) : [],
         ];
     }
 
@@ -340,6 +337,27 @@ class StudentStudyAdministrationController extends Controller
         }
     }
 
+    public function approveKrsLampau(Request $request): JsonResponse
+    {
+        try {
+            $payload = array_filter([
+                'id_semester' => $request->input('id_semester'),
+                'id_prodi' => $request->input('id_prodi'),
+                'angkatan' => $request->input('angkatan'),
+                'id_mahasiswa' => $request->input('id_mahasiswa'),
+            ], fn ($val) => filled($val));
+
+            $response = $this->apiRequest('post', 'administrasi-studi/approve-krs-lampau', $payload);
+
+            return response()->json($response->json(), $response->status());
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
     public function readyForKhs(Request $request)
     {
         try {
@@ -426,6 +444,32 @@ class StudentStudyAdministrationController extends Controller
         return (bool) $value;
     }
 
+    public function templateSubjects(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'angkatan' => 'required|integer',
+            'id_prodi' => 'required|string',
+            'id_semester' => 'required|string',
+            'semester_ke' => 'required|integer|min:1',
+        ], [
+            'angkatan.required' => 'Angkatan wajib diisi.',
+            'id_prodi.required' => 'Program studi wajib dipilih.',
+            'id_semester.required' => 'Semester akademik wajib dipilih.',
+            'semester_ke.required' => 'Semester ke wajib diisi.',
+        ]);
+
+        try {
+            $response = $this->apiRequest('get', 'khs/import/template/subjects', [], $validated);
+
+            return response()->json($response->json(), $response->status());
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
     public function exportImportTemplate(Request $request)
     {
         $validated = $request->validate([
@@ -433,6 +477,7 @@ class StudentStudyAdministrationController extends Controller
             'id_prodi' => 'required|string',
             'id_semester' => 'required|string',
             'semester_ke' => 'required|integer|min:1',
+            'subject_order' => 'nullable|string',
         ], [
             'angkatan.required' => 'Angkatan wajib diisi.',
             'id_prodi.required' => 'Program studi wajib dipilih.',

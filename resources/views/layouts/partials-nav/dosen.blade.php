@@ -6,8 +6,9 @@
 </li>
 
 @php
-    $roles = session('user.role', []);
+    $roles = (array) ($user['role'] ?? $user['roles'] ?? session('user.role', []));
     $isKaprodi = in_array('kaprodi', $roles, true);
+    $isDosen = in_array('dosen', $roles, true) || (session('profile_type') === 'dosen');
 @endphp
 
 @if ($isKaprodi)
@@ -19,7 +20,7 @@
     </li>
 @endif
 
-@if (session('profile_type') === 'dosen')
+@if ($isDosen)
     <li class="nav-item {{ request()->routeIs('workspace.dosen-pengajar') ? 'active' : '' }}">
         <a href="{{ route('workspace.dosen-pengajar') }}" class="collapsed" aria-expanded="false">
             <i class="fas fa-chalkboard-teacher"></i>

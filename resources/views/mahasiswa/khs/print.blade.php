@@ -104,11 +104,13 @@
     <style>
         @page {
             size: A4 portrait;
-            margin: 12mm;
+            margin: 0;
         }
 
         * {
             box-sizing: border-box;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
         }
 
         body {
@@ -117,6 +119,8 @@
             color: #111827;
             font-size: 12px;
             background: #eef2f7;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
         }
 
         .toolbar {
@@ -155,7 +159,7 @@
             min-height: 297mm;
             margin: 16px auto 24px;
             background: #ffffff;
-            padding: 14mm 14mm 18mm;
+            padding: 12mm 15mm 15mm;
             box-shadow: 0 8px 30px rgba(15, 23, 42, 0.08);
         }
 
@@ -172,6 +176,7 @@
             width: 78px;
             height: 78px;
             object-fit: contain;
+            flex-shrink: 0;
         }
 
         .header-text {
@@ -222,7 +227,7 @@
         .meta-table,
         .courses-table,
         .summary-table {
-            width: 98%;
+            width: 100%;
             border-collapse: collapse;
         }
 
@@ -249,14 +254,16 @@
         .courses-table td,
         .summary-table td {
             border: 1px solid #1f2937;
-            padding: 7px 6px;
+            padding: 6px 6px;
             vertical-align: middle;
         }
 
         .courses-table th {
-            background: #e5f3e8;
+            background-color: #e5f3e8 !important;
             text-align: center;
             font-size: 11px;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
         }
 
         .summary-table {
@@ -305,7 +312,7 @@
         }
 
         .signature-space {
-            height: 76px;
+            height: 55px;
         }
 
         .signature-name {
@@ -320,21 +327,49 @@
         }
 
         @media print {
-            body {
-                background: #ffffff;
+            html, body {
+                width: 100%;
+                height: auto;
+                background: #ffffff !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
 
             .toolbar,
             .toolbar-note {
-                display: none;
+                display: none !important;
             }
 
             .sheet {
-                box-shadow: none;
-                margin: 0;
-                width: auto;
-                min-height: auto;
-                padding: 0;
+                box-shadow: none !important;
+                margin: 0 auto !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                min-height: auto !important;
+                padding: 12mm 15mm !important;
+                border: none !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .courses-table th {
+                background-color: #e5f3e8 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .header {
+                border-bottom: 3px solid #166534 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .courses-table,
+            .signature-table,
+            tr {
+                page-break-inside: avoid !important;
             }
         }
     </style>
@@ -446,11 +481,11 @@
             </tfoot>
         </table>
 
-        <p class="note">NB*</p>
-        <p style="margin-top: 12px; font-size: 12px;">{{ $keteranganAkademik }}
-        </p>
+        <div style="margin-top: 12px; font-size: 11px;">
+            <span style="font-weight: bold;">NB*</span> {{ $keteranganAkademik }}
+        </div>
 
-        <table class="signature-table" style="width: 100%; margin-top: 36px; border: none;">
+        <table class="signature-table" style="width: 100%; margin-top: 20px; border: none;">
             <tr>
                 <td style="width: 50%;"></td>
                 <td style="width: 50%; text-align: center; vertical-align: top; padding: 0 20px;">

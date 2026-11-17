@@ -26,8 +26,8 @@ class AppServiceProvider extends ServiceProvider
         View::composer('*', function ($view) {
             if (Session::has('user')) {
                 $user = Session::get('user');
-                $roles = $user['roles'] ?? [];
-                $permissions = $user['permissions'] ?? [];
+                $roles = (array) ($user['role'] ?? $user['roles'] ?? []);
+                $permissions = (array) ($user['permission'] ?? $user['permissions'] ?? []);
 
                 $view->with([
                     'user' => $user,
@@ -45,14 +45,16 @@ class AppServiceProvider extends ServiceProvider
 
         // 🔸 Custom Blade directive untuk permission
         Blade::if('canApi', function ($permission) {
-            $permissions = Session::get('user.permission', []);
+            $user = Session::get('user', []);
+            $permissions = (array) ($user['permission'] ?? $user['permissions'] ?? Session::get('user.permission', []));
 
             return in_array($permission, $permissions);
         });
 
         // 🔸 canAnyApi: true jika salah satu permission ada
         Blade::if('canAnyApi', function (...$permissions) {
-            $userPermissions = Session::get('user.permission', []);
+            $user = Session::get('user', []);
+            $userPermissions = (array) ($user['permission'] ?? $user['permissions'] ?? Session::get('user.permission', []));
 
             foreach ($permissions as $p) {
                 if (in_array($p, $userPermissions)) {
@@ -65,28 +67,30 @@ class AppServiceProvider extends ServiceProvider
 
         // 🔸 Custom Blade directive untuk role
         Blade::if('hasRole', function ($role) {
-            $roles = Session::get('user.role', []);
+            $user = Session::get('user', []);
+            $roles = (array) ($user['role'] ?? $user['roles'] ?? Session::get('user.role', []));
 
             return in_array($role, $roles);
         });
 
         // 🔸 Custom Blade directive kebalikannya (jika tidak punya permission)
         Blade::if('cannotApi', function ($permission) {
-            $permissions = Session::get('user.permission', []);
+            $user = Session::get('user', []);
+            $permissions = (array) ($user['permission'] ?? $user['permissions'] ?? Session::get('user.permission', []));
 
             return ! in_array($permission, $permissions);
         });
 
         // 🔸 Custom directive untuk section pengguna yang bypass admin
         Blade::if('canAnyApiPengguna', function (...$permissions) {
-            $roles = Session::get('user.role', []);
+            $roles = (array) Session::get('user.role', []);
 
             // Jika user memiliki role admin, bypass semua permission check
             if (in_array('admin', $roles)) {
                 return true;
             }
 
-            $userPermissions = Session::get('user.permission', []);
+            $userPermissions = (array) Session::get('user.permission', []);
 
             foreach ($permissions as $p) {
                 if (in_array($p, $userPermissions)) {
@@ -99,14 +103,14 @@ class AppServiceProvider extends ServiceProvider
 
         // 🔸 Custom directive untuk single permission di section pengguna yang bypass admin
         Blade::if('canApiPengguna', function ($permission) {
-            $roles = Session::get('user.role', []);
+            $roles = (array) Session::get('user.role', []);
 
             // Jika user memiliki role admin, bypass semua permission check
             if (in_array('admin', $roles)) {
                 return true;
             }
 
-            $permissions = Session::get('user.permission', []);
+            $permissions = (array) Session::get('user.permission', []);
 
             return in_array($permission, $permissions);
         });

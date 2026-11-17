@@ -194,7 +194,10 @@
                                 <label for="filterKodeMk" class="form-label fw-semibold">
                                     <i class="fas fa-barcode me-1 text-primary"></i>Filter Kode MK
                                 </label>
-                                <input type="text" id="filterKodeMk" class="form-control" placeholder="Cari Kode MK...">
+                                <input type="text" id="filterKodeMk" class="form-control" placeholder="Cari Kode MK (pisahkan koma: BIK101, BIK102)...">
+                                <small class="text-muted d-block mt-1" style="font-size: 0.75rem;">
+                                    Pisahkan dengan koma (,) untuk multi kode MK
+                                </small>
                             </div>
                             <div class="col-md-4">
                                 <label for="filterNamaMk" class="form-label fw-semibold">
@@ -358,9 +361,33 @@
                 }
             });
 
-            // Filter Kode MK
+            // Helper escape regex
+            function escapeRegex(val) {
+                if ($.fn.dataTable && $.fn.dataTable.util && typeof $.fn.dataTable.util.escapeRegex === 'function') {
+                    return $.fn.dataTable.util.escapeRegex(val);
+                }
+                return val.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+            }
+
+            // Filter Kode MK (Multi search dengan explode koma ',')
             $('#filterKodeMk').on('keyup change', function() {
-                table.column(2).search(this.value.trim()).draw();
+                const rawVal = $(this).val() || '';
+                const tokens = rawVal.split(',')
+                    .map(function(item) { return item.trim(); })
+                    .filter(function(item) { return item.length > 0; });
+
+                if (tokens.length === 0) {
+                    table.column(2).search('', false, false).draw();
+                    return;
+                }
+
+                const escapedTokens = tokens.map(function(token) {
+                    return escapeRegex(token);
+                });
+
+                // Pola regex OR: (token1|token2|...) case-insensitive
+                const regexPattern = '(' + escapedTokens.join('|') + ')';
+                table.column(2).search(regexPattern, true, false, true).draw();
             });
 
             // Filter Nama Mata Kuliah
@@ -372,7 +399,7 @@
             $('#btnResetFilter').on('click', function() {
                 $('#filterKodeMk').val('');
                 $('#filterNamaMk').val('');
-                table.column(2).search('').column(3).search('').draw();
+                table.column(2).search('', false, false).column(3).search('', false, false).draw();
             });
 
             // Update counter jumlah MK yang dipilih

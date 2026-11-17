@@ -24,13 +24,13 @@ class PembimbingAkademikWorkspaceController extends Controller
             $pendingResponse = Http::withToken($this->apiToken)->get($this->apiUrl.'krs-dosen/pending');
             $bimbinganResponse = Http::withToken($this->apiToken)->get($this->apiUrl.'krs-dosen/mahasiswa-bimbingan');
 
-            if (! $statisticsResponse->successful() || ! $pendingResponse->successful() || ! $bimbinganResponse->successful()) {
+            if (! $statisticsResponse->successful() && ! $pendingResponse->successful() && ! $bimbinganResponse->successful()) {
                 return back()->with('error', 'Gagal mengambil data workspace pembimbing akademik dari API.');
             }
 
-            $statistics = $statisticsResponse->json('data', []);
-            $pendingKrs = $pendingResponse->json('data', []);
-            $mahasiswaBimbingan = $bimbinganResponse->json('data', []);
+            $statistics = $statisticsResponse->successful() ? $statisticsResponse->json('data', []) : [];
+            $pendingKrs = $pendingResponse->successful() ? $pendingResponse->json('data', []) : [];
+            $mahasiswaBimbingan = $bimbinganResponse->successful() ? $bimbinganResponse->json('data', []) : [];
 
             $kpis = [
                 [

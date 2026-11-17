@@ -32,17 +32,145 @@
         $('#studyImportUploadSemester').val($('#studySemesterId').val());
     }
 
+    let originalSubjectList = [];
+
+    function updateOrderBadges() {
+        const total = $('#subjectOrderList li').length;
+        $('#subjectOrderList li').each(function (index) {
+            $(this).find('.order-badge').text(index + 1);
+            $(this).find('.btn-order-up').prop('disabled', index === 0);
+            $(this).find('.btn-order-down').prop('disabled', index === total - 1);
+        });
+    }
+
+    function renderSubjectOrderList(subjects) {
+        const $list = $('#subjectOrderList');
+        $list.empty();
+        $('#subjectOrderCount').text(subjects.length);
+
+        subjects.forEach(function (subj, idx) {
+            const html = `
+                <li class="list-group-item d-flex align-items-center justify-content-between py-2 px-3 border-bottom" data-kode="${subj.kode_mk}">
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="badge bg-primary rounded-pill order-badge" style="min-width: 28px; font-size: 0.85rem;">${idx + 1}</span>
+                        <div>
+                            <div class="fw-bold text-dark">${subj.nama_mk}</div>
+                            <div class="small text-muted"><code class="text-primary fw-semibold">${subj.kode_mk}</code> &bull; ${subj.sks} SKS</div>
+                        </div>
+                    </div>
+                    <div class="btn-group btn-group-sm">
+                        <button type="button" class="btn btn-outline-secondary btn-order-up" title="Geser ke Atas">
+                            <i class="fas fa-arrow-up"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary btn-order-down" title="Geser ke Bawah">
+                            <i class="fas fa-arrow-down"></i>
+                        </button>
+                    </div>
+                </li>
+            `;
+            $list.append(html);
+        });
+
+        updateOrderBadges();
+    }
+
+    $(document).on('click', '#subjectOrderList .btn-order-up', function () {
+        const $li = $(this).closest('li');
+        const $prev = $li.prev('li');
+        if ($prev.length) {
+            $li.insertBefore($prev);
+            updateOrderBadges();
+        }
+    });
+
+    $(document).on('click', '#subjectOrderList .btn-order-down', function () {
+        const $li = $(this).closest('li');
+        const $next = $li.next('li');
+        if ($next.length) {
+            $li.insertAfter($next);
+            updateOrderBadges();
+        }
+    });
+
+    $('#btnResetSubjectOrder').on('click', function () {
+        if (originalSubjectList && originalSubjectList.length > 0) {
+            renderSubjectOrderList(originalSubjectList);
+        }
+    });
+
     $('#studyExportTemplateBtn').on('click', function (event) {
+        event.preventDefault();
         syncImportFormsFromWorkspaceContext();
 
-        if (!$('#studyImportTemplateAngkatan').val() || !$('#studyImportTemplateProdi').val() || !$(
-                '#studyImportTemplateSemester').val() || !$('#studyImportTemplateSemesterKe').val()) {
-            event.preventDefault();
+        const angkatan = $('#studyImportTemplateAngkatan').val();
+        const idProdi = $('#studyImportTemplateProdi').val();
+        const idSemester = $('#studyImportTemplateSemester').val();
+        const semesterKe = $('#studyImportTemplateSemesterKe').val();
+
+        if (!angkatan || !idProdi || !idSemester || !semesterKe) {
             showStudyAlert(
                 'Lengkapi angkatan, program studi, semester, dan semester ke pada filter di atas sebelum mengunduh template.',
                 'warning'
             );
+            return;
         }
+
+        const modalEl = document.getElementById('modalOrderMataKuliah');
+        if (!modalEl) {
+            $('#studyImportTemplateForm')[0].submit();
+            return;
+        }
+
+        const modal = new bootstrap.Modal(modalEl);
+        modal.show();
+
+        $('#subjectOrderLoading').removeClass('d-none');
+        $('#subjectOrderContainer').addClass('d-none');
+        $('#subjectOrderEmpty').addClass('d-none');
+
+        $.ajax({
+            url: window.studyConfig.templateSubjectsRoute,
+            type: 'GET',
+            data: {
+                angkatan: angkatan,
+                id_prodi: idProdi,
+                id_semester: idSemester,
+                semester_ke: semesterKe,
+            },
+            success: function (res) {
+                $('#subjectOrderLoading').addClass('d-none');
+                if (res.success && res.data && res.data.length > 0) {
+                    originalSubjectList = [...res.data];
+                    renderSubjectOrderList(res.data);
+                    $('#subjectOrderContainer').removeClass('d-none');
+                } else {
+                    $('#subjectOrderEmpty').removeClass('d-none');
+                }
+            },
+            error: function () {
+                $('#subjectOrderLoading').addClass('d-none');
+                $('#subjectOrderEmpty').removeClass('d-none');
+            }
+        });
+    });
+
+    $('#btnConfirmDownloadTemplate').on('click', function () {
+        const order = $('#subjectOrderList li')
+            .map(function () {
+                return $(this).data('kode');
+            })
+            .get()
+            .join(',');
+
+        $('#studyImportTemplateSubjectOrder').val(order);
+
+        const modalEl = document.getElementById('modalOrderMataKuliah');
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        if (modal) {
+            modal.hide();
+        }
+
+        $('#studyImportTemplateForm')[0].submit();
     });
 
     $('#studyImportUploadForm').on('submit', function (event) {

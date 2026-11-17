@@ -21,16 +21,20 @@ class PrestasiController extends Controller
     public function index()
     {
         try {
-            $prodiResponse = Http::withToken($this->apiToken)->get($this->apiUrl.'prodi');
+            $token = $this->apiToken ?: session('access_token');
+
+            // Coba ambil data prodi dari endpoint landing terlebih dahulu (tidak dibatasi role master data)
+            $prodiResponse = Http::withToken($token)->get($this->apiUrl.'landing/prodi');
 
             if (! $prodiResponse->successful()) {
-                return back()->with('error', 'Gagal mengambil data dari API');
+                // Fallback ke endpoint prodi master data
+                $prodiResponse = Http::withToken($token)->get($this->apiUrl.'prodi');
             }
 
             $prodiData = $prodiResponse->json()['data'] ?? [];
-            $prodi = $prodiData['prodi'] ?? [];
+            $prodi = isset($prodiData['prodi']) ? $prodiData['prodi'] : (is_array($prodiData) ? $prodiData : []);
 
-            $prestasiResponse = Http::withToken($this->apiToken)->get($this->apiUrl.'prestasi');
+            $prestasiResponse = Http::withToken($token)->get($this->apiUrl.'prestasi');
 
             if (! $prestasiResponse->successful()) {
                 return back()->with('error', 'Gagal mengambil data prestasi dari API');
@@ -40,8 +44,6 @@ class PrestasiController extends Controller
 
             return view('admin.master.website.prestasi.index', compact('prestasi', 'prodi'));
         } catch (\Exception $e) {
-            dd($e->getMessage());
-
             return back()->with('error', $e->getMessage());
         }
     }

@@ -44,6 +44,11 @@ class CapaianController extends Controller
             $response = Http::withToken($this->apiToken)
                 ->get($this->apiUrl."prodi/{$id_prodi}");
 
+            if (! $response->successful()) {
+                $response = Http::withToken($this->apiToken)
+                    ->get($this->apiUrl."landing/prodi/{$id_prodi}");
+            }
+
             // Ambil data
             $prodi = $response->json()['data'] ?? [];
 

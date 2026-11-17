@@ -90,10 +90,17 @@
                     <div class="summary" id="khsBatchSearchSummary">
                         Cari mahasiswa berdasarkan <strong>nama</strong> atau <strong>NIM</strong>.
                     </div>
-                    <div class="search-input-wrap">
-                        <i class="fas fa-search search-input-icon"></i>
-                        <input type="text" class="form-control form-control-sm" id="khsBatchSearch"
-                            placeholder="Cari nama / NIM mahasiswa...">
+                    <div class="d-flex flex-wrap align-items-center gap-2">
+                        <select class="form-select form-select-sm" id="khsBatchJalurFilter" style="width: auto; min-width: 170px;">
+                            <option value="all">Semua Jalur (Reguler &amp; RPL)</option>
+                            <option value="reguler">Hanya Reguler</option>
+                            <option value="rpl">Hanya RPL</option>
+                        </select>
+                        <div class="search-input-wrap">
+                            <i class="fas fa-search search-input-icon"></i>
+                            <input type="text" class="form-control form-control-sm" id="khsBatchSearch"
+                                placeholder="Cari nama / NIM mahasiswa...">
+                        </div>
                     </div>
                 </div>
                 <div class="table-responsive">

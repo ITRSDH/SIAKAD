@@ -268,25 +268,38 @@ class KhsImportController extends Controller
     private function buildSharedData(): array
     {
         $prodiResponse = $this->apiRequest('get', 'dropdown', [], ['type' => 'prodi']);
-        $tahunAkademikResponse = $this->apiRequest('get', 'tahun-akademik');
-        $historyResponse = $this->apiRequest('get', 'khs/import/history');
-
         if (! $prodiResponse->successful()) {
-            throw new \RuntimeException($prodiResponse->json('message') ?? 'Gagal mengambil daftar program studi.');
+            $prodiResponse = $this->apiRequest('get', 'landing/prodi');
         }
 
-        if (! $tahunAkademikResponse->successful()) {
-            throw new \RuntimeException($tahunAkademikResponse->json('message') ?? 'Gagal mengambil daftar tahun akademik.');
+        $tahunAkademikResponse = $this->apiRequest('get', 'tahun-akademik');
+        $semesterData = [];
+        if ($tahunAkademikResponse->successful()) {
+            $semesterData = $this->extractSemesterOptions($tahunAkademikResponse->json('data', []));
+        } else {
+            // Fallback ke endpoint dropdown semester yang tidak dibatasi hak akses master data
+            $semesterDropdown = $this->apiRequest('get', 'dropdown', [], ['type' => 'semester']);
+            if ($semesterDropdown->successful()) {
+                $rawSemesters = $semesterDropdown->json('data.semester', []);
+                $semesterData = collect($rawSemesters)->map(fn ($s) => [
+                    'id' => $s['id'] ?? null,
+                    'nama_semester' => $s['semester'] ?? ($s['nama_semester'] ?? '-'),
+                ])->filter(fn ($s) => filled($s['id']))->values()->all();
+            }
         }
 
-        if (! $historyResponse->successful()) {
-            throw new \RuntimeException($historyResponse->json('message') ?? 'Gagal mengambil riwayat import KHS.');
+        $historyResponse = $this->apiRequest('get', 'khs/import/history');
+        $historyData = $historyResponse->successful() ? $this->normalizeList($historyResponse->json('data', [])) : [];
+        $prodiData = $prodiResponse->successful() ? $this->normalizeProdiOptions($prodiResponse->json('data', [])) : [];
+
+        if (empty($prodiData) && empty($semesterData) && empty($historyData)) {
+            throw new \RuntimeException('Gagal mengambil data untuk import KHS.');
         }
 
         return [
-            $this->normalizeProdiOptions($prodiResponse->json('data', [])),
-            $this->extractSemesterOptions($tahunAkademikResponse->json('data', [])),
-            $this->normalizeList($historyResponse->json('data', [])),
+            $prodiData,
+            $semesterData,
+            $historyData,
         ];
     }
 

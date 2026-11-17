@@ -33,10 +33,42 @@
         return historicalEligibleStudents.filter((row) => selectedIds.includes(row.id));
     }
 
+    function isRplStudent(row) {
+        return Boolean(row?.is_rpl)
+            || String(row?.nim || '').toUpperCase().endsWith('B')
+            || ['rpl', 'pindahan', 'alih jenjang', 'transfer'].includes(String(row?.jalur_masuk || '').toLowerCase());
+    }
+
+    function updateJalurFilterLabels(rows = historicalEligibleStudents) {
+        let rplCount = 0;
+        let regulerCount = 0;
+        (rows || []).forEach((row) => {
+            if (isRplStudent(row)) {
+                rplCount++;
+            } else {
+                regulerCount++;
+            }
+        });
+        const totalCount = rplCount + regulerCount;
+        $('#studyHistoricalJalurFilter option[value="all"]').text(`Semua Jalur (${totalCount})`);
+        $('#studyHistoricalJalurFilter option[value="reguler"]').text(`Hanya Reguler (${regulerCount})`);
+        $('#studyHistoricalJalurFilter option[value="rpl"]').text(`Hanya RPL (${rplCount})`);
+    }
+
     function getFilteredHistoricalEligibleStudents(rows = historicalEligibleStudents) {
         const keyword = ($('#studyHistoricalEligibleSearch').val() || '').toLowerCase().trim();
+        const jalurFilter = $('#studyHistoricalJalurFilter').val() || 'all';
 
         return (rows || []).filter((row) => {
+            const isRpl = isRplStudent(row);
+
+            if (jalurFilter === 'rpl' && !isRpl) {
+                return false;
+            }
+            if (jalurFilter === 'reguler' && isRpl) {
+                return false;
+            }
+
             if (!keyword) {
                 return true;
             }
@@ -81,6 +113,7 @@
 
         if (!selectedStudents.length) {
             $('#studyHistoricalSelectionSummary').text('Belum ada mahasiswa yang dipilih.');
+            $('#studyApproveKrsLampauBtn').html('<i class="fas fa-check-double me-1"></i> Sahkan Semua KRS Lampau');
             return;
         }
 
@@ -92,6 +125,7 @@
         const summary = `${selectedStudents.length} mahasiswa dipilih (${selectedFilteredCount} pada hasil filter saat ini): ${names}${extra}`;
 
         $('#studyHistoricalSelectionSummary').text(summary);
+        $('#studyApproveKrsLampauBtn').html(`<i class="fas fa-check-double me-1"></i> Sahkan KRS (${selectedStudents.length} Terpilih)`);
     }
 
     function renderHistoricalPackageClasses(rows) {
@@ -153,16 +187,18 @@
         }
 
         const keyword = ($('#studyHistoricalEligibleSearch').val() || '').toLowerCase().trim();
+        const jalurFilter = $('#studyHistoricalJalurFilter').val() || 'all';
         const filteredRows = getFilteredHistoricalEligibleStudents(rows);
         const totalPages = Math.max(1, Math.ceil(filteredRows.length / historicalPageSize));
         historicalEligiblePage = Math.min(Math.max(1, historicalEligiblePage), totalPages);
         const startIndex = (historicalEligiblePage - 1) * historicalPageSize;
         const currentRows = filteredRows.slice(startIndex, startIndex + historicalPageSize);
 
+        const jalurText = jalurFilter === 'rpl' ? ' (Hanya RPL)' : (jalurFilter === 'reguler' ? ' (Hanya Reguler)' : '');
         $('#studyHistoricalEligibleSummary').text(
-            keyword ?
-            `Menampilkan ${filteredRows.length} dari ${rows.length} mahasiswa yang cocok dengan pencarian.` :
-            `Menampilkan ${rows.length} mahasiswa. Gunakan pencarian jika daftarnya panjang.`
+            (keyword || jalurFilter !== 'all') ?
+            `Menampilkan ${filteredRows.length} dari ${rows.length} mahasiswa${jalurText}.` :
+            `Menampilkan ${rows.length} mahasiswa. Gunakan filter jalur atau pencarian jika daftarnya panjang.`
         );
         $('#studyHistoricalEligiblePagerInfo').text(
             `Halaman ${historicalEligiblePage} dari ${totalPages} • Menampilkan ${currentRows.length} mahasiswa`
@@ -180,9 +216,7 @@
                 '<span class="badge bg-warning text-dark">Lewati</span>' :
                 '<span class="badge bg-danger">Perlu Cek</span>';
 
-            const isRpl = Boolean(row.is_rpl)
-                || String(row.nim || '').toUpperCase().endsWith('B')
-                || ['rpl', 'pindahan', 'alih jenjang', 'transfer'].includes(String(row.jalur_masuk || '').toLowerCase());
+            const isRpl = isRplStudent(row);
             const jalurBadge = isRpl
                 ? `<span class="badge bg-warning text-dark ms-1"><i class="fas fa-exchange-alt me-1"></i>RPL (${row.sks_diakui || 0} SKS)</span>`
                 : `<span class="badge bg-info text-white ms-1">Reguler</span>`;
@@ -533,7 +567,7 @@
         const $button = $('#studyHistoricalLoadBtn');
         $button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i> Memuat...');
         resetHistoricalExecuteButtons();
-        $('#studyHistoricalEligibleSearch').prop('disabled', false);
+        $('#studyHistoricalEligibleSearch, #studyHistoricalJalurFilter').prop('disabled', false);
 
         $.get(window.studyConfig.historicalEligibleRoute, {
             id_semester: context.id_semester,
@@ -542,6 +576,7 @@
         }).done(function (response) {
             historicalEligibleStudents = response.data ?? [];
             selectedHistoricalStudentIds = [];
+            updateJalurFilterLabels(historicalEligibleStudents);
             renderHistoricalEligibleStudents(historicalEligibleStudents);
             $('#studyHistoricalBuilderCards').html(
                 '<div class="text-muted">Centang mahasiswa yang ingin diproses, lalu klik <strong>Siapkan Form KRS</strong>.</div>'
@@ -551,6 +586,7 @@
         }).fail(function (xhr) {
             historicalEligibleStudents = [];
             selectedHistoricalStudentIds = [];
+            updateJalurFilterLabels([]);
             renderHistoricalEligibleStudents([]);
             showStudyAlert(xhr.responseJSON?.message ?? 'Data mahasiswa semester lampau gagal dimuat.', 'danger');
         }).always(function () {
@@ -751,6 +787,10 @@
         filterHistoricalEligibleStudents();
     });
 
+    $('#studyHistoricalJalurFilter').on('change', function () {
+        filterHistoricalEligibleStudents();
+    });
+
     $('#studyHistoricalEligiblePrevPage').on('click', function () {
         if (historicalEligiblePage > 1) {
             historicalEligiblePage -= 1;
@@ -842,6 +882,101 @@
     $('#studyHistoricalPreviewBuildBtn').on('click', submitHistoricalPreview);
     $('#studyHistoricalExecuteBuildBtn').on('click', submitHistoricalExecute);
 
+    // Handler Sahkan KRS Lampau (Mendukung mahasiswa terpilih ATAU semua mahasiswa)
+    $('#studyApproveKrsLampauBtn').on('click', function () {
+        const semesterId = $('#studySemesterId').val();
+        const semesterText = $('#studySemesterId option:selected').text() || 'Semester Terpilih';
+
+        if (!semesterId) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Pilih Semester',
+                text: 'Silakan pilih semester lampau pada dropdown filter terlebih dahulu.',
+            });
+            return;
+        }
+
+        const prodiId = $('#studyProdiId').val();
+        const angkatan = $('#studyAngkatan').val();
+        const selectedIds = getSelectedHistoricalStudentIds();
+        const isSelectedOnly = selectedIds.length > 0;
+
+        let detailFilterText = `Semester: <strong>${escapeHtml(semesterText)}</strong>`;
+        if (prodiId) {
+            detailFilterText += `<br>Prodi: ${escapeHtml($('#studyProdiId option:selected').text())}`;
+        }
+        if (angkatan) {
+            detailFilterText += `<br>Angkatan: ${escapeHtml(angkatan)}`;
+        }
+
+        let confirmTitle = '';
+        let confirmHtml = '';
+
+        if (isSelectedOnly) {
+            confirmTitle = `Sahkan KRS (${selectedIds.length} Mahasiswa Terpilih)?`;
+            confirmHtml = `Sistem akan mengesahkan & mengunci KRS khusus untuk <strong>${selectedIds.length} mahasiswa yang Anda centang</strong>.<br><br><div class="p-2 rounded bg-light border text-muted small text-start">${detailFilterText}</div>`;
+        } else {
+            confirmTitle = 'Sahkan Semua KRS Lampau?';
+            confirmHtml = `Anda tidak mencentang mahasiswa tertentu, sehingga sistem akan mengesahkan & mengunci <strong>SEMUA</strong> KRS mahasiswa yang belum approved pada semester ini.<br><br><div class="p-2 rounded bg-light border text-muted small text-start">${detailFilterText}</div>`;
+        }
+
+        Swal.fire({
+            title: confirmTitle,
+            html: confirmHtml,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: '<i class="fas fa-check-double me-1"></i> Ya, Sahkan Sekarang',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#198754',
+            cancelButtonColor: '#6c757d',
+        }).then((result) => {
+            if (!result.isConfirmed) return;
+
+            showStudyLoading('Sedang mengesahkan KRS semester lampau...');
+
+            const postData = {
+                _token: window.studyConfig?.csrfToken,
+                id_semester: semesterId,
+                id_prodi: prodiId || null,
+                angkatan: angkatan || null,
+            };
+
+            if (isSelectedOnly) {
+                postData.id_mahasiswa = selectedIds;
+            }
+
+            $.ajax({
+                url: window.studyConfig?.approveKrsLampauRoute || '/akademik/administrasi-studi/approve-krs-lampau',
+                type: 'POST',
+                data: postData,
+                dataType: 'json',
+                success: function (res) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Pengesahan Berhasil',
+                        text: res.message || 'KRS semester lampau berhasil disahkan & dikunci.',
+                    }).then(() => {
+                        // Refresh summary kartu dan reload data jika ada
+                        if (typeof common?.reloadStudySummary === 'function') {
+                            common.reloadStudySummary();
+                        }
+                        if ($('#studyHistoricalLoadBtn').length) {
+                            $('#studyHistoricalLoadBtn').trigger('click');
+                        }
+                    });
+                },
+                error: function (xhr) {
+                    const errorMsg = xhr.responseJSON?.message || 'Terjadi kesalahan saat mengesahkan KRS.';
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Pengesahan Gagal',
+                        text: errorMsg,
+                    });
+                }
+            });
+        });
+    });
+
     // Sinkronkan helper awal.
     $('#studyHistoricalBuildModeHelper').text(
         'Mode ini akan membuat KRS dan detail KRS tanpa harus mengisi nilai akhir atau catatan setiap mata kuliah.');
@@ -858,7 +993,8 @@
         $('#studyHistoricalEligibleSummary').text('Belum ada mahasiswa yang dimuat.');
         $('#studyHistoricalEligiblePagerInfo').text('Belum ada halaman untuk ditampilkan.');
         $('#studyHistoricalEligibleSearch').val('');
-        $('#studyHistoricalEligibleSearch').prop('disabled', false);
+        $('#studyHistoricalJalurFilter').val('all');
+        updateJalurFilterLabels([]);
         $('#studyHistoricalEligibleTableBody').html(
             '<tr><td colspan="5" class="text-center text-muted py-4">Filter berubah. Muat ulang data historis.</td></tr>'
         );

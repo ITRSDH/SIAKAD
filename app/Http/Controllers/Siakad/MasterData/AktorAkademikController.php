@@ -22,17 +22,20 @@ class AktorAkademikController extends Controller
         try {
             $dosenResponse = Http::withToken($this->apiToken)->get($this->apiUrl.'dosen');
             $prodiResponse = Http::withToken($this->apiToken)->get($this->apiUrl.'prodi');
+            if (! $prodiResponse->successful()) {
+                $prodiResponse = Http::withToken($this->apiToken)->get($this->apiUrl.'landing/prodi');
+            }
             $pembimbingResponse = Http::withToken($this->apiToken)->get($this->apiUrl.'dosen-wali');
             $usersResponse = Http::withToken($this->apiToken)->get($this->apiUrl.'users');
 
-            if (! $dosenResponse->successful() || ! $prodiResponse->successful() || ! $pembimbingResponse->successful() || ! $usersResponse->successful()) {
+            if (! $dosenResponse->successful() && ! $prodiResponse->successful() && ! $pembimbingResponse->successful() && ! $usersResponse->successful()) {
                 return back()->with('error', 'Gagal mengambil data aktor akademik dari API.');
             }
 
-            $dosen = $dosenResponse->json('data.dosen', []);
-            $prodi = $prodiResponse->json('data.prodi', []);
-            $pembimbingAkademik = $pembimbingResponse->json('data', []);
-            $users = $usersResponse->json('data.users', []);
+            $dosen = $dosenResponse->successful() ? $dosenResponse->json('data.dosen', []) : [];
+            $prodi = $prodiResponse->successful() ? ($prodiResponse->json('data.prodi') ?? $prodiResponse->json('data') ?? []) : [];
+            $pembimbingAkademik = $pembimbingResponse->successful() ? $pembimbingResponse->json('data', []) : [];
+            $users = $usersResponse->successful() ? $usersResponse->json('data.users', []) : [];
 
             $baakUsers = array_values(array_filter($users, function ($user) {
                 $roles = $user['roles'] ?? $user['role'] ?? [];
@@ -115,11 +118,14 @@ class AktorAkademikController extends Controller
         try {
             $response = Http::withToken($this->apiToken)->get($this->apiUrl.'prodi');
             if (! $response->successful()) {
+                $response = Http::withToken($this->apiToken)->get($this->apiUrl.'landing/prodi');
+            }
+            if (! $response->successful()) {
                 return back()->with('error', 'Gagal mengambil data kaprodi dari API.');
             }
 
             $apiData = $response->json('data', []);
-            $prodi = $apiData['prodi'] ?? [];
+            $prodi = $apiData['prodi'] ?? (isset($apiData[0]) ? $apiData : []);
             $dosenList = $apiData['dosen_list'] ?? [];
 
             return view('masterdata.prodi.index', [

@@ -26,18 +26,18 @@ class MonitoringAkademikController extends Controller
             $transkripResponse = $this->apiRequest('transkrip');
 
             if (
-                ! $periodeKrsResponse->successful() ||
-                ! $kelasKuliahResponse->successful() ||
-                ! $khsResponse->successful() ||
+                ! $periodeKrsResponse->successful() &&
+                ! $kelasKuliahResponse->successful() &&
+                ! $khsResponse->successful() &&
                 ! $transkripResponse->successful()
             ) {
                 return back()->with('error', 'Gagal mengambil data monitoring akademik dari API.');
             }
 
-            $periodeKrs = collect($periodeKrsResponse->json()['data'] ?? []);
-            $kelasKuliah = collect($kelasKuliahResponse->json()['data'] ?? []);
-            $khs = collect($khsResponse->json()['data'] ?? []);
-            $transkrip = collect($transkripResponse->json()['data'] ?? []);
+            $periodeKrs = collect($periodeKrsResponse->successful() ? ($periodeKrsResponse->json()['data'] ?? []) : []);
+            $kelasKuliah = collect($kelasKuliahResponse->successful() ? ($kelasKuliahResponse->json()['data'] ?? []) : []);
+            $khs = collect($khsResponse->successful() ? ($khsResponse->json()['data'] ?? []) : []);
+            $transkrip = collect($transkripResponse->successful() ? ($transkripResponse->json()['data'] ?? []) : []);
 
             $filters = [
                 'semester_id' => (string) $request->query('semester_id', ''),

@@ -32,15 +32,21 @@ class BaakWorkspaceController extends Controller
                 'wisuda' => Http::withToken($this->apiToken)->get($this->apiUrl.'wisuda/periode'),
             ];
 
+            $hasAnySuccess = false;
             foreach ($responses as $response) {
-                if (! $response->successful()) {
-                    return back()->with('error', 'Gagal mengambil data workspace BAAK dari API.');
+                if ($response->successful()) {
+                    $hasAnySuccess = true;
+                    break;
                 }
             }
 
-            $tahunAkademikItems = $this->normalizeList($responses['tahunAkademik']->json('data', []));
+            if (! $hasAnySuccess) {
+                return back()->with('error', 'Gagal mengambil data workspace BAAK dari API.');
+            }
+
+            $tahunAkademikItems = $responses['tahunAkademik']->successful() ? $this->normalizeList($responses['tahunAkademik']->json('data', [])) : [];
             $semesterAktif = $this->findActiveSemester($tahunAkademikItems);
-            $periodeItems = $this->normalizeList($responses['periodeKrs']->json('data', []));
+            $periodeItems = $responses['periodeKrs']->successful() ? $this->normalizeList($responses['periodeKrs']->json('data', [])) : [];
             $periodeAktif = collect($periodeItems)->first(function ($item) {
                 $status = strtolower((string) ($item['status'] ?? $item['status_periode'] ?? ''));
 
@@ -49,13 +55,13 @@ class BaakWorkspaceController extends Controller
                     || $status === 'dibuka';
             });
 
-            $kelasItems = $this->normalizeList($responses['kelasKuliah']->json('data', []));
-            $khsItems = $this->normalizeList($responses['khs']->json('data', []));
-            $khsImportHistoryItems = $this->normalizeList($responses['khsImportHistory']->json('data', []));
-            $transkripItems = $this->normalizeList($responses['transkrip']->json('data', []));
-            $yudisiumItems = $this->normalizeList($responses['yudisium']->json('data', []));
-            $kelulusanItems = $this->normalizeList($responses['kelulusan']->json('data', []));
-            $wisudaItems = $this->normalizeList($responses['wisuda']->json('data', []));
+            $kelasItems = $responses['kelasKuliah']->successful() ? $this->normalizeList($responses['kelasKuliah']->json('data', [])) : [];
+            $khsItems = $responses['khs']->successful() ? $this->normalizeList($responses['khs']->json('data', [])) : [];
+            $khsImportHistoryItems = $responses['khsImportHistory']->successful() ? $this->normalizeList($responses['khsImportHistory']->json('data', [])) : [];
+            $transkripItems = $responses['transkrip']->successful() ? $this->normalizeList($responses['transkrip']->json('data', [])) : [];
+            $yudisiumItems = $responses['yudisium']->successful() ? $this->normalizeList($responses['yudisium']->json('data', [])) : [];
+            $kelulusanItems = $responses['kelulusan']->successful() ? $this->normalizeList($responses['kelulusan']->json('data', [])) : [];
+            $wisudaItems = $responses['wisuda']->successful() ? $this->normalizeList($responses['wisuda']->json('data', [])) : [];
             $semesterAktifLabel = $this->resolveSemesterLabel($semesterAktif);
             $periodeAktifLabel = $this->resolvePeriodeLabel($periodeAktif);
 

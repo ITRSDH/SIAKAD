@@ -20,8 +20,13 @@ class KaprodiWorkspaceController extends Controller
     public function index()
     {
         try {
+            $prodiResponse = Http::withToken($this->apiToken)->get($this->apiUrl.'prodi');
+            if (! $prodiResponse->successful()) {
+                $prodiResponse = Http::withToken($this->apiToken)->get($this->apiUrl.'landing/prodi');
+            }
+
             $responses = [
-                'prodi' => Http::withToken($this->apiToken)->get($this->apiUrl.'prodi'),
+                'prodi' => $prodiResponse,
                 'mahasiswa' => Http::withToken($this->apiToken)->get($this->apiUrl.'mahasiswa'),
                 'kurikulum' => Http::withToken($this->apiToken)->get($this->apiUrl.'kurikulum'),
                 'kelasKuliah' => Http::withToken($this->apiToken)->get($this->apiUrl.'kelas-kuliah'),
@@ -30,24 +35,32 @@ class KaprodiWorkspaceController extends Controller
                 'kelulusan' => Http::withToken($this->apiToken)->get($this->apiUrl.'kelulusan'),
             ];
 
+            $hasAnySuccess = false;
             foreach ($responses as $response) {
-                if (! $response->successful()) {
-                    return back()->with('error', 'Gagal mengambil data workspace Kaprodi dari API.');
+                if ($response->successful()) {
+                    $hasAnySuccess = true;
+                    break;
                 }
             }
 
+            if (! $hasAnySuccess) {
+                return back()->with('error', 'Gagal mengambil data workspace Kaprodi dari API.');
+            }
+
             $profile = session('profile', []);
-            $prodiItems = $responses['prodi']->json('data.prodi', []);
-            $mahasiswaItems = $responses['mahasiswa']->json('data.mahasiswa', []);
+            $prodiItems = $responses['prodi']->successful()
+                ? ($responses['prodi']->json('data.prodi') ?? $responses['prodi']->json('data') ?? [])
+                : [];
+            $mahasiswaItems = $responses['mahasiswa']->successful() ? $responses['mahasiswa']->json('data.mahasiswa', []) : [];
             $managedProdi = $this->resolveManagedProdi($prodiItems, $profile);
             $managedProdiIds = array_values(array_filter(array_map(fn ($item) => $item['id'] ?? null, $managedProdi)));
             $mahasiswaProdiMap = $this->buildMahasiswaProdiMap($mahasiswaItems);
 
-            $kurikulumItems = $this->extractItems($responses['kurikulum']->json('data', []), ['kurikulum']);
-            $kelasItems = $this->extractItems($responses['kelasKuliah']->json('data', []), ['kelas_kuliah']);
-            $tugasAkhirItems = $this->extractItems($responses['tugasAkhir']->json('data', []), ['tugas_akhir']);
-            $yudisiumItems = $this->extractItems($responses['yudisium']->json('data', []), ['yudisium']);
-            $kelulusanItems = $this->extractItems($responses['kelulusan']->json('data', []), ['kelulusan']);
+            $kurikulumItems = $responses['kurikulum']->successful() ? $this->extractItems($responses['kurikulum']->json('data', []), ['kurikulum']) : [];
+            $kelasItems = $responses['kelasKuliah']->successful() ? $this->extractItems($responses['kelasKuliah']->json('data', []), ['kelas_kuliah']) : [];
+            $tugasAkhirItems = $responses['tugasAkhir']->successful() ? $this->extractItems($responses['tugasAkhir']->json('data', []), ['tugas_akhir']) : [];
+            $yudisiumItems = $responses['yudisium']->successful() ? $this->extractItems($responses['yudisium']->json('data', []), ['yudisium']) : [];
+            $kelulusanItems = $responses['kelulusan']->successful() ? $this->extractItems($responses['kelulusan']->json('data', []), ['kelulusan']) : [];
 
             $filteredKurikulum = $this->filterByProdi($kurikulumItems, $managedProdiIds, ['id_prodi', 'prodi.id']);
             $filteredKelas = $this->filterByProdi($kelasItems, $managedProdiIds, ['id_prodi', 'prodi.id']);

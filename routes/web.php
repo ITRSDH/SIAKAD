@@ -15,9 +15,10 @@ use App\Http\Controllers\Siakad\Administratif\PembimbingAkademikWorkspaceControl
 // use App\Http\Controllers\Website\ProfileKampusController;
 use App\Http\Controllers\Siakad\Administratif\WisudaController;
 // use App\Http\Controllers\Website\LandingContentController;
+use App\Http\Controllers\Siakad\Akademik\ImportAioController;
 use App\Http\Controllers\Siakad\Akademik\KhsController as AkademikKhsController;
-use App\Http\Controllers\Siakad\Akademik\KhsImportController as AkademikKhsImportController;
 // Route Siakad
+use App\Http\Controllers\Siakad\Akademik\KhsImportController as AkademikKhsImportController;
 use App\Http\Controllers\Siakad\Akademik\MonitoringAkademikController;
 use App\Http\Controllers\Siakad\Akademik\StudentStudyAdministrationController;
 use App\Http\Controllers\Siakad\AkhirStudi\KelulusanController;
@@ -140,11 +141,13 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
         Route::get('/historical/repeat-candidates', [StudentStudyAdministrationController::class, 'historicalRepeatCandidates'])->name('historical.repeat-candidates');
         Route::post('/historical/preview', [StudentStudyAdministrationController::class, 'previewHistorical'])->name('historical.preview');
         Route::post('/historical/execute', [StudentStudyAdministrationController::class, 'executeHistorical'])->name('historical.execute');
+        Route::post('/approve-krs-lampau', [StudentStudyAdministrationController::class, 'approveKrsLampau'])->name('approve-krs-lampau');
         Route::get('/ready-khs', [StudentStudyAdministrationController::class, 'readyForKhs'])->name('ready-khs');
         Route::post('/nilai-manual/save', [StudentStudyAdministrationController::class, 'saveManualNilai'])->name('nilai-manual.save');
         Route::get('/nilai-manual/context', [StudentStudyAdministrationController::class, 'manualNilaiContext'])->name('nilai-manual.context');
         Route::get('/generate-khs/preview', [StudentStudyAdministrationController::class, 'previewGenerateKhs'])->name('generate-khs.preview');
         Route::post('/generate-khs/execute', [StudentStudyAdministrationController::class, 'executeGenerateKhs'])->name('generate-khs.execute');
+        Route::get('/import/template/subjects', [StudentStudyAdministrationController::class, 'templateSubjects'])->name('import.template-subjects');
         Route::get('/import/template/export', [StudentStudyAdministrationController::class, 'exportImportTemplate'])->name('import.template-export');
         Route::post('/import/upload', [StudentStudyAdministrationController::class, 'uploadImport'])->name('import.upload');
         Route::get('/import/{batch}/preview', [StudentStudyAdministrationController::class, 'previewImportBatch'])->name('import.preview');
@@ -155,6 +158,14 @@ Route::middleware(['require.token', 'refresh.token'])->group(function () {
         Route::get('/import/{batch}/export-results', [StudentStudyAdministrationController::class, 'exportImportResults'])->name('import.export-results');
         Route::get('/batches', [StudentStudyAdministrationController::class, 'batchHistory'])->name('batches');
         Route::get('/batches/{source}/{id}', [StudentStudyAdministrationController::class, 'showBatch'])->name('batches.show');
+    });
+
+    Route::prefix('akademik/import-aio')->name('akademik.import-aio.')->group(function () {
+        Route::get('/', [ImportAioController::class, 'index'])->name('index');
+        Route::get('/template', [ImportAioController::class, 'template'])->name('template');
+        Route::get('/template-subjects', [ImportAioController::class, 'templateSubjects'])->name('template-subjects');
+        Route::get('/template-filtered', [ImportAioController::class, 'templateFiltered'])->name('template-filtered');
+        Route::post('/process', [ImportAioController::class, 'process'])->name('process');
     });
 
     Route::get('/users', [UserController::class, 'index'])->name('users.index');

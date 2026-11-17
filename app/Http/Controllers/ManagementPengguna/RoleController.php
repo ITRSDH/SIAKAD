@@ -54,13 +54,27 @@ class RoleController extends Controller
                         ];
                     }
 
+                    if (($parts[0] ?? null) === 'administratif') {
+                        return [
+                            'section' => 'Administratif',
+                            'keys' => array_map($labelize, array_slice($parts, 1)),
+                        ];
+                    }
+
+                    if (($parts[0] ?? null) === 'akademik') {
+                        return [
+                            'section' => 'Transaksi Akademik',
+                            'keys' => array_map($labelize, array_slice($parts, 1)),
+                        ];
+                    }
+
                     if (($parts[0] ?? null) === 'siakad') {
                         $module = $parts[1] ?? null;
 
                         if ($module === 'master' && ($parts[2] ?? null) === 'refrensi') {
                             $entity = $parts[3] ?? null;
                             $masterAkademik = ['prodi', 'tahun-akademik', 'semester', 'kurikulum', 'mata-kuliah', 'ruang-kuliah', 'periode-krs'];
-                            $capaianPembelajaran = ['profile-lulusan', 'cpl', 'indikator-kinerja', 'pemetaan-plcpl', 'pemetaan-cplmk'];
+                            $capaianPembelajaran = ['profile-lulusan', 'cpl', 'indikator-kinerja', 'pemetaan-plcpl', 'pemetaan-cplmk', 'pemetaan-pl-cpl', 'pemetaan-cpl-mk'];
                             $operasionalAkademik = ['dosen', 'dosen-wali', 'dosen-pengajar-kelas', 'jadwal-kuliah', 'kelas-kuliah', 'mahasiswa', 'mahasiswa-baru'];
 
                             if (in_array($entity, $masterAkademik, true)) {
@@ -101,7 +115,7 @@ class RoleController extends Controller
 
                         if ($module === 'akademik') {
                             $entity = $parts[2] ?? null;
-                            $transaksiAkademik = ['pertemuan-kuliah', 'presensi-kuliah', 'khs', 'transkrip', 'remedial', 'academic-policies'];
+                            $transaksiAkademik = ['nilai-transfer', 'pertemuan-kuliah', 'presensi-kuliah', 'khs', 'transkrip', 'remedial', 'academic-policies'];
                             $akhirStudi = ['tugas-akhir', 'yudisium', 'kelulusan'];
                             $administratif = ['wisuda'];
 

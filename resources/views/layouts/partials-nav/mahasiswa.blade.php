@@ -5,7 +5,12 @@
     <h4 class="text-section">Akademik Saya</h4>
 </li>
 
-@if (session('profile_type') === 'mahasiswa')
+@php
+    $roles = (array) ($user['role'] ?? $user['roles'] ?? session('user.role', []));
+    $isMahasiswa = in_array('mahasiswa', $roles, true) || (session('profile_type') === 'mahasiswa');
+@endphp
+
+@if ($isMahasiswa)
     <li class="nav-item {{ request()->routeIs('student.pembayaran.index') ? 'active' : '' }}">
         <a href="{{ route('student.pembayaran.index') }}" class="collapsed" aria-expanded="false">
             <i class="fas fa-home"></i>

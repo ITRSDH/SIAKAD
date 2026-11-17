@@ -127,8 +127,9 @@
                                     <input type="hidden" name="id_prodi" id="studyImportTemplateProdi">
                                     <input type="hidden" name="id_semester" id="studyImportTemplateSemester">
                                     <input type="hidden" name="semester_ke" id="studyImportTemplateSemesterKe">
+                                    <input type="hidden" name="subject_order" id="studyImportTemplateSubjectOrder">
                                     <div class="d-flex flex-wrap gap-2">
-                                        <button type="submit" class="btn btn-success" id="studyExportTemplateBtn">
+                                        <button type="button" class="btn btn-success" id="studyExportTemplateBtn">
                                             <i class="fas fa-file-export me-1"></i> Unduh Template
                                         </button>
                                     </div>
@@ -260,6 +261,67 @@
             </div>
         </div>
     </div>
+
+    {{-- Modal Atur Urutan Mata Kuliah Template --}}
+    <div class="modal fade" id="modalOrderMataKuliah" tabindex="-1" aria-labelledby="modalOrderMataKuliahLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+            <div class="modal-content shadow-lg border-0">
+                <div class="modal-header bg-light border-bottom">
+                    <div>
+                        <h5 class="modal-title fw-bold" id="modalOrderMataKuliahLabel">
+                            <i class="fas fa-sort-amount-down text-primary me-2"></i>Atur Urutan Kolom Mata Kuliah
+                        </h5>
+                        <div class="small text-muted mt-1">
+                            Sesuaikan susunan mata kuliah agar urutan kolom di Excel persis sama dengan format nilai dosen Anda.
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="alert alert-info py-2 px-3 mb-3 d-flex align-items-center gap-2 small">
+                        <i class="fas fa-info-circle fa-lg text-info flex-shrink-0"></i>
+                        <div>
+                            Gunakan tombol <strong><i class="fas fa-arrow-up"></i> Naik</strong> / <strong><i class="fas fa-arrow-down"></i> Turun</strong> untuk memindahkan urutan mata kuliah sebelum mengunduh template.
+                        </div>
+                    </div>
+
+                    <div id="subjectOrderLoading" class="text-center py-5">
+                        <div class="spinner-border text-primary mb-2" role="status"></div>
+                        <div class="text-muted small">Memuat daftar mata kuliah semester...</div>
+                    </div>
+
+                    <div id="subjectOrderEmpty" class="text-center py-4 d-none">
+                        <i class="fas fa-exclamation-triangle fa-2x text-warning mb-2"></i>
+                        <div class="text-muted">Tidak ditemukan data mata kuliah untuk filter yang dipilih. Template akan diunduh dengan kolom default.</div>
+                    </div>
+
+                    <div id="subjectOrderContainer" class="d-none">
+                        <div class="d-flex justify-content-between align-items-center mb-2 px-1">
+                            <span class="small fw-semibold text-secondary">
+                                Susunan Kolom Template (<span id="subjectOrderCount">0</span> Mata Kuliah):
+                            </span>
+                            <button type="button" class="btn btn-sm btn-link text-decoration-none py-0 text-muted" id="btnResetSubjectOrder">
+                                <i class="fas fa-undo me-1"></i>Reset Urutan
+                            </button>
+                        </div>
+                        <div class="border rounded-3 shadow-sm" style="max-height: 420px; overflow-y: auto !important; overflow-x: hidden;">
+                            <ul class="list-group list-group-flush mb-0" id="subjectOrderList">
+                                {{-- Diisi secara dinamis via JavaScript --}}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-top justify-content-between">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        Batal
+                    </button>
+                    <button type="button" class="btn btn-success fw-semibold px-4" id="btnConfirmDownloadTemplate">
+                        <i class="fas fa-file-excel me-1"></i> Unduh Template Excel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('scripts-custom')
@@ -269,6 +331,7 @@
             csrfToken: '{{ csrf_token() }}',
             summaryRoute: '{{ route('akademik.administrasi-studi.summary') }}',
             historicalPackageClassesRoute: '{{ route('akademik.administrasi-studi.historical.package-classes') }}',
+            templateSubjectsRoute: '{{ route('akademik.administrasi-studi.import.template-subjects') }}',
             manualNilaiSaveRoute: '{{ route('akademik.administrasi-studi.nilai-manual.save') }}',
             manualNilaiContextRoute: '{{ route('akademik.administrasi-studi.nilai-manual.context') }}',
             khsUrl: '{{ url('akademik/khs') }}',
